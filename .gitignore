@@ -1,0 +1,154 @@
+# 🎮 GloseMester v0.1-ALPHA
+
+**Lær gloser og samle kort!**
+
+Norsk språklæringsapp som gamifiserer glosepugging ved å la elever samle digitale kort.
+
+## 📦 Funksjoner
+
+- 🎯 Øvingsmodus (1-7 trinn, 235+ ordpar)
+- 📝 Prøver fra lærer (med QR-koder)
+- 🎴 152 samlekort i 4 kategorier:
+  - 🚗 Biler
+  - 🏛️ Guder (Norse/Greek)
+  - 🦖 Dinosaurer
+  - 🾾 Søte Dyr
+- 💎 Byttepoeng-system (100 riktige = 10 poeng)
+- 📱 PWA (Progressive Web App)
+- 📤 Eksporter/Importer samling via QR
+
+## 🚀 Kom i gang
+```bash
+# Klon repo
+git clone https://github.com/DITTBRUKERNAVN/glosemester-v0.1-alpha.git
+
+# Åpne mappen
+cd glosemester-v0.1-alpha
+
+# Start lokal server
+python -m http.server 8000
+
+# Åpne i nettleser
+http://localhost:8000
+```
+
+## 📁 Struktur
+```
+glosemester-v0.1-alpha/
+├── index.html
+├── manifest.json
+├── sw.js
+├── css/
+│   ├── main.css
+│   ├── kort.css
+│   └── popups.css
+├── js/
+│   ├── vocabulary.js
+│   ├── collection.js
+│   ├── export-import.js
+│   ├── init.js
+│   ├── core/
+│   │   ├── navigation.js
+│   │   ├── credits.js
+│   │   ├── storage.js
+│   │   └── analytics.js
+│   ├── features/
+│   │   ├── quiz.js
+│   │   ├── practice.js
+│   │   ├── teacher.js
+│   │   ├── qr-scanner.js
+│   │   └── kort-display.js
+│   └── ui/
+│       └── helpers.js
+└── prompts/
+```
+
+## 🎨 Roadmap
+
+- [x] Modularisert arkitektur
+- [x] 4 kort-kategorier
+- [x] Midjourney prompts (152 stk)
+- [ ] Generere alle bilder
+- [ ] Beta-testing
+- [ ] Lansering v1.0
+
+## 🛠️ Teknologi
+
+- HTML5, CSS3, JavaScript (Vanilla)
+- Progressive Web App (PWA)
+- QR-kode scanning
+- Google Analytics
+- localStorage
+
+## 👨‍💻 Utvikler
+
+**Øyvind Nilsen Oksvold**
+- Nettside: glosemester.no
+
+## 📜 Lisens
+
+MIT License
+
+## 🙏 Takk til
+
+- Elever og lærere i Steinkjer kommune for testing
+- Claude (Anthropic) for utviklingshjelp
+```
+
+3. **Lim inn i Notepad**
+4. **File** → **Save As**
+5. **Viktig - sett disse innstillingene:**
+   - **File name:** `README.md`
+   - **Save as type:** `All Files (*.*)`
+   - **Encoding:** `UTF-8`
+   - **Lagre i:** `C:\Users\Oyvin\Documents\GitHub\GloseMester-V0.1-Alpha\`
+6. Klikk **Save**
+
+---
+
+### **DEL B: Lag .gitignore**
+
+1. **Åpne Notepad igjen** (ny fil)
+2. **Kopier hele teksten under:**
+```
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build
+dist/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
