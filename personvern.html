@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personvernerklæring - GloseMester</title>
+    
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-color: #1d1d1f;
+            --accent-blue: #0071e3;
+            --shadow: 0 10px 20px rgba(0,0,0,0.05);
+            --radius: 18px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--accent-blue);
+            font-size: 32px;
+            margin-top: 0;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            letter-spacing: -0.3px;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        ul, ol {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .warning-box {
+            background: #fff8e1;
+            border-left: 4px solid #fbc02d;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f5f5f7;
+            font-weight: 600;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 30px;
+            transition: transform 0.2s;
+        }
+
+        .btn-back:hover {
+            transform: scale(1.05);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 14px;
+        }
+
+        strong {
+            color: var(--text-color);
+        }
+
+        code {
+            background: #f5f5f7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Personvernerklæring</h1>
+        <p><strong>GloseMester v3.0-COMMERCIAL</strong></p>
+        <p><em>Sist oppdatert: 12. desember 2024</em></p>
+
+        <div class="highlight-box">
+            <h3>📌 Kort oppsummert:</h3>
+            <ul>
+                <li>✅ <strong>100% anonymt for elever</strong> - vi vet ikke hvem som bruker appen</li>
+                <li>✅ <strong>Ingen personopplysninger lagres</strong> på servere (for elever)</li>
+                <li>✅ <strong>Lokal lagring</strong> - alt lagres kun på elevens enhet</li>
+                <li>✅ <strong>Anonymisert statistikk</strong> via Google Analytics</li>
+                <li>✅ <strong>GDPR-compliant</strong> - full etterlevelse av personvernforordningen</li>
+                <li>💳 <strong>Lærere/skoler:</strong> Kun e-post og betalingsinfo lagres (kryptert)</li>
+            </ul>
+        </div>
+
+        <!-- SEKSJON 1: BEHANDLINGSANSVARLIG -->
+        <h2>1. Behandlingsansvarlig</h2>
+        <p><strong>Øyvind Nilsen Oksvold</strong> er behandlingsansvarlig for personopplysninger som behandles i forbindelse med GloseMester.</p>
+        
+        <table>
+            <tr>
+                <th>Navn</th>
+                <td>Øyvind Nilsen Oksvold</td>
+            </tr>
+            <tr>
+                <th>Organisasjonsform</th>
+                <td>Enkeltpersonforetak (under opprettelse)</td>
+            </tr>
+            <tr>
+                <th>Org.nr</th>
+                <td>[Legges til ved ENK-opprettelse]</td>
+            </tr>
+            <tr>
+                <th>E-post</th>
+                <td><a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></td>
+            </tr>
+            <tr>
+                <th>Rolle</th>
+                <td>Utvikler, driftsansvarlig og behandlingsansvarlig</td>
+            </tr>
+        </table>
+
+        <div class="warning-box">
+            <p><strong>Merk:</strong> GloseMester drives av Øyvind Nilsen Oksvold som privatperson/ENK. Dette er et kommersielt verktøy som tilbys til skoler i Norge.</p>
+        </div>
+
+        <!-- SEKSJON 2: HVA ER GLOSEMESTER -->
+        <h2>2. Hva er GloseMester?</h2>
+        <p>GloseMester er et digitalt læringsverktøy utviklet for å gjøre glosepugging engasjerende og gøy.</p>
+
+        <h3>Funksjonalitet:</h3>
+        <ul>
+            <li>Elever øver på gloser og samler digitale Pokémon-kort</li>
+            <li>Lærere kan lage egne prøver og dele koder (krever betaling)</li>
+            <li>Alt elevdata lagres lokalt på brukerens enhet (ingen sentral database)</li>
+        </ul>
+
+        <h3>Forretningsmodell:</h3>
+        <ul>
+            <li><strong>Gratis for elever:</strong> Øving og prøver er alltid gratis</li>
+            <li><strong>Betaling for lærere:</strong> Kun hvis du vil lage egne prøver (49-300 kr/mnd)</li>
+            <li><strong>Se <a href="vilkar.html">vilkår</a> for fullstendige priser</strong></li>
+        </ul>
+
+        <!-- SEKSJON 2.1: BETALENDE KUNDER -->
+        <h2>2.1 Behandlingsansvarlig for betalende kunder</h2>
+        <div class="warning-box">
+            <p><strong>For lærere/skoler som betaler:</strong></p>
+            <p>Ved kjøp av lisens lagres følgende informasjon (kryptert):</p>
+            <ul>
+                <li><strong>E-postadresse:</strong> For faktura og kommunikasjon</li>
+                <li><strong>Betalingsinformasjon:</strong> Via Stripe/Vipps (vi lagrer IKKE kortnummer)</li>
+                <li><strong>Skolekode:</strong> Unik identifikator for tilgangskontroll</li>
+                <li><strong>Kjøpshistorikk:</strong> For regnskapsformål (lovpålagt)</li>
+                <li><strong>Navn og org.nr:</strong> For skoler/kommuner (fakturering)</li>
+            </ul>
+            <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
+            <p><strong>Lagring:</strong> Firebase Firestore (Google Cloud, EU-region)</p>
+            <p><strong>Kryptering:</strong> AES-256 kryptering i transit og hvile</p>
+        </div>
+
+        <h3>Databehandleravtale for skoler</h3>
+        <p>Skoler og kommuner inngår en <strong>databehandleravtale (DPA)</strong> med GloseMester ved kjøp.</p>
+        <ul>
+            <li>Skolen er <strong>behandlingsansvarlig</strong> for sine elevers data</li>
+            <li>GloseMester er <strong>databehandler</strong> (kun lagrer anonymisert statistikk)</li>
+            <li>DPA sikrer GDPR-compliance</li>
+        </ul>
+
+        <!-- SEKSJON 3: PERSONOPPLYSNINGER -->
+        <h2>3. Hvilke personopplysninger behandles?</h2>
+
+        <div class="success-box">
+            <h3>✅ FOR ELEVER: INGEN PERSONOPPLYSNINGER</h3>
+            <p>GloseMester krever <strong>ingen registrering</strong> for elever. Appen er <strong>100% anonym</strong>.</p>
+        </div>
+
+        <h3>3.1 Data som lagres lokalt (kun på elevens enhet):</h3>
+        <table>
+            <tr>
+                <th>Data</th>
+                <th>Formål</th>
+                <th>Lagringssted</th>
+            </tr>
+            <tr>
+                <td>Samling av Pokémon-kort</td>
+                <td>Motivasjon og belønning</td>
+                <td>localStorage (nettleser)</td>
+            </tr>
+            <tr>
+                <td>Byttepoeng (kreditter)</td>
+                <td>Spillmekanikk</td>
+                <td>localStorage (nettleser)</td>
+            </tr>
+            <tr>
+                <td>Lagrede prøver (14 dager)</td>
+                <td>Gjenta prøver uten ny kode</td>
+                <td>localStorage (nettleser)</td>
+            </tr>
+        </table>
+
+        <p><strong>Viktig:</strong> Denne dataen lagres <strong>kun lokalt</strong> på brukerens enhet. Vi har <strong>ingen tilgang</strong> til denne informasjonen.</p>
+
+        <h3>3.2 Data som samles via Google Analytics:</h3>
+        <p>For å forbedre tjenesten samler vi inn <strong>anonymisert bruksstatistikk</strong> via Google Analytics:</p>
+
+        <table>
+            <tr>
+                <th>Datatype</th>
+                <th>Beskrivelse</th>
+                <th>Identifiserbar?</th>
+            </tr>
+            <tr>
+                <td>Antall besøkende</td>
+                <td>Totalt antall brukere (anonym)</td>
+                <td>❌ Nei</td>
+            </tr>
+            <tr>
+                <td>Enhetstype</td>
+                <td>PC, mobil, tablet</td>
+                <td>❌ Nei</td>
+            </tr>
+            <tr>
+                <td>Nettleser</td>
+                <td>Chrome, Safari, Firefox, etc.</td>
+                <td>❌ Nei</td>
+            </tr>
+            <tr>
+                <td>Generell lokasjon</td>
+                <td>Land/region (ikke adresse)</td>
+                <td>❌ Nei</td>
+            </tr>
+            <tr>
+                <td>Sidevisninger</td>
+                <td>Hvilke sider som brukes mest</td>
+                <td>❌ Nei</td>
+            </tr>
+            <tr>
+                <td>IP-adresse</td>
+                <td>Anonymisert automatisk av Google</td>
+                <td>❌ Nei</td>
+            </tr>
+        </table>
+
+        <div class="warning-box">
+            <h3>🔒 Personverninnstillinger i Google Analytics:</h3>
+            <ul>
+                <li>✅ <code>anonymize_ip: true</code> - IP-adresser anonymiseres automatisk</li>
+                <li>✅ Ingen brukerprofiler opprettes</li>
+                <li>✅ Ingen kryssdomene-sporing</li>
+                <li>✅ Data deles ikke med tredjeparter</li>
+            </ul>
+        </div>
+
+        <h3>3.3 Data for betalende brukere (lærere/skoler):</h3>
+        <table>
+            <tr>
+                <th>Datatype</th>
+                <th>Formål</th>
+                <th>Lagring</th>
+            </tr>
+            <tr>
+                <td>E-postadresse</td>
+                <td>Kommunikasjon, faktura</td>
+                <td>Firebase (kryptert)</td>
+            </tr>
+            <tr>
+                <td>Skolekode</td>
+                <td>Tilgangskontroll</td>
+                <td>Firebase (kryptert)</td>
+            </tr>
+            <tr>
+                <td>Kjøpshistorikk</td>
+                <td>Regnskap (lovpålagt)</td>
+                <td>Firebase (kryptert)</td>
+            </tr>
+            <tr>
+                <td>Navn / Org.nr</td>
+                <td>Fakturering (skoler)</td>
+                <td>Firebase (kryptert)</td>
+            </tr>
+            <tr>
+                <td>Prøver (innhold)</td>
+                <td>Lagring av egne prøver</td>
+                <td>Firebase (kryptert)</td>
+            </tr>
+        </table>
+
+        <!-- SEKSJON 4: HVA VI IKKE SAMLER -->
+        <h2>4. Hva samler vi IKKE inn?</h2>
+
+        <div class="success-box">
+            <h3>❌ Vi registrerer ALDRI:</h3>
+            <ul>
+                <li>❌ Navn eller identifiserbar informasjon (elever)</li>
+                <li>❌ Fødselsnumre</li>
+                <li>❌ Telefonnumre (unntatt Vipps-betaling)</li>
+                <li>❌ IP-adresser (anonymisert automatisk)</li>
+                <li>❌ Elevernes svar eller resultater</li>
+                <li>❌ Innhold i prøver som lærere lager (bare metadata)</li>
+                <li>❌ Hvilke elever som bruker appen</li>
+                <li>❌ Skoletilhørighet (for elever)</li>
+                <li>❌ Klassetilhørighet</li>
+                <li>❌ Kortnummer eller CVV-koder</li>
+            </ul>
+        </div>
+
+        <!-- SEKSJON 5: RETTSLIG GRUNNLAG -->
+        <h2>5. Rettslig grunnlag</h2>
+        
+        <h3>5.1 Google Analytics (anonymisert statistikk):</h3>
+        <p><strong>Rettslig grunnlag:</strong> Berettiget interesse (GDPR art. 6(1)(f))</p>
+        <ul>
+            <li>Vi har en berettiget interesse i å forbedre tjenesten</li>
+            <li>Dataen er fullstendig anonymisert</li>
+            <li>Ingen risiko for elevenes personvern</li>
+            <li>Formålet er utelukkende pedagogisk forbedring</li>
+        </ul>
+
+        <h3>5.2 Betalende brukere (lærere/skoler):</h3>
+        <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
+        <ul>
+            <li>E-post, navn, org.nr nødvendig for fakturering</li>
+            <li>Betalingsinfo nødvendig for gjennomføring av kjøp</li>
+            <li>Kjøpshistorikk lovpålagt (regnskapsloven)</li>
+        </ul>
+
+        <h3>5.3 Lokal lagring (localStorage):</h3>
+        <p><strong>Rettslig grunnlag:</strong> Ikke relevant (ingen personopplysninger)</p>
+        <ul>
+            <li>Data lagres kun lokalt på brukerens enhet</li>
+            <li>Vi har ingen tilgang til denne dataen</li>
+            <li>Brukeren har full kontroll</li>
+        </ul>
+
+        <!-- SEKSJON 6: DELING AV DATA -->
+        <h2>6. Deling av data</h2>
+
+        <h3>6.1 Google Analytics:</h3>
+        <p>Anonymisert bruksstatistikk deles med <strong>Google LLC</strong> som databehandler.</p>
+        <ul>
+            <li><strong>Formål:</strong> Statistikk og analyse</li>
+            <li><strong>Databehandleravtale:</strong> Google Analytics Terms of Service</li>
+            <li><strong>Overføring til tredjeland:</strong> USA (med EU-standardklausuler)</li>
+        </ul>
+
+        <h3>6.2 Andre tredjeparter:</h3>
+        <table>
+            <tr>
+                <th>Tjeneste</th>
+                <th>Formål</th>
+                <th>Data delt</th>
+            </tr>
+            <tr>
+                <td>PokéAPI</td>
+                <td>Hente Pokémon-bilder</td>
+                <td>Ingen persondata</td>
+            </tr>
+            <tr>
+                <td>QRCode.js (lokal)</td>
+                <td>Generere QR-koder</td>
+                <td>Ingen persondata (kjører lokalt)</td>
+            </tr>
+            <tr>
+                <td>Firebase (Google Cloud)</td>
+                <td>Database for betalende kunder</td>
+                <td>E-post, skolekode, kjøpshistorikk</td>
+            </tr>
+        </table>
+
+        <h3>6.3 Betalingsleverandører:</h3>
+        <table>
+            <tr>
+                <th>Tjeneste</th>
+                <th>Formål</th>
+                <th>Data delt</th>
+            </tr>
+            <tr>
+                <td><strong>Stripe</strong></td>
+                <td>Kortbetaling</td>
+                <td>E-post, beløp, kortnummer (kryptert av Stripe)</td>
+            </tr>
+            <tr>
+                <td><strong>Vipps</strong></td>
+                <td>Mobilbetaling (Norge)</td>
+                <td>Telefonnummer, beløp</td>
+            </tr>
+        </table>
+
+        <div class="highlight-box">
+            <p><strong>Viktig om betalingsdata:</strong></p>
+            <ul>
+                <li>Vi lagrer <strong>ALDRI</strong> kortnummer eller CVV-koder</li>
+                <li>All betalingsinfo behandles av Stripe/Vipps (PCI-DSS compliant)</li>
+                <li>Vi mottar kun bekreftelse på betaling</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <p><strong>Viktig:</strong> Vi deler <strong>aldri</strong> data med markedsføringsselskaper, annonsebyrået eller andre kommersielle aktører.</p>
+        </div>
+
+        <!-- SEKSJON 7: LAGRINGSTID -->
+        <h2>7. Lagringstid</h2>
+
+        <table>
+            <tr>
+                <th>Datatype</th>
+                <th>Lagringstid</th>
+                <th>Sletting</th>
+            </tr>
+            <tr>
+                <td>Lokal data (kort, poeng)</td>
+                <td>Til brukeren sletter nettleserdata</td>
+                <td>Manuell (Settings → Cookies)</td>
+            </tr>
+            <tr>
+                <td>Lagrede prøver</td>
+                <td>14 dager (automatisk)</td>
+                <td>Automatisk sletting</td>
+            </tr>
+            <tr>
+                <td>Google Analytics-data</td>
+                <td>26 måneder (Google standard)</td>
+                <td>Automatisk sletting</td>
+            </tr>
+            <tr>
+                <td>E-postadresse (lærere)</td>
+                <td>Til konto slettes</td>
+                <td>Manuell (GDPR-forespørsel)</td>
+            </tr>
+            <tr>
+                <td>Betalingsinformasjon</td>
+                <td>3 år etter siste kjøp</td>
+                <td>Automatisk (regnskapsloven)</td>
+            </tr>
+            <tr>
+                <td>Kjøpshistorikk</td>
+                <td>5 år (lovpålagt)</td>
+                <td>Automatisk (regnskapsloven)</td>
+            </tr>
+        </table>
+
+        <!-- SEKSJON 8: BRUKERRETTIGHETER -->
+        <h2>8. Dine rettigheter</h2>
+
+        <h3>8.1 Rettigheter etter GDPR:</h3>
+        <ul>
+            <li><strong>Innsyn:</strong> Rett til å få informasjon om hvilke data som behandles</li>
+            <li><strong>Retting:</strong> Rett til å få rettet feil i personopplysninger</li>
+            <li><strong>Sletting:</strong> Rett til å få slettet personopplysninger</li>
+            <li><strong>Begrensning:</strong> Rett til å begrense behandlingen</li>
+            <li><strong>Dataportabilitet:</strong> Rett til å få utlevert data i maskinlesbart format</li>
+            <li><strong>Protestere:</strong> Rett til å protestere mot behandlingen</li>
+        </ul>
+
+        <h3>8.1.1 For betalende lærere/skoler:</h3>
+        <p>Som betalende kunde har du <strong>full tilgang</strong> til alle GDPR-rettigheter:</p>
+        <ul>
+            <li><strong>Innsyn:</strong> Vi kan utlevere all lagret data om deg</li>
+            <li><strong>Retting:</strong> Endre e-postadresse via innstillinger</li>
+            <li><strong>Sletting:</strong> Vi sletter all data innen 30 dager</li>
+            <li><strong>Portabilitet:</strong> Eksporter dine prøver i JSON-format</li>
+            <li><strong>Protestere:</strong> Kontakt oss for å stanse behandling</li>
+        </ul>
+
+        <p><strong>For å utøve dine rettigheter:</strong></p>
+        <ol>
+            <li>Send e-post til: <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></li>
+            <li>Oppgi: Fullt navn + e-postadresse brukt ved registrering</li>
+            <li>Beskriv hva du ønsker (innsyn, sletting, etc.)</li>
+            <li>Vi svarer innen <strong>30 dager</strong> (GDPR-krav)</li>
+        </ol>
+
+        <div class="highlight-box">
+            <h3>💡 For GloseMester-elever:</h3>
+            <p>Siden appen er <strong>100% anonym</strong> for elever, er de fleste GDPR-rettigheter ikke relevante. Vi har ingen personopplysninger å rette, slette eller utlevere.</p>
+            <p><strong>For å slette lokal data:</strong></p>
+            <ol>
+                <li>Åpne nettleserinnstillinger</li>
+                <li>Gå til "Personvern og sikkerhet"</li>
+                <li>Velg "Slett nettleserdata"</li>
+                <li>Velg "Cookies og annen nettstedsdata"</li>
+                <li>Klikk "Slett data"</li>
+            </ol>
+        </div>
+
+        <h3>8.2 Kontakt ved henvendelser:</h3>
+        <p>For spørsmål om personvern, kontakt:</p>
+        <ul>
+            <li><strong>E-post:</strong> <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></li>
+        </ul>
+
+        <h3>8.3 Klage til Datatilsynet:</h3>
+        <p>Dersom du mener at behandlingen av personopplysninger ikke skjer i samsvar med personvernregelverket, har du rett til å klage til Datatilsynet:</p>
+        <ul>
+            <li><strong>Nettside:</strong> <a href="https://www.datatilsynet.no" target="_blank">www.datatilsynet.no</a></li>
+            <li><strong>Telefon:</strong> 22 39 69 00</li>
+            <li><strong>E-post:</strong> postkasse@datatilsynet.no</li>
+        </ul>
+
+        <!-- SEKSJON 9: INFORMASJONSSIKKERHET -->
+        <h2>9. Informasjonssikkerhet</h2>
+
+        <h3>9.1 Tekniske sikkerhetstiltak:</h3>
+        <ul>
+            <li>✅ <strong>HTTPS-kryptering</strong> - all kommunikasjon er kryptert</li>
+            <li>✅ <strong>Lokal lagring</strong> - ingen sentral database å hacke (for elever)</li>
+            <li>✅ <strong>Anonymisering</strong> - IP-adresser anonymiseres automatisk</li>
+            <li>✅ <strong>Ingen innlogging</strong> - ingen passord å kompromittere (elever)</li>
+            <li>✅ <strong>Progressive Web App</strong> - kan brukes offline</li>
+            <li>✅ <strong>AES-256 kryptering</strong> - for betalingsdata (Firebase)</li>
+            <li>✅ <strong>PCI-DSS compliance</strong> - via Stripe/Vipps</li>
+        </ul>
+
+        <h3>9.2 Organisatoriske tiltak:</h3>
+        <ul>
+            <li>✅ Kun utvikler har tilgang til Firebase/Google Analytics</li>
+            <li>✅ Regelmessig gjennomgang av databehandling</li>
+            <li>✅ Oppdatert kunnskap om personvernregler</li>
+            <li>✅ Databehandleravtaler med alle leverandører</li>
+        </ul>
+
+        <!-- SEKSJON 10: FOR FORELDRE -->
+        <h2>10. Informasjon til foreldre/foresatte</h2>
+
+        <div class="success-box">
+            <h3>👨‍👩‍👧‍👦 Viktig informasjon for foreldre:</h3>
+            <p>GloseMester er utviklet med barns personvern som høyeste prioritet:</p>
+            <ul>
+                <li>✅ <strong>Ingen registrering:</strong> Barnet ditt trenger ikke oppgi navn, e-post eller annen informasjon</li>
+                <li>✅ <strong>Ingen sporing:</strong> Vi vet ikke hvem som bruker appen</li>
+                <li>✅ <strong>Ingen annonser:</strong> Appen er reklamefri</li>
+                <li>✅ <strong>Ingen sosiale funksjoner:</strong> Barnet kan ikke kommunisere med andre</li>
+                <li>✅ <strong>Trygt innhold:</strong> Kun pedagogisk innhold (gloser og Pokémon-bilder)</li>
+                <li>✅ <strong>Gratis:</strong> Ingen skjulte kostnader eller in-app kjøp (for elever)</li>
+            </ul>
+        </div>
+
+        <h3>Sletting av barnets data:</h3>
+        <p>Dersom du ønsker å slette barnets lokalt lagrede data (samling av kort og poeng):</p>
+        <ol>
+            <li>Åpne nettleseren barnet bruker</li>
+            <li>Gå til innstillinger → Personvern</li>
+            <li>Velg "Slett nettleserdata"</li>
+            <li>Huk av for "Cookies og nettstedsdata"</li>
+            <li>Klikk "Slett data"</li>
+        </ol>
+
+        <p><strong>Merk:</strong> Dette vil slette barnets samling av Pokémon-kort og byttepoeng. Prøver fra lærere må limes inn på nytt.</p>
+
+        <h3>For skoler som kjøper lisens:</h3>
+        <div class="warning-box">
+            <p><strong>Viktig for skoleadministratorer:</strong></p>
+            <ul>
+                <li>Skolen er <strong>behandlingsansvarlig</strong> for elevdata</li>
+                <li>GloseMester behandler <strong>INGEN</strong> personopplysninger om elever</li>
+                <li>Foreldre trenger ikke informeres utover normal IT-bruk i skolen</li>
+                <li>Ingen samtykke nødvendig (elevene er anonyme)</li>
+            </ul>
+        </div>
+
+        <!-- SEKSJON 11: ENDRINGER -->
+        <h2>11. Endringer i personvernerklæringen</h2>
+        <p>Denne personvernerklæringen kan oppdateres fra tid til annen. Ved vesentlige endringer vil vi:</p>
+        <ul>
+            <li>Oppdatere "Sist oppdatert"-datoen øverst på siden</li>
+            <li>Varsle betalende kunder via e-post (hvis relevant)</li>
+            <li>Publisere en endringslogg nederst i erklæringen</li>
+        </ul>
+
+        <p>Vi anbefaler at du leser personvernerklæringen regelmessig for å holde deg oppdatert.</p>
+
+        <!-- SEKSJON 12: KONTAKTINFORMASJON -->
+        <h2>12. Kontaktinformasjon</h2>
+
+        <h3>Behandlingsansvarlig og utvikler:</h3>
+        <table>
+            <tr>
+                <th>Navn</th>
+                <td>Øyvind Nilsen Oksvold</td>
+            </tr>
+            <tr>
+                <th>Organisasjonsform</th>
+                <td>Enkeltpersonforetak (under opprettelse)</td>
+            </tr>
+            <tr>
+                <th>Org.nr</th>
+                <td>[Legges til ved ENK-opprettelse]</td>
+            </tr>
+            <tr>
+                <th>E-post</th>
+                <td><a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></td>
+            </tr>
+            <tr>
+                <th>Nettside</th>
+                <td><a href="https://glosemester.no">glosemester.no</a></td>
+            </tr>
+            <tr>
+                <th>Rolle</th>
+                <td>Utvikler, driftsansvarlig og behandlingsansvarlig</td>
+            </tr>
+        </table>
+
+        <div class="warning-box">
+            <p><strong>Viktig:</strong> GloseMester drives som et kommersielt verktøy. Vi tar personvern på alvor og gjør vårt beste for å beskytte brukernes data, men tjenesten leveres "som den er" uten garantier (se <a href="vilkar.html">vilkår</a>).</p>
+        </div>
+
+        <!-- SEKSJON 13: ANSVARSFRASKRIVELSE -->
+        <h2>13. Ansvarsfraskrivelse</h2>
+        <p>GloseMester er et kommersielt pedagogisk verktøy. Selv om vi gjør vårt beste for å:</p>
+        <ul>
+            <li>Beskytte brukernes personvern</li>
+            <li>Sikre at appen fungerer som forventet</li>
+            <li>Følge gjeldende personvernregler</li>
+        </ul>
+        <p>... gis det ingen garantier for:</p>
+        <ul>
+            <li>100% oppetid</li>
+            <li>Feilfri funksjonalitet</li>
+            <li>Datatap (bruk backup ved viktig innhold)</li>
+        </ul>
+
+        <p><strong>Anbefaling til lærere:</strong> Ta backup av prøver dere lager ved å kopiere koden til et dokument.</p>
+
+        <!-- SEKSJON 14: RELEVANTE LOVER OG FORSKRIFTER -->
+        <h2>14. Relevante lover og forskrifter</h2>
+        <ul>
+            <li><strong>GDPR:</strong> EUs personvernforordning (forordning 2016/679)</li>
+            <li><strong>Personopplysningsloven:</strong> Lov om behandling av personopplysninger</li>
+            <li><strong>Opplæringsloven:</strong> Lov om grunnskolen og den vidaregående opplæringa (§ 1-1)</li>
+            <li><strong>Regnskapsloven:</strong> Oppbevaring av regnskapsdata (5 år)</li>
+        </ul>
+
+        <!-- SEKSJON 15: TREDJEPARTSLISENSER -->
+        <h2>15. Tredjepartslisenser og kilder</h2>
+        
+        <h3>API og biblioteker:</h3>
+        <ul>
+            <li><strong>PokéAPI:</strong> <a href="https://pokeapi.co/" target="_blank">https://pokeapi.co/</a> (BSD License)</li>
+            <li><strong>QRCode.js:</strong> MIT License</li>
+            <li><strong>jsQR:</strong> Apache 2.0 License</li>
+            <li><strong>Google Analytics:</strong> Google Terms of Service</li>
+            <li><strong>Firebase:</strong> Google Cloud Platform Terms</li>
+            <li><strong>Stripe:</strong> Stripe Services Agreement</li>
+            <li><strong>Vipps:</strong> Vipps Terms of Service</li>
+        </ul>
+
+        <h3>Rettigheter:</h3>
+        <p style="font-size: 14px; color: #666; font-style: italic;">
+            Pokémon and Pokémon character names are trademarks of Nintendo. 
+            GloseMester er ikke tilknyttet, godkjent eller støttet av Nintendo, The Pokémon Company eller Game Freak.
+        </p>
+
+        <!-- SEKSJON 16: ENDRINGSLOGG -->
+        <h2>16. Endringslogg</h2>
+        <table>
+            <tr>
+                <th>Dato</th>
+                <th>Endring</th>
+            </tr>
+            <tr>
+                <td>12.12.2024</td>
+                <td>v3.0-COMMERCIAL - Oppdatert for kommersiell bruk. Lagt til info om betalende kunder, Stripe/Vipps, databehandleravtaler.</td>
+            </tr>
+            <tr>
+                <td>12.12.2024</td>
+                <td>Første versjon av personvernerklæringen publisert</td>
+            </tr>
+        </table>
+
+        <!-- TILBAKE-KNAPP -->
+        <div style="text-align: center;">
+            <a href="index.html" class="btn-back">← Tilbake til GloseMester</a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p><strong>GloseMester v3.0-COMMERCIAL</strong></p>
+            <p>Utviklet av Øyvind Nilsen Oksvold</p>
+            <p>Personvernerklæring sist oppdatert: 12. desember 2024</p>
+            <p style="margin-top: 15px;">
+                <a href="vilkar.html">Vilkår for bruk</a> • 
+                <a href="landing.html">Hjem</a> • 
+                <a href="mailto:kontakt@glosemester.no">Kontakt</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
