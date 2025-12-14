@@ -1,0 +1,423 @@
+/* ============================================
+   POPUPS.CSS - GloseMester v0.1-ALPHA
+   Oppdatert: 14. desember 2024
+   ============================================
+   Styling for alle popups og modaler
+   ============================================ */
+
+/* POPUP OVERLAY */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.2s;
+}
+
+.popup-overlay.active {
+    display: flex;
+}
+
+/* POPUP CONTENT */
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* CLOSE BUTTON */
+.popup-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.popup-close:hover {
+    background: #f0f0f5;
+    color: #333;
+}
+
+/* STORT KORT POPUP */
+#kort-popup .popup-content {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 20px;
+    max-width: 400px;
+}
+
+#kort-popup img {
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+}
+
+#kort-popup h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    text-transform: capitalize;
+}
+
+#kort-popup .poke-id {
+    color: #86868b;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* GEVINST POPUP */
+.gevinst-content {
+    background: radial-gradient(circle, #ffffff 0%, #f2f2f7 100%);
+    border: 4px solid gold;
+    animation: sprettOpp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.gevinst-content::before {
+    content: '✨';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 32px;
+    animation: sparkle 1s infinite;
+}
+
+.gevinst-content::after {
+    content: '✨';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 32px;
+    animation: sparkle 1s infinite 0.5s;
+}
+
+@keyframes sprettOpp {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+#gevinst-bilde {
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+    margin: 20px 0;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* FEEDBACK POPUP (Feil svar) */
+#feedback-popup .popup-content {
+    border: 4px solid var(--danger-red);
+    padding: 40px;
+}
+
+#feedback-title {
+    color: var(--danger-red);
+    font-size: 32px;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+#feedback-correct-word {
+    font-size: 36px;
+    font-weight: 800;
+    color: #1d1d1f;
+    margin: 20px 0;
+    text-transform: capitalize;
+}
+
+/* QR CODE POPUP */
+#kode-popup .popup-content {
+    max-width: 450px;
+}
+
+#qrcode-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+}
+
+#qrcode-container canvas,
+#qrcode-container img {
+    border-radius: 8px;
+}
+
+/* QR SCANNER */
+#qr-scanner-container {
+    background: #f0f0f5;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#qr-scanner-container h3 {
+    margin-top: 0;
+    color: var(--accent-blue);
+}
+
+#qr-video {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+    margin: 15px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+#qr-scanner-status {
+    font-size: 13px;
+    color: #999;
+    margin-top: 10px;
+    min-height: 20px;
+}
+
+/* PRINT QR PAGE */
+#print-qr-page {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+}
+
+#print-qr-page h1 {
+    color: #0071e3;
+    margin-bottom: 10px;
+}
+
+#print-qr-page h2 {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+#print-qr-page .qr-wrapper {
+    background: white;
+    border: 3px solid #0071e3;
+    border-radius: 20px;
+    padding: 30px;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+#print-qr-container {
+    margin: 0 auto;
+}
+
+#print-qr-page ol {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+#print-qr-page .footer-info {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+}
+
+#print-kode-tekst {
+    font-family: monospace;
+    font-size: 12px;
+    color: #666;
+    word-break: break-all;
+    max-width: 600px;
+    margin: 10px auto;
+}
+
+/* CHANGELOG BOX */
+.changelog-box {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    max-height: 250px;
+    overflow-y: auto;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.log-entry {
+    margin-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-version {
+    display: inline-block;
+    background: var(--accent-blue);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.log-text {
+    font-size: 13px;
+    color: #333;
+}
+
+/* INFO BOXES */
+.info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.warning-box {
+    background: #fff8e1;
+    border-left: 4px solid #fbc02d;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.success-box {
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.error-box {
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+/* RESPONSIVE - MOBIL */
+@media (max-width: 600px) {
+    .popup-content {
+        width: 95%;
+        padding: 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    #kort-popup img {
+        width: 200px;
+        height: 200px;
+    }
+    
+    #kort-popup h2 {
+        font-size: 24px;
+    }
+    
+    #gevinst-bilde {
+        width: 180px;
+        height: 180px;
+    }
+    
+    #feedback-correct-word {
+        font-size: 28px;
+    }
+    
+    #qr-video {
+        max-width: 100%;
+    }
+}
+
+/* PRINT STYLING */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    #print-qr-page,
+    #print-qr-page * {
+        visibility: visible;
+    }
+    
+    #print-qr-page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
+    }
+    
+    .popup-overlay {
+        display: none !important;
+    }
+}

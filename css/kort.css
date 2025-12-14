@@ -1,0 +1,356 @@
+/* ============================================
+   KORT.CSS - GloseMester v0.1-ALPHA
+   Oppdatert: 14. desember 2024
+   ============================================
+   Styling for kort og samling
+   ============================================ */
+
+/* SAMLING GRID */
+.samling-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* KORT DESIGN */
+.poke-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+}
+
+.poke-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+/* KORT BILDE - PLACEHOLDER SYSTEM */
+.kort-bilde-placeholder {
+    width: 90px;
+    height: 90px;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    border-radius: 12px;
+    transition: transform 0.3s ease;
+}
+
+.poke-card:hover .kort-bilde-placeholder {
+    transform: scale(1.1);
+}
+
+/* Kategori-spesifikke gradienter */
+.kort-bilde-placeholder[data-kategori="biler"] {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+}
+
+.kort-bilde-placeholder[data-kategori="guder"] {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.kort-bilde-placeholder[data-kategori="dinosaurer"] {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.kort-bilde-placeholder[data-kategori="dyr"] {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* EKTE BILDER (når de er tilgjengelige) */
+.poke-card img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    align-self: center;
+    margin: 10px auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    transition: transform 0.3s ease;
+}
+
+.poke-card:hover img {
+    transform: scale(1.1);
+}
+
+/* KORT INFORMASJON */
+.poke-name {
+    font-weight: 600;
+    margin-top: 5px;
+    text-transform: capitalize;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.poke-id {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 5px;
+}
+
+.kort-kategori {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+}
+
+/* RARITY BADGES */
+.rarity-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #86868b;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+/* RARITY BORDERS */
+.rarity-vanlig {
+    border-color: var(--common);
+}
+
+.rarity-sjelden {
+    border-color: var(--rare);
+    background: linear-gradient(135deg, #fff 0%, #e3f2fd 100%);
+}
+
+.rarity-episk {
+    border-color: var(--epic);
+    background: linear-gradient(135deg, #fff 0%, #f3e5f5 100%);
+}
+
+.rarity-legendarisk,
+.rarity-legendary {
+    border-color: var(--legendary);
+    background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
+}
+
+/* Legendary glow effect */
+.rarity-legendarisk::before,
+.rarity-legendary::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #f1c40f, #f39c12, #f1c40f);
+    border-radius: var(--radius);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.rarity-legendarisk:hover::before,
+.rarity-legendary:hover::before {
+    opacity: 1;
+    animation: legendary-glow 2s infinite;
+}
+
+@keyframes legendary-glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* RARITY TEXT COLORS */
+.rarity-text {
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.rarity-text.vanlig { color: var(--common); }
+.rarity-text.sjelden { color: var(--rare); }
+.rarity-text.episk { color: var(--epic); }
+.rarity-text.legendarisk,
+.rarity-text.legendary { color: var(--legendary); }
+
+/* TRADE BUTTON */
+.trade-btn {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    color: #f57f17;
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-top: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.trade-btn:hover {
+    background: #ffecb3;
+    transform: scale(1.05);
+}
+
+.trade-btn:active {
+    transform: scale(0.95);
+}
+
+/* TOM SAMLING */
+.tom-samling {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.tom-samling-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.tom-samling h3 {
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.tom-samling p {
+    color: #999;
+    font-size: 14px;
+}
+
+/* KATEGORI FILTER */
+.kategori-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.kategori-filter-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid #eee;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.kategori-filter-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.kategori-filter-btn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+/* KORT STATISTIKK */
+.kort-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 12px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-blue);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* LOADING STATE */
+.kort-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.kort-loading::after {
+    content: "⏳";
+    font-size: 48px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* RESPONSIVE - MOBIL */
+@media (max-width: 600px) {
+    .samling-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .poke-card {
+        min-height: 180px;
+        padding: 8px;
+    }
+    
+    .kort-bilde-placeholder,
+    .poke-card img {
+        width: 70px;
+        height: 70px;
+        font-size: 36px;
+    }
+    
+    .poke-name {
+        font-size: 12px;
+    }
+    
+    .kategori-filter {
+        gap: 5px;
+    }
+    
+    .kategori-filter-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+/* PRINT STYLING */
+@media print {
+    .poke-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .trade-btn {
+        display: none;
+    }
+}

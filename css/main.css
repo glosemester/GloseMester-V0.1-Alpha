@@ -1,0 +1,684 @@
+/* ============================================
+   MAIN.CSS - GloseMester v0.1-ALPHA
+   Oppdatert: 14. desember 2024
+   ============================================
+   Hoveddel av styling - Design system
+   ============================================ */
+
+/* DESIGN SYSTEM - VARIABLER */
+:root {
+    --bg-color: #f5f5f7;
+    --card-bg: #ffffff;
+    --text-color: #1d1d1f;
+    --accent-blue: #0071e3;
+    --accent-purple: #af52de;
+    --accent-hover: #0077ed;
+    --danger-red: #ff3b30;
+    --success-green: #34c759;
+    --shadow: 0 10px 20px rgba(0,0,0,0.05);
+    --radius: 18px;
+    
+    --common: #a1a1a1;
+    --rare: #0071e3;
+    --epic: #8e44ad;
+    --legendary: #f1c40f;
+}
+
+/* GLOBAL RESET & BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 60px; 
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* TYPOGRAFI */
+h1, h2, h3 { 
+    font-weight: 600; 
+    letter-spacing: -0.5px; 
+    margin-top: 0;
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 18px; }
+
+a { 
+    color: var(--accent-blue); 
+    text-decoration: none; 
+}
+a:hover { text-decoration: underline; }
+
+/* BILDER */
+.hero-image {
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* NAVIGASJON */
+nav {
+    display: none;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 8px;
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    width: fit-content;
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    align-items: center;
+    gap: 10px;
+}
+
+nav button {
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 20px;
+    color: #86868b;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+nav button:hover {
+    background: #f0f0f5;
+}
+
+nav button.active {
+    background: var(--card-bg);
+    color: var(--text-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* CREDIT BADGE */
+.credit-badge {
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 5px;
+}
+
+.credit-progress-container {
+    margin-top: 25px; 
+    margin-bottom: 10px;
+}
+
+.credit-label { 
+    font-size: 14px; 
+    color: #86868b; 
+    font-weight: 600; 
+    margin-bottom: 5px; 
+    display: flex; 
+    justify-content: space-between;
+}
+
+.credit-track { 
+    width: 100%; 
+    background: #fff8e1; 
+    border-radius: 10px; 
+    height: 12px; 
+    overflow: hidden; 
+}
+
+.credit-fill { 
+    height: 100%; 
+    background: #ffc107; 
+    width: 0%; 
+    transition: width 0.4s ease; 
+    box-shadow: 0 0 10px #ffc107;
+}
+
+/* SIDER (PAGES) */
+.page {
+    display: none;
+    width: 100%;
+    max-width: 700px;
+    animation: fadeIn 0.4s ease;
+    flex-grow: 1; 
+}
+
+.page.active { 
+    display: block; 
+}
+
+.page-landing { 
+    text-align: center; 
+    margin-top: 20px; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* KORT (CARDS) */
+.card-container {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+/* INPUT GRUPPER */
+.input-group { 
+    text-align: left; 
+    margin-bottom: 15px; 
+}
+
+.input-group label { 
+    display: block; 
+    margin-bottom: 5px; 
+    font-weight: 500; 
+    font-size: 13px; 
+    color: #86868b; 
+    margin-left: 5px; 
+}
+
+/* INPUT FELTER */
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #d2d2d7;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #fafafa;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+input:focus, textarea:focus, select:focus { 
+    outline: none; 
+    border-color: var(--accent-blue); 
+    background: #fff; 
+}
+
+/* KNAPPER */
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    padding: 14px 25px;
+    font-size: 16px;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-primary:hover { 
+    background-color: var(--accent-hover); 
+    transform: scale(1.02); 
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-purple { 
+    background-color: var(--accent-purple); 
+}
+
+.btn-purple:hover { 
+    background-color: #9c44c9; 
+}
+
+.btn-secondary {
+    background-color: #e5e5ea;
+    color: #1d1d1f;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 5px;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover { 
+    background-color: #d1d1d6; 
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--accent-blue);
+    color: var(--accent-blue);
+    padding: 10px 20px;
+    border-radius: 99px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.btn-sound {
+    background-color: #f0f0f5;
+    color: #1d1d1f;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-sound:hover { 
+    background-color: #e5e5ea; 
+}
+
+.btn-sound:active { 
+    transform: scale(0.95); 
+}
+
+.btn-small { 
+    padding: 6px 12px; 
+    font-size: 13px; 
+    width: auto; 
+    margin: 0; 
+}
+
+.btn-danger { 
+    background-color: #ffe5e5; 
+    color: var(--danger-red); 
+}
+
+.btn-danger:hover {
+    background-color: #ffcccc;
+}
+
+/* ROLE CARDS (Landing page) */
+.role-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    margin-top: 30px; 
+    max-width: 600px; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+
+.role-grid-3 { 
+    grid-template-columns: 1fr 1fr 1fr; 
+}
+
+.role-card {
+    background: white; 
+    padding: 25px 15px; 
+    border-radius: var(--radius);
+    box-shadow: var(--shadow); 
+    cursor: pointer; 
+    transition: transform 0.2s;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.role-card:hover { 
+    transform: scale(1.05); 
+}
+
+.role-icon { 
+    font-size: 35px; 
+    display: block; 
+    margin-bottom: 10px; 
+}
+
+.role-title { 
+    font-weight: 600; 
+    font-size: 16px; 
+}
+
+/* KATEGORI-VALG */
+.kategori-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.kategori-card {
+    background: white;
+    border: 3px solid #eee;
+    padding: 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.kategori-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+}
+
+.kategori-card.active {
+    border-color: var(--accent-blue);
+    background: #e3f2fd;
+}
+
+.kategori-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.kategori-navn {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.kategori-beskrivelse {
+    font-size: 12px;
+    color: #666;
+}
+
+/* TRINN-VALG */
+.trinn-grid {
+    display: grid; 
+    grid-template-columns: 1fr;
+    gap: 15px; 
+    margin-top: 20px;
+}
+
+.trinn-btn {
+    background: white; 
+    border: 2px solid #eee; 
+    padding: 20px; 
+    border-radius: 15px;
+    font-weight: bold; 
+    font-size: 20px; 
+    cursor: pointer; 
+    color: var(--text-color);
+    transition: all 0.2s;
+}
+
+.trinn-btn:hover { 
+    border-color: var(--accent-purple); 
+    color: var(--accent-purple); 
+    transform: translateY(-3px); 
+    box-shadow: var(--shadow); 
+}
+
+/* SPRÅK-VALG */
+.lang-section { 
+    margin-bottom: 30px; 
+}
+
+.lang-label { 
+    display: block; 
+    font-weight: 600; 
+    margin-bottom: 15px; 
+    color: #86868b; 
+    font-size: 14px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
+
+.lang-toggle { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; 
+}
+
+.lang-btn {
+    border: 2px solid #e5e5ea; 
+    background: white; 
+    padding: 20px 10px; 
+    border-radius: 18px;
+    font-weight: 700; 
+    font-size: 15px; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    color: #86868b;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 8px;
+}
+
+.lang-btn:hover { 
+    border-color: var(--accent-purple); 
+    color: var(--accent-purple); 
+    background: #fbf5fd; 
+}
+
+.lang-btn.active {
+    background: var(--accent-purple); 
+    border-color: var(--accent-purple); 
+    color: white;
+    box-shadow: 0 8px 20px rgba(175, 82, 222, 0.3); 
+    transform: translateY(-2px);
+}
+
+.lang-icon { 
+    font-size: 28px; 
+}
+
+/* BIBLIOTEK LISTE (Lærer) */
+.bibliotek-liste { 
+    list-style: none; 
+    padding: 0; 
+}
+
+.bibliotek-item {
+    background: #f9f9f9; 
+    padding: 15px; 
+    border-radius: 12px; 
+    margin-bottom: 10px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border: 1px solid #eee;
+    transition: all 0.2s;
+}
+
+.bibliotek-item:hover {
+    background: #f0f0f5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.bib-info h4 { 
+    margin: 0; 
+    font-size: 16px; 
+}
+
+.bib-info span { 
+    font-size: 13px; 
+    color: #86868b; 
+}
+
+.bib-actions { 
+    display: flex; 
+    gap: 8px; 
+}
+
+/* PROGRESS BAR */
+.progress-container { 
+    width: 100%; 
+    background: #e5e5ea; 
+    height: 10px; 
+    border-radius: 10px; 
+    margin-top: 20px; 
+    overflow: hidden; 
+}
+
+.progress-bar { 
+    height: 100%; 
+    background: var(--accent-purple); 
+    width: 0%; 
+    transition: width 0.3s ease; 
+}
+
+/* KODE-BOKS */
+.kode-boks {
+    background: #f0f0f5; 
+    padding: 15px; 
+    border-radius: 8px; 
+    font-family: monospace; 
+    word-break: break-all; 
+    margin: 15px 0; 
+    color: var(--accent-blue); 
+    font-size: 14px;
+}
+
+/* SORT HEADER */
+.sort-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 15px; 
+}
+
+.sort-select { 
+    padding: 8px; 
+    border-radius: 10px; 
+    border: 1px solid #d2d2d7; 
+    font-family: inherit; 
+    font-size: 14px; 
+    background-color: #fafafa; 
+}
+
+/* INSTALL BUTTON */
+.install-help-btn {
+    position: fixed; 
+    top: 15px; 
+    right: 15px; 
+    background: white; 
+    border: none; 
+    padding: 8px 15px;
+    border-radius: 20px; 
+    font-weight: 600; 
+    color: var(--accent-blue); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 200; 
+    font-size: 13px; 
+    cursor: pointer; 
+    transition: transform 0.2s; 
+    display: none;
+}
+
+.install-help-btn:hover { 
+    transform: scale(1.05); 
+}
+
+/* FOOTER */
+.footer-container {
+    margin-top: auto; 
+    padding-top: 40px; 
+    padding-bottom: 20px; 
+    text-align: center; 
+    width: 100%;
+}
+
+.about-link { 
+    font-size: 12px; 
+    color: #86868b; 
+    text-decoration: none; 
+    margin-top: 15px; 
+    display: inline-block; 
+    cursor: pointer; 
+}
+
+.about-link:hover {
+    color: var(--accent-blue);
+}
+
+/* CREDITS */
+.creator-credit {
+    position: fixed; 
+    bottom: 10px; 
+    left: 15px; 
+    font-size: 11px;
+    color: #b0b0b5; 
+    z-index: 50; 
+    pointer-events: none; 
+    font-weight: 500;
+}
+
+.version-tag {
+    position: fixed; 
+    bottom: 10px; 
+    right: 15px; 
+    font-size: 11px;
+    color: #b0b0b5; 
+    z-index: 50; 
+    pointer-events: none; 
+    font-weight: 500;
+}
+
+/* RESPONSIVE - MOBIL */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+        padding-bottom: 80px;
+    }
+    
+    .card-container {
+        padding: 20px;
+    }
+    
+    .role-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    
+    .kategori-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    nav {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .hero-image {
+        border-radius: 12px;
+    }
+}
