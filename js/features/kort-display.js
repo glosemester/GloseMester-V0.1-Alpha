@@ -5,7 +5,7 @@
 
 // Konfigurasjon for bilder
 const BILDE_STI = 'img/kort/';
-const FILTYPE = '.jpg'; // Endre til .png hvis du heller vil bruke det
+const FILTYPE = '.jpg'; 
 
 /**
  * Vis brukerens samling
@@ -17,71 +17,84 @@ function visSamling() {
 }
 
 /**
- * Vis kort i grid
+ * Vis kort i grid (Nå med stacking av duplikater!)
  * @param {string} containerId - ID på container
  * @param {Array} liste - Array med kort
  * @param {boolean} showTrade - Vis bytte-knapp?
  */
 function visKortGrid(containerId, liste, showTrade) {
-    // Filtrer basert på valgt kategori
+    const con = document.getElementById(containerId);
+    if (!con) return;
+    con.innerHTML = "";
+
+    // 1. Filtrer basert på valgt kategori
     let filtrerteKort = [...liste];
-    
     if (valgtKategori && valgtKategori !== 'alle') {
         filtrerteKort = liste.filter(k => k.kategori === valgtKategori);
     }
-    
-    // Sorter basert på valgt sortering
-    if (valgtSortering === 'id') {
-        filtrerteKort.sort((a, b) => a.id - b.id);
-    } else if (valgtSortering === 'navn') {
-        filtrerteKort.sort((a, b) => a.navn.localeCompare(b.navn));
-    } else {
-        // Nyeste først (default)
-        filtrerteKort.reverse();
-    }
 
-    const con = document.getElementById(containerId);
-    if (!con) return;
-    
-    con.innerHTML = "";
-    
-    // Oppdater kategori-tellere
+    // 2. Oppdater tellere (viser totalt antall kort, inkludert duplikater)
     oppdaterKategoriTellere(liste);
-    
+
     if (!filtrerteKort.length) {
-        const kategoriNavn = valgtKategori === 'alle' ? 'samlingen' : valgtKategori;
-        con.innerHTML = `
-        <div class="tom-samling">
-            <div class="tom-samling-icon">${getKategoriEmoji(valgtKategori)}</div>
-            <h3>Ingen kort i ${kategoriNavn}</h3>
-            <p>Svar riktig på spørsmål for å vinne kort!</p>
-        </div>`;
+        visTomSamlingMelding(con);
         return;
     }
+
+    // 3. GRUPPER DUPLIKATER (Stacking)
+    // Vi gjør om listen til unike kort med en "antall"-egenskap
+    const unikeKortMap = new Map();
+
+    filtrerteKort.forEach(kort => {
+        if (unikeKortMap.has(kort.id)) {
+            // Hvis kortet finnes, øk antallet
+            const eksisterende = unikeKortMap.get(kort.id);
+            eksisterende.antall++;
+        } else {
+            // Hvis nytt, legg til med antall = 1
+            // Vi lager en kopi for ikke å endre originaldataene
+            unikeKortMap.set(kort.id, { ...kort, antall: 1 });
+        }
+    });
+
+    // Konverter tilbake til array for sortering
+    let visningsListe = Array.from(unikeKortMap.values());
+
+    // 4. Sorter basert på valgt sortering
+    if (valgtSortering === 'id') {
+        visningsListe.sort((a, b) => a.id - b.id);
+    } else if (valgtSortering === 'navn') {
+        visningsListe.sort((a, b) => a.navn.localeCompare(b.navn));
+    } else {
+        // Nyeste først (basert på ID for enkelhets skyld når vi stacker)
+        // Siden nyere kort har høyere ID eller ligger sist i arrayet
+        visningsListe.reverse(); 
+    }
     
-    filtrerteKort.forEach(k => {
+    // 5. Tegn opp kortene
+    visningsListe.forEach(k => {
         let tradeBtn = "";
+        
+        // Vis bytteknapp bare hvis vi har lov (showTrade)
         if (showTrade) {
             tradeBtn = `<button class="trade-btn" onclick="event.stopPropagation(); byttKort(${k.id})">🔄 Bytt</button>`;
         }
 
-        // Generer bildesti basert på ID
-        // F.eks: img/kort/1.jpg
         const bildeUrl = `${BILDE_STI}${k.id}${FILTYPE}`;
-
-        /* SMART BILDE-LOGIKK:
-           1. Vi legger inn <img> taggen skjult (display:none)
-           2. onload: Hvis bildet laster, vis bildet og skjul placeholder
-           3. onerror: Hvis bildet feiler, gjør ingenting (placeholder vises allerede)
-        */
+        
+        // Lag antall-badge hvis man har flere enn 1
+        const antallBadge = k.antall > 1 
+            ? `<div class="antall-badge">x${k.antall}</div>` 
+            : '';
 
         con.innerHTML += `
         <div class="poke-card rarity-${k.rarity.type}" 
              style="border-color:${k.rarity.farge}" 
              onclick="visStortKort('${k.id}', '${k.navn}', '${k.rarity.farge}', '${k.rarity.tekst}', '${k.kategori}')">
             
+            ${antallBadge}
+
             <div class="kort-bilde-wrapper" style="position: relative; min-height: 90px; display: flex; justify-content: center;">
-                
                 <img src="${bildeUrl}" 
                      alt="${k.navn}" 
                      style="display: none;"
@@ -91,7 +104,6 @@ function visKortGrid(containerId, liste, showTrade) {
                 <div class="kort-bilde-placeholder" data-kategori="${k.kategori}" style="display: flex;">
                     ${getKategoriEmoji(k.kategori)}
                 </div>
-
             </div>
             
             <div class="poke-name">${k.navn}</div>
@@ -99,6 +111,19 @@ function visKortGrid(containerId, liste, showTrade) {
             ${tradeBtn}
         </div>`;
     });
+}
+
+/**
+ * Vis melding når samlingen er tom
+ */
+function visTomSamlingMelding(container) {
+    const kategoriNavn = valgtKategori === 'alle' ? 'samlingen' : valgtKategori;
+    container.innerHTML = `
+    <div class="tom-samling">
+        <div class="tom-samling-icon">${getKategoriEmoji(valgtKategori)}</div>
+        <h3>Ingen kort i ${kategoriNavn}</h3>
+        <p>Svar riktig på spørsmål for å vinne kort!</p>
+    </div>`;
 }
 
 /**
@@ -120,20 +145,12 @@ function getKategoriEmoji(kategori) {
  */
 function byttSortering(valg) {
     valgtSortering = valg;
-    
-    if (aktivRolle === 'elev' || aktivRolle === 'kode') {
-        visSamling();
-    }
-    if (aktivRolle === 'oving') {
-        visOvingSamling();
-    }
-    
+    oppdaterVisning();
     console.log('🔄 Sortering endret:', valg);
 }
 
 /**
  * Vis stort kort (popup)
- * Oppdatert med smart bildelogikk
  */
 function visStortKort(id, navn, farge, rarityTekst, kategori) {
     const popup = document.getElementById('kort-popup');
@@ -143,20 +160,11 @@ function visStortKort(id, navn, farge, rarityTekst, kategori) {
     document.getElementById('stort-navn').innerText = navn;
     
     const bildeEl = document.getElementById('stort-bilde');
-    
-    // Reset bilde state før lasting
     bildeEl.style.display = 'none';
     bildeEl.src = bildeUrl;
     
-    // Håndter lasting av stort bilde
-    bildeEl.onload = function() {
-        this.style.display = 'block';
-    };
-    
-    bildeEl.onerror = function() {
-        this.style.display = 'none';
-        // Her kunne vi vist en stor emoji som fallback hvis vi ville
-    };
+    bildeEl.onload = function() { this.style.display = 'block'; };
+    bildeEl.onerror = function() { this.style.display = 'none'; };
     
     const rarityEl = document.getElementById('stort-rarity');
     rarityEl.innerText = rarityTekst;
@@ -176,47 +184,19 @@ function lukkKort(e) {
 }
 
 /**
- * Vis gevinst-popup (når kort vinnes)
- * Oppdatert med smart bildelogikk
+ * Vis gevinst-popup
  */
 function visGevinstPopup(kort) {
     const popup = document.getElementById('gevinst-popup');
     const bildeEl = document.getElementById('gevinst-bilde');
     const bildeUrl = `${BILDE_STI}${kort.id}${FILTYPE}`;
     
-    // Prøv å laste bilde
     bildeEl.style.display = 'none';
     bildeEl.src = bildeUrl;
-    
-    bildeEl.onload = function() {
-        this.style.display = 'block';
-    };
-    
-    // Hvis bilde mangler i gevinst, vis emoji midlertidig (fallback)
-    // (Dette krever litt CSS for å se pent ut, men fungerer funksjonelt)
+    bildeEl.onload = function() { this.style.display = 'block'; };
     
     popup.style.display = 'flex';
-    
-    // Auto-lukk etter 2 sekunder
-    setTimeout(() => {
-        popup.style.display = 'none';
-    }, 2000);
-}
-
-/**
- * Vis feilmelding-popup
- */
-function visFeilMelding(fasit) {
-    const popup = document.getElementById('feedback-popup');
-    const wordEl = document.getElementById('feedback-correct-word');
-    
-    wordEl.innerText = fasit;
-    popup.style.display = 'flex';
-    
-    // Auto-lukk etter 3 sekunder
-    setTimeout(() => {
-        popup.style.display = 'none';
-    }, 3000);
+    setTimeout(() => { popup.style.display = 'none'; }, 2000);
 }
 
 /**
@@ -224,7 +204,7 @@ function visFeilMelding(fasit) {
  */
 async function byttKort(kortId) {
     if (credits < 1) {
-        alert("Du har ikke nok byttepoeng! Du trenger 1 byttepoeng for å bytte. Øv mer for å tjene poeng.");
+        alert("Du har ikke nok byttepoeng! Du trenger 1 byttepoeng for å bytte.");
         return;
     }
 
@@ -232,33 +212,30 @@ async function byttKort(kortId) {
         return;
     }
 
-    // Bruk credit
-    if (!useCredits(1)) {
-        return;
-    }
+    if (!useCredits(1)) return;
 
     let samling = getSamling();
     
-    // Fjern gammelt kort
+    // Fjern ÉN instans av kortet (den første vi finner med denne ID-en)
     const indexITabell = samling.findIndex(k => k.id == kortId);
     if (indexITabell > -1) {
         samling.splice(indexITabell, 1);
+        // Lagre endret samling (viktig siden vi manipulerer arrayet direkte)
+        setSamling(samling); 
     }
     
     // Gi nytt tilfeldig kort
     await hentTilfeldigKort();
     
-    // Oppdater visning
+    // Oppdater visning etter kort tid
     setTimeout(() => {
-        if (aktivRolle === 'elev' || aktivRolle === 'kode') visSamling();
-        if (aktivRolle === 'oving') visOvingSamling();
+        oppdaterVisning();
     }, 1000);
     
     // Track i analytics
     if (typeof trackEvent === 'function') {
         trackEvent('Kort', 'Byttet', kortId.toString());
     }
-    
     console.log('🔄 Kort byttet:', kortId);
 }
 
@@ -269,7 +246,6 @@ function velgKategori(kategori) {
     valgtKategori = kategori;
     lagreSisteKategori(kategori);
     
-    // Oppdater UI - marker aktiv knapp
     document.querySelectorAll('.kategori-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -277,19 +253,24 @@ function velgKategori(kategori) {
     const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${kategori}"]`);
     if (aktivBtn) aktivBtn.classList.add('active');
     
-    // Oppdater visning
+    oppdaterVisning();
+    console.log('📂 Kategori valgt:', kategori);
+}
+
+/**
+ * Hjelper: Oppdater visning basert på aktiv rolle
+ */
+function oppdaterVisning() {
     if (aktivRolle === 'elev' || aktivRolle === 'kode') {
         visSamling();
     }
     if (aktivRolle === 'oving') {
         visOvingSamling();
     }
-    
-    console.log('📂 Kategori valgt:', kategori);
 }
 
 /**
- * Tell kort per kategori og oppdater tellere
+ * Tell kort per kategori
  */
 function oppdaterKategoriTellere(samling) {
     const teller = {
@@ -306,23 +287,19 @@ function oppdaterKategoriTellere(samling) {
         }
     });
     
-    // Oppdater alle tellere i DOM
     Object.keys(teller).forEach(kat => {
         const countEl = document.getElementById(`count-${kat}`);
-        if (countEl) {
-            countEl.innerText = `(${teller[kat]})`;
-        }
+        if (countEl) countEl.innerText = `(${teller[kat]})`;
     });
 }
 
 /**
- * Initialiser kategori-valg ved lasting av samling
+ * Initialiser kategori-valg
  */
 function initKategoriValg() {
     const sisteKategori = hentSisteKategori();
     valgtKategori = sisteKategori;
     
-    // Marker aktiv kategori
     const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${sisteKategori}"]`);
     if (aktivBtn) aktivBtn.classList.add('active');
 }
@@ -336,4 +313,15 @@ function visOvingSamling() {
     visKortGrid('oving-samling-liste', samling, true);
 }
 
-console.log('🎴 kort-display.js lastet (v2 - smart bilder)');
+/**
+ * Vis feilmelding (brukes av quiz/practice)
+ */
+function visFeilMelding(fasit) {
+    const popup = document.getElementById('feedback-popup');
+    const wordEl = document.getElementById('feedback-correct-word');
+    wordEl.innerText = fasit;
+    popup.style.display = 'flex';
+    setTimeout(() => { popup.style.display = 'none'; }, 3000);
+}
+
+console.log('🎴 kort-display.js lastet (v3 - stacked)');

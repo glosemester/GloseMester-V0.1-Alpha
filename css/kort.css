@@ -455,3 +455,31 @@
     font-size: 14px;
     color: #86868b;
 }
+/* ============================================
+   DUPLIKAT TELLER (STACKING)
+   ============================================ */
+
+.antall-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--accent-purple);
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    border: 2px solid white;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
