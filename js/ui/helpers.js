@@ -298,3 +298,32 @@ function tomLocalStorage() {
 }
 
 console.log('🛠️ helpers.js lastet');
+/**
+ * Anbefal appen (Share API)
+ */
+async function anbefalAppen() {
+    const data = {
+        title: 'GloseMester',
+        text: 'Hei! Sjekk ut GloseMester - det er supergøy å lære gloser og samle kort! 🎮📚',
+        url: window.location.href // Deler lenken til der du er nå
+    };
+
+    if (navigator.share) {
+        // Bruk mobilens innebygde dele-meny
+        try {
+            await navigator.share(data);
+            console.log('Deling vellykket');
+        } catch (err) {
+            console.log('Deling avbrutt');
+        }
+    } else {
+        // Fallback for PC: Kopier lenke
+        kopierTilClipboard(data.url);
+        visToast('📋 Lenke kopiert til utklippstavlen!', 'success');
+    }
+    
+    // Track i analytics
+    if (typeof trackEvent === 'function') {
+        trackEvent('UI', 'Anbefalte appen', 'Footer link');
+    }
+}
