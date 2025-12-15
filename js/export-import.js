@@ -5,7 +5,7 @@
 
 /**
  * Eksporter brukerens samling som QR-kode
- * Komprimerer data og genererer QR-kode
+ * OPTIMALISERT: Sender kun ID-er for å spare plass
  */
 function eksporterSamling() {
     const samling = getSamling();
@@ -16,30 +16,31 @@ function eksporterSamling() {
     }
     
     try {
-        // Komprimer samlingen
-        const komprimertData = JSON.stringify({
-            bruker: brukerNavn,
-            dato: Date.now(),
-            kort: samling.map(k => ({
-                id: k.id,
-                n: k.navn,
-                k: k.kategori,
-                r: k.rarity.type
-            }))
-        });
+        // 1. Trekk ut kun ID-ene (sparer masse plass!)
+        const kortIDer = samling.map(k => k.id);
+
+        // 2. Lag et minimalt objekt
+        const data = {
+            b: brukerNavn,  // b = bruker
+            d: Date.now(),  // d = dato
+            k: kortIDer     // k = kort (array av ID-er)
+        };
         
-        // Base64 encode
-        const encoded = btoa(unescape(encodeURIComponent(komprimertData)));
+        // 3. Komprimer til JSON streng
+        const jsonStreng = JSON.stringify(data);
         
-        // Vis popup med QR-kode
+        // 4. Base64 encode for QR-kode
+        const encoded = btoa(unescape(encodeURIComponent(jsonStreng)));
+        
+        // Vis popup
         visEksportPopup(encoded, samling.length);
         
-        // Track i analytics
+        // Track
         if (typeof trackEvent === 'function') {
             trackEvent('Export', 'Eksportert samling', `${samling.length} kort`);
         }
         
-        console.log('✅ Samling eksportert:', samling.length, 'kort');
+        console.log('✅ Samling eksportert (optimalisert):', samling.length, 'kort');
         
     } catch (e) {
         console.error('❌ Eksport feilet:', e);
@@ -49,7 +50,7 @@ function eksporterSamling() {
 
 /**
  * Importer samling fra QR-kode
- * @param {string} kode - Base64-encoded samling
+ * @param {string} kode - Base64-encoded data
  */
 function importerSamling(kode) {
     if (!kode || kode.trim() === '') {
@@ -58,49 +59,43 @@ function importerSamling(kode) {
     }
     
     try {
-        // Decode base64
+        // 1. Decode base64
         const decoded = decodeURIComponent(escape(atob(kode.trim())));
         const data = JSON.parse(decoded);
         
-        if (!data.kort || !Array.isArray(data.kort)) {
-            throw new Error('Ugyldig data-format');
+        // Støtte for både gammelt format (objekter) og nytt format (ID-er)
+        let importerteKort = [];
+
+        if (data.k && Array.isArray(data.k)) {
+            // Sjekk om det er ID-er (tall) eller objekter
+            if (typeof data.k[0] === 'number' || typeof data.k[0] === 'string') {
+                // NYTT FORMAT: Liste med ID-er -> Slå opp i collection.js
+                importerteKort = data.k.map(id => finnKortFraID(id)).filter(k => k !== null);
+            } else {
+                // GAMMELT FORMAT: Liste med objekter
+                importerteKort = konverterGammelFormat(data.k);
+            }
+        } else if (data.kort) {
+            // VELDIG GAMMELT FORMAT
+            importerteKort = konverterGammelFormat(data.kort);
+        } else {
+            throw new Error('Ukjent dataformat');
         }
         
-        // Ekspander kortdata
-        const importerteKort = data.kort.map(k => {
-            // Finn fullt kort-objekt fra collection
-            let fullKort = null;
-            
-            for (let kategori in kortSamling) {
-                const funnet = kortSamling[kategori].find(kort => kort.id === k.id);
-                if (funnet) {
-                    fullKort = funnet;
-                    break;
-                }
-            }
-            
-            return fullKort || {
-                id: k.id,
-                navn: k.n,
-                kategori: k.k,
-                rarity: getRarityFromType(k.r)
-            };
-        });
-        
+        if (importerteKort.length === 0) {
+            throw new Error('Ingen gyldige kort funnet i koden');
+        }
+
         // Bekreft import
-        if (confirm(`Vil du importere ${importerteKort.length} kort fra ${data.bruker || 'ukjent bruker'}?\n\nDette vil OVERSKRIVE din nåværende samling!`)) {
+        const senderNavn = data.b || data.bruker || 'ukjent bruker';
+        if (confirm(`Vil du importere ${importerteKort.length} kort fra ${senderNavn}?\n\nDette vil OVERSKRIVE din nåværende samling!`)) {
             setSamling(importerteKort);
             alert(`✅ Importert ${importerteKort.length} kort!`);
             
             // Oppdater visning
-            if (aktivRolle === 'elev' && typeof visSamling === 'function') {
-                visSamling();
-            }
-            if (aktivRolle === 'oving' && typeof visOvingSamling === 'function') {
-                visOvingSamling();
-            }
+            oppdaterVisningEtterImport();
             
-            // Track i analytics
+            // Track
             if (typeof trackEvent === 'function') {
                 trackEvent('Import', 'Importert samling', `${importerteKort.length} kort`);
             }
@@ -115,12 +110,56 @@ function importerSamling(kode) {
 }
 
 /**
+ * Hjelper: Finn fullt kort-objekt basert på ID
+ */
+function finnKortFraID(id) {
+    // Søk gjennom alle kategorier i kortSamling (fra collection.js)
+    for (let kategori in kortSamling) {
+        const funnet = kortSamling[kategori].find(k => k.id == id);
+        if (funnet) return funnet;
+    }
+    console.warn('⚠️ Fant ikke kort med ID:', id);
+    return null;
+}
+
+/**
+ * Hjelper: Håndter gammelt format for bakoverkompatibilitet
+ */
+function konverterGammelFormat(kortListe) {
+    return kortListe.map(k => {
+        // Prøv å finn kortet i systemet først (best practice)
+        const systemKort = finnKortFraID(k.id);
+        if (systemKort) return systemKort;
+
+        // Fallback hvis ID ikke finnes (bør ikke skje)
+        return {
+            id: k.id,
+            navn: k.n || k.navn,
+            kategori: k.k || k.kategori,
+            rarity: getRarityFromType(k.r || (k.rarity ? k.rarity.type : 'vanlig'))
+        };
+    });
+}
+
+/**
+ * Hjelper: Oppdater UI etter import
+ */
+function oppdaterVisningEtterImport() {
+    if (aktivRolle === 'elev' && typeof visSamling === 'function') {
+        visSamling();
+    }
+    if (aktivRolle === 'oving' && typeof visOvingSamling === 'function') {
+        visOvingSamling();
+    }
+}
+
+/**
  * Vis eksport-popup med QR-kode
- * @param {string} kode - Encoded samling
- * @param {number} antall - Antall kort
  */
 function visEksportPopup(kode, antall) {
-    // Opprett popup HTML
+    // Sjekk om popup allerede finnes
+    lukkEksportPopup();
+
     const popup = document.createElement('div');
     popup.className = 'popup-overlay active';
     popup.id = 'eksport-popup';
@@ -128,7 +167,8 @@ function visEksportPopup(kode, antall) {
         <div class="popup-content">
             <h2>📤 Eksporter Samling</h2>
             <p>Din samling med <strong>${antall} kort</strong> er klar!</p>
-            <div id="eksport-qr-container" style="margin: 20px 0;"></div>
+            <div id="eksport-qr-container" style="margin: 20px auto; background: white; padding: 10px; width: fit-content; border-radius: 8px;"></div>
+            
             <div class="info-box">
                 <strong>Slik deler du samlingen:</strong>
                 <ol style="text-align: left; margin: 10px 0;">
@@ -136,9 +176,13 @@ function visEksportPopup(kode, antall) {
                     <li>Eller kopier koden under og send den</li>
                 </ol>
             </div>
-            <div class="kode-boks" style="font-size: 10px; max-height: 100px; overflow-y: auto;">${kode}</div>
-            <button class="btn-secondary" onclick="kopierEksportKode('${kode}')">📋 Kopier kode</button>
-            <button class="btn-primary" onclick="lukkEksportPopup()">Lukk</button>
+            
+            <div class="kode-boks" style="font-size: 10px; max-height: 80px; overflow-y: auto; overflow-x: hidden; word-break: break-all;">${kode}</div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-secondary" style="flex: 1;" onclick="kopierEksportKode('${kode}')">📋 Kopier</button>
+                <button class="btn-primary" style="flex: 1;" onclick="lukkEksportPopup()">Lukk</button>
+            </div>
         </div>
     `;
     document.body.appendChild(popup);
@@ -149,28 +193,37 @@ function visEksportPopup(kode, antall) {
         text: kode,
         width: 200,
         height: 200,
-        colorDark: "#0071e3",
+        correctLevel: QRCode.CorrectLevel.L, // L = Lower error correction = mindre QR-kode (lettere å scanne)
+        colorDark: "#000000",
         colorLight: "#ffffff"
     });
 }
 
 /**
  * Kopier eksport-kode til clipboard
- * @param {string} kode - Kode å kopiere
  */
 function kopierEksportKode(kode) {
-    navigator.clipboard.writeText(kode).then(() => {
-        alert('✅ Kode kopiert! Send den til mottaker.');
-    }).catch(() => {
-        // Fallback for eldre browsere
-        const textarea = document.createElement('textarea');
-        textarea.value = kode;
-        document.body.appendChild(textarea);
-        textarea.select();
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(kode).then(() => {
+            alert('✅ Kode kopiert!');
+        }).catch(() => fallbackKopier(kode));
+    } else {
+        fallbackKopier(kode);
+    }
+}
+
+function fallbackKopier(kode) {
+    const textarea = document.createElement('textarea');
+    textarea.value = kode;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
         document.execCommand('copy');
-        document.body.removeChild(textarea);
         alert('✅ Kode kopiert!');
-    });
+    } catch (err) {
+        alert('Kunne ikke kopiere automatisk.');
+    }
+    document.body.removeChild(textarea);
 }
 
 /**
@@ -185,8 +238,6 @@ function lukkEksportPopup() {
 
 /**
  * Hjelper: Konverter rarity type til fullt objekt
- * @param {string} type - Rarity type
- * @returns {object} Rarity objekt
  */
 function getRarityFromType(type) {
     const rarityMap = {
@@ -198,4 +249,4 @@ function getRarityFromType(type) {
     return rarityMap[type] || rarityMap['vanlig'];
 }
 
-console.log('📤 export-import.js lastet');
+console.log('📤 export-import.js lastet (v2 - optimized)');
