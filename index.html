@@ -332,7 +332,48 @@
             <div class="input-group" style="margin-top:20px;">
                 <label>Navn på prøven</label>
                 <input type="text" id="ny-prove-navn" placeholder="F.eks: Uke 42 - Engelske Dyr">
+            </div><div id="laerer-dashboard" class="page">
+        <div class="card-container">
+            <div id="auth-login-section" style="text-align: center; padding: 20px 0;">
+                <h2 style="color: var(--accent-purple);">Lærer-portal 🍎</h2>
+                <p style="color: #666; margin-bottom: 25px;">
+                    Logg inn for å lagre prøvene dine i skyen, <br>
+                    dele med kollegaer og redigere på PC.
+                </p>
+                
+                <button id="btn-login" class="btn-primary btn-google" onclick="loggInn()">
+                    <span style="font-size: 18px;">🇬</span> &nbsp; Logg inn med Google
+                </button>
+                
+                <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                    49,- / mnd etter prøveperioden.<br>
+                    Elever trenger ikke logge inn.
+                </p>
             </div>
+
+            <div id="teacher-ui" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2 style="margin:0;">Mitt Bibliotek</h2>
+                        <span id="user-name" style="font-size: 13px; color: var(--accent-purple); font-weight: 600;"></span>
+                    </div>
+                    <button id="btn-logout" class="btn-secondary btn-small" onclick="loggUt()">Logg ut</button>
+                </div>
+
+                <div class="toolbar" style="margin: 20px 0; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn-sound" onclick="startQRScanner('laerer')" title="Skann fra kollega" style="width: 40px; height: 40px; font-size: 20px;">📷</button>
+                    <button class="btn-secondary btn-small" onclick="importerProveFraTekst()">📥 Import</button>
+                    <button class="btn-primary btn-small" onclick="visSide('laerer-editor')" style="margin-left: auto;">+ Ny Prøve</button>
+                </div>
+
+                <p id="ingen-prover-msg" style="color:#86868b; display:none; text-align: center; margin-top: 30px;">
+                    Du har ingen prøver ennå. Lag din første nå!
+                </p>
+                
+                <ul id="bibliotek-liste" class="bibliotek-liste"></ul>
+            </div>
+        </div>
+    </div>
             
             <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
             
@@ -507,5 +548,6 @@
             <button class="btn-secondary" onclick="document.getElementById('eksport-popup').style.display='none'">Lukk</button>
         </div>
     </div>
+<script type="module" src="js/features/auth.js"></script>
 </body>
 </html>

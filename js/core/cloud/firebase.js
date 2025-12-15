@@ -1,147 +1,50 @@
-/**
- * FIREBASE CONFIG & EXPORTS
- * Bruker Firebase SDK v9 (Modular) via CDN for Vanilla JS.
- */
+// ============================================
+// FIREBASE.JS - GloseMester v1.0
+// Konfigurasjon og initiering av Cloud-tjenester
+// ============================================
 
-// 1. Importer funksjoner fra Firebase CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    where, 
-    orderBy 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// Vi bruker ES Modules import fra CDN for å slippe "npm install"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-// 2. Firebase Konfigurasjon
-// TODO: Bytt ut med dine egne nøkler fra Firebase Console -> Project Settings
+// ⚠️ ERSTATT MED DINE EGNE NØKLER FRA FIREBASE CONSOLE:
+// Gå til: Project Settings -> General -> "Your apps" -> SDK setup and configuration (CDN)
 const firebaseConfig = {
-    apiKey: "DINE_API_KEY_HER",
-    authDomain: "gloseme-xxxx.firebaseapp.com",
-    projectId: "gloseme-xxxx",
-    storageBucket: "gloseme-xxxx.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
+  apiKey: "DIN_API_KEY_HER",
+  authDomain: "ditt-prosjekt-id.firebaseapp.com",
+  projectId: "ditt-prosjekt-id",
+  storageBucket: "ditt-prosjekt-id.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
 };
 
-// 3. Initialiser Firebase
-let app;
-let auth;
-let db;
+// Initialiser Firebase
+let app, db, auth, googleProvider;
 
 try {
     app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
     db = getFirestore(app);
-    console.log("🔥 Firebase v9 initialized");
-} catch (error) {
-    console.error("❌ Firebase init failed. Sjekk config!", error);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    console.log("☁️ Firebase initialisert");
+} catch (e) {
+    console.error("❌ Firebase Config Feil (Mangler API-nøkler?)", e);
 }
 
-/**
- * 4. Hjelpefunksjon: Sjekk Premium Status
- * Foreløpig mock-implementasjon. Skal kobles mot Stripe/Custom Claims senere.
- * * @param {object} user - Firebase User objekt
- * @returns {Promise<boolean>}
- */
-async function sjekkPremiumStatus(user) {
+// Hjelpefunksjon: Sjekk om bruker er Premium (Betalende lærer)
+// I v1.0 sier vi bare "True" for alle innloggede lærere.
+// I v2.0 kobler vi dette mot Stripe-kvitteringer.
+function sjekkPremiumStatus(user) {
     if (!user) return false;
-    
-    // TODO: Implementer sjekk mot 'subscriptions' collection eller ID-token claims
-    console.log(`💳 Sjekker premium status for: ${user.email}`);
-    
-    // Returnerer alltid true i Alpha/Dev
+    // Her kan vi legge inn logikk senere: return user.claims.stripeRole === 'premium';
     return true; 
 }
 
-// 5. Eksporter alt som 'storage.js' trenger
-export {
-    app,
-    auth,
-    db,
-    // Firestore metoder
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    where,
-    orderBy,
-    // Egne hjelpere
-    sjekkPremiumStatus
-};/**
- * FIREBASE CONFIG & EXPORTS
- * Bruker Firebase SDK v9 (Modular) via CDN for Vanilla JS.
- */
-
-// 1. Importer funksjoner fra Firebase CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    where, 
-    orderBy 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-// 2. Firebase Konfigurasjon
-// TODO: Bytt ut med dine egne nøkler fra Firebase Console -> Project Settings
-const firebaseConfig = {
-    apiKey: "DINE_API_KEY_HER",
-    authDomain: "gloseme-xxxx.firebaseapp.com",
-    projectId: "gloseme-xxxx",
-    storageBucket: "gloseme-xxxx.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
-};
-
-// 3. Initialiser Firebase
-let app;
-let auth;
-let db;
-
-try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    console.log("🔥 Firebase v9 initialized");
-} catch (error) {
-    console.error("❌ Firebase init failed. Sjekk config!", error);
-}
-
-/**
- * 4. Hjelpefunksjon: Sjekk Premium Status
- * Foreløpig mock-implementasjon. Skal kobles mot Stripe/Custom Claims senere.
- * * @param {object} user - Firebase User objekt
- * @returns {Promise<boolean>}
- */
-async function sjekkPremiumStatus(user) {
-    if (!user) return false;
-    
-    // TODO: Implementer sjekk mot 'subscriptions' collection eller ID-token claims
-    console.log(`💳 Sjekker premium status for: ${user.email}`);
-    
-    // Returnerer alltid true i Alpha/Dev
-    return true; 
-}
-
-// 5. Eksporter alt som 'storage.js' trenger
-export {
-    app,
-    auth,
-    db,
-    // Firestore metoder
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    where,
-    orderBy,
-    // Egne hjelpere
-    sjekkPremiumStatus
+// Eksporter funksjonene så andre filer (auth.js, teacher.js) kan bruke dem
+export { 
+    app, db, auth, googleProvider, 
+    collection, addDoc, getDocs, query, where, orderBy, // Firestore funksjoner
+    signInWithPopup, signOut, onAuthStateChanged,       // Auth funksjoner
+    sjekkPremiumStatus 
 };

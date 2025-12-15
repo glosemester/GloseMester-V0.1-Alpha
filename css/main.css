@@ -1006,3 +1006,26 @@ input:focus, textarea:focus, select:focus {
         justify-content: center;
     }
 }
+/* Lærer Dashboard Styles */
+.btn-google {
+    background-color: #4285F4;
+    transition: background-color 0.2s;
+}
+.btn-google:hover {
+    background-color: #357ae8;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+/* Skjul login-seksjonen hvis vi er logget inn (håndteres av auth.js),
+   men vi legger til en CSS-klasse for sikkerhets skyld */
+.hidden {
+    display: none !important;
+}
