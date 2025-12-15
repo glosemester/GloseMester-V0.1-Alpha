@@ -11,8 +11,11 @@ let gjeldendeSporsmaalIndex = 0;
 let riktigeSvar = 0;
 let ovingOrdliste = [];
 let ovingIndex = 0;
-let ovingRetning = 'en';
-let proveSprak = 'en';
+
+// ENDRET: Norsk er nå standard
+let ovingRetning = 'no'; 
+let proveSprak = 'no';
+
 let credits = 0;
 let creditProgress = 0;
 let valgtSortering = 'nyeste';

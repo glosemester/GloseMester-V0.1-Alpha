@@ -127,12 +127,12 @@
             <div class="lang-section" style="margin-top: 25px;">
                 <span class="lang-label">Velg oppgavetype:</span>
                 <div class="lang-toggle">
-                    <button class="lang-btn active" id="prove-lang-en" onclick="settProveSprak('en')">
+                    <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')">
                         <span class="lang-icon">🇬🇧</span>
                         <span>Skriv Engelsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Norsk ord)</small>
                     </button>
-                    <button class="lang-btn" id="prove-lang-no" onclick="settProveSprak('no')">
+                    <button class="lang-btn active" id="lang-no" onclick="settSprakRetning('no')">
                         <span class="lang-icon">🇳🇴</span>
                         <span>Skriv Norsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Engelsk ord)</small>
@@ -289,7 +289,63 @@
             <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom: 20px;">
                 <button class="btn-sound" onclick="lesOppOving()">🔊</button>
             </div>
+<div id="oving-alternativer" class="alternativer-grid" style="display:none;"></div>
 
+            <input type="text" id="oving-svar" placeholder="Skriv på engelsk..." autocomplete="off" onkeydown="handleEnter(event, sjekkOvingSvar)">
+            
+            <button id="btn-svar-tekst" class="btn-primary btn-purple" onclick="sjekkOvingSvar()">Svar</button>
+            
+            ```
+
+---
+
+### Steg 2: Legg til CSS i `css/main.css`
+
+Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn dette:
+
+```css
+/* ============================================
+   FLERVALGSKNAPPER (1-2 Trinn)
+   ============================================ */
+
+.alternativer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.alt-btn {
+    background: white;
+    border: 3px solid #e5e5ea;
+    padding: 20px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: capitalize;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.alt-btn:hover {
+    border-color: var(--accent-purple);
+    background: #fbf5fd;
+    transform: translateY(-3px);
+}
+
+.alt-btn:active {
+    transform: scale(0.98);
+}
+
+/* Responsivt for større skjermer: 3 ved siden av hverandre hvis plass */
+@media (min-width: 600px) {
+    .alternativer-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
             <input type="text" id="oving-svar" placeholder="Skriv på engelsk..." autocomplete="off" onkeydown="handleEnter(event, sjekkOvingSvar)">
             <button class="btn-primary btn-purple" onclick="sjekkOvingSvar()">Svar</button>
             <p id="oving-feedback" style="margin-top: 15px; font-weight: 500; min-height: 24px; text-align:center;"></p>
