@@ -227,13 +227,12 @@
 
             <div class="lang-section">
                 <span class="lang-label">Velg oppgavetype:</span>
-               <div class="lang-toggle">
+                <div class="lang-toggle">
                     <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')">
                         <span class="lang-icon">🇬🇧</span>
                         <span>Skriv Engelsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Norsk ord)</small>
                     </button>
-                    
                     <button class="lang-btn active" id="lang-no" onclick="settSprakRetning('no')">
                         <span class="lang-icon">🇳🇴</span>
                         <span>Skriv Norsk</span>
@@ -320,7 +319,10 @@
         <div class="card-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2>Mitt Bibliotek</h2>
-                <button class="btn-primary btn-small" onclick="visSide('laerer-editor')">+ Ny Prøve</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary btn-small" onclick="importerProveFraTekst()">📥 Importer</button>
+                    <button class="btn-primary btn-small" onclick="visSide('laerer-editor')">+ Ny Prøve</button>
+                </div>
             </div>
             <p id="ingen-prover-msg" style="color:#86868b; display:none;">Prøver du lager på denne enheten vises her.</p>
             <ul id="bibliotek-liste" class="bibliotek-liste"></ul>
@@ -354,6 +356,19 @@
             <ul id="editor-liste" class="bibliotek-liste" style="margin-top:20px;"></ul>
             
             <button class="btn-primary" onclick="lagreProveTilBibliotek()">Lagre Prøve</button>
+        </div>
+    </div>
+
+    <div id="import-valg-popup" class="popup-overlay">
+        <div class="popup-content">
+            <h3>Prøve funnet!</h3>
+            <p style="color:#666;">Du har åpnet <strong id="import-navn">en prøve</strong>.</p>
+            <p>Hva vil du gjøre?</p>
+            
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+                <button class="btn-primary" onclick="handterImportValg('elev')">🎓 Ta prøven (Elev)</button>
+                <button class="btn-secondary" onclick="handterImportValg('laerer')">🍎 Lagre i bibliotek (Lærer)</button>
+            </div>
         </div>
     </div>
 

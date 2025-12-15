@@ -77,23 +77,7 @@ function lagreProveTilBibliotek() {
         return;
     }
     
-    let bib = hentLokaleProver();
-    
-    const nyProve = {
-        id: Date.now(),
-        navn: navn,
-        ordliste: editorListe
-    };
-    
-    bib.push(nyProve);
-    localStorage.setItem('lokale_prover', JSON.stringify(bib));
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Lærer', 'Lagret prøve', `${editorListe.length} ord`);
-    }
-    
-    alert('✅ Prøve lagret!');
+    lagreNyProve(navn, editorListe);
     
     // Reset editor
     editorListe = [];
@@ -102,8 +86,30 @@ function lagreProveTilBibliotek() {
     
     // Gå til bibliotek
     visSide('laerer-dashboard');
+}
+
+/**
+ * Hjelpefunksjon: Lagre ny prøve i localStorage
+ */
+function lagreNyProve(navn, ordliste) {
+    let bib = hentLokaleProver();
     
-    console.log('✅ Prøve lagret:', navn, '-', nyProve.ordliste.length, 'ord');
+    const nyProve = {
+        id: Date.now(),
+        navn: navn,
+        ordliste: ordliste
+    };
+    
+    bib.push(nyProve);
+    localStorage.setItem('lokale_prover', JSON.stringify(bib));
+    
+    if (typeof trackEvent === 'function') {
+        trackEvent('Lærer', 'Lagret prøve', `${ordliste.length} ord`);
+    }
+    
+    console.log('✅ Prøve lagret:', navn);
+    alert('✅ Prøve lagret i biblioteket!');
+    return nyProve;
 }
 
 /**
@@ -157,7 +163,6 @@ function slettProve(id) {
     }
     
     oppdaterBibliotekVisning();
-    
     console.log('🗑️ Prøve slettet:', id);
 }
 
@@ -184,8 +189,9 @@ function visKodeForProve(id) {
     const qrContainer = document.getElementById('qrcode-container');
     qrContainer.innerHTML = "";
     
+    // URL inkluderer nå navn for enklere import
     const currentUrl = window.location.href.split('?')[0];
-    const directLink = `${currentUrl}?quiz=${base64Code}`;
+    const directLink = `${currentUrl}?quiz=${base64Code}&navn=${encodeURIComponent(p.navn)}`;
     
     new QRCode(qrContainer, {
         text: directLink,
@@ -200,11 +206,6 @@ function visKodeForProve(id) {
     
     // Lagre ID for print-funksjon
     window.currentProveIdForPrint = id;
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Lærer', 'Delte prøve', p.navn);
-    }
     
     console.log('📤 Kode generert for:', p.navn);
 }
@@ -239,7 +240,7 @@ function skrivUtQR() {
     printQRContainer.innerHTML = '';
     const kode = komprimer(aktuelProve.ordliste);
     const currentUrl = window.location.href.split('?')[0];
-    const directLink = `${currentUrl}?quiz=${kode}`;
+    const directLink = `${currentUrl}?quiz=${kode}&navn=${encodeURIComponent(aktuelProve.navn)}`;
     
     new QRCode(printQRContainer, {
         text: directLink,
@@ -251,26 +252,16 @@ function skrivUtQR() {
     
     printKodeTekst.innerText = kode;
     
-    // Skjul popup
+    // Skjul popup og vis print
     document.getElementById('kode-popup').style.display = 'none';
-    
-    // Vis print-side
     printPage.style.display = 'block';
     
-    // Print etter kort delay
     setTimeout(() => {
         window.print();
-        
-        // Skjul print-side etter print
         setTimeout(() => {
             printPage.style.display = 'none';
         }, 500);
     }, 500);
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Lærer', 'Skrev ut QR', aktuelProve.navn);
-    }
 }
 
 /**
@@ -294,12 +285,39 @@ function lastNedQR() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
-        // Track i analytics
-        if (typeof trackEvent === 'function') {
-            trackEvent('Lærer', 'Lastet ned QR', 'PNG');
-        }
     });
 }
 
-console.log('🍎 teacher.js lastet');
+/**
+ * Håndter manuell import av prøve (lim inn kode)
+ */
+function importerProveFraTekst() {
+    const kode = prompt("Lim inn prøvekode fra en kollega:");
+    if (!kode) return;
+    
+    try {
+        const ordliste = dekomprimer(kode);
+        const navn = prompt("Hva skal prøven hete?", "Importert Prøve");
+        
+        if (navn && ordliste.length > 0) {
+            lagreNyProve(navn, ordliste);
+            oppdaterBibliotekVisning();
+        }
+    } catch (e) {
+        alert("Ugyldig kode!");
+        console.error(e);
+    }
+}
+
+/**
+ * Lagre en importert prøve (fra lenke/QR)
+ */
+function lagreImportertProve(proveData, navn) {
+    const nyttNavn = prompt("Gi prøven et navn:", navn || "Ny Prøve");
+    if (nyttNavn) {
+        lagreNyProve(nyttNavn, proveData);
+        velgRolle('laerer'); // Gå til lærermenyen
+    }
+}
+
+console.log('🍎 teacher.js lastet (v2 - import)');

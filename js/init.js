@@ -12,7 +12,7 @@ let riktigeSvar = 0;
 let ovingOrdliste = [];
 let ovingIndex = 0;
 
-// ENDRET: Norsk er nå standard
+// Norsk er standard
 let ovingRetning = 'no'; 
 let proveSprak = 'no';
 
@@ -21,6 +21,7 @@ let creditProgress = 0;
 let valgtSortering = 'nyeste';
 let valgtKategori = 'biler';
 let editorListe = [];
+let importertProveData = null; // Midlertidig lagring ved import
 
 // SERVICE WORKER REGISTRATION
 if ('serviceWorker' in navigator) {
@@ -28,8 +29,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
             .then(reg => {
                 console.log('✅ Service Worker registrert:', reg.scope);
-                
-                // Sjekk for oppdateringer
                 reg.onupdatefound = () => {
                     const newWorker = reg.installing;
                     newWorker.onstatechange = () => {
@@ -51,20 +50,12 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 GloseMester v0.1-ALPHA - Starter...');
     
-    // Last inn brukerdata
     const aktivBruker = localStorage.getItem('aktiv_bruker');
-    if(aktivBruker) {
-        brukerNavn = aktivBruker;
-    } else {
-        brukerNavn = "Spiller";
-    }
+    if(aktivBruker) brukerNavn = aktivBruker;
     
-    // Initialiser brukerdata hvis loadUserData finnes
-    if (typeof loadUserData === 'function') {
-        loadUserData();
-    }
+    if (typeof loadUserData === 'function') loadUserData();
 
-    // Sjekk om app kjører som PWA (standalone)
+    // Sjekk PWA status
     const installBtn = document.getElementById('install-btn');
     if (installBtn) {
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
@@ -74,38 +65,93 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Sjekk om det er en quiz-kode i URL
+    // SJEKK URL PARAMETERE (QR-kode scan)
     const urlParams = new URLSearchParams(window.location.search);
     const quizCode = urlParams.get('quiz');
+    const quizNavn = urlParams.get('navn');
+
     if (quizCode) {
-        setTimeout(() => {
-            if (typeof velgRolle === 'function') {
-                velgRolle('kode');
+        console.log("🔗 Prøve oppdaget i URL!");
+        
+        try {
+            // Dekomprimer for å sjekke at den er gyldig
+            if (typeof dekomprimer === 'function') {
+                importertProveData = dekomprimer(quizCode);
+                
+                // Vis valg-popup i stedet for å starte direkte
                 setTimeout(() => {
-                    const proveKodeInput = document.getElementById('prove-kode');
-                    if (proveKodeInput) {
-                        proveKodeInput.value = quizCode;
-                        if (typeof startProve === 'function') {
-                            startProve();
-                        }
-                    }
-                }, 200);
-                alert("Prøve funnet! Starter automatisk...");
+                    visImportValgPopup(quizNavn);
+                }, 500);
+                
+                // Rydd opp URL slik at den ikke kjører igjen ved refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
-        }, 500);
+        } catch (e) {
+            console.error("❌ Feil ved lesing av prøvekode:", e);
+        }
     }
     
     console.log('✅ GloseMester initialisert!');
-    console.log('👤 Bruker:', brukerNavn);
-    console.log('💎 Credits:', credits);
 });
+
+/**
+ * Vis popup for å velge mellom ELEV (ta prøve) og LÆRER (lagre prøve)
+ */
+function visImportValgPopup(navn) {
+    const popup = document.getElementById('import-valg-popup');
+    if (popup) {
+        document.getElementById('import-navn').innerText = navn ? `"${navn}"` : "en prøve";
+        popup.style.display = 'flex';
+    }
+}
+
+/**
+ * Håndter valget fra popup
+ */
+function handterImportValg(handling) {
+    document.getElementById('import-valg-popup').style.display = 'none';
+    
+    if (handling === 'elev') {
+        // Start som elev
+        velgRolle('kode');
+        setTimeout(() => {
+            if (typeof startProveMedData === 'function') {
+                startProveMedData(importertProveData);
+            } else {
+                // Fallback hvis funksjon ikke finnes ennå, bruk input
+                const kode = komprimer(importertProveData);
+                document.getElementById('prove-kode').value = kode;
+                startProve();
+            }
+        }, 200);
+        
+    } else if (handling === 'laerer') {
+        // Lagre som lærer
+        if (typeof lagreImportertProve === 'function') {
+            const navn = document.getElementById('import-navn').innerText.replace(/"/g, '');
+            lagreImportertProve(importertProveData, navn);
+        }
+    }
+}
+
+// Helper for quiz.js hvis vi starter direkte med data
+function startProveMedData(data) {
+    aktivProve = data;
+    if (typeof lagreProveLokalt === 'function') {
+        lagreProveLokalt("importert_" + Date.now(), aktivProve);
+    }
+    gjeldendeSporsmaalIndex = 0;
+    riktigeSvar = 0;
+    document.getElementById('prove-omraade').style.display = 'block';
+    document.getElementById('prove-kode').parentElement.style.display = 'none';
+    visNesteSporsmaal();
+}
 
 // INSTALL PROMPT HANDLER
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
     const installBtn = document.getElementById('install-btn');
     if (installBtn) {
         installBtn.style.display = 'block';
@@ -113,20 +159,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response: ${outcome}`);
                 deferredPrompt = null;
             }
         });
     }
 });
 
-// APP INSTALLED EVENT
 window.addEventListener('appinstalled', () => {
-    console.log('✅ GloseMester installert som PWA!');
     const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.style.display = 'none';
-    }
+    if (installBtn) installBtn.style.display = 'none';
 });
 
-console.log('📦 init.js lastet');
+console.log('📦 init.js lastet (v2 - import valg)');
