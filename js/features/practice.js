@@ -143,20 +143,20 @@ async function sjekkOvingSvar() {
 }
 
 /**
- * Hent tilfeldig kort fra valgt kategori
+ * Hent tilfeldig kort fra en TILFELDIG kategori
  */
 async function hentTilfeldigKort() {
     try {
-        // Velg tilfeldig kategori hvis ikke valgt
-        if (!valgtKategori) {
-            const kategorier = ['biler', 'guder', 'dinosaurer', 'dyr'];
-            valgtKategori = kategorier[Math.floor(Math.random() * kategorier.length)];
-        }
+        // 1. Vi vil alltid ha en tilfeldig kategori når man vinner
+        const kategorier = ['biler', 'guder', 'dinosaurer', 'dyr'];
+        const gevinstKategori = kategorier[Math.floor(Math.random() * kategorier.length)];
         
-        const kategoriKort = kortSamling[valgtKategori];
+        console.log('🎰 Trekker gevinst fra kategori:', gevinstKategori);
+
+        const kategoriKort = kortSamling[gevinstKategori];
         
         if (!kategoriKort || kategoriKort.length === 0) {
-            console.error('❌ Ingen kort i kategori:', valgtKategori);
+            console.error('❌ Ingen kort i kategori:', gevinstKategori);
             return;
         }
         
@@ -168,12 +168,12 @@ async function hentTilfeldigKort() {
         else if (rand > 85) rarity = "episk";
         else if (rand > 60) rarity = "sjelden";
         
-        // Filtrer kort basert på rarity
+        // Filtrer kort basert på rarity i den tilfeldige kategorien
         const muligeKort = kategoriKort.filter(k => 
-            k.rarity.type === rarity || k.rarity.type === rarity
+            k.rarity.type === rarity
         );
         
-        // Hvis ingen kort med denne rarity, ta et tilfeldig
+        // Hvis ingen kort med denne rarity, ta et tilfeldig fra samme kategori
         const tilfeldigKort = muligeKort.length > 0
             ? muligeKort[Math.floor(Math.random() * muligeKort.length)]
             : kategoriKort[Math.floor(Math.random() * kategoriKort.length)];
