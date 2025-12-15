@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     
-    <script async src="[https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG](https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG)"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -23,8 +23,8 @@
     <link rel="stylesheet" href="css/kort.css">
     <link rel="stylesheet" href="css/popups.css">
     
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js)"></script>
-    <script src="[https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js](https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js)"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
     <div class="creator-credit">Laget av Øyvind Nilsen Oksvold</div>
@@ -111,12 +111,12 @@
             <div class="lang-section" style="margin-top: 25px;">
                 <span class="lang-label">Velg oppgavetype:</span>
                 <div class="lang-toggle">
-                    <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')">
+                    <button class="lang-btn" id="prove-lang-en" onclick="settProveSprak('en')">
                         <span class="lang-icon">🇬🇧</span>
                         <span>Skriv Engelsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Norsk ord)</small>
                     </button>
-                    <button class="lang-btn active" id="lang-no" onclick="settSprakRetning('no')">
+                    <button class="lang-btn active" id="prove-lang-no" onclick="settProveSprak('no')">
                         <span class="lang-icon">🇳🇴</span>
                         <span>Skriv Norsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Engelsk ord)</small>
@@ -183,27 +183,27 @@
                 <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
                     <span class="emoji">🎴</span>
                     <span class="tekst">Alle</span>
-                    <span class="count" id="count-alle">(0)</span>
+                    <span class="count count-alle">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="biler" onclick="velgKategori('biler')">
                     <span class="emoji">🚗</span>
                     <span class="tekst">Biler</span>
-                    <span class="count" id="count-biler">(0)</span>
+                    <span class="count count-biler">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="guder" onclick="velgKategori('guder')">
                     <span class="emoji">⚡</span>
                     <span class="tekst">Guder</span>
-                    <span class="count" id="count-guder">(0)</span>
+                    <span class="count count-guder">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="dinosaurer" onclick="velgKategori('dinosaurer')">
                     <span class="emoji">🦖</span>
                     <span class="tekst">Dinosaurer</span>
-                    <span class="count" id="count-dinosaurer">(0)</span>
+                    <span class="count count-dinosaurer">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="dyr" onclick="velgKategori('dyr')">
                     <span class="emoji">🐾</span>
                     <span class="tekst">Dyr</span>
-                    <span class="count" id="count-dyr">(0)</span>
+                    <span class="count count-dyr">(0)</span>
                 </button>
             </div>
             
@@ -228,12 +228,12 @@
             <div class="lang-section">
                 <span class="lang-label">Velg oppgavetype:</span>
                 <div class="lang-toggle">
-                    <button class="lang-btn active" id="lang-en" onclick="settSprakRetning('en')">
+                    <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')">
                         <span class="lang-icon">🇬🇧</span>
                         <span>Skriv Engelsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Norsk ord)</small>
                     </button>
-                    <button class="lang-btn" id="lang-no" onclick="settSprakRetning('no')">
+                    <button class="lang-btn active" id="lang-no" onclick="settSprakRetning('no')">
                         <span class="lang-icon">🇳🇴</span>
                         <span>Skriv Norsk</span>
                         <small style="font-weight:400; font-size:12px;">(Se Engelsk ord)</small>
@@ -287,27 +287,27 @@
                 <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
                     <span class="emoji">🎴</span>
                     <span class="tekst">Alle</span>
-                    <span class="count" id="count-alle">(0)</span>
+                    <span class="count count-alle">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="biler" onclick="velgKategori('biler')">
                     <span class="emoji">🚗</span>
                     <span class="tekst">Biler</span>
-                    <span class="count" id="count-biler">(0)</span>
+                    <span class="count count-biler">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="guder" onclick="velgKategori('guder')">
                     <span class="emoji">⚡</span>
                     <span class="tekst">Guder</span>
-                    <span class="count" id="count-guder">(0)</span>
+                    <span class="count count-guder">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="dinosaurer" onclick="velgKategori('dinosaurer')">
                     <span class="emoji">🦖</span>
                     <span class="tekst">Dinosaurer</span>
-                    <span class="count" id="count-dinosaurer">(0)</span>
+                    <span class="count count-dinosaurer">(0)</span>
                 </button>
                 <button class="kategori-btn" data-kategori="dyr" onclick="velgKategori('dyr')">
                     <span class="emoji">🐾</span>
                     <span class="tekst">Dyr</span>
-                    <span class="count" id="count-dyr">(0)</span>
+                    <span class="count count-dyr">(0)</span>
                 </button>
             </div>
             

@@ -42,22 +42,17 @@ function visKortGrid(containerId, liste, showTrade) {
     }
 
     // 3. GRUPPER DUPLIKATER (Stacking)
-    // Vi gjør om listen til unike kort med en "antall"-egenskap
     const unikeKortMap = new Map();
 
     filtrerteKort.forEach(kort => {
         if (unikeKortMap.has(kort.id)) {
-            // Hvis kortet finnes, øk antallet
             const eksisterende = unikeKortMap.get(kort.id);
             eksisterende.antall++;
         } else {
-            // Hvis nytt, legg til med antall = 1
-            // Vi lager en kopi for ikke å endre originaldataene
             unikeKortMap.set(kort.id, { ...kort, antall: 1 });
         }
     });
 
-    // Konverter tilbake til array for sortering
     let visningsListe = Array.from(unikeKortMap.values());
 
     // 4. Sorter basert på valgt sortering
@@ -66,8 +61,6 @@ function visKortGrid(containerId, liste, showTrade) {
     } else if (valgtSortering === 'navn') {
         visningsListe.sort((a, b) => a.navn.localeCompare(b.navn));
     } else {
-        // Nyeste først (basert på ID for enkelhets skyld når vi stacker)
-        // Siden nyere kort har høyere ID eller ligger sist i arrayet
         visningsListe.reverse(); 
     }
     
@@ -75,14 +68,12 @@ function visKortGrid(containerId, liste, showTrade) {
     visningsListe.forEach(k => {
         let tradeBtn = "";
         
-        // Vis bytteknapp bare hvis vi har lov (showTrade)
         if (showTrade) {
             tradeBtn = `<button class="trade-btn" onclick="event.stopPropagation(); byttKort(${k.id})">🔄 Bytt</button>`;
         }
 
         const bildeUrl = `${BILDE_STI}${k.id}${FILTYPE}`;
         
-        // Lag antall-badge hvis man har flere enn 1
         const antallBadge = k.antall > 1 
             ? `<div class="antall-badge">x${k.antall}</div>` 
             : '';
@@ -216,23 +207,18 @@ async function byttKort(kortId) {
 
     let samling = getSamling();
     
-    // Fjern ÉN instans av kortet (den første vi finner med denne ID-en)
     const indexITabell = samling.findIndex(k => k.id == kortId);
     if (indexITabell > -1) {
         samling.splice(indexITabell, 1);
-        // Lagre endret samling (viktig siden vi manipulerer arrayet direkte)
         setSamling(samling); 
     }
     
-    // Gi nytt tilfeldig kort
     await hentTilfeldigKort();
     
-    // Oppdater visning etter kort tid
     setTimeout(() => {
         oppdaterVisning();
     }, 1000);
     
-    // Track i analytics
     if (typeof trackEvent === 'function') {
         trackEvent('Kort', 'Byttet', kortId.toString());
     }
@@ -250,8 +236,9 @@ function velgKategori(kategori) {
         btn.classList.remove('active');
     });
     
-    const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${kategori}"]`);
-    if (aktivBtn) aktivBtn.classList.add('active');
+    // Select basert på data-attribute i stedet for bare klasse
+    const knapper = document.querySelectorAll(`.kategori-btn[data-kategori="${kategori}"]`);
+    knapper.forEach(btn => btn.classList.add('active'));
     
     oppdaterVisning();
     console.log('📂 Kategori valgt:', kategori);
@@ -270,7 +257,7 @@ function oppdaterVisning() {
 }
 
 /**
- * Tell kort per kategori
+ * Tell kort per kategori (OPPDATERT: Bruker klasser for å finne alle tellere)
  */
 function oppdaterKategoriTellere(samling) {
     const teller = {
@@ -287,9 +274,13 @@ function oppdaterKategoriTellere(samling) {
         }
     });
     
+    // Oppdater ALLE tellere på siden (både elev-meny og øving-meny)
     Object.keys(teller).forEach(kat => {
-        const countEl = document.getElementById(`count-${kat}`);
-        if (countEl) countEl.innerText = `(${teller[kat]})`;
+        // Vi ser etter elementer med klassen 'count-biler', 'count-alle' osv.
+        const elements = document.querySelectorAll(`.count-${kat}`);
+        elements.forEach(el => {
+            el.innerText = `(${teller[kat]})`;
+        });
     });
 }
 
@@ -300,8 +291,8 @@ function initKategoriValg() {
     const sisteKategori = hentSisteKategori();
     valgtKategori = sisteKategori;
     
-    const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${sisteKategori}"]`);
-    if (aktivBtn) aktivBtn.classList.add('active');
+    const knapper = document.querySelectorAll(`.kategori-btn[data-kategori="${sisteKategori}"]`);
+    knapper.forEach(btn => btn.classList.add('active'));
 }
 
 /**
@@ -324,4 +315,4 @@ function visFeilMelding(fasit) {
     setTimeout(() => { popup.style.display = 'none'; }, 3000);
 }
 
-console.log('🎴 kort-display.js lastet (v3 - stacked)');
+console.log('🎴 kort-display.js lastet (v4 - fixed counters)');
