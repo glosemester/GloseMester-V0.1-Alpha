@@ -11,8 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG"></script>
+    <script async src="[https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG](https://www.googletagmanager.com/gtag/js?id=G-E22EHLQXVG)"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -20,14 +19,12 @@
       gtag('config', 'G-E22EHLQXVG', {'anonymize_ip': true});
     </script>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/kort.css">
     <link rel="stylesheet" href="css/popups.css">
     
-    <!-- QR Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js)"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js](https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js)"></script>
 </head>
 <body>
     <div class="creator-credit">Laget av Øyvind Nilsen Oksvold</div>
@@ -35,7 +32,6 @@
     
     <button id="install-btn" class="install-help-btn" onclick="visInstallHjelp()">📲 Installer</button>
     
-    <!-- NAVIGASJON - ELEV -->
     <nav id="elev-meny">
         <div style="display:flex; align-items:center;">
             <button onclick="visSide('elev-dashboard')" id="btn-elev-dashboard" class="active">Hjem</button>
@@ -45,7 +41,6 @@
         <button onclick="tilbakeTilStart()" style="color:#ff3b30; margin-left:auto;">Logg ut</button>
     </nav>
 
-    <!-- NAVIGASJON - ØVING -->
     <nav id="oving-meny">
         <div style="display:flex; align-items:center;">
             <button onclick="visSide('oving-start')" id="btn-oving-start" class="active">Velg Nivå</button>
@@ -55,16 +50,12 @@
         <button onclick="tilbakeTilStart()" style="color:#ff3b30; margin-left:auto;">Avslutt</button>
     </nav>
 
-    <!-- NAVIGASJON - LÆRER -->
     <nav id="laerer-meny">
         <button onclick="visSide('laerer-dashboard')" id="btn-laerer-dashboard" class="active">Bibliotek</button>
         <button onclick="visSide('laerer-editor')" id="btn-laerer-editor">Ny Prøve</button>
         <button onclick="tilbakeTilStart()" style="color:#ff3b30;">Avslutt</button>
     </nav>
 
-    <!-- ========================================== -->
-    <!-- LANDING PAGE -->
-    <!-- ========================================== -->
     <div id="landing-page" class="page page-landing active">
         <img src="header.png" alt="GloseMester Header" class="hero-image">
         
@@ -84,9 +75,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- OM OSS -->
-    <!-- ========================================== -->
     <div id="om-oss" class="page">
         <div class="card-container">
             <h2>Om GloseMester</h2>
@@ -106,9 +94,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ELEV DASHBOARD -->
-    <!-- ========================================== -->
     <div id="elev-dashboard" class="page">
         <div class="card-container">
             <h2>Hei! 👋</h2>
@@ -123,7 +108,6 @@
                 </div>
             </div>
 
-            <!-- SPRÅKVALG -->
             <div class="lang-section" style="margin-top: 25px;">
                 <span class="lang-label">Velg oppgavetype:</span>
                 <div class="lang-toggle">
@@ -142,7 +126,6 @@
 
             <p style="color:#86868b; margin-top:20px;">Skriv inn kode fra læreren for å starte en prøve.</p>
             
-            <!-- INPUT & SCAN -->
             <div style="display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="prove-kode" placeholder="Lim inn koden her..." style="flex: 1;">
                 <button class="btn-sound" onclick="startQRScanner()" title="Skann QR-kode" style="width: 50px; height: 50px; font-size: 24px;">
@@ -152,7 +135,6 @@
             
             <button class="btn-primary" onclick="startProve()">Ta Prøve</button>
 
-            <!-- QR SCANNER -->
             <div id="qr-scanner-container" style="display: none; margin-top: 20px;">
                 <div style="background: #f0f0f5; padding: 20px; border-radius: 15px; text-align: center;">
                     <h3 style="margin-top: 0;">📷 Skann QR-kode</h3>
@@ -165,7 +147,6 @@
                 </div>
             </div>
 
-            <!-- LAGREDE PRØVER -->
             <div id="lagrede-prover-seksjon" style="margin-top: 30px; display: none;">
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
                 <h3 style="font-size: 16px; color: #86868b; margin-bottom: 15px;">📚 Dine lagrede prøver</h3>
@@ -174,7 +155,6 @@
             </div>
         </div>
         
-        <!-- PRØVE OMRÅDE -->
         <div id="prove-omraade" class="card-container" style="display:none; margin-top: 20px;">
             <h3>Gloseprøve</h3>
             <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin: 20px 0;">
@@ -188,9 +168,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ELEV SAMLING -->
-    <!-- ========================================== -->
     <div id="elev-samling" class="page">
         <div class="card-container">
             <div class="sort-header">
@@ -202,7 +179,6 @@
                 </select>
             </div>
             
-            <!-- KATEGORI-FILTER -->
             <div class="kategori-scroll">
                 <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
                     <span class="emoji">🎴</span>
@@ -235,9 +211,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ØVING START -->
-    <!-- ========================================== -->
     <div id="oving-start" class="page">
         <div class="card-container">
             <h2>Velg nivå</h2>
@@ -276,7 +249,6 @@
             </div>
         </div>
         
-        <!-- ØVING OMRÅDE -->
         <div id="oving-omraade" class="card-container" style="display:none; margin-top:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 id="oving-tittel">Øvelse</h3>
@@ -289,72 +261,17 @@
             <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin-bottom: 20px;">
                 <button class="btn-sound" onclick="lesOppOving()">🔊</button>
             </div>
-<div id="oving-alternativer" class="alternativer-grid" style="display:none;"></div>
+
+            <div id="oving-alternativer" class="alternativer-grid" style="display:none;"></div>
 
             <input type="text" id="oving-svar" placeholder="Skriv på engelsk..." autocomplete="off" onkeydown="handleEnter(event, sjekkOvingSvar)">
             
             <button id="btn-svar-tekst" class="btn-primary btn-purple" onclick="sjekkOvingSvar()">Svar</button>
             
-            ```
-
----
-
-### Steg 2: Legg til CSS i `css/main.css`
-
-Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn dette:
-
-```css
-/* ============================================
-   FLERVALGSKNAPPER (1-2 Trinn)
-   ============================================ */
-
-.alternativer-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 15px;
-    margin: 20px 0;
-    width: 100%;
-}
-
-.alt-btn {
-    background: white;
-    border: 3px solid #e5e5ea;
-    padding: 20px;
-    border-radius: 18px;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: capitalize;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.alt-btn:hover {
-    border-color: var(--accent-purple);
-    background: #fbf5fd;
-    transform: translateY(-3px);
-}
-
-.alt-btn:active {
-    transform: scale(0.98);
-}
-
-/* Responsivt for større skjermer: 3 ved siden av hverandre hvis plass */
-@media (min-width: 600px) {
-    .alternativer-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-}
-            <input type="text" id="oving-svar" placeholder="Skriv på engelsk..." autocomplete="off" onkeydown="handleEnter(event, sjekkOvingSvar)">
-            <button class="btn-primary btn-purple" onclick="sjekkOvingSvar()">Svar</button>
             <p id="oving-feedback" style="margin-top: 15px; font-weight: 500; min-height: 24px; text-align:center;"></p>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ØVING SAMLING -->
-    <!-- ========================================== -->
     <div id="oving-samling" class="page">
         <div class="card-container">
             <div class="sort-header">
@@ -366,7 +283,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
                 </select>
             </div>
             
-            <!-- KATEGORI-FILTER -->
             <div class="kategori-scroll">
                 <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
                     <span class="emoji">🎴</span>
@@ -398,9 +314,7 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
             <div id="oving-samling-liste" class="samling-grid"></div>
         </div>
     </div>
-<!-- ========================================== -->
-    <!-- LÆRER DASHBOARD -->
-    <!-- ========================================== -->
+
     <div id="laerer-dashboard" class="page">
         <div class="card-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -412,9 +326,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- LÆRER EDITOR -->
-    <!-- ========================================== -->
     <div id="laerer-editor" class="page">
         <div class="card-container">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -445,11 +356,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- POPUPS -->
-    <!-- ========================================== -->
-    
-    <!-- KODE POPUP (Lærer deler prøve) -->
     <div id="kode-popup" class="popup-overlay">
         <div class="popup-content">
             <h3>Del denne prøven</h3>
@@ -468,7 +374,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- PRINT QR PAGE (Skjult) -->
     <div id="print-qr-page" style="display: none;">
         <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
             <h1 style="color: #0071e3; margin-bottom: 10px;">GloseMester - Gloseprøve</h1>
@@ -494,7 +399,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- STORT KORT POPUP -->
     <div id="kort-popup" class="popup-overlay" onclick="lukkKort(event)">
         <div class="popup-content" style="background: white; border-radius: 20px; padding: 40px 20px;">
             <div id="stort-id" class="poke-id"></div>
@@ -505,7 +409,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- GEVINST POPUP -->
     <div id="gevinst-popup" class="popup-overlay">
         <div class="popup-content gevinst-content">
             <h2 style="color:#d4af37; text-shadow:1px 1px 2px rgba(0,0,0,0.1);">🎉 Du fant et nytt kort! 🎉</h2>
@@ -514,7 +417,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- FEEDBACK POPUP (Feil svar) -->
     <div id="feedback-popup" class="popup-overlay">
         <div class="popup-content" style="border: 4px solid var(--danger-red); padding: 40px;">
             <h2 id="feedback-title" style="color: var(--danger-red); font-size: 32px; margin-bottom: 10px;">Feil ❌</h2>
@@ -523,9 +425,6 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- FOOTER -->
-    <!-- ========================================== -->
     <footer class="footer-container">
         <span class="about-link" onclick="visSide('om-oss')">Om GloseMester</span>
         <span style="margin: 0 10px; color: #d2d2d7;">•</span>
@@ -536,32 +435,23 @@ Vi trenger styling for knappene. Gå helt nederst i `css/main.css` og lim inn de
         </p>
     </footer>
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT MODULES -->
-    <!-- ========================================== -->
-    
-    <!-- Data -->
     <script src="js/vocabulary.js"></script>
     <script src="js/collection.js"></script>
     <script src="js/export-import.js"></script>
     
-    <!-- Core -->
     <script src="js/core/analytics.js"></script>
     <script src="js/core/storage.js"></script>
     <script src="js/core/credits.js"></script>
     <script src="js/core/navigation.js"></script>
     
-    <!-- Features -->
     <script src="js/features/kort-display.js"></script>
     <script src="js/features/quiz.js"></script>
     <script src="js/features/practice.js"></script>
     <script src="js/features/teacher.js"></script>
     <script src="js/features/qr-scanner.js"></script>
     
-    <!-- UI -->
     <script src="js/ui/helpers.js"></script>
     
-    <!-- Init (MUST BE LAST) -->
     <script src="js/init.js"></script>
     
 </body>

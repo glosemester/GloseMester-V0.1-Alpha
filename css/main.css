@@ -1,6 +1,6 @@
 /* ============================================
    MAIN.CSS - GloseMester v0.1-ALPHA
-   Oppdatert: 14. desember 2024
+   Oppdatert: 15. desember 2024
    ============================================
    Hoveddel av styling - Design system
    ============================================ */
@@ -680,5 +680,65 @@ input:focus, textarea:focus, select:focus {
     
     .hero-image {
         border-radius: 12px;
+    }
+}
+
+/* ============================================
+   FLERVALGSKNAPPER (1-2 Trinn) - BOBLE DESIGN
+   ============================================ */
+
+.alternativer-grid {
+    display: grid;
+    /* repeat(3, 1fr) betyr: Lag 3 kolonner som deler plassen likt */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
+    margin: 30px 0;
+    width: 100%;
+}
+
+.alt-btn {
+    background: white;
+    border: 2px solid transparent;
+    padding: 15px 5px;
+    border-radius: 99px; /* Gjør dem helt runde i kantene */
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    
+    /* Sørg for at boblen har litt høyde og sentrert tekst */
+    min-height: 80px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    word-break: break-word; /* Hindrer at lange ord ødelegger */
+}
+
+/* Hover-effekt */
+.alt-btn:hover {
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+    background: #fbf5fd;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(175, 82, 222, 0.2);
+}
+
+/* Klikk-effekt */
+.alt-btn:active {
+    transform: scale(0.95);
+    background: var(--accent-purple);
+    color: white;
+}
+
+/* PÅ MOBIL: Hvis skjermen er veldig smal, stable dem likevel for å få plass */
+@media (max-width: 400px) {
+    .alternativer-grid {
+        grid-template-columns: 1fr; /* 1 kolonne på små skjermer */
+    }
+    .alt-btn {
+        min-height: 60px; /* Litt lavere knapper på mobil */
     }
 }
