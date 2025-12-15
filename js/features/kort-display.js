@@ -3,6 +3,10 @@
 // Kortvisning og samling
 // ============================================
 
+// Konfigurasjon for bilder
+const BILDE_STI = 'img/kort/';
+const FILTYPE = '.jpg'; // Endre til .png hvis du heller vil bruke det
+
 /**
  * Vis brukerens samling
  */
@@ -61,15 +65,34 @@ function visKortGrid(containerId, liste, showTrade) {
             tradeBtn = `<button class="trade-btn" onclick="event.stopPropagation(); byttKort(${k.id})">🔄 Bytt</button>`;
         }
 
+        // Generer bildesti basert på ID
+        // F.eks: img/kort/1.jpg
+        const bildeUrl = `${BILDE_STI}${k.id}${FILTYPE}`;
+
+        /* SMART BILDE-LOGIKK:
+           1. Vi legger inn <img> taggen skjult (display:none)
+           2. onload: Hvis bildet laster, vis bildet og skjul placeholder
+           3. onerror: Hvis bildet feiler, gjør ingenting (placeholder vises allerede)
+        */
+
         con.innerHTML += `
         <div class="poke-card rarity-${k.rarity.type}" 
              style="border-color:${k.rarity.farge}" 
-             onclick="visStortKort('${k.bilde || ''}', '${k.navn}', '${k.rarity.farge}', '${k.rarity.tekst}', '${k.id}', '${k.kategori}')">
+             onclick="visStortKort('${k.id}', '${k.navn}', '${k.rarity.farge}', '${k.rarity.tekst}', '${k.kategori}')">
             
-            ${k.bilde 
-                ? `<img src="${k.bilde}" alt="${k.navn}">`
-                : `<div class="kort-bilde-placeholder" data-kategori="${k.kategori}">${getKategoriEmoji(k.kategori)}</div>`
-            }
+            <div class="kort-bilde-wrapper" style="position: relative; min-height: 90px; display: flex; justify-content: center;">
+                
+                <img src="${bildeUrl}" 
+                     alt="${k.navn}" 
+                     style="display: none;"
+                     onload="this.style.display='block'; this.nextElementSibling.style.display='none'" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                
+                <div class="kort-bilde-placeholder" data-kategori="${k.kategori}" style="display: flex;">
+                    ${getKategoriEmoji(k.kategori)}
+                </div>
+
+            </div>
             
             <div class="poke-name">${k.navn}</div>
             <div class="rarity-badge" style="color:${k.rarity.farge}">${k.rarity.tekst}</div>
@@ -80,8 +103,6 @@ function visKortGrid(containerId, liste, showTrade) {
 
 /**
  * Få emoji for kategori
- * @param {string} kategori - Kategori-navn
- * @returns {string} Emoji
  */
 function getKategoriEmoji(kategori) {
     const emojis = {
@@ -96,7 +117,6 @@ function getKategoriEmoji(kategori) {
 
 /**
  * Bytt sortering
- * @param {string} valg - Sorteringsvalg
  */
 function byttSortering(valg) {
     valgtSortering = valg;
@@ -113,21 +133,30 @@ function byttSortering(valg) {
 
 /**
  * Vis stort kort (popup)
+ * Oppdatert med smart bildelogikk
  */
-function visStortKort(bilde, navn, farge, rarityTekst, id, kategori) {
+function visStortKort(id, navn, farge, rarityTekst, kategori) {
     const popup = document.getElementById('kort-popup');
+    const bildeUrl = `${BILDE_STI}${id}${FILTYPE}`;
     
     document.getElementById('stort-id').innerText = "#" + id;
     document.getElementById('stort-navn').innerText = navn;
     
-    // Vis bilde eller placeholder
     const bildeEl = document.getElementById('stort-bilde');
-    if (bilde) {
-        bildeEl.src = bilde;
-        bildeEl.style.display = 'block';
-    } else {
-        bildeEl.style.display = 'none';
-    }
+    
+    // Reset bilde state før lasting
+    bildeEl.style.display = 'none';
+    bildeEl.src = bildeUrl;
+    
+    // Håndter lasting av stort bilde
+    bildeEl.onload = function() {
+        this.style.display = 'block';
+    };
+    
+    bildeEl.onerror = function() {
+        this.style.display = 'none';
+        // Her kunne vi vist en stor emoji som fallback hvis vi ville
+    };
     
     const rarityEl = document.getElementById('stort-rarity');
     rarityEl.innerText = rarityTekst;
@@ -148,17 +177,23 @@ function lukkKort(e) {
 
 /**
  * Vis gevinst-popup (når kort vinnes)
- * @param {object} kort - Kort-objekt
+ * Oppdatert med smart bildelogikk
  */
 function visGevinstPopup(kort) {
     const popup = document.getElementById('gevinst-popup');
     const bildeEl = document.getElementById('gevinst-bilde');
+    const bildeUrl = `${BILDE_STI}${kort.id}${FILTYPE}`;
     
-    if (kort.bilde) {
-        bildeEl.src = kort.bilde;
-    } else {
-        bildeEl.src = '';
-    }
+    // Prøv å laste bilde
+    bildeEl.style.display = 'none';
+    bildeEl.src = bildeUrl;
+    
+    bildeEl.onload = function() {
+        this.style.display = 'block';
+    };
+    
+    // Hvis bilde mangler i gevinst, vis emoji midlertidig (fallback)
+    // (Dette krever litt CSS for å se pent ut, men fungerer funksjonelt)
     
     popup.style.display = 'flex';
     
@@ -170,7 +205,6 @@ function visGevinstPopup(kort) {
 
 /**
  * Vis feilmelding-popup
- * @param {string} fasit - Riktig svar
  */
 function visFeilMelding(fasit) {
     const popup = document.getElementById('feedback-popup');
@@ -187,7 +221,6 @@ function visFeilMelding(fasit) {
 
 /**
  * Bytt kort (bruk credits)
- * @param {number} kortId - ID på kort å bytte
  */
 async function byttKort(kortId) {
     if (credits < 1) {
@@ -231,7 +264,6 @@ async function byttKort(kortId) {
 
 /**
  * Velg kategori
- * @param {string} kategori - Kategori å velge
  */
 function velgKategori(kategori) {
     valgtKategori = kategori;
@@ -258,7 +290,6 @@ function velgKategori(kategori) {
 
 /**
  * Tell kort per kategori og oppdater tellere
- * @param {Array} samling - Full samling
  */
 function oppdaterKategoriTellere(samling) {
     const teller = {
@@ -305,4 +336,4 @@ function visOvingSamling() {
     visKortGrid('oving-samling-liste', samling, true);
 }
 
-console.log('🎴 kort-display.js lastet');
+console.log('🎴 kort-display.js lastet (v2 - smart bilder)');
