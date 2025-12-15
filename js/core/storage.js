@@ -156,3 +156,19 @@ function lagreLokaleProver(prove) {
 }
 
 console.log('💾 storage.js lastet');
+/**
+ * Lagre siste kategori bruker så
+ * @param {string} kategori - Kategori-navn
+ */
+function lagreSisteKategori(kategori) {
+    localStorage.setItem('siste_kategori_' + brukerNavn, kategori);
+    console.log('📂 Siste kategori lagret:', kategori);
+}
+
+/**
+ * Hent siste kategori
+ * @returns {string} Kategori-navn eller 'alle'
+ */
+function hentSisteKategori() {
+    return localStorage.getItem('siste_kategori_' + brukerNavn) || 'alle';
+}

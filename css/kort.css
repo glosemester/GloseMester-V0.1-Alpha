@@ -354,3 +354,104 @@
         display: none;
     }
 }
+/* ============================================
+   KATEGORI-FILTER
+   ============================================ */
+
+.kategori-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.kategori-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.kategori-scroll::-webkit-scrollbar-track {
+    background: #f5f5f7;
+    border-radius: 3px;
+}
+
+.kategori-scroll::-webkit-scrollbar-thumb {
+    background: #d2d2d7;
+    border-radius: 3px;
+}
+
+.kategori-btn {
+    background: white;
+    border: 2px solid #e5e5ea;
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    flex-shrink: 0;
+    font-family: inherit;
+}
+
+.kategori-btn:hover {
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.kategori-btn.active {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(175, 82, 222, 0.3);
+}
+
+.kategori-btn .emoji {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.kategori-btn .tekst {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.kategori-btn .count {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.kategori-btn.active .count {
+    opacity: 0.9;
+}
+
+/* Tom samling melding */
+.tom-samling {
+    text-align: center;
+    padding: 60px 20px;
+    color: #86868b;
+}
+
+.tom-samling-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.tom-samling h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #1d1d1f;
+}
+
+.tom-samling p {
+    font-size: 14px;
+    color: #86868b;
+}

@@ -201,6 +201,36 @@
                     <option value="navn">🔤 Navn</option>
                 </select>
             </div>
+            
+            <!-- KATEGORI-FILTER -->
+            <div class="kategori-scroll">
+                <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
+                    <span class="emoji">🎴</span>
+                    <span class="tekst">Alle</span>
+                    <span class="count" id="count-alle">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="biler" onclick="velgKategori('biler')">
+                    <span class="emoji">🚗</span>
+                    <span class="tekst">Biler</span>
+                    <span class="count" id="count-biler">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="guder" onclick="velgKategori('guder')">
+                    <span class="emoji">⚡</span>
+                    <span class="tekst">Guder</span>
+                    <span class="count" id="count-guder">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="dinosaurer" onclick="velgKategori('dinosaurer')">
+                    <span class="emoji">🦖</span>
+                    <span class="tekst">Dinosaurer</span>
+                    <span class="count" id="count-dinosaurer">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="dyr" onclick="velgKategori('dyr')">
+                    <span class="emoji">🐾</span>
+                    <span class="tekst">Dyr</span>
+                    <span class="count" id="count-dyr">(0)</span>
+                </button>
+            </div>
+            
             <div id="samling-liste" class="samling-grid"></div>
         </div>
     </div>
@@ -279,9 +309,40 @@
                     <option value="navn">🔤 Navn</option>
                 </select>
             </div>
+            
+            <!-- KATEGORI-FILTER -->
+            <div class="kategori-scroll">
+                <button class="kategori-btn active" data-kategori="alle" onclick="velgKategori('alle')">
+                    <span class="emoji">🎴</span>
+                    <span class="tekst">Alle</span>
+                    <span class="count" id="count-alle">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="biler" onclick="velgKategori('biler')">
+                    <span class="emoji">🚗</span>
+                    <span class="tekst">Biler</span>
+                    <span class="count" id="count-biler">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="guder" onclick="velgKategori('guder')">
+                    <span class="emoji">⚡</span>
+                    <span class="tekst">Guder</span>
+                    <span class="count" id="count-guder">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="dinosaurer" onclick="velgKategori('dinosaurer')">
+                    <span class="emoji">🦖</span>
+                    <span class="tekst">Dinosaurer</span>
+                    <span class="count" id="count-dinosaurer">(0)</span>
+                </button>
+                <button class="kategori-btn" data-kategori="dyr" onclick="velgKategori('dyr')">
+                    <span class="emoji">🐾</span>
+                    <span class="tekst">Dyr</span>
+                    <span class="count" id="count-dyr">(0)</span>
+                </button>
+            </div>
+            
             <div id="oving-samling-liste" class="samling-grid"></div>
         </div>
-    </div><!-- ========================================== -->
+    </div>
+<!-- ========================================== -->
     <!-- LÆRER DASHBOARD -->
     <!-- ========================================== -->
     <div id="laerer-dashboard" class="page">

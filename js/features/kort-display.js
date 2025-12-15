@@ -7,6 +7,7 @@
  * Vis brukerens samling
  */
 function visSamling() {
+    initKategoriValg();
     const samling = getSamling();
     visKortGrid('samling-liste', samling, true);
 }
@@ -18,16 +19,21 @@ function visSamling() {
  * @param {boolean} showTrade - Vis bytte-knapp?
  */
 function visKortGrid(containerId, liste, showTrade) {
-    let sortertListe = [...liste];
+    // Filtrer basert på valgt kategori
+    let filtrerteKort = [...liste];
+    
+    if (valgtKategori && valgtKategori !== 'alle') {
+        filtrerteKort = liste.filter(k => k.kategori === valgtKategori);
+    }
     
     // Sorter basert på valgt sortering
     if (valgtSortering === 'id') {
-        sortertListe.sort((a, b) => a.id - b.id);
+        filtrerteKort.sort((a, b) => a.id - b.id);
     } else if (valgtSortering === 'navn') {
-        sortertListe.sort((a, b) => a.navn.localeCompare(b.navn));
+        filtrerteKort.sort((a, b) => a.navn.localeCompare(b.navn));
     } else {
         // Nyeste først (default)
-        sortertListe.reverse();
+        filtrerteKort.reverse();
     }
 
     const con = document.getElementById(containerId);
@@ -35,17 +41,21 @@ function visKortGrid(containerId, liste, showTrade) {
     
     con.innerHTML = "";
     
-    if (!sortertListe.length) {
+    // Oppdater kategori-tellere
+    oppdaterKategoriTellere(liste);
+    
+    if (!filtrerteKort.length) {
+        const kategoriNavn = valgtKategori === 'alle' ? 'samlingen' : valgtKategori;
         con.innerHTML = `
         <div class="tom-samling">
-            <div class="tom-samling-icon">🎴</div>
-            <h3>Ingen kort ennå</h3>
+            <div class="tom-samling-icon">${getKategoriEmoji(valgtKategori)}</div>
+            <h3>Ingen kort i ${kategoriNavn}</h3>
             <p>Svar riktig på spørsmål for å vinne kort!</p>
         </div>`;
         return;
     }
     
-    sortertListe.forEach(k => {
+    filtrerteKort.forEach(k => {
         let tradeBtn = "";
         if (showTrade) {
             tradeBtn = `<button class="trade-btn" onclick="event.stopPropagation(); byttKort(${k.id})">🔄 Bytt</button>`;
@@ -63,7 +73,6 @@ function visKortGrid(containerId, liste, showTrade) {
             
             <div class="poke-name">${k.navn}</div>
             <div class="rarity-badge" style="color:${k.rarity.farge}">${k.rarity.tekst}</div>
-            <div class="kort-kategori">${k.kategori}</div>
             ${tradeBtn}
         </div>`;
     });
@@ -79,7 +88,8 @@ function getKategoriEmoji(kategori) {
         'biler': '🚗',
         'guder': '⚡',
         'dinosaurer': '🦖',
-        'dyr': '🐾'
+        'dyr': '🐾',
+        'alle': '🎴'
     };
     return emojis[kategori] || '🎴';
 }
@@ -116,9 +126,7 @@ function visStortKort(bilde, navn, farge, rarityTekst, id, kategori) {
         bildeEl.src = bilde;
         bildeEl.style.display = 'block';
     } else {
-        // Vis placeholder
         bildeEl.style.display = 'none';
-        // TODO: Vis større placeholder
     }
     
     const rarityEl = document.getElementById('stort-rarity');
@@ -149,7 +157,6 @@ function visGevinstPopup(kort) {
     if (kort.bilde) {
         bildeEl.src = kort.bilde;
     } else {
-        // TODO: Vis placeholder
         bildeEl.src = '';
     }
     
@@ -220,6 +227,82 @@ async function byttKort(kortId) {
     }
     
     console.log('🔄 Kort byttet:', kortId);
+}
+
+/**
+ * Velg kategori
+ * @param {string} kategori - Kategori å velge
+ */
+function velgKategori(kategori) {
+    valgtKategori = kategori;
+    lagreSisteKategori(kategori);
+    
+    // Oppdater UI - marker aktiv knapp
+    document.querySelectorAll('.kategori-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${kategori}"]`);
+    if (aktivBtn) aktivBtn.classList.add('active');
+    
+    // Oppdater visning
+    if (aktivRolle === 'elev' || aktivRolle === 'kode') {
+        visSamling();
+    }
+    if (aktivRolle === 'oving') {
+        visOvingSamling();
+    }
+    
+    console.log('📂 Kategori valgt:', kategori);
+}
+
+/**
+ * Tell kort per kategori og oppdater tellere
+ * @param {Array} samling - Full samling
+ */
+function oppdaterKategoriTellere(samling) {
+    const teller = {
+        alle: samling.length,
+        biler: 0,
+        guder: 0,
+        dinosaurer: 0,
+        dyr: 0
+    };
+    
+    samling.forEach(kort => {
+        if (teller[kort.kategori] !== undefined) {
+            teller[kort.kategori]++;
+        }
+    });
+    
+    // Oppdater alle tellere i DOM
+    Object.keys(teller).forEach(kat => {
+        const countEl = document.getElementById(`count-${kat}`);
+        if (countEl) {
+            countEl.innerText = `(${teller[kat]})`;
+        }
+    });
+}
+
+/**
+ * Initialiser kategori-valg ved lasting av samling
+ */
+function initKategoriValg() {
+    const sisteKategori = hentSisteKategori();
+    valgtKategori = sisteKategori;
+    
+    // Marker aktiv kategori
+    const aktivBtn = document.querySelector(`.kategori-btn[data-kategori="${sisteKategori}"]`);
+    if (aktivBtn) aktivBtn.classList.add('active');
+}
+
+/**
+ * Vis øvingssamling
+ */
+function visOvingSamling() {
+    initKategoriValg();
+    const samling = getSamling();
+    visKortGrid('oving-samling-liste', samling, true);
 }
 
 console.log('🎴 kort-display.js lastet');
