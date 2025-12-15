@@ -128,24 +128,12 @@
             
             <div style="display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="prove-kode" placeholder="Lim inn koden her..." style="flex: 1;">
-                <button class="btn-sound" onclick="startQRScanner()" title="Skann QR-kode" style="width: 50px; height: 50px; font-size: 24px;">
+                <button class="btn-sound" onclick="startQRScanner('elev')" title="Skann QR-kode" style="width: 50px; height: 50px; font-size: 24px;">
                     📷
                 </button>
             </div>
             
             <button class="btn-primary" onclick="startProve()">Ta Prøve</button>
-
-            <div id="qr-scanner-container" style="display: none; margin-top: 20px;">
-                <div style="background: #f0f0f5; padding: 20px; border-radius: 15px; text-align: center;">
-                    <h3 style="margin-top: 0;">📷 Skann QR-kode</h3>
-                    <p style="font-size: 14px; color: #666;">Hold kameraet over QR-koden fra læreren</p>
-                    
-                    <video id="qr-video" style="width: 100%; max-width: 400px; border-radius: 12px; margin: 15px 0;"></video>
-                    
-                    <button class="btn-secondary" onclick="stopQRScanner()">Avbryt</button>
-                    <p id="qr-scanner-status" style="font-size: 13px; color: #999; margin-top: 10px;"></p>
-                </div>
-            </div>
 
             <div id="lagrede-prover-seksjon" style="margin-top: 30px; display: none;">
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
@@ -320,6 +308,8 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2>Mitt Bibliotek</h2>
                 <div style="display:flex; gap:10px;">
+                    <button class="btn-sound" onclick="startQRScanner('laerer')" title="Skann fra kollega" style="width: 40px; height: 40px; font-size: 20px;">📷</button>
+                    
                     <button class="btn-secondary btn-small" onclick="importerProveFraTekst()">📥 Importer</button>
                     <button class="btn-primary btn-small" onclick="visSide('laerer-editor')">+ Ny Prøve</button>
                 </div>
@@ -387,6 +377,21 @@
             </div>
             
             <button class="btn-primary" onclick="lukkPopup()">Lukk</button>
+        </div>
+    </div>
+
+    <div id="scanner-popup" class="popup-overlay">
+        <div class="popup-content" style="background: #000; color: white;">
+            <h3 style="color: white; margin-top: 0;">📷 Skann QR-kode</h3>
+            <p id="scanner-instruks" style="font-size: 14px; color: #ccc;">Hold kameraet over koden</p>
+            
+            <div style="position: relative; overflow: hidden; border-radius: 12px; margin: 15px 0;">
+                <video id="qr-video" style="width: 100%; max-width: 400px; display: block;"></video>
+                <div style="position: absolute; top: 50%; left: 10%; right: 10%; height: 2px; background: red; opacity: 0.5; box-shadow: 0 0 4px red;"></div>
+            </div>
+            
+            <button class="btn-secondary" onclick="stopQRScanner()" style="background: #333; color: white; border: 1px solid #555;">Avbryt</button>
+            <p id="qr-scanner-status" style="font-size: 13px; color: #999; margin-top: 10px; min-height: 20px;"></p>
         </div>
     </div>
 

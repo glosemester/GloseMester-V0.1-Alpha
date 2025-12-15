@@ -1,26 +1,37 @@
 // ============================================
 // QR-SCANNER.JS - GloseMester v0.1-ALPHA
-// QR-kode scanning for elever
+// QR-kode scanning (Felles for Elev og Lærer)
 // ============================================
 
 let qrStream = null;
 let qrCanvas = null;
 let qrContext = null;
 let qrAnimationFrame = null;
+let aktivScanModus = 'elev'; // 'elev' eller 'laerer'
 
 /**
  * Start QR-scanner
+ * @param {string} modus - 'elev' (start prøve) eller 'laerer' (importer prøve)
  */
-async function startQRScanner() {
-    const container = document.getElementById('qr-scanner-container');
+async function startQRScanner(modus = 'elev') {
+    aktivScanModus = modus;
+    
+    const popup = document.getElementById('scanner-popup');
     const video = document.getElementById('qr-video');
     const status = document.getElementById('qr-scanner-status');
+    const instruks = document.getElementById('scanner-instruks');
     
-    container.style.display = 'block';
+    // Tilpass tekst basert på modus
+    if (modus === 'laerer') {
+        instruks.innerText = "Scan en kollegas prøve for å importere";
+    } else {
+        instruks.innerText = "Scan læreren sin kode for å starte";
+    }
+    
+    popup.style.display = 'flex';
     status.innerText = 'Starter kamera...';
     
     try {
-        // Be om kamera-tilgang (bakre kamera hvis tilgjengelig)
         qrStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' }
         });
@@ -29,30 +40,22 @@ async function startQRScanner() {
         video.setAttribute('playsinline', true);
         video.play();
         
-        status.innerText = '✅ Hold kameraet over QR-koden';
+        status.innerText = '✅ Søker etter kode...';
         
-        // Opprett canvas for scanning
         qrCanvas = document.createElement('canvas');
         qrContext = qrCanvas.getContext('2d');
         
-        // Start scanning
         requestAnimationFrame(scanQRCode);
         
-        // Track i analytics
         if (typeof trackEvent === 'function') {
-            trackEvent('QR', 'Startet scanner', 'Elev');
+            trackEvent('QR', 'Startet scanner', modus);
         }
-        
-        console.log('📷 QR-scanner startet');
         
     } catch (error) {
         console.error('❌ Kamera-feil:', error);
-        status.innerText = '❌ Kunne ikke få tilgang til kamera. Sjekk tillatelser.';
-        
-        setTimeout(() => {
-            stopQRScanner();
-            alert('Kunne ikke starte kamera. Sjekk at du har gitt tillatelse til kamerabruk.');
-        }, 2000);
+        status.innerText = '❌ Ingen kameratilgang.';
+        alert('Kunne ikke starte kamera. Sjekk tillatelser i nettleseren.');
+        stopQRScanner();
     }
 }
 
@@ -63,6 +66,8 @@ function scanQRCode() {
     const video = document.getElementById('qr-video');
     const status = document.getElementById('qr-scanner-status');
     
+    if (!qrStream) return; // Stopp hvis avsluttet
+
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
         qrCanvas.height = video.videoHeight;
         qrCanvas.width = video.videoWidth;
@@ -70,83 +75,93 @@ function scanQRCode() {
         
         const imageData = qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
         
-        // Bruk jsQR library til å dekode
         const code = jsQR(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
         });
         
         if (code) {
-            status.innerText = '✅ QR-kode funnet!';
+            // == KODE FUNNET! ==
+            const scannetData = code.data;
+            status.innerText = '✅ Kode funnet!';
             
-            let proveKode = code.data;
-            
-            // Hvis det er en full URL, trekk ut quiz-parameteren
-            if (proveKode.includes('?quiz=')) {
-                const urlParams = new URLSearchParams(proveKode.split('?')[1]);
-                proveKode = urlParams.get('quiz');
-            }
-            
-            // Sett koden i input-feltet
-            document.getElementById('prove-kode').value = proveKode;
-            
-            // Stopp scanner
+            // Spill en liten lyd eller vibrer
+            if (navigator.vibrate) navigator.vibrate(50);
+
             stopQRScanner();
             
-            // Start prøven automatisk etter kort delay
-            setTimeout(() => {
-                if (typeof startProve === 'function') {
-                    startProve();
-                }
-            }, 500);
-            
-            // Track i analytics
-            if (typeof trackEvent === 'function') {
-                trackEvent('QR', 'Skannet vellykket', 'Elev');
-            }
-            
-            console.log('✅ QR-kode skannet');
-            
-            return; // Stopp scanning
+            handterScannetKode(scannetData);
+            return;
         }
     }
     
-    // Fortsett scanning
     qrAnimationFrame = requestAnimationFrame(scanQRCode);
+}
+
+/**
+ * Håndter resultatet av scanningen
+ */
+function handterScannetKode(data) {
+    let renKode = data;
+    
+    // Hvis det er en URL, trekk ut koden
+    if (renKode.includes('?quiz=')) {
+        const urlParams = new URLSearchParams(renKode.split('?')[1]);
+        renKode = urlParams.get('quiz');
+    }
+
+    console.log(`📷 Scannet (${aktivScanModus}):`, renKode.substring(0, 20) + "...");
+
+    if (aktivScanModus === 'elev') {
+        // --- ELEV MODUS ---
+        document.getElementById('prove-kode').value = renKode;
+        setTimeout(() => {
+            if (typeof startProve === 'function') startProve();
+        }, 500);
+
+    } else if (aktivScanModus === 'laerer') {
+        // --- LÆRER MODUS ---
+        try {
+            // Prøv å dekomprimere for å se om det er gyldig data
+            const proveData = dekomprimer(renKode);
+            
+            // Hvis vi har teacher.js lastet, bruk funksjonen der
+            if (typeof lagreImportertProve === 'function') {
+                lagreImportertProve(proveData, "Scannet Prøve");
+            } else {
+                alert("Fant prøve med " + proveData.length + " ord, men kunne ikke lagre (systemfeil).");
+            }
+        } catch (e) {
+            alert("Ugyldig QR-kode! Er dette en GloseMester-prøve?");
+            console.error(e);
+        }
+    }
 }
 
 /**
  * Stopp QR-scanner
  */
 function stopQRScanner() {
-    const container = document.getElementById('qr-scanner-container');
+    const popup = document.getElementById('scanner-popup');
     const video = document.getElementById('qr-video');
     
-    // Stopp video stream
     if (qrStream) {
         qrStream.getTracks().forEach(track => track.stop());
         qrStream = null;
     }
     
-    // Stopp animation frame
     if (qrAnimationFrame) {
         cancelAnimationFrame(qrAnimationFrame);
         qrAnimationFrame = null;
     }
     
-    // Skjul container
-    container.style.display = 'none';
+    popup.style.display = 'none';
     video.srcObject = null;
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('QR', 'Stoppet scanner', 'Elev');
-    }
     
     console.log('📷 QR-scanner stoppet');
 }
 
 /**
- * Vis lagrede prøver (14-dagers cache)
+ * Vis lagrede prøver (Elev)
  */
 function visLagredeProver() {
     const prover = hentLagredeProver();
@@ -190,4 +205,4 @@ function visLagredeProver() {
     });
 }
 
-console.log('📷 qr-scanner.js lastet');
+console.log('📷 qr-scanner.js lastet (Felles-modus)');
