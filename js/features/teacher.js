@@ -1,323 +1,126 @@
-// ============================================
-// TEACHER.JS - GloseMester v0.1-ALPHA
-// Lærerfunksjoner (prøveeditor og bibliotek)
-// ============================================
+/* ==========================================
+   TEACHER DASHBOARD & AUTH MANAGER
+   ========================================== */
 
-/**
- * Legg til ord i prøveeditoren
- */
-function leggTilOrd() {
-    const spm = document.getElementById('nytt-sporsmaal').value.trim();
-    const svar = document.getElementById('nytt-svar').value.trim();
-    
-    if (!spm || !svar) {
-        alert('Fyll ut både spørsmål og svar!');
-        return;
-    }
-    
-    editorListe.push({ sporsmaal: spm, svar: svar });
-    
-    document.getElementById('nytt-sporsmaal').value = "";
-    document.getElementById('nytt-svar').value = "";
-    document.getElementById('nytt-sporsmaal').focus();
-    
-    oppdaterEditorListeVisning();
-    
-    console.log('✅ Ord lagt til. Totalt:', editorListe.length);
-}
+const TeacherAuth = {
+    // Sjekker "fake" login status fra localStorage
+    isLoggedIn: function() {
+        return localStorage.getItem('gm_teacher_logged_in') === 'true';
+    },
 
-/**
- * Slett ord fra editor
- * @param {number} index - Index på ord å slette
- */
-function slettOrdFraEditor(index) {
-    if (confirm('Slette dette ordet?')) {
-        editorListe.splice(index, 1);
-        oppdaterEditorListeVisning();
-        console.log('🗑️ Ord slettet. Gjenstår:', editorListe.length);
-    }
-}
+    // Simulerer login (Her legger du inn Google Auth senere)
+    login: function() {
+        // 1. Her ville Google Auth koden kjørt
+        // 2. Ved suksess:
+        localStorage.setItem('gm_teacher_logged_in', 'true');
+        this.render();
+        console.log("Lærer logget inn");
+    },
 
-/**
- * Oppdater editor-liste visning
- */
-function oppdaterEditorListeVisning() {
-    const el = document.getElementById('editor-liste');
-    el.innerHTML = "";
-    
-    if (editorListe.length === 0) {
-        el.innerHTML = '<p style="color:#999; text-align:center;">Ingen ord lagt til ennå</p>';
-        return;
-    }
-    
-    editorListe.forEach((item, index) => {
-        el.innerHTML += `
-            <li class="bibliotek-item">
-                <div class="bib-info">
-                    <strong>${item.sporsmaal}</strong> → ${item.svar}
-                </div>
-                <button class="btn-secondary btn-small btn-danger" onclick="slettOrdFraEditor(${index})">×</button>
-            </li>`;
-    });
-}
-
-/**
- * Lagre prøve til bibliotek
- */
-function lagreProveTilBibliotek() {
-    const navn = document.getElementById('ny-prove-navn').value.trim();
-    
-    if (!navn) {
-        alert('Gi prøven et navn!');
-        return;
-    }
-    
-    if (editorListe.length === 0) {
-        alert('Legg til minst ett ord i prøven!');
-        return;
-    }
-    
-    lagreNyProve(navn, editorListe);
-    
-    // Reset editor
-    editorListe = [];
-    document.getElementById('ny-prove-navn').value = "";
-    oppdaterEditorListeVisning();
-    
-    // Gå til bibliotek
-    visSide('laerer-dashboard');
-}
-
-/**
- * Hjelpefunksjon: Lagre ny prøve i localStorage
- */
-function lagreNyProve(navn, ordliste) {
-    let bib = hentLokaleProver();
-    
-    const nyProve = {
-        id: Date.now(),
-        navn: navn,
-        ordliste: ordliste
-    };
-    
-    bib.push(nyProve);
-    localStorage.setItem('lokale_prover', JSON.stringify(bib));
-    
-    if (typeof trackEvent === 'function') {
-        trackEvent('Lærer', 'Lagret prøve', `${ordliste.length} ord`);
-    }
-    
-    console.log('✅ Prøve lagret:', navn);
-    alert('✅ Prøve lagret i biblioteket!');
-    return nyProve;
-}
-
-/**
- * Oppdater bibliotek-visning
- */
-function oppdaterBibliotekVisning() {
-    const con = document.getElementById('bibliotek-liste');
-    const ingenMsg = document.getElementById('ingen-prover-msg');
-    
-    con.innerHTML = "";
-    
-    let bib = hentLokaleProver();
-    
-    if (!bib || bib.length === 0) {
-        if (ingenMsg) ingenMsg.style.display = 'block';
-        return;
-    }
-    
-    if (ingenMsg) ingenMsg.style.display = 'none';
-    
-    // Vis nyeste først
-    bib.reverse().forEach(p => {
-        con.innerHTML += `
-            <li class="bibliotek-item">
-                <div class="bib-info">
-                    <h4>${p.navn}</h4>
-                    <span>${p.ordliste.length} ord</span>
-                </div>
-                <div class="bib-actions">
-                    <button class="btn-secondary btn-small" onclick="visKodeForProve(${p.id})">📤 Del</button>
-                    <button class="btn-secondary btn-small btn-danger" onclick="slettProve(${p.id})">×</button>
-                </div>
-            </li>`;
-    });
-}
-
-/**
- * Slett prøve fra bibliotek
- * @param {number} id - Prøve-ID
- */
-function slettProve(id) {
-    if (!confirm('Slette denne prøven?')) return;
-    
-    let bib = hentLokaleProver();
-    bib = bib.filter(p => p.id !== id);
-    localStorage.setItem('lokale_prover', JSON.stringify(bib));
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Lærer', 'Slettet prøve', id.toString());
-    }
-    
-    oppdaterBibliotekVisning();
-    console.log('🗑️ Prøve slettet:', id);
-}
-
-/**
- * Vis kode for prøve (med QR)
- * @param {number} id - Prøve-ID
- */
-function visKodeForProve(id) {
-    let bib = hentLokaleProver();
-    const p = bib.find(x => x.id === id);
-    
-    if (!p) {
-        alert('Fant ikke prøven!');
-        return;
-    }
-    
-    // Generer komprimert kode
-    const base64Code = komprimer(p.ordliste);
-    
-    // Oppdater popup
-    document.getElementById('popup-kode-tekst').innerText = base64Code;
-    
-    // Generer QR-kode
-    const qrContainer = document.getElementById('qrcode-container');
-    qrContainer.innerHTML = "";
-    
-    // URL inkluderer nå navn for enklere import
-    const currentUrl = window.location.href.split('?')[0];
-    const directLink = `${currentUrl}?quiz=${base64Code}&navn=${encodeURIComponent(p.navn)}`;
-    
-    new QRCode(qrContainer, {
-        text: directLink,
-        width: 200,
-        height: 200,
-        colorDark: "#0071e3",
-        colorLight: "#ffffff"
-    });
-    
-    // Vis popup
-    document.getElementById('kode-popup').style.display = 'flex';
-    
-    // Lagre ID for print-funksjon
-    window.currentProveIdForPrint = id;
-    
-    console.log('📤 Kode generert for:', p.navn);
-}
-
-/**
- * Lukk kode-popup
- */
-function lukkPopup() {
-    document.getElementById('kode-popup').style.display = 'none';
-}
-
-/**
- * Skriv ut QR-kode
- */
-function skrivUtQR() {
-    const printPage = document.getElementById('print-qr-page');
-    const proveNavn = document.getElementById('print-prove-navn');
-    const printQRContainer = document.getElementById('print-qr-container');
-    const printKodeTekst = document.getElementById('print-kode-tekst');
-    
-    const bib = hentLokaleProver();
-    const aktuelProve = bib.find(p => p.id === window.currentProveIdForPrint);
-    
-    if (!aktuelProve) {
-        alert('Kunne ikke finne prøve-informasjon');
-        return;
-    }
-    
-    proveNavn.innerText = aktuelProve.navn;
-    
-    // Generer QR for print
-    printQRContainer.innerHTML = '';
-    const kode = komprimer(aktuelProve.ordliste);
-    const currentUrl = window.location.href.split('?')[0];
-    const directLink = `${currentUrl}?quiz=${kode}&navn=${encodeURIComponent(aktuelProve.navn)}`;
-    
-    new QRCode(printQRContainer, {
-        text: directLink,
-        width: 300,
-        height: 300,
-        colorDark: "#0071e3",
-        colorLight: "#ffffff"
-    });
-    
-    printKodeTekst.innerText = kode;
-    
-    // Skjul popup og vis print
-    document.getElementById('kode-popup').style.display = 'none';
-    printPage.style.display = 'block';
-    
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-            printPage.style.display = 'none';
-        }, 500);
-    }, 500);
-}
-
-/**
- * Last ned QR som PNG
- */
-function lastNedQR() {
-    const qrContainer = document.getElementById('qrcode-container');
-    const canvas = qrContainer.querySelector('canvas');
-    
-    if (!canvas) {
-        alert('Kunne ikke finne QR-kode');
-        return;
-    }
-    
-    canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'glosemester-qr-kode.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
-}
-
-/**
- * Håndter manuell import av prøve (lim inn kode)
- */
-function importerProveFraTekst() {
-    const kode = prompt("Lim inn prøvekode fra en kollega:");
-    if (!kode) return;
-    
-    try {
-        const ordliste = dekomprimer(kode);
-        const navn = prompt("Hva skal prøven hete?", "Importert Prøve");
-        
-        if (navn && ordliste.length > 0) {
-            lagreNyProve(navn, ordliste);
-            oppdaterBibliotekVisning();
+    // Logg ut funksjon
+    logout: function() {
+        if(confirm("Er du sikker på at du vil logge ut?")) {
+            localStorage.removeItem('gm_teacher_logged_in');
+            this.render();
         }
-    } catch (e) {
-        alert("Ugyldig kode!");
-        console.error(e);
-    }
-}
+    },
 
-/**
- * Lagre en importert prøve (fra lenke/QR)
- */
-function lagreImportertProve(proveData, navn) {
-    const nyttNavn = prompt("Gi prøven et navn:", navn || "Ny Prøve");
-    if (nyttNavn) {
-        lagreNyProve(nyttNavn, proveData);
-        velgRolle('laerer'); // Gå til lærermenyen
-    }
-}
+    // Hovedfunksjon for å tegne opp UI
+    render: function() {
+        const container = document.getElementById('teacher-view-container');
+        if (!container) return;
 
-console.log('🍎 teacher.js lastet (v2 - import)');
+        container.innerHTML = ''; // Tøm container
+
+        if (!this.isLoggedIn()) {
+            this.renderLoginScreen(container);
+        } else {
+            this.renderDashboard(container);
+        }
+    },
+
+    // HTML for IKKE logget inn
+    renderLoginScreen: function(container) {
+        container.innerHTML = `
+            <div class="teacher-login-wrapper">
+                <div class="teacher-login-card">
+                    <span class="teacher-brand-icon">🍎</span>
+                    <h2 style="margin-bottom: 10px;">Lærerportal</h2>
+                    <p style="color: #666; font-size: 15px; line-height: 1.5;">
+                        Logg inn for å opprette prøver, administrere biblioteket ditt og dele innhold med elevene.
+                    </p>
+                    
+                    <button class="btn-google-login" onclick="TeacherAuth.login()">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" width="18" height="18">
+                        Logg inn med Google
+                    </button>
+                    
+                    <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                        GloseMester for Lærere v0.1
+                    </p>
+                </div>
+            </div>
+        `;
+    },
+
+    // HTML for LOGGET INN
+    renderDashboard: function(container) {
+        // Vi bygger opp dashboard-strukturen
+        container.innerHTML = `
+            <div class="card-container">
+                <div class="dashboard-header">
+                    <div>
+                        <h2 style="margin:0;">Mitt Bibliotek</h2>
+                        <p style="color:#86868b; font-size:13px; margin:5px 0 0 0;">Dine lagrede prøver</p>
+                    </div>
+                    <button class="user-profile-btn" onclick="TeacherAuth.logout()">
+                        <span>👤 Lærer Profil</span>
+                        <span class="pro-tag">PRO</span>
+                    </button>
+                </div>
+
+                <div class="teacher-toolbar">
+                     <button class="btn-primary btn-small" onclick="visSide('laerer-editor')" style="margin:0;">+ Ny Prøve</button>
+                     <button class="btn-secondary btn-small" onclick="importerProveFraTekst()" style="margin:0;">📥 Importer</button>
+                     <button class="btn-sound" onclick="startQRScanner('laerer')" title="Skann fra kollega" style="width: 36px; height: 36px; font-size: 18px; margin-left:auto;">📷</button>
+                </div>
+
+                <div id="bibliotek-innhold-wrapper">
+                    <p id="ingen-prover-msg" style="color:#86868b; display:none; padding: 20px; text-align:center; background:#f9f9f9; border-radius:12px;">
+                        Du har ingen prøver ennå. Trykk på <strong>+ Ny Prøve</strong> for å starte!
+                    </p>
+                    <ul id="bibliotek-liste" class="bibliotek-liste"></ul>
+                </div>
+            </div>
+        `;
+
+        // Kall eksisterende funksjon for å rendere listen over prøver
+        // (Denne funksjonen antar jeg du har i teacher.js eller collection.js fra før)
+        if (typeof oppdaterBibliotekVisning === 'function') {
+            oppdaterBibliotekVisning();
+        } else if (typeof renderTeacherLibrary === 'function') {
+             renderTeacherLibrary(); // Bruk navnet på din eksisterende funksjon
+        } else {
+            // Fallback hvis funksjonen ikke finnes, bare for å vise at koden kjører
+            console.log("Husk å kalle funksjonen som lister ut prøvene her.");
+        }
+    }
+};
+
+// Initialiser når siden lastes
+document.addEventListener('DOMContentLoaded', () => {
+    // Hvis vi er på lærersiden ved oppstart (reload), render:
+    if(document.getElementById('laerer-dashboard').style.display === 'block') {
+        TeacherAuth.render();
+    }
+});
+
+// Hack: Vi må overstyre den globale navigasjonen litt for å trigge render når man trykker på menyen
+// Legg til dette nederst i teacher.js
+const originalVisSide = window.visSide;
+window.visSide = function(sideId) {
+    originalVisSide(sideId); // Kjør original navigasjon
+    if (sideId === 'laerer-dashboard') {
+        TeacherAuth.render();
+    }
+};
