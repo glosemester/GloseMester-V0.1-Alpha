@@ -4,7 +4,7 @@
 // Strategy: Network First
 // ============================================
 
-const CACHE_NAME = 'glosemester-v0.5-candy';
+const CACHE_NAME = 'glosemester-v0.52-candy';
 
 // Filer vi MÅ ha for at appen skal virke offline
 const ASSETS_TO_CACHE = [
