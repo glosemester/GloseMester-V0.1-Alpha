@@ -1,77 +1,48 @@
 // ============================================
-// AUTH.JS - GloseMester v1.0
-// Håndterer innlogging, utlogging og UI-bytte
+// FIREBASE.JS - GloseMester v1.0
+// Konfigurasjon og initiering av Cloud-tjenester
 // ============================================
 
-// 1. Vi importerer verktøyene vi lagde i firebase.js
-import { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged } from '../core/cloud/firebase.js';
+// Vi bruker ES Modules import fra CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-console.log('🔐 Auth-modul laster...');
-
-// 2. Hent referanser til HTML-boksene vi lagde i index.html
-const loginSection = document.getElementById('auth-login-section'); // "Logg inn"-boksen
-const teacherUi = document.getElementById('teacher-ui');           // Selve dashboardet
-const userNameDisplay = document.getElementById('user-name');      // Der navnet skal stå
-
-// 3. Gjør funksjonene tilgjengelige for HTML (window)
-// Siden dette er en modul, er funksjoner normalt skjult. Vi må "henge dem på vinduet".
-
-window.loggInn = async () => {
-    try {
-        console.log('Forsøker Google-innlogging...');
-        await signInWithPopup(auth, googleProvider);
-        // Vi trenger ikke gjøre noe mer her, "onAuthStateChanged" under tar seg av resten
-    } catch (error) {
-        console.error("Innlogging feilet:", error);
-        alert("Innlogging feilet: " + error.message);
-    }
+// ✅ DINE EKTE NØKLER:
+const firebaseConfig = {
+  apiKey: "AIzaSyBVrXniqVZz5t1TdS6jDSf7uS6m-6appUU",
+  authDomain: "glosemester-1e67e.firebaseapp.com",
+  projectId: "glosemester-1e67e",
+  storageBucket: "glosemester-1e67e.firebasestorage.app",
+  messagingSenderId: "370013462432",
+  appId: "1:370013462432:web:fbf33e44d56629d715cec5",
+  measurementId: "G-7Q1Q9MX8QN"
 };
 
-window.loggUt = async () => {
-    if(confirm("Er du sikker på at du vil logge ut?")) {
-        try {
-            await signOut(auth);
-            console.log('Logget ut.');
-            // Vi reloader siden for å være sikker på at minnet tømmes helt
-            window.location.reload(); 
-        } catch (error) {
-            console.error("Utlogging feilet:", error);
-        }
-    }
+// Initialiser Firebase
+let app, db, auth, googleProvider;
+
+try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    googleProvider = new GoogleAuthProvider();
+    console.log("☁️ Firebase tilkoblet mot: glosemester-1e67e");
+} catch (e) {
+    console.error("❌ Firebase Config Feil:", e);
+}
+
+// Hjelpefunksjon: Sjekk om bruker er Premium (Betalende lærer)
+function sjekkPremiumStatus(user) {
+    if (!user) return false;
+    // Foreløpig lar vi alle innloggede lærere være "Premium"
+    return true; 
+}
+
+// Eksporter funksjonene
+export { 
+    app, db, auth, googleProvider, 
+    collection, addDoc, getDocs, query, where, orderBy, 
+    signInWithPopup, signOut, onAuthStateChanged,       
+    sjekkPremiumStatus 
 };
-
-// 4. Lytter: Denne kjører HVER gang status endres (når du refresher, logger inn, eller logger ut)
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        // === HVIS LOGGET INN ===
-        console.log("👤 Lærer identifisert:", user.email);
-        
-        // Skjul login-knappen, vis dashboardet
-        if(loginSection) loginSection.style.display = 'none';
-        if(teacherUi) teacherUi.style.display = 'block';
-        
-        // Vis navnet til læreren
-        if(userNameDisplay) userNameDisplay.innerText = user.displayName || 'Lærer';
-
-        // Last inn biblioteket (fra teacher.js)
-        // Vi sjekker om funksjonen finnes før vi kaller den
-        if (typeof window.oppdaterBibliotekVisning === 'function') {
-            console.log("☁️ Henter data fra skyen...");
-            await window.oppdaterBibliotekVisning();
-        }
-
-    } else {
-        // === HVIS IKKE LOGGET INN ===
-        console.log("👤 Ingen bruker logget inn (Gjest)");
-
-        // Vis login-knappen, skjul dashboardet
-        if(loginSection) loginSection.style.display = 'block';
-        if(teacherUi) teacherUi.style.display = 'none';
-        
-        // Tøm navnet
-        if(userNameDisplay) userNameDisplay.innerText = '';
-        
-        // (Valgfritt) Vi kan vise lokale prøver hvis vi vil, 
-        // men vanligvis skjuler vi alt når læreren er logget ut.
-    }
-});

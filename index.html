@@ -52,7 +52,11 @@
 
     <nav id="laerer-meny">
         <button onclick="visSide('laerer-dashboard')" id="btn-laerer-dashboard" class="active">Bibliotek</button>
-        <button onclick="visSide('laerer-editor')" id="btn-laerer-editor">Ny Prøve</button>
+        
+        <button onclick="sjekkNyProveTilgang()" id="btn-laerer-editor">
+            <span style="font-size: 14px;">🔒</span> Ny Prøve
+        </button>
+        
         <button onclick="tilbakeTilStart()" style="color:#ff3b30;">Avslutt</button>
     </nav>
 
@@ -305,34 +309,7 @@
             <div id="oving-samling-liste" class="samling-grid"></div>
         </div>
     </div>
-
-    <div id="laerer-dashboard" class="page">
-        <div class="card-container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2>Mitt Bibliotek</h2>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-sound" onclick="startQRScanner('laerer')" title="Skann fra kollega" style="width: 40px; height: 40px; font-size: 20px;">📷</button>
-                    
-                    <button class="btn-secondary btn-small" onclick="importerProveFraTekst()">📥 Importer</button>
-                    <button class="btn-primary btn-small" onclick="visSide('laerer-editor')">+ Ny Prøve</button>
-                </div>
-            </div>
-            <p id="ingen-prover-msg" style="color:#86868b; display:none;">Prøver du lager på denne enheten vises her.</p>
-            <ul id="bibliotek-liste" class="bibliotek-liste"></ul>
-        </div>
-    </div>
-
-    <div id="laerer-editor" class="page">
-        <div class="card-container">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>Lag Ny Prøve</h2>
-                <button class="btn-secondary btn-small" onclick="visSide('laerer-dashboard')">Avbryt</button>
-            </div>
-            
-            <div class="input-group" style="margin-top:20px;">
-                <label>Navn på prøven</label>
-                <input type="text" id="ny-prove-navn" placeholder="F.eks: Uke 42 - Engelske Dyr">
-            </div><div id="laerer-dashboard" class="page">
+<div id="laerer-dashboard" class="page">
         <div class="card-container">
             <div id="auth-login-section" style="text-align: center; padding: 20px 0;">
                 <h2 style="color: var(--accent-purple);">Lærer-portal 🍎</h2>
@@ -374,6 +351,18 @@
             </div>
         </div>
     </div>
+
+    <div id="laerer-editor" class="page">
+        <div class="card-container">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Lag Ny Prøve</h2>
+                <button class="btn-secondary btn-small" onclick="visSide('laerer-dashboard')">Avbryt</button>
+            </div>
+            
+            <div class="input-group" style="margin-top:20px;">
+                <label>Navn på prøven</label>
+                <input type="text" id="ny-prove-navn" placeholder="F.eks: Uke 42 - Engelske Dyr">
+            </div>
             
             <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
             
