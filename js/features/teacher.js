@@ -1,126 +1,220 @@
-/* ==========================================
-   TEACHER DASHBOARD & AUTH MANAGER
-   ========================================== */
+/* teacher.js
+   Håndterer lærer-funksjonalitet med Firebase Firestore
+   Versjon: v0.3 (Bruker eksisterende firebase.js)
+*/
 
-const TeacherAuth = {
-    // Sjekker "fake" login status fra localStorage
-    isLoggedIn: function() {
-        return localStorage.getItem('gm_teacher_logged_in') === 'true';
-    },
+// 1. IMPORT: Vi henter verktøyene fra din eksisterende firebase.js
+import { 
+    db, 
+    auth, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    query, 
+    orderBy 
+} from './firebase.js';
 
-    // Simulerer login (Her legger du inn Google Auth senere)
-    login: function() {
-        // 1. Her ville Google Auth koden kjørt
-        // 2. Ved suksess:
-        localStorage.setItem('gm_teacher_logged_in', 'true');
-        this.render();
-        console.log("Lærer logget inn");
-    },
+// Vi trenger 'serverTimestamp' som ikke var eksportert i din fil, så vi henter den fra samme versjon (9.22.0)
+import { serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // Logg ut funksjon
-    logout: function() {
-        if(confirm("Er du sikker på at du vil logge ut?")) {
-            localStorage.removeItem('gm_teacher_logged_in');
-            this.render();
-        }
-    },
-
-    // Hovedfunksjon for å tegne opp UI
-    render: function() {
-        const container = document.getElementById('teacher-view-container');
-        if (!container) return;
-
-        container.innerHTML = ''; // Tøm container
-
-        if (!this.isLoggedIn()) {
-            this.renderLoginScreen(container);
-        } else {
-            this.renderDashboard(container);
-        }
-    },
-
-    // HTML for IKKE logget inn
-    renderLoginScreen: function(container) {
-        container.innerHTML = `
-            <div class="teacher-login-wrapper">
-                <div class="teacher-login-card">
-                    <span class="teacher-brand-icon">🍎</span>
-                    <h2 style="margin-bottom: 10px;">Lærerportal</h2>
-                    <p style="color: #666; font-size: 15px; line-height: 1.5;">
-                        Logg inn for å opprette prøver, administrere biblioteket ditt og dele innhold med elevene.
-                    </p>
-                    
-                    <button class="btn-google-login" onclick="TeacherAuth.login()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" width="18" height="18">
-                        Logg inn med Google
-                    </button>
-                    
-                    <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                        GloseMester for Lærere v0.1
-                    </p>
-                </div>
-            </div>
-        `;
-    },
-
-    // HTML for LOGGET INN
-    renderDashboard: function(container) {
-        // Vi bygger opp dashboard-strukturen
-        container.innerHTML = `
-            <div class="card-container">
-                <div class="dashboard-header">
-                    <div>
-                        <h2 style="margin:0;">Mitt Bibliotek</h2>
-                        <p style="color:#86868b; font-size:13px; margin:5px 0 0 0;">Dine lagrede prøver</p>
-                    </div>
-                    <button class="user-profile-btn" onclick="TeacherAuth.logout()">
-                        <span>👤 Lærer Profil</span>
-                        <span class="pro-tag">PRO</span>
-                    </button>
-                </div>
-
-                <div class="teacher-toolbar">
-                     <button class="btn-primary btn-small" onclick="visSide('laerer-editor')" style="margin:0;">+ Ny Prøve</button>
-                     <button class="btn-secondary btn-small" onclick="importerProveFraTekst()" style="margin:0;">📥 Importer</button>
-                     <button class="btn-sound" onclick="startQRScanner('laerer')" title="Skann fra kollega" style="width: 36px; height: 36px; font-size: 18px; margin-left:auto;">📷</button>
-                </div>
-
-                <div id="bibliotek-innhold-wrapper">
-                    <p id="ingen-prover-msg" style="color:#86868b; display:none; padding: 20px; text-align:center; background:#f9f9f9; border-radius:12px;">
-                        Du har ingen prøver ennå. Trykk på <strong>+ Ny Prøve</strong> for å starte!
-                    </p>
-                    <ul id="bibliotek-liste" class="bibliotek-liste"></ul>
-                </div>
-            </div>
-        `;
-
-        // Kall eksisterende funksjon for å rendere listen over prøver
-        // (Denne funksjonen antar jeg du har i teacher.js eller collection.js fra før)
-        if (typeof oppdaterBibliotekVisning === 'function') {
-            oppdaterBibliotekVisning();
-        } else if (typeof renderTeacherLibrary === 'function') {
-             renderTeacherLibrary(); // Bruk navnet på din eksisterende funksjon
-        } else {
-            // Fallback hvis funksjonen ikke finnes, bare for å vise at koden kjører
-            console.log("Husk å kalle funksjonen som lister ut prøvene her.");
-        }
-    }
-};
-
-// Initialiser når siden lastes
 document.addEventListener('DOMContentLoaded', () => {
-    // Hvis vi er på lærersiden ved oppstart (reload), render:
-    if(document.getElementById('laerer-dashboard').style.display === 'block') {
-        TeacherAuth.render();
-    }
+    setupEditorListeners();
+    lastInnMineProver(); // Hent prøver fra databasen når siden laster
 });
 
-// Hack: Vi må overstyre den globale navigasjonen litt for å trigge render når man trykker på menyen
-// Legg til dette nederst i teacher.js
-const originalVisSide = window.visSide;
-window.visSide = function(sideId) {
-    originalVisSide(sideId); // Kjør original navigasjon
-    if (sideId === 'laerer-dashboard') {
-        TeacherAuth.render();
+function setupEditorListeners() {
+    // --- LEGG TIL ORD ---
+    const knappLeggTil = document.getElementById('btn-legg-til-ord');
+    if (knappLeggTil) {
+        knappLeggTil.addEventListener('click', leggTilOrd);
     }
-};
+
+    const inputFelt = document.getElementById('nytt-svar');
+    if (inputFelt) {
+        inputFelt.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') leggTilOrd();
+        });
+    }
+
+    // --- LAGRE PRØVE ---
+    const knappLagre = document.getElementById('btn-lagre-prove');
+    if (knappLagre) {
+        // Vi bruker en ny funksjon som er 'async' for å kunne vente på Firebase
+        knappLagre.addEventListener('click', async () => {
+            await lagreProveTilFirebase();
+        });
+    }
+}
+
+function leggTilOrd() {
+    const norskInput = document.getElementById('nytt-sporsmaal');
+    const engelskInput = document.getElementById('nytt-svar');
+    const liste = document.getElementById('editor-liste');
+
+    if (!norskInput?.value.trim() || !engelskInput?.value.trim()) {
+        alert("Fyll ut begge feltene!");
+        return;
+    }
+
+    const li = document.createElement('li');
+    li.className = 'editor-item'; 
+    li.innerHTML = `
+        <span><b>${norskInput.value.trim()}</b> = ${engelskInput.value.trim()}</span>
+        <button class="slett-ord-btn" style="background:none; border:none; cursor:pointer;" title="Fjern ord">🗑️</button>
+    `;
+    
+    // Legg til slette-funksjonalitet via lytter
+    li.querySelector('.slett-ord-btn').addEventListener('click', () => li.remove());
+
+    liste.appendChild(li);
+    norskInput.value = '';
+    engelskInput.value = '';
+    norskInput.focus();
+}
+
+// --- FIREBASE LOGIKK ---
+
+async function lagreProveTilFirebase() {
+    const bruker = auth.currentUser;
+    
+    // Enkel sjekk: Er bruker logget inn?
+    if (!bruker) {
+        alert("Du må være logget inn for å lagre prøver! (Gå til Bibliotek og logg inn først)");
+        return;
+    }
+
+    const tittelInput = document.getElementById('ny-prove-navn');
+    const tittel = tittelInput ? tittelInput.value.trim() : "Uten navn";
+    
+    // Samle ord fra listen
+    const ordListe = [];
+    document.querySelectorAll('#editor-liste li span').forEach(span => {
+        const deler = span.innerText.split('=');
+        if (deler.length >= 2) {
+            ordListe.push({ sporsmaal: deler[0].trim(), svar: deler[1].trim() });
+        }
+    });
+
+    if (ordListe.length === 0) {
+        alert("Prøven er tom!");
+        return;
+    }
+
+    const knapp = document.getElementById('btn-lagre-prove');
+    const orgTekst = knapp.innerText;
+    knapp.innerText = "Lagrer...";
+    knapp.disabled = true;
+
+    try {
+        // SKRIV TIL FIRESTORE (Bruker funksjonene fra din firebase.js)
+        const docRef = await addDoc(collection(db, "prover"), {
+            tittel: tittel,
+            ord: ordListe,
+            forfatterId: bruker.uid,
+            forfatterEpost: bruker.email,
+            opprettet: serverTimestamp(),
+            offentlig: false 
+        });
+
+        console.log("✅ Prøve lagret med ID: ", docRef.id);
+        alert(`Prøven "${tittel}" er lagret i skyen!`);
+        
+        // Nullstill UI
+        document.getElementById('editor-liste').innerHTML = '';
+        tittelInput.value = '';
+        
+        // Gå tilbake til biblioteket
+        if (typeof visSide === 'function') visSide('laerer-dashboard');
+        
+        // Oppdater listen med en gang
+        lastInnMineProver();
+
+    } catch (e) {
+        console.error("❌ Feil ved lagring: ", e);
+        alert("Noe gikk galt ved lagring: " + e.message);
+    } finally {
+        knapp.innerText = orgTekst;
+        knapp.disabled = false;
+    }
+}
+
+async function lastInnMineProver() {
+    const bruker = auth.currentUser;
+    const listeEl = document.getElementById('bibliotek-liste');
+    
+    if (!listeEl) return;
+    if (!bruker) {
+        listeEl.innerHTML = ''; // Tøm listen hvis ingen er logget inn
+        return; 
+    }
+
+    listeEl.innerHTML = '<li style="text-align:center; padding:20px;">Laster dine prøver...</li>';
+
+    try {
+        // Hent prøver sortert på dato
+        // (Merk: orderBy kan kreve at du oppretter en indeks i Firebase Console første gang)
+        const q = query(
+            collection(db, "prover"), 
+            orderBy("opprettet", "desc")
+        );
+
+        const querySnapshot = await getDocs(q);
+        listeEl.innerHTML = ''; // Fjern "laster..." melding
+
+        let antallFunnet = 0;
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Filtrer manuelt på klienten foreløpig (enklest uten indeks-trøbbel i starten)
+            if (data.forfatterId === bruker.uid) {
+                visProveIBibliotek(doc.id, data);
+                antallFunnet++;
+            }
+        });
+
+        if (antallFunnet === 0) {
+            document.getElementById('ingen-prover-msg').style.display = 'block';
+        } else {
+            document.getElementById('ingen-prover-msg').style.display = 'none';
+        }
+
+    } catch (e) {
+        console.error("Feil ved henting av prøver:", e);
+        // Ofte er feilen manglende indeks. Vi gir en mer hjelpsom feilmelding i konsollen.
+        if(e.message.includes("index")) {
+            console.warn("⚠️ Du må kanskje opprette en indeks i Firebase Console. Se lenken i feilmeldingen over.");
+        }
+        listeEl.innerHTML = '<li style="color:red; text-align:center;">Kunne ikke laste prøver. Sjekk konsoll (F12) for feil.</li>';
+    }
+}
+
+function visProveIBibliotek(id, prove) {
+    const liste = document.getElementById('bibliotek-liste');
+    
+    // Sjekk om dato finnes, ellers bruk 'Nå'
+    let dato = 'Nylig';
+    if (prove.opprettet && prove.opprettet.seconds) {
+        dato = new Date(prove.opprettet.seconds * 1000).toLocaleDateString();
+    }
+
+    const li = document.createElement('li');
+    li.className = 'bibliotek-item'; 
+    li.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+            <div>
+                <strong style="font-size:16px; color:#333;">${prove.tittel}</strong><br>
+                <small style="color:#888;">${prove.ord.length} ord • ${dato}</small>
+            </div>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-start-prove" data-id="${id}" style="background:#0071e3; color:white; border:none; padding:6px 12px; border-radius:15px; cursor:pointer; font-size:12px;">Start</button>
+            </div>
+        </div>
+    `;
+    
+    // Legg til lytter for start-knappen
+    li.querySelector('.btn-start-prove').addEventListener('click', () => {
+        alert("Klar til å starte prøve ID: " + id + "\n(QR-kode generering kommer i neste versjon!)");
+    });
+
+    liste.appendChild(li);
+}

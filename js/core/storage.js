@@ -1,6 +1,46 @@
+// ============================================
+// STORAGE.JS - GloseMester v1.0
+// localStorage håndtering med Cloud Fallback
+// ============================================
+
+/**
+ * Hent brukerens samling (Elev - Lokalt)
+ */
+function getSamling() {
+    try {
+        const data = localStorage.getItem('samling_' + brukerNavn);
+        return data ? JSON.parse(data) : [];
+    } catch (e) {
+        console.error('❌ Feil ved henting av samling:', e);
+        return [];
+    }
+}
+
+/**
+ * Lagre brukerens samling (Elev - Lokalt)
+ */
+function setSamling(samling) {
+    try {
+        localStorage.setItem('samling_' + brukerNavn, JSON.stringify(samling));
+    } catch (e) {
+        console.error('❌ Feil ved lagring av samling:', e);
+    }
+}
+
+/**
+ * Legg til kort i samling
+ */
+function lagreBrukerKort(kort) {
+    const samling = getSamling();
+    samling.push(kort);
+    setSamling(samling);
+    console.log('✅ Kort lagt til:', kort.navn);
+}
+
+// ... (Behold andre hjelpefunksjoner for credits etc. som de var) ...
+
 /**
  * Hent lærerns prøvebibliotek (Hybrid: Cloud først, så Local)
- * @returns {Promise<Array>} Array med prøver
  */
 async function hentLokaleProver() {
     let lokaleData = [];
@@ -11,8 +51,8 @@ async function hentLokaleProver() {
         
         // 2. Sjekk om vi er online og skal bruke skyen
         if (navigator.onLine) {
-            // Last Firebase dynamisk - KUN her, ikke på toppen av filen!
-            const fb = await import('./cloud/firebase.js');
+            // 👇 ENDRET STI HER: Peker nå til ../features/firebase.js
+            const fb = await import('../features/firebase.js');
             const user = fb.auth.currentUser;
 
             if (user) {
@@ -27,6 +67,7 @@ async function hentLokaleProver() {
                 const cloudData = [];
                 
                 querySnapshot.forEach((doc) => {
+                    // Vi lagrer Firestore-IDen slik at vi kan slette den senere
                     cloudData.push({ id: doc.id, ...doc.data() });
                 });
 
@@ -36,16 +77,15 @@ async function hentLokaleProver() {
             }
         }
     } catch (e) {
-        console.warn("⚠️ Kunne ikke hente fra skyen, bruker lokal cache:", e);
+        console.warn("⚠️ Kunne ikke hente fra skyen (eller ikke logget inn), bruker lokal cache.", e);
     }
 
-    // 4. Fallback: Returner lokal data hvis offline eller ikke logget inn
+    // 4. Fallback: Returner lokal data
     return lokaleData;
 }
 
 /**
  * Lagre prøve (Hybrid: Prøv Cloud, fallback til Local)
- * @param {object} prove - Prøve-objektet
  */
 async function lagreLokaleProver(prove) {
     // Alltid lagre lokalt først (Sikrer mot datatap)
@@ -54,24 +94,22 @@ async function lagreLokaleProver(prove) {
         bib = JSON.parse(localStorage.getItem('lokale_prover')) || [];
     } catch(e) {}
     
-    // Generer ID hvis den mangler (bruker timestamp for lokal, men Firebase lager egen ID)
-    if (!prove.id) prove.id = Date.now().toString();
+    if (!prove.id) prove.id = Date.now().toString(); // Midlertidig ID
     if (!prove.opprettet) prove.opprettet = new Date().toISOString();
     
-    // Oppdater lokal liste
     bib.push(prove);
     localStorage.setItem('lokale_prover', JSON.stringify(bib));
 
     // Prøv å lagre i skyen
     try {
         if (navigator.onLine) {
-            const fb = await import('./cloud/firebase.js');
+            // 👇 ENDRET STI HER OGSÅ:
+            const fb = await import('../features/firebase.js');
             const user = fb.auth.currentUser;
 
             if (user) {
                 console.log("☁️ Lagrer prøve i skyen...");
                 
-                // Klargjør data for Firestore (fjern ID, den settes av dokumentet eller overskrives)
                 const docData = {
                     navn: prove.navn,
                     ordliste: prove.ordliste,
@@ -79,19 +117,20 @@ async function lagreLokaleProver(prove) {
                     opprettet: prove.opprettet
                 };
 
-                // Lagre til Firestore
                 await fb.addDoc(fb.collection(fb.db, "prover"), docData);
                 console.log("✅ Lagret i skyen!");
                 
-                // Her burde vi ideelt sett hentet ny liste for å få riktige ID-er,
-                // men for v1.0 holder vi det enkelt.
+                // Vi burde hente listen på nytt for å få ekte ID, men dette holder for nå
             }
-        } else {
-            console.log("⚠️ Offline: Prøve lagret kun lokalt. Husk å sync senere.");
-            // Her kan du legge til logikk for "unsynced" flagg senere
         }
     } catch (e) {
         console.error("❌ Feil ved skylagring:", e);
-        alert("Kunne ikke lagre i skyen (er du logget inn?). Prøven er lagret lokalt på denne enheten.");
+        alert("Lagret lokalt. Kunne ikke synkronisere med skyen akkurat nå.");
     }
+}
+
+// For bakoverkompatibilitet hvis andre filer kaller slettLokaleProver (ikke async)
+function slettLokaleProver(id) {
+    // Dette er en placeholder. Ekte sletting skjer nå i teacher.js via slettProve()
+    console.warn("Bruk slettProve() i teacher.js for å slette fra skyen.");
 }

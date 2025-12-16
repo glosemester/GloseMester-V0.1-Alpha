@@ -1,48 +1,38 @@
-// ============================================
-// FIREBASE.JS - GloseMester v1.0
-// Konfigurasjon og initiering av Cloud-tjenester
-// ============================================
+/* js/features/auth.js
+   Håndterer eksport og import av data (Backup-systemet).
+   Ingen personlige data sendes ut, alt er basert på lokal tekst.
+*/
 
-// Vi bruker ES Modules import fra CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+export function opprettBackup() {
+    // 1. Hent data fra LocalStorage (Foreløpig tomt, så vi lager testdata)
+    // Senere bytter vi dette med ekte data.
+    const data = {
+        bruker: "Elev",
+        dato: new Date().toLocaleDateString(),
+        innhold: "Dette er en test på backup"
+    };
 
-// ✅ DINE EKTE NØKLER:
-const firebaseConfig = {
-  apiKey: "AIzaSyBVrXniqVZz5t1TdS6jDSf7uS6m-6appUU",
-  authDomain: "glosemester-1e67e.firebaseapp.com",
-  projectId: "glosemester-1e67e",
-  storageBucket: "glosemester-1e67e.firebasestorage.app",
-  messagingSenderId: "370013462432",
-  appId: "1:370013462432:web:fbf33e44d56629d715cec5",
-  measurementId: "G-7Q1Q9MX8QN"
-};
+    // 2. Gjør om data til en tekststreng (JSON)
+    const jsonStreng = JSON.stringify(data);
 
-// Initialiser Firebase
-let app, db, auth, googleProvider;
+    // 3. "Krypter" teksten til Base64 (så det ser ut som en kode, og ikke ren tekst)
+    // Dette er ikke ekte sikkerhet, men hindrer at man kan lese det med det blotte øye.
+    const kode = btoa(jsonStreng);
 
-try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-    googleProvider = new GoogleAuthProvider();
-    console.log("☁️ Firebase tilkoblet mot: glosemester-1e67e");
-} catch (e) {
-    console.error("❌ Firebase Config Feil:", e);
+    // 4. Vis koden i tekstboksen i HTML-en
+    const tekstBoks = document.getElementById('backup-kode-tekst');
+    if (tekstBoks) {
+        tekstBoks.value = kode;
+        
+        // Marker teksten og kopier til utklippstavlen
+        tekstBoks.select();
+        navigator.clipboard.writeText(kode)
+            .then(() => alert("Koden er kopiert til utklippstavlen!"))
+            .catch(err => console.error("Klarte ikke kopiere: ", err));
+    }
 }
 
-// Hjelpefunksjon: Sjekk om bruker er Premium (Betalende lærer)
-function sjekkPremiumStatus(user) {
-    if (!user) return false;
-    // Foreløpig lar vi alle innloggede lærere være "Premium"
-    return true; 
+export function lastInnBackup() {
+    // Denne lager vi senere når vi skal hente inn data
+    console.log("Funksjon for å laste inn backup kommer her.");
 }
-
-// Eksporter funksjonene
-export { 
-    app, db, auth, googleProvider, 
-    collection, addDoc, getDocs, query, where, orderBy, 
-    signInWithPopup, signOut, onAuthStateChanged,       
-    sjekkPremiumStatus 
-};
