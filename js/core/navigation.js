@@ -1,201 +1,156 @@
-// ============================================
-// NAVIGATION.JS - GloseMester v0.1-ALPHA
-// Navigasjon mellom sider og roller
-// ============================================
+/* ============================================
+   NAVIGATION.JS - GloseMester v1.1 (STRENG VERSJON)
+   Fikser problem med at sider legger seg oppå hverandre.
+   ============================================ */
 
 /**
- * Velg rolle (elev, øving, lærer)
- * @param {string} rolle - Rolle å velge ('kode', 'oving', 'laerer', 'om-oss')
+ * Hjelpefunksjon: Nullstill HELE visningen (TVUNGET)
  */
-function velgRolle(rolle) {
-    // Skjul alle sider
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+function resetVisning() {
+    console.log("🧹 Nullstiller visning - Skjuler alle sider");
     
-    aktivRolle = rolle;
-    
-    // Sett opp brukernavn hvis ikke satt
-    if (!brukerNavn) {
-        brukerNavn = "Spiller";
-        loadUserData();
-    }
-    
-    // Håndter forskjellige roller
+    // 1. Gå gjennom ALLE sider og tving dem til å skjules
+    const sider = document.querySelectorAll('.page');
+    sider.forEach(side => {
+        // Fjern active-klassen for CSS-animasjoner
+        side.classList.remove('active');
+        // VIKTIG: Tving skjuling med inline style for sikkerhets skyld
+        side.style.display = 'none';
+    });
+
+    // 2. Skjul alle navigasjonsmenyer i bunnen
+    ['elev-meny', 'laerer-meny', 'oving-meny'].forEach(id => {
+        const meny = document.getElementById(id);
+        if (meny) meny.style.display = 'none';
+    });
+
+    // 3. Scroll til toppen (fint på mobil)
+    window.scrollTo(0, 0);
+}
+
+/**
+ * Hovedfunksjon for å bytte rolle (Fra startsiden)
+ */
+export function velgRolle(rolle) {
+    console.log("🔄 Bytter rolle til:", rolle);
+
+    // STEG 1: SKJUL ALT GAMMELT FØRST!
+    resetVisning();
+
+    // Steg 2: Sett state
+    window.aktivRolle = rolle;
+    if (!window.brukerNavn) window.brukerNavn = "Spiller";
+
+    // Steg 3: Vis riktig meny og startside basert på rolle
     if (rolle === 'kode') {
-        aktivRolle = 'elev'; 
+        window.aktivRolle = 'elev'; 
         document.getElementById('elev-meny').style.display = 'flex';
-        document.getElementById('elev-dashboard').classList.add('active');
-        markerKnapp('elev-meny', 'elev-dashboard');
-        updateCreditUI();
+        visSide('elev-dashboard');
         
-        // Vis lagrede prøver hvis funksjon finnes
-        if (typeof visLagredeProver === 'function') {
-            visLagredeProver();
-        }
+        // Oppdater UI hvis funksjonene finnes (trygg sjekk)
+        if(typeof window.updateCreditUI === 'function') window.updateCreditUI();
+        if(typeof window.visLagredeProver === 'function') window.visLagredeProver();
         
-        // Sett fokus på input etter kort delay
-        setTimeout(() => {
-            const proveKodeInput = document.getElementById('prove-kode');
-            if (proveKodeInput) proveKodeInput.focus();
-        }, 100);
-        
-        // Track i analytics
-        if (typeof trackEvent === 'function') {
-            trackEvent('Navigation', 'Valgte rolle', 'Elev (har kode)');
-        }
-    }
-    else if (rolle === 'laerer') {
-        visSide('laerer-dashboard');
-        
-        if (typeof trackEvent === 'function') {
-            trackEvent('Navigation', 'Valgte rolle', 'Lærer');
-        }
-    } 
-    else if (rolle === 'oving') { 
-        document.getElementById('oving-meny').style.display = 'flex'; 
-        updateCreditUI();
+    } else if (rolle === 'oving') {
+        document.getElementById('oving-meny').style.display = 'flex';
         visSide('oving-start');
         
-        if (typeof trackEvent === 'function') {
-            trackEvent('Navigation', 'Valgte rolle', 'Øving');
-        }
-    }
-    else if (rolle === 'om-oss') {
-        document.getElementById('om-oss').classList.add('active');
-        
-        if (typeof trackEvent === 'function') {
-            trackEvent('Navigation', 'Åpnet side', 'Om oss');
-        }
+        if(typeof window.updateCreditUI === 'function') window.updateCreditUI();
+
+    } else if (rolle === 'laerer') {
+        document.getElementById('laerer-meny').style.display = 'flex';
+        visSide('laerer-dashboard');
     }
 }
 
 /**
- * Tilbake til startside (landing page)
+ * Gå tilbake til start (Logg ut/Avslutt)
  */
-function tilbakeTilStart() {
-    // Skjul alle menyer
-    ['elev-meny', 'laerer-meny', 'oving-meny'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+export function tilbakeTilStart() {
+    resetVisning();
     
-    // Skjul alle sider
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // Vis landing page
+    // Vis landing page eksplisitt
     const landingPage = document.getElementById('landing-page');
-    if (landingPage) landingPage.classList.add('active');
-    
-    // Reset inputs
-    document.querySelectorAll('input').forEach(i => i.value = "");
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Navigation', 'Tilbake til start', aktivRolle);
+    if (landingPage) {
+        // Fjern tvungen 'none' og legg til 'active' klasse
+        landingPage.style.display = ''; 
+        landingPage.classList.add('active');
     }
     
-    // Reset aktiv rolle
-    aktivRolle = "";
-    
-    console.log('🏠 Tilbake til landing page');
+    // Nullstill input-felter for en ren start
+    document.querySelectorAll('input').forEach(i => i.value = "");
+    window.aktivRolle = "";
+    console.log('🏠 Tilbake til start');
 }
 
 /**
- * Vis en spesifikk side
- * @param {string} sideId - ID på siden å vise
+ * Naviger til en spesifikk underside (Navigering inni en rolle)
  */
-function visSide(sideId) {
-    // Skjul alle sider
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // Skjul alle menyer først
-    ['elev-meny', 'laerer-meny', 'oving-meny'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+export function visSide(sideId) {
+    console.log("📱 Navigerer til side:", sideId);
 
-    // Håndter spesialtilfeller
-    if (sideId === 'om-oss') {
-        // Ingen meny for om-oss
-    } else if (aktivRolle === 'elev') {
-        const elevMeny = document.getElementById('elev-meny');
-        if (elevMeny) elevMeny.style.display = 'flex';
-        markerKnapp('elev-meny', sideId);
-    } else if (aktivRolle === 'laerer') {
-        const laererMeny = document.getElementById('laerer-meny');
-        if (laererMeny) laererMeny.style.display = 'flex';
-        markerKnapp('laerer-meny', sideId);
-    } else if (aktivRolle === 'oving') {
-        const ovingMeny = document.getElementById('oving-meny');
-        if (ovingMeny) ovingMeny.style.display = 'flex';
-        markerKnapp('oving-meny', sideId);
-    }
+    // 1. Skjul alle andre sider først!
+    resetVisning();
     
-    // Vis valgt side
+    // 2. Finn den nye siden vi vil vise
     const side = document.getElementById(sideId);
     if (side) {
-        side.classList.add('active');
-        
-        // Kjør side-spesifikk logikk
-        if (sideId === 'elev-samling' && typeof visSamling === 'function') {
-            visSamling();
-        }
-        if (sideId === 'oving-samling' && typeof visOvingSamling === 'function') {
-            visOvingSamling();
-        }
-        if (sideId === 'laerer-dashboard' && typeof oppdaterBibliotekVisning === 'function') {
-            oppdaterBibliotekVisning();
-        }
-        if (sideId === 'elev-dashboard' && typeof visLagredeProver === 'function') {
-            visLagredeProver();
-        }
-        
-        // Track i analytics
-        if (typeof trackEvent === 'function') {
-            trackEvent('Navigation', 'Åpnet side', sideId);
+        // Fjern den tvungne 'display: none' style
+        side.style.display = ''; 
+        // Legg til active-klassen (som trigger CSS-animasjonen 'popIn')
+        // Vi bruker en mikroskopisk timeout for å sikre at nettleseren rekker å oppfatte endringen
+        setTimeout(() => {
+             side.classList.add('active');
+        }, 10);
+       
+    } else {
+        console.error("❌ Fant ikke siden med ID:", sideId);
+        return; // Stopp hvis siden ikke finnes
+    }
+
+    // 3. Sørg for at meny-knappen lyser opp
+    oppdaterMenyVisning(sideId);
+
+    // 4. Trigger data-lasting hvis nødvendig for den siden
+    if (sideId === 'elev-samling' && typeof window.visSamling === 'function') window.visSamling();
+    if (sideId === 'oving-samling' && typeof window.visOvingSamling === 'function') window.visOvingSamling();
+    if (sideId === 'laerer-dashboard' && typeof window.lastInnMineProver === 'function') window.lastInnMineProver();
+}
+
+/**
+ * Hjelpefunksjon: Oppdater hvilken menyknapp som er aktiv
+ */
+function oppdaterMenyVisning(sideId) {
+    let menyId = "";
+    // Finn ut hvilken meny som skal vises basert på rollen
+    if (window.aktivRolle === 'elev') menyId = 'elev-meny';
+    else if (window.aktivRolle === 'oving') menyId = 'oving-meny';
+    else if (window.aktivRolle === 'laerer') menyId = 'laerer-meny';
+
+    if (menyId) {
+        const meny = document.getElementById(menyId);
+        if (meny) {
+            meny.style.display = 'flex'; // Sikre at menyen er synlig
+            
+            // Fjern 'active' fra alle knapper i denne menyen
+            meny.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            
+            // Finn knappen som matcher siden vi er på (f.eks "btn-oving-start") og gjør den aktiv
+            const btn = document.getElementById('btn-' + sideId);
+            if (btn) btn.classList.add('active');
         }
     }
 }
 
-/**
- * Marker aktiv knapp i navigasjon
- * @param {string} menyId - ID på menyen
- * @param {string} sideId - ID på siden
- */
-function markerKnapp(menyId, sideId) {
-    const meny = document.getElementById(menyId);
-    if (!meny) return;
-    
-    // Fjern active fra alle knapper i denne menyen
-    meny.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    
-    // Legg til active på riktig knapp
-    const btn = document.getElementById('btn-' + sideId);
-    if (btn) btn.classList.add('active');
-}
-
-/**
- * Velg kategori (for kort-samling)
- * @param {string} kategori - Kategori å velge ('biler', 'guder', 'dinosaurer', 'dyr')
- */
-function velgKategori(kategori) {
-    valgtKategori = kategori;
-    
-    // Oppdater UI
-    document.querySelectorAll('.kategori-card').forEach(card => {
-        card.classList.remove('active');
+// Håndterer kategori-valg i samlingene
+export function velgKategori(kategori) {
+    window.valgtKategori = kategori;
+    // Oppdater UI på knappene
+    document.querySelectorAll('.kategori-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.kategori === kategori);
     });
     
-    const aktivCard = document.querySelector(`.kategori-card[data-kategori="${kategori}"]`);
-    if (aktivCard) {
-        aktivCard.classList.add('active');
-    }
-    
-    console.log('📂 Kategori valgt:', kategori);
-    
-    // Track i analytics
-    if (typeof trackEvent === 'function') {
-        trackEvent('Navigation', 'Valgte kategori', kategori);
-    }
+    // Oppdater listen basert på hvilken rolle vi er i
+    if (window.aktivRolle === 'elev' && typeof window.visSamling === 'function') window.visSamling();
+    if (window.aktivRolle === 'oving' && typeof window.visOvingSamling === 'function') window.visOvingSamling();
 }
-
-console.log('🧭 navigation.js lastet');

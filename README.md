@@ -1,6 +1,10 @@
 # \# 🎮 GloseMester v0.1-ALPHA
 
-# 
+# \## ⚠️ Status: DEBUGGING PÅGÅR
+
+# Vi jobber med å fikse kritiske feil i Øvemodus (UI og Lagring).
+
+# Se `PROJECT\_STATUS.md` for detaljer før du gjør endringer.
 
 # \*\*Lær gloser og samle kort!\*\*
 
@@ -20,13 +24,13 @@
 
 # \- 🎴 152 samlekort i 4 kategorier:
 
-# &nbsp; - 🚗 Biler (38 kort)
+#   - 🚗 Biler (38 kort)
 
-# &nbsp; - 🏛️ Guder (38 kort - Norse/Greek)
+#   - 🏛️ Guder (38 kort - Norse/Greek)
 
-# &nbsp; - 🦖 Dinosaurer (38 kort)
+#   - 🦖 Dinosaurer (38 kort)
 
-# &nbsp; - 🾾 Søte Dyr (38 kort)
+#   - 🾾 Søte Dyr (38 kort)
 
 # \- 💎 Byttepoeng-system (100 riktige = 10 poeng)
 
@@ -34,7 +38,21 @@
 
 # \- 📤 Eksporter/Importer samling via QR
 
-# 
+
+
+\## 🛠️ Teknologi
+
+\- \*\*Frontend:\*\* Vanilla JS (ES6 Modules), CSS3
+
+\- \*\*Backend:\*\* Firebase (Lærer), LocalStorage (Elev)
+
+\- \*\*Verktøy:\*\* QR Scanner, Google Analytics
+
+# \## 🚀 Start lokalt
+
+# ```bash
+
+# python -m http.server 8000
 
 # \## 🚀 Kom i gang
 
@@ -138,17 +156,17 @@
 
 # └── prompts/
 
-# &nbsp;   ├── 00-MASTER-LISTE.md
+#     ├── 00-MASTER-LISTE.md
 
-# &nbsp;   ├── 01-BILER.md
+#     ├── 01-BILER.md
 
-# &nbsp;   ├── 02-GUDER.md
+#     ├── 02-GUDER.md
 
-# &nbsp;   ├── 03-DINOSAURER.md
+#     ├── 03-DINOSAURER.md
 
-# &nbsp;   ├── 04-DYR.md
+#     ├── 04-DYR.md
 
-# &nbsp;   └── GUIDE.md
+#     └── GUIDE.md
 
 # ```
 

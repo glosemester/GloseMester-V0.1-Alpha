@@ -3,7 +3,7 @@
 // Alle 152 kort i 4 kategorier
 // ============================================
 
-const kortSamling = {
+window.kortSamling = {
     "biler": [
         // VANLIGE (20 stk)
         {id:1,navn:"VW Golf",kategori:"biler",rarity:{type:"vanlig",farge:"#a1a1a1",tekst:"Vanlig"}},

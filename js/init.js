@@ -1,4 +1,17 @@
-// ============================================
+// --- ALPHA SIKKERHET ---
+// Enkel sjekk for å hindre innsyn under testing
+const hemmeligPassord = "glose2025"; // Velg ditt eget passord
+
+if (localStorage.getItem('alpha_access') !== 'true') {
+    const input = prompt("🔐 GloseMester Alpha - Skriv passord:");
+    if (input === hemmeligPassord) {
+        localStorage.setItem('alpha_access', 'true');
+        alert("Velkommen, Tester! 👋");
+    } else {
+        document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>⛔ Ingen tilgang</h1>";
+        throw new Error("Feil passord - Tilgang nektet"); // Stopper all annen kode
+    }
+}// ============================================
 // INIT.JS - GloseMester v0.1-ALPHA
 // Global state og initialisering
 // ============================================
@@ -16,12 +29,16 @@ let ovingIndex = 0;
 let ovingRetning = 'no'; 
 let proveSprak = 'no';
 
-let credits = 0;
-let creditProgress = 0;
-let valgtSortering = 'nyeste';
-let valgtKategori = 'biler';
-let editorListe = [];
-let importertProveData = null; // Midlertidig lagring ved import
+// GLOBAL STATE
+let brukerNavn = localStorage.getItem('aktiv_bruker') || "Spiller"; // Hent navn tidlig
+let aktivRolle = "";
+let aktivProve = [];
+
+// Last inn lagrede credits direkte
+let savedCredits = localStorage.getItem('credits_' + brukerNavn);
+let credits = savedCredits ? parseInt(savedCredits) : 0;
+
+// ... resten av variablene (gjeldendeSporsmaalIndex osv) ...
 
 // SERVICE WORKER REGISTRATION
 if ('serviceWorker' in navigator) {

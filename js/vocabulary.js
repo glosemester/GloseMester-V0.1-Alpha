@@ -6,7 +6,7 @@
 // e = Engelsk (svar)
 // ============================================
 
-const vokabularData = {
+window.vokabularData ={
     "1-2": [
         {s:"Katt",e:"Cat"},{s:"Hund",e:"Dog"},{s:"Rød",e:"Red"},{s:"Blå",e:"Blue"},{s:"Rosa",e:"Pink"},{s:"Grå",e:"Grey"},
         {s:"En",e:"One"},{s:"To",e:"Two"},{s:"Seks",e:"Six"},{s:"Ti",e:"Ten"},{s:"Fire",e:"Four"},{s:"Ni",e:"Nine"},{s:"Fem",e:"Five"},
