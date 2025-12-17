@@ -1,69 +1,68 @@
 // ============================================
-// SERVICE WORKER - GloseMester v0.5
-// Design: Candy Glass Edition 🍭
-// Strategy: Network First
+// SERVICE WORKER - GloseMester v1.0
+// Oppdatert: Inkluderer js/ui og nye moduler
+// Strategi: Network First (Prøv nett, bruk cache hvis offline)
 // ============================================
 
-const CACHE_NAME = 'glosemester-v0.52-candy';
+const CACHE_NAME = 'glosemester-v1.0-rc1';
 
-// Filer vi MÅ ha for at appen skal virke offline
+// Alle filene appen trenger for å virke
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
     
-    // CSS (Oppdatert Design)
+    // CSS
     './css/main.css',
     './css/kort.css',
     './css/popups.css',
     
-    // Kjerne JavaScript
+    // JS Rot
     './js/app.js',
     './js/init.js',
     './js/vocabulary.js',
     './js/collection.js',
-    './js/export-import.js',
+    // './js/export-import.js', // Kommenter inn hvis du bruker denne
     
-    // Core Modules (Oppdatert routing)
+    // JS Core
     './js/core/navigation.js',
     './js/core/storage.js',
     './js/core/credits.js',
     './js/core/analytics.js',
     
-    // Features (Gamification & Logic)
+    // JS Features
     './js/features/practice.js',
     './js/features/quiz.js',
     './js/features/teacher.js',
     './js/features/kort-display.js',
     './js/features/qr-scanner.js',
-    './js/ui/helpers.js',
     
-    // Bilder
-    './header.png',
-    './icon.png',
-
-    // 🎵 NYTT: Lydeffekter (Må lastes opp til sounds/-mappen)
-    './sounds/correct.mp3',
-    './sounds/wrong.mp3',
-    './sounds/win.mp3',
-    './sounds/pop.mp3'
+    // JS UI (Denne var ny!)
+    './js/ui/helpers.js'
+    
+    // LYDER (Hvis du har lastet dem opp i en sounds-mappe)
+    // './sounds/correct.mp3',
+    // './sounds/wrong.mp3',
+    // './sounds/win.mp3',
+    // './sounds/pop.mp3',
+    // './sounds/fanfare.mp3'
 ];
 
-// 1. INSTALL: Cache filer umiddelbart
+// 1. INSTALL: Cache alle filer
 self.addEventListener('install', (event) => {
-    console.log('🍭 Service Worker: Installing Candy Glass Update...');
-    self.skipWaiting(); // Tving ny versjon med en gang
-
+    console.log('👷 Service Worker: Installerer...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            console.log('👷 Service Worker: Cacher filer');
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
+    self.skipWaiting(); // Tving ny SW til å ta over med en gang
 });
 
-// 2. ACTIVATE: Rydd opp i gamle versjoner (v4, v0.1 osv)
+// 2. ACTIVATE: Rydd opp i gammel cache
 self.addEventListener('activate', (event) => {
-    console.log('🍭 Service Worker: Activating & Cleaning...');
+    console.log('👷 Service Worker: Aktivert');
     event.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(keyList.map((key) => {
@@ -93,9 +92,15 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Strategi for egne filer (Network First)
+    // Prøver å hente fra nettet først. Hvis det går, oppdater cachen. 
+    // Hvis nettet feiler (offline), bruk cache.
     event.respondWith(
         fetch(event.request)
             .then((response) => {
+                // Sjekk at vi fikk et gyldig svar
+                if (!response || response.status !== 200 || response.type !== 'basic') {
+                    return response;
+                }
                 const responseClone = response.clone();
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, responseClone);
@@ -103,6 +108,8 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
+                // Hvis nettverk feiler, prøv cache
+                console.log('🔌 Ingen nett, henter fra cache:', event.request.url);
                 return caches.match(event.request);
             })
     );

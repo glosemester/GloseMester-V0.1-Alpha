@@ -1,190 +1,114 @@
-// --- ALPHA SIKKERHET ---
-// Enkel sjekk for å hindre innsyn under testing
-const hemmeligPassord = "glose2025"; // Velg ditt eget passord
-
-if (localStorage.getItem('alpha_access') !== 'true') {
-    const input = prompt("🔐 GloseMester Alpha - Skriv passord:");
-    if (input === hemmeligPassord) {
-        localStorage.setItem('alpha_access', 'true');
-        alert("Velkommen, Tester! 👋");
-    } else {
-        document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>⛔ Ingen tilgang</h1>";
-        throw new Error("Feil passord - Tilgang nektet"); // Stopper all annen kode
-    }
-}// ============================================
-// INIT.JS - GloseMester v0.1-ALPHA
-// Global state og initialisering
+// ============================================
+// INIT.JS - GloseMester v3.1
+// Oppdatert: 17. desember 2025
+// ============================================
+// Global state og app-initialisering
 // ============================================
 
+// ============================================
 // GLOBAL STATE
-let brukerNavn = "Spiller";
-let aktivRolle = "";
-let aktivProve = [];
-let gjeldendeSporsmaalIndex = 0;
-let riktigeSvar = 0;
-let ovingOrdliste = [];
-let ovingIndex = 0;
+// ============================================
+window.brukerNavn = "Spiller"; 
+window.aktivRolle = ""; 
+window.aktivProve = [];
+window.gjeldendeSporsmaalIndex = 0;
+window.riktigeSvar = 0;
+window.ovingOrdliste = [];
+window.ovingIndex = 0;
 
-// Norsk er standard
-let ovingRetning = 'no'; 
-let proveSprak = 'no';
+// VIKTIG ENDRING: Standard er nå 'no' (Norsk)
+window.ovingRetning = 'no'; 
+window.proveSprak = 'no';
 
-// GLOBAL STATE
-let brukerNavn = localStorage.getItem('aktiv_bruker') || "Spiller"; // Hent navn tidlig
-let aktivRolle = "";
-let aktivProve = [];
+window.credits = 0;
+window.creditProgress = 0;
+window.valgtSortering = 'nyeste';
+window.editorListe = [];
+window.valgtKategori = 'biler'; // Standard kategori
+window.qrStream = null;
+window.qrCanvas = null;
+window.qrContext = null;
+window.qrAnimationFrame = null;
+window.currentProveIdForPrint = null;
 
-// Last inn lagrede credits direkte
-let savedCredits = localStorage.getItem('credits_' + brukerNavn);
-let credits = savedCredits ? parseInt(savedCredits) : 0;
-
-// ... resten av variablene (gjeldendeSporsmaalIndex osv) ...
-
-// SERVICE WORKER REGISTRATION
+// ============================================
+// SERVICE WORKER REGISTRERING
+// ============================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => {
-                console.log('✅ Service Worker registrert:', reg.scope);
-                reg.onupdatefound = () => {
-                    const newWorker = reg.installing;
-                    newWorker.onstatechange = () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            if(confirm("Ny versjon tilgjengelig! Last inn på nytt?")) {
-                                window.location.reload();
-                            }
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('✅ Service Worker registrert');
+            
+            reg.onupdatefound = () => {
+                const newWorker = reg.installing;
+                newWorker.onstatechange = () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        if(confirm("Ny versjon tilgjengelig! Last inn på nytt?")) {
+                            window.location.reload();
                         }
-                    };
+                    }
                 };
-            })
-            .catch(err => {
-                console.error('❌ Service Worker feilet:', err);
-            });
+            };
+        }).catch(err => {
+            console.warn('⚠️ Service Worker feilet:', err);
+        });
     });
 }
 
-// APP INITIALIZATION
+// ============================================
+// APP INITIALISERING
+// ============================================
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 GloseMester v0.1-ALPHA - Starter...');
+    console.log('🚀 GloseMester v3.1 - Starter...');
     
+    // Last brukerdata
     const aktivBruker = localStorage.getItem('aktiv_bruker');
-    if(aktivBruker) brukerNavn = aktivBruker;
+    if(aktivBruker) {
+        window.brukerNavn = aktivBruker;
+    } else {
+        window.brukerNavn = "Spiller";
+    }
     
-    if (typeof loadUserData === 'function') loadUserData();
+    // Kall på loadUserData fra credits.js (hvis den er lastet)
+    if(typeof loadUserData === 'function') loadUserData();
 
-    // Sjekk PWA status
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            installBtn.style.display = 'none';
-        } else {
-            installBtn.style.display = 'block';
-        }
+    // Sjekk om app er installert
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const btn = document.getElementById('install-btn');
+        if(btn) btn.style.display = 'none';
+    } else {
+        const btn = document.getElementById('install-btn');
+        if(btn) btn.style.display = 'block';
     }
 
-    // SJEKK URL PARAMETERE (QR-kode scan)
+    // Sjekk for quiz-kode i URL
     const urlParams = new URLSearchParams(window.location.search);
     const quizCode = urlParams.get('quiz');
-    const quizNavn = urlParams.get('navn');
-
     if (quizCode) {
-        console.log("🔗 Prøve oppdaget i URL!");
-        
-        try {
-            // Dekomprimer for å sjekke at den er gyldig
-            if (typeof dekomprimer === 'function') {
-                importertProveData = dekomprimer(quizCode);
-                
-                // Vis valg-popup i stedet for å starte direkte
-                setTimeout(() => {
-                    visImportValgPopup(quizNavn);
-                }, 500);
-                
-                // Rydd opp URL slik at den ikke kjører igjen ved refresh
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        } catch (e) {
-            console.error("❌ Feil ved lesing av prøvekode:", e);
-        }
-    }
-    
-    console.log('✅ GloseMester initialisert!');
-});
-
-/**
- * Vis popup for å velge mellom ELEV (ta prøve) og LÆRER (lagre prøve)
- */
-function visImportValgPopup(navn) {
-    const popup = document.getElementById('import-valg-popup');
-    if (popup) {
-        document.getElementById('import-navn').innerText = navn ? `"${navn}"` : "en prøve";
-        popup.style.display = 'flex';
-    }
-}
-
-/**
- * Håndter valget fra popup
- */
-function handterImportValg(handling) {
-    document.getElementById('import-valg-popup').style.display = 'none';
-    
-    if (handling === 'elev') {
-        // Start som elev
-        velgRolle('kode');
         setTimeout(() => {
-            if (typeof startProveMedData === 'function') {
-                startProveMedData(importertProveData);
-            } else {
-                // Fallback hvis funksjon ikke finnes ennå, bruk input
-                const kode = komprimer(importertProveData);
-                document.getElementById('prove-kode').value = kode;
-                startProve();
-            }
-        }, 200);
-        
-    } else if (handling === 'laerer') {
-        // Lagre som lærer
-        if (typeof lagreImportertProve === 'function') {
-            const navn = document.getElementById('import-navn').innerText.replace(/"/g, '');
-            lagreImportertProve(importertProveData, navn);
-        }
+            if(typeof velgRolle === 'function') velgRolle('kode'); 
+            setTimeout(() => {
+                const input = document.getElementById('prove-kode');
+                if(input) input.value = quizCode;
+                if(typeof startProve === 'function') startProve();
+            }, 200);
+            alert("Prøve funnet! Starter automatisk...");
+        }, 500);
     }
-}
-
-// Helper for quiz.js hvis vi starter direkte med data
-function startProveMedData(data) {
-    aktivProve = data;
-    if (typeof lagreProveLokalt === 'function') {
-        lagreProveLokalt("importert_" + Date.now(), aktivProve);
-    }
-    gjeldendeSporsmaalIndex = 0;
-    riktigeSvar = 0;
-    document.getElementById('prove-omraade').style.display = 'block';
-    document.getElementById('prove-kode').parentElement.style.display = 'none';
-    visNesteSporsmaal();
-}
-
-// INSTALL PROMPT HANDLER
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.style.display = 'block';
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-            }
-        });
-    }
+    
+    console.log('✅ GloseMester lastet!');
 });
 
-window.addEventListener('appinstalled', () => {
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) installBtn.style.display = 'none';
-});
-
-console.log('📦 init.js lastet (v2 - import valg)');
+// ============================================
+// PLACEHOLDER KORT-SYSTEM
+// ============================================
+function lagPlaceholderBilde(kategori) {
+    const ikoner = {
+        'biler': '🚗',
+        'guder': '🏛️',
+        'dinosaurer': '🦖',
+        'dyr': '🐾'
+    };
+    
+    return ikoner[kategori] || '🎴';
+}

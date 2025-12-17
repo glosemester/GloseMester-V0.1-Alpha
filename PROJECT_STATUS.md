@@ -62,3 +62,92 @@ Fokus nå skifter fra "koding av funksjoner" til **Design-polering og Testing**.
 ## 🐛 Kjente Bugs / Obs
 * **Safari iOS:** Kan noen ganger ha problemer med `100vh` og adressebaren i bunnen. Vi bruker `padding-bottom` for å motvirke dette, men må testes.
 * **Cache:** Selv med ny `sw.js` kan noen gamle enheter trenge en "Hard Refresh" første gang.
+
+
+
+17.12.25
+
+Dato: 17.12.2025 Gjeldende Versjon: v0.5.2 (Release Candidate) Fase: Beta-testing / Design-polering
+
+✅ Nylig Fullført (Siste 24t)
+"Candy Glass" Redesign: Fullstendig overhaling av UI. Gikk fra "Bootstrap-stil" til et taktilt, barnevennlig design med 3D-knapper, sterke farger og glassmorphism.
+
+Lyd-motor: Implementert lydeffekter (Pling, Buzz, Win, Pop) som gir umiddelbar feedback.
+
+Holo-Kort: Samlekortene har nå en "Legendary Shine"-effekt ved mouse-over/tilt.
+
+Robusthet: Fikset kritisk bug hvor spillet låste seg ved feil svar. Feilhåndtering er nå intern i practice.js og ikke avhengig av eksterne bibliotek.
+
+Viralitet: Lagt inn "Del med en venn"-knapp (Native Share) og tydeliggjort backup/flytting av bruker.
+
+⚠️ Kjente Utfordringer / Fokusområder
+Assets: Vi mangler den endelige logoen og headeren (Prompts er laget, men bildene må genereres og lastes opp).
+
+Innhold: Vokabularet for 5.-7. trinn er fortsatt "placeholder"-data. Må fylles ut før lansering.
+
+🗺️ Detaljert Roadmap (Veien videre)
+Vi deler utviklingen inn i tre tydelige faser: Lansering, Vekst, og Skalering.
+
+🟢 Fase 1: "The Polished Product" (v0.6 -> v1.0)
+Mål: En stabil versjon som ser proff ut, som du kan vise frem til lærere og foreldre uten forbehold.
+
+Design & Merkevare (Umiddelbart):
+
+[ ] Generere Logo og Header med AI-prompts.
+
+[ ] Implementere disse i index.html og manifest.json (for app-ikon på hjemskjerm).
+
+[ ] Oppdatere "Om GloseMester"-teksten med litt mer "salgspitch".
+
+Innhold:
+
+[ ] Utvide ordlistene i vocabulary.js slik at det er minst 50 ord per trinn.
+
+Infrastruktur:
+
+[ ] Sette opp glosemester.no (DNS og Hosting).
+
+[ ] Sørge for HTTPS (Sikkerhet hengelås).
+
+[ ] Fjerne passord-sperren (Alpha-lock) når vi går live.
+
+🟡 Fase 2: "The Social Classroom" (v1.1 -> v1.5)
+Mål: Gjøre appen viral i skolegården og nyttig for læreren.
+
+Elev-til-Elev (Viralitet):
+
+[ ] QR-Bytting av kort: Implementere en funksjon der Elev A viser en QR-kode for et kort, og Elev B skanner den for å motta kortet. (Krever ingen server/innlogging, kun lokal logikk).
+
+Lærer-Verktøy:
+
+[ ] Del Prøve: Gjøre det superenkelt for en lærer å sende en prøve-kode til en kollega (f.eks. via e-post eller Teams).
+
+[ ] Crowdsourcing (Starten på databasen): Når en lærer lager en prøve, sendes en anonym kopi til din Firebase-database. Slik bygger du opp "Norges største glosebank" i bakgrunnen.
+
+Kommersialisering (Light):
+
+[ ] Legge inn "Støtt oss / Kjøp meg en kaffe"-knapp for foreldre.
+
+🔵 Fase 3: "The Business" (v2.0 -> Fremtiden)
+Mål: Abonnement og B2B-salg.
+
+GloseMester Home (B2C - Foreldre):
+
+[ ] Egen foreldre-modul (Passordbeskyttet område i appen).
+
+[ ] Statistikk: "Se hva barnet ditt har lært".
+
+[ ] Freemium-modell: Gratis å spille, men betal for å fjerne reklame eller få "Gull-pakker" med kort.
+
+GloseMester Skole (B2B - Kommune):
+
+[ ] Feide-pålogging: Dette er nøkkelen til kommune-salg. Krever omskriving av backend.
+
+[ ] Lærer-Dashboard: Se hvilke elever som har gjort leksen (krever Feide/Innlogging).
+
+👨‍💻 Din "To-Do" akkurat nå:
+Generer bildene (Logo/Header) med AI-promptene du fikk.
+
+Test v0.5.2 grundig på mobil (spill gjennom en hel runde, sjekk at popups virker).
+
+Gi klarsignal: Når du sier "Go", hjelper jeg deg å sette opp de siste filene for vocabulary.js (mer innhold) og klargjøre for glosemester.no.

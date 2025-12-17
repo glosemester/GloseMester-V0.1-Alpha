@@ -1,147 +1,157 @@
 // ============================================
-// KORT-DISPLAY.JS - GloseMester v1.0 (Module)
+// KORT-DISPLAY.JS - GloseMester v1.1
 // ============================================
 
-import { hentTilfeldigKort } from './practice.js';
+import { getSamling, lagreBrukerKort, setSamling } from '../core/storage.js';
+import { spillLyd, visToast, vibrer, lagConfetti } from '../ui/helpers.js';
 
-const BILDE_STI = 'kort/'; // OBS: Sjekk at mappen din heter dette
-const FILTYPE = '.jpg'; 
+// --- HOVEDFUNKSJONER ---
 
-export function visSamling() {
-    initKategoriValg();
-    const samling = typeof getSamling === 'function' ? getSamling() : [];
-    visKortGrid('samling-liste', samling, true);
-}
-
-export function visKortGrid(containerId, liste, showTrade) {
-    const con = document.getElementById(containerId);
-    if (!con) return;
-    con.innerHTML = "";
-
-    let filtrerteKort = [...liste];
-    if (window.valgtKategori && window.valgtKategori !== 'alle') {
-        filtrerteKort = liste.filter(k => k.kategori === window.valgtKategori);
-    }
-
-    oppdaterKategoriTellere(liste);
-
-    if (!filtrerteKort.length) {
-        visTomSamlingMelding(con);
+export async function hentTilfeldigKort() {
+    const kategorier = ['biler', 'guder', 'dinosaurer', 'dyr'];
+    const kat = kategorier[Math.floor(Math.random() * kategorier.length)];
+    
+    if (!window.kortSamling) {
+        console.error("Mangler window.kortSamling!");
         return;
     }
 
-    // Stacking
-    const unikeKortMap = new Map();
-    filtrerteKort.forEach(kort => {
-        if (unikeKortMap.has(kort.id)) {
-            unikeKortMap.get(kort.id).antall++;
-        } else {
-            unikeKortMap.set(kort.id, { ...kort, antall: 1 });
+    const liste = window.kortSamling[kat];
+    const r = Math.random() * 100;
+    let rarity = 'vanlig';
+    if(r > 98) rarity = 'legendary';
+    else if(r > 85) rarity = 'episk';
+    else if(r > 60) rarity = 'sjelden';
+    
+    const mulige = liste.filter(k => k.rarity.type === rarity);
+    const kort = mulige.length > 0 
+        ? mulige[Math.floor(Math.random() * mulige.length)]
+        : liste[Math.floor(Math.random() * liste.length)];
+    
+    lagreBrukerKort(kort);
+    visGevinstPopup(kort);
+}
+
+// OPPGRADERT FUNKSJON: Fyller ALLE lister (både elev og øving)
+export function visSamling() {
+    const samling = getSamling();
+    
+    // Vi finner ALLE containere med klassen .samling-grid for å unngå ID-trøbbel
+    const containere = document.querySelectorAll('.samling-grid');
+    
+    containere.forEach(container => {
+        container.innerHTML = '';
+        
+        if(samling.length === 0) {
+            container.innerHTML = '<p class="tom-tekst">Du har ingen kort ennå. Øv mer!</p>';
+            return;
         }
+        
+        // Sortering
+        let sortertSamling = [...samling];
+        if (window.valgtSortering === 'nyeste') sortertSamling.reverse(); 
+        else if (window.valgtSortering === 'sjeldenhet') {
+            const verdi = { 'legendary': 4, 'episk': 3, 'sjelden': 2, 'vanlig': 1 };
+            sortertSamling.sort((a, b) => verdi[b.rarity.type] - verdi[a.rarity.type]);
+        } else if (window.valgtSortering === 'navn') sortertSamling.sort((a, b) => a.navn.localeCompare(b.navn));
+
+        // Gruppering
+        const grupper = {};
+        sortertSamling.forEach(k => {
+            if(!grupper[k.id]) grupper[k.id] = { ...k, antall: 0 };
+            grupper[k.id].antall++;
+        });
+        
+        // Tegn kort
+        Object.values(grupper).forEach(kort => {
+            const el = document.createElement('div');
+            el.className = `poke-card rarity-${kort.rarity.type}`;
+            
+            let byttKnapp = '';
+            if(kort.antall > 1) {
+                byttKnapp = `<button class="btn-resirkuler" onclick="event.stopPropagation(); resirkulerKort(${kort.id})">♻️ Bytt 2 mot 1</button>`;
+            }
+            
+            el.innerHTML = `
+                <div class="kort-bilde-placeholder">${getEmoji(kort.kategori)}</div>
+                <div class="kort-navn">${kort.navn}</div>
+                <div class="kort-antall">x${kort.antall}</div>
+                ${byttKnapp}
+            `;
+            el.onclick = () => visStortKort(kort);
+            container.appendChild(el);
+        });
     });
-
-    let visningsListe = Array.from(unikeKortMap.values());
-
-    if (window.valgtSortering === 'id') visningsListe.sort((a, b) => a.id - b.id);
-    else if (window.valgtSortering === 'navn') visningsListe.sort((a, b) => a.navn.localeCompare(b.navn));
-    else visningsListe.reverse(); 
-    
-    visningsListe.forEach(k => {
-        let tradeBtn = showTrade ? `<button class="trade-btn" onclick="event.stopPropagation(); byttKort(${k.id})">🔄 Bytt</button>` : "";
-        const antallBadge = k.antall > 1 ? `<div class="antall-badge">x${k.antall}</div>` : '';
-        const bildeUrl = `${BILDE_STI}${k.id}${FILTYPE}`;
-
-        con.innerHTML += `
-        <div class="poke-card rarity-${k.rarity.type}" 
-             style="border-color:${k.rarity.farge}" 
-             onclick="visStortKort('${k.id}', '${k.navn}', '${k.rarity.farge}', '${k.rarity.tekst}', '${k.kategori}')">
-            ${antallBadge}
-            <div class="kort-bilde-wrapper" style="position: relative; min-height: 90px; display: flex; justify-content: center;">
-                 <div class="kort-bilde-placeholder" data-kategori="${k.kategori}" style="display: flex;">${getKategoriEmoji(k.kategori)}</div>
-            </div>
-            <div class="poke-name">${k.navn}</div>
-            <div class="rarity-badge" style="color:${k.rarity.farge}">${k.rarity.tekst}</div>
-            ${tradeBtn}
-        </div>`;
-    });
 }
 
-function visTomSamlingMelding(container) {
-    const kategoriNavn = window.valgtKategori === 'alle' ? 'samlingen' : window.valgtKategori;
-    container.innerHTML = `<div class="tom-samling"><h3>Ingen kort i ${kategoriNavn}</h3></div>`;
+// --- HJELPERE ---
+
+export function visStortKort(kort) {
+    visGevinstPopup(kort, false); 
 }
 
-function getKategoriEmoji(kategori) {
-    const emojis = {'biler':'🚗', 'guder':'⚡', 'dinosaurer':'🦖', 'dyr':'🐾', 'alle':'🎴'};
-    return emojis[kategori] || '🎴';
-}
-
-export function byttSortering(valg) {
-    window.valgtSortering = valg;
-    if (window.aktivRolle === 'elev' || window.aktivRolle === 'kode') visSamling();
-    if (window.aktivRolle === 'oving') typeof window.visOvingSamling === 'function' && window.visOvingSamling();
-}
-
-export function visStortKort(id, navn, farge, rarityTekst, kategori) {
-    const popup = document.getElementById('kort-popup');
-    // Her kan vi sette inn bilde URL hvis bildene eksisterer
-    document.getElementById('stort-id').innerText = "#" + id;
-    document.getElementById('stort-navn').innerText = navn;
-    document.getElementById('stort-rarity').innerText = rarityTekst;
-    document.getElementById('stort-rarity').style.color = farge;
-    popup.style.display = 'flex';
-}
-
-export function lukkKort(e) {
-    if (e === null || e.target.id === 'kort-popup') {
-        document.getElementById('kort-popup').style.display = 'none';
-    }
-}
-
-export function visGevinstPopup(kort) {
+export function lukkKort() {
     const popup = document.getElementById('gevinst-popup');
-    // Sett inn bilde logic her om nødvendig
-    popup.style.display = 'flex';
-    setTimeout(() => { popup.style.display = 'none'; }, 2000);
+    if(popup) popup.style.display = 'none';
 }
 
-// Merk: Denne funksjonen må kalles fra HTML (onclick), så vi eksponerer den globalt i app.js, 
-// MEN her inni modulen må vi kalle hentTilfeldigKort som vi importerte.
-window.byttKort = async function(kortId) {
-    if (window.credits < 1) { alert("Mangler byttepoeng!"); return; }
-    if (!confirm("Bruke 1 poeng for å bytte?")) return;
-    if (typeof useCredits === 'function' && !useCredits(1)) return;
+export function byttSortering() {
+    if (window.valgtSortering === 'nyeste') window.valgtSortering = 'sjeldenhet';
+    else if (window.valgtSortering === 'sjeldenhet') window.valgtSortering = 'navn';
+    else window.valgtSortering = 'nyeste';
+    
+    visToast(`Sorterer etter: ${window.valgtSortering}`, 'info');
+    visSamling();
+}
 
-    let samling = getSamling();
-    const index = samling.findIndex(k => k.id == kortId);
-    if (index > -1) {
-        samling.splice(index, 1);
-        setSamling(samling);
+export function visFeilMelding(melding) {
+    visToast(melding, 'error');
+    vibrer([50, 50, 50]);
+}
+
+function getEmoji(k) {
+    const map = { biler:'🚗', guder:'🏛️', dinosaurer:'🦖', dyr:'🐾' };
+    return map[k] || '🎴';
+}
+
+function visGevinstPopup(kort, spillFanfare = true) {
+    const popup = document.getElementById('gevinst-popup');
+    if(!popup) return;
+
+    document.getElementById('gevinst-navn').innerText = kort.navn;
+    
+    const rarityEl = document.getElementById('gevinst-rarity');
+    if(rarityEl) {
+        rarityEl.innerText = kort.rarity.tekst;
+        rarityEl.className = `rarity-badge ${kort.rarity.type}`;
     }
     
-    // Her bruker vi den importerte funksjonen
-    await hentTilfeldigKort();
-    setTimeout(() => visSamling(), 1000);
-}
-
-function oppdaterKategoriTellere(samling) {
-    const teller = { alle: samling.length, biler: 0, guder: 0, dinosaurer: 0, dyr: 0 };
-    samling.forEach(k => { if (teller[k.kategori] !== undefined) teller[k.kategori]++; });
-    Object.keys(teller).forEach(kat => {
-        document.querySelectorAll(`.count-${kat}`).forEach(el => el.innerText = `(${teller[kat]})`);
-    });
-}
-
-function initKategoriValg() {
-    // Enkel logikk for å sette aktiv knapp
-    const cat = window.valgtKategori || 'alle';
-    document.querySelectorAll(`.kategori-btn[data-kategori="${cat}"]`).forEach(btn => btn.classList.add('active'));
-}
-
-// Eksporter en feilmelding-viser for andre moduler
-export function visFeilMelding(fasit) {
-    const popup = document.getElementById('feedback-popup');
-    document.getElementById('feedback-correct-word').innerText = fasit;
     popup.style.display = 'flex';
-    setTimeout(() => { popup.style.display = 'none'; }, 3000);
+    
+    if (spillFanfare) {
+        if(kort.rarity.type === 'legendary') spillLyd('fanfare');
+        else spillLyd('vinn');
+        lagConfetti();
+    }
 }
+
+// Koble til window
+window.resirkulerKort = async function(kortId) {
+    if(!confirm("Vil du bytte inn 2 av dette kortet mot 1 helt nytt?")) return;
+    let samling = getSamling();
+    let fjernet = 0;
+    samling = samling.filter(k => {
+        if(k.id === kortId && fjernet < 2) { fjernet++; return false; }
+        return true;
+    });
+    
+    if(fjernet < 2) { visToast("Ikke nok kort.", 'error'); return; }
+    
+    setSamling(samling);
+    spillLyd('klikk');
+    visToast('Resirkulerer...', 'info');
+    setTimeout(async () => {
+        await hentTilfeldigKort();
+        visSamling(); 
+    }, 1000);
+};

@@ -1,111 +1,145 @@
 // ============================================
-// QUIZ.JS - GloseMester v1.0 (Module)
+// QUIZ.JS - Ta Prøver
 // ============================================
+import { spillLyd, vibrer, visToast, lagConfetti, lesOpp } from '../ui/helpers.js';
+import { hentTilfeldigKort } from './kort-display.js';
+import { trackEvent } from '../core/analytics.js';
 
-import { hentTilfeldigKort } from './practice.js';
-import { visFeilMelding } from './kort-display.js';
+let aktivProve = [];
+let quizIndex = 0;
+let antallRiktige = 0;
 
-function komprimer(data) {
-    const json = JSON.stringify(data).replace(/"sporsmaal"/g, '"s"').replace(/"svar"/g, '"a"');
-    return btoa(unescape(encodeURIComponent(json)));
-}
-
-function dekomprimer(kode) {
+export function startProve(kode) {
+    if (!kode) {
+        // Hvis ingen kode sendes inn, prøv å hente fra input-feltet
+        const input = document.getElementById('prove-kode');
+        if (input) kode = input.value.trim();
+    }
+    
+    if (!kode) {
+        visToast('Mangler prøve-kode!', 'error');
+        return;
+    }
+    
     try {
-        const json = decodeURIComponent(escape(atob(kode))).replace(/"s"/g, '"sporsmaal"').replace(/"a"/g, '"svar"');
-        return JSON.parse(json);
-    } catch (e) { return JSON.parse(atob(kode)); }
-}
-
-export function startProve() {
-    try {
-        const kode = document.getElementById('prove-kode').value.trim();
-        if (!kode) { alert('Lim inn kode!'); return; }
+        // Dekomprimer koden (Base64 -> JSON)
+        const json = decodeURIComponent(atob(kode));
+        const data = JSON.parse(json);
         
-        window.aktivProve = dekomprimer(kode);
-        if (!Array.isArray(window.aktivProve)) throw new Error('Tom prøve');
+        // Støtte for både gammelt format (array) og nytt format (objekt med tittel)
+        aktivProve = data.ord || data; 
         
-        if (typeof lagreProveLokalt === 'function') lagreProveLokalt(kode, window.aktivProve);
+        // Nullstill state
+        quizIndex = 0;
+        antallRiktige = 0;
+        window.proveSprak = 'no'; // Standard retning
         
-        window.gjeldendeSporsmaalIndex = 0;
-        window.riktigeSvar = 0;
-        
-        if (typeof trackEvent === 'function') trackEvent('Prøve', 'Start', `${window.aktivProve.length} ord`);
+        // Vis riktig skjerm
+        if(window.visSide) window.visSide('elev-dashboard'); // Sikre at vi er på rett side
         
         document.getElementById('prove-omraade').style.display = 'block';
-        document.getElementById('prove-kode').parentElement.style.display = 'none';
+        document.getElementById('elev-start-skjerm').style.display = 'none';
+        
         visNesteSporsmaal();
         
-    } catch (e) { alert('Ugyldig kode!'); console.error(e); }
-}
+        // Analytics
+        trackEvent('Quiz', 'Start', data.tittel || 'Ukjent');
 
-// Brukes av "Mine Prøver" listen
-export function startLagretProve(kode) {
-    document.getElementById('prove-kode').value = kode;
-    startProve();
+    } catch (e) {
+        console.error(e);
+        visToast('Ugyldig prøve-kode', 'error');
+        vibrer([50, 50, 50]);
+    }
 }
 
 function visNesteSporsmaal() {
-    if (window.gjeldendeSporsmaalIndex < window.aktivProve.length) {
-        const ord = window.aktivProve[window.gjeldendeSporsmaalIndex];
-        const sporsmaal = (window.proveSprak === 'en') ? ord.sporsmaal : ord.svar;
-        const placeholder = (window.proveSprak === 'en') ? "Skriv på engelsk..." : "Skriv på norsk...";
-        
-        document.getElementById('sporsmaal-tekst').innerText = sporsmaal;
-        document.getElementById('svar-input').placeholder = placeholder;
-        document.getElementById('svar-input').value = "";
-        document.getElementById('feedback').innerText = "";
-        document.getElementById('svar-input').focus();
-    } else {
+    if (quizIndex >= aktivProve.length) {
         avsluttProve();
+        return;
     }
+    
+    const ord = aktivProve[quizIndex];
+    // Sjekk språkinnstilling (Global state eller default)
+    const spraak = window.proveSprak || 'no';
+    
+    // Hvis norsk: Vis spørsmål, vent på svar. Hvis engelsk: Vis svar, vent på spørsmål.
+    const spmTekst = spraak === 'en' ? ord.svar : ord.sporsmaal;
+    
+    document.getElementById('quiz-spm').innerText = spmTekst;
+    document.getElementById('quiz-input').value = '';
+    document.getElementById('quiz-input').focus();
+    
+    // Oppdater teller (f.eks "1 / 10")
+    const progressElem = document.getElementById('quiz-progress');
+    if(progressElem) progressElem.innerText = `${quizIndex + 1} / ${aktivProve.length}`;
 }
 
 export function sjekkSvar() {
-    const svar = document.getElementById('svar-input').value.toLowerCase().trim();
-    const ord = window.aktivProve[window.gjeldendeSporsmaalIndex];
-    const fasit = (window.proveSprak === 'en') ? ord.svar.toLowerCase().trim() : ord.sporsmaal.toLowerCase().trim();
+    const inputFelt = document.getElementById('quiz-input');
+    const input = inputFelt.value.trim().toLowerCase();
+    
+    const fasitObj = aktivProve[quizIndex];
+    const spraak = window.proveSprak || 'no';
+    
+    // Finn fasiten basert på retning
+    const fasit = (spraak === 'en' ? fasitObj.sporsmaal : fasitObj.svar).toLowerCase();
 
-    if (svar === fasit) {
-        document.getElementById('feedback').style.color = "#34c759";
-        document.getElementById('feedback').innerText = "Riktig! 🎉";
-        window.riktigeSvar++;
-        if (typeof addCorrectAnswerPoint === 'function') addCorrectAnswerPoint();
-        window.gjeldendeSporsmaalIndex++;
-        setTimeout(visNesteSporsmaal, 1500);
+    if (input === fasit) {
+        spillLyd('riktig');
+        visToast('Riktig! 🌟', 'success');
+        antallRiktige++;
     } else {
-        visFeilMelding(fasit);
-        window.gjeldendeSporsmaalIndex++;
-        setTimeout(visNesteSporsmaal, 3000);
+        spillLyd('feil');
+        vibrer(200);
+        alert(`Feil dessverre.\nRiktig svar var: ${fasit}`);
     }
+    
+    quizIndex++;
+    visNesteSporsmaal();
+}
+
+// DENNE MANGLET SIST 👇
+export function settProveSprak(retning) {
+    window.proveSprak = retning;
+    visToast(`Språk endret til ${retning === 'no' ? 'Norsk' : 'Engelsk'}`, 'info');
+    // Hvis vi er midt i en prøve, oppdater teksten
+    if(document.getElementById('prove-omraade').style.display === 'block') {
+        visNesteSporsmaal();
+    }
+}
+
+// DENNE MANGLET OGSÅ 👇
+export function lesOppProve() {
+    if (quizIndex >= aktivProve.length) return;
+    
+    const ord = aktivProve[quizIndex];
+    const spraak = window.proveSprak || 'no';
+    
+    // Hvis vi skal svare på engelsk, leser vi opp det norske ordet (og vice versa)
+    const tekst = spraak === 'en' ? ord.svar : ord.sporsmaal;
+    const langCode = spraak === 'en' ? 'en-US' : 'nb-NO';
+    
+    lesOpp(tekst, langCode);
 }
 
 async function avsluttProve() {
-    document.getElementById('prove-omraade').style.display = 'none';
-    document.getElementById('prove-kode').parentElement.style.display = 'block';
-    document.getElementById('prove-kode').value = "";
+    const prosent = Math.round((antallRiktige / aktivProve.length) * 100);
+    let melding = `Du fikk ${antallRiktige} av ${aktivProve.length} riktige (${prosent}%).`;
     
-    if (typeof trackEvent === 'function') trackEvent('Prøve', 'Fullført', `${window.riktigeSvar}/${window.aktivProve.length}`);
-    
-    const prosent = Math.round((window.riktigeSvar / window.aktivProve.length) * 100);
-    
-    if (prosent >= 50 && window.aktivProve.length > 0) {
-        alert(`🎉 Gratulerer! ${prosent}% riktig!`);
-        await hentTilfeldigKort(); // Fra practice.js
+    if (prosent >= 80) {
+        spillLyd('vinn');
+        lagConfetti();
+        melding += "\n\n🎉 Du har vunnet et kort!";
+        await hentTilfeldigKort(); // Gir belønning
     } else {
-        alert(`Du fikk ${prosent}%. Prøv igjen!`);
+        melding += "\n\nPrøv igjen for å vinne kort (må ha 80% riktig).";
     }
     
-    if (typeof window.visLagredeProver === 'function') window.visLagredeProver();
-}
-
-export function settProveSprak(retning) {
-    window.proveSprak = retning;
-    document.getElementById('prove-lang-en').classList.toggle('active', retning === 'en');
-    document.getElementById('prove-lang-no').classList.toggle('active', retning === 'no');
-}
-
-export function lesOppProve() {
-    const tekst = document.getElementById('sporsmaal-tekst').innerText;
-    if (typeof lesOpp === 'function') lesOpp(tekst, 'nb-NO');
+    alert(melding);
+    
+    // Reset UI
+    document.getElementById('prove-omraade').style.display = 'none';
+    document.getElementById('elev-start-skjerm').style.display = 'block';
+    
+    trackEvent('Quiz', 'Ferdig', `${prosent}%`);
 }
