@@ -60,12 +60,20 @@ export function visSide(sideId) {
     if (side) {
         side.style.display = 'block';
         setTimeout(() => side.classList.add('active'), 10);
+    } else {
+        console.error(`[visSide] Fant ikke side med id="${sideId}". Faller tilbake til landing.`);
+        // Fallback til landing-page (som ikke nødvendigvis er .page)
+        const landing = document.getElementById('landing-page');
+        if (landing) {
+            landing.style.display = 'block';
+            setTimeout(() => landing.classList.add('active'), 10);
+        }
     }
-    
+
     // Oppdater aktiv knapp i menyen
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('btn-' + sideId);
-    if(btn) btn.classList.add('active');
+    const aktivKnapp = document.querySelector(`nav button[onclick*="${sideId}"]`);
+    if (aktivKnapp) aktivKnapp.classList.add('active');
 }
 
 export function velgKategori(kategori) {

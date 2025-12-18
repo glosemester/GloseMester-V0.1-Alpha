@@ -9,7 +9,7 @@ const lyder = {
     feil: new Audio('sounds/wrong.mp3'),
     vinn: new Audio('sounds/win.mp3'),
     klikk: new Audio('sounds/pop.mp3'),
-    fanfare: new Audio('sounds/fanfare.mp3') // Ny lyd for "Legendary"
+    fanfare: new Audio('sounds/win.mp3') // Ny lyd for "Legendary"
 };
 
 // Preload lyder
@@ -19,6 +19,7 @@ Object.values(lyder).forEach(lyd => {
 });
 
 export function spillLyd(type) {
+    if (window.soundEnabled === false) return;
     if (lyder[type]) {
         lyder[type].currentTime = 0;
         lyder[type].play().catch(() => {}); // Ignorer feil hvis bruker ikke har interagert

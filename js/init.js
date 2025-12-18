@@ -36,28 +36,111 @@ window.qrAnimationFrame = null;
 window.currentProveIdForPrint = null;
 
 // ============================================
-// SERVICE WORKER REGISTRERING
+// SERVICE WORKER REGISTRERING + OPPDATERINGSBANNER
 // ============================================
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('✅ Service Worker registrert');
-            
-            reg.onupdatefound = () => {
-                const newWorker = reg.installing;
-                newWorker.onstatechange = () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        if(confirm("Ny versjon tilgjengelig! Last inn på nytt?")) {
-                            window.location.reload();
-                        }
-                    }
+    window.addEventListener('load', async () => {
+        const SNOOZE_MINUTES = 20; // kan settes til 10–30 minutter
+        let newWorker = null;
+        let newVersion = null;
+        let refreshing = false;
+
+        const nowMs = () => Date.now();
+        const snoozeKey = (ver) => `glosemester_update_snooze_until_${ver || 'unknown'}`;
+
+        const isSnoozed = (ver) => {
+            try {
+                const until = Number(localStorage.getItem(snoozeKey(ver)) || '0');
+                return until > nowMs();
+            } catch {
+                return false;
+            }
+        };
+
+        const snooze = (ver) => {
+            try {
+                const until = nowMs() + SNOOZE_MINUTES * 60 * 1000;
+                localStorage.setItem(snoozeKey(ver), String(until));
+            } catch {}
+        };
+
+        const requestSWVersion = (worker) => {
+            return new Promise((resolve) => {
+                if (!worker) return resolve(null);
+                const channel = new MessageChannel();
+                channel.port1.onmessage = (e) => {
+                    if (e.data?.type === 'SW_VERSION') resolve(e.data.version);
+                    else resolve(null);
                 };
+                worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+                // timeout-sikring
+                setTimeout(() => resolve(null), 1500);
+            });
+        };
+
+        const showUpdateBanner = () => {
+            const banner = document.getElementById('update-banner');
+            const text = document.getElementById('update-version-text');
+            const btnUpdate = document.getElementById('update-btn');
+            const btnLater = document.getElementById('update-later-btn');
+
+            if (!banner || !text || !btnUpdate || !btnLater) return;
+
+            // Respekter snooze for akkurat denne versjonen
+            if (isSnoozed(newVersion)) return;
+
+            const current = window.APP_VERSION || 'gjeldende versjon';
+            text.textContent = newVersion ? `${current} → ${newVersion}` : `${current} → ny versjon`;
+            banner.style.display = 'flex';
+
+            btnUpdate.onclick = () => {
+                if (newWorker) newWorker.postMessage({ type: 'SKIP_WAITING' });
             };
-        }).catch(err => {
-            console.warn('⚠️ Service Worker feilet:', err);
-        });
+
+            btnLater.onclick = () => {
+                snooze(newVersion);
+                banner.style.display = 'none';
+            };
+        };
+
+        try {
+            const reg = await navigator.serviceWorker.register('./sw.js');
+            console.log('✅ Service Worker registrert');
+
+            // Hvis det allerede ligger en "waiting" klar
+            if (reg.waiting) {
+                newWorker = reg.waiting;
+                newVersion = await requestSWVersion(newWorker);
+                showUpdateBanner();
+            }
+
+            // Lytt etter nye oppdateringer
+            reg.addEventListener('updatefound', () => {
+                const installing = reg.installing;
+                if (!installing) return;
+
+                installing.addEventListener('statechange', async () => {
+                    if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                        newWorker = reg.waiting;
+                        newVersion = await requestSWVersion(newWorker);
+                        showUpdateBanner();
+                    }
+                });
+            });
+
+            // Når ny SW tar kontroll → reload én gang
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (refreshing) return;
+                refreshing = true;
+                window.location.reload();
+            });
+
+        } catch (err) {
+            console.warn('⚠️ SW registrering feilet:', err);
+        }
     });
 }
+
 
 // ============================================
 // APP INITIALISERING
@@ -116,3 +199,30 @@ function lagPlaceholderBilde(kategori) {
     
     return ikoner[kategori] || '🎴';
 }
+
+// ============================================
+// Global lyd-toggle (PWA / mobil)
+// ============================================
+const SOUND_KEY = "glosemester_sound_enabled";
+window.soundEnabled = localStorage.getItem(SOUND_KEY) !== "false"; // default ON
+
+function updateSoundButton() {
+  const btn = document.getElementById("sound-toggle");
+  if (!btn) return;
+  btn.textContent = window.soundEnabled ? "🔊" : "🔇";
+}
+
+function initSoundToggle() {
+  const btn = document.getElementById("sound-toggle");
+  if (!btn) return;
+
+  updateSoundButton();
+
+  btn.addEventListener("click", () => {
+    window.soundEnabled = !window.soundEnabled;
+    localStorage.setItem(SOUND_KEY, String(window.soundEnabled));
+    updateSoundButton();
+  });
+}
+
+window.addEventListener("DOMContentLoaded", initSoundToggle);

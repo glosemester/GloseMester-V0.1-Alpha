@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
 <body>
+    <button id="sound-toggle" title="Lyd av/på" aria-label="Lyd av/på">🔊</button>
 
     <div id="landing-page" class="page active">
         <header style="text-align:center; padding: 40px 20px;">
@@ -64,7 +65,7 @@
     </nav>
 
     <nav id="laerer-meny" style="display:none;">
-        <button id="btn-laerer-dashboard" class="active">Dashboard</button>
+        <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard')">Dashboard</button>
         <button class="btn-danger" onclick="tilbakeTilStart()">Logg ut</button>
     </nav>
     
@@ -172,8 +173,31 @@
     </div>
 
     <div id="laerer-dashboard" class="page">
-        <div class="card-container">
-            <h2>Lærerportal 🍎</h2>
+        <div class="card-container" id="teacher-auth">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div>
+                    <h2 style="margin:0;">Lærerportal 🍎</h2>
+                    <p style="margin:6px 0 0; color:#666;">Innlogging kreves for å lagre prøver.</p>
+                </div>
+                <span id="teacher-plan-badge" class="plan-badge" aria-label="Plan"></span>
+            </div>
+
+            <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="color:#333; font-size:14px;">
+                    <b id="teacher-email">Ikke innlogget</b>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-primary" onclick="teacherLoginWithGoogle()">Logg inn med Google</button>
+                    <button class="btn-secondary" onclick="teacherLogout()">Logg ut</button>
+                </div>
+            </div>
+
+            <div class="info-box" style="margin-top:12px;">
+                <b>Gratis:</b> Maks 1 lagret prøve totalt. <b>Premium:</b> Ubegrenset.
+            </div>
+        </div>
+
+        <div class="card-container" id="teacher-editor">
             <p>Lag en ny gloseprøve.</p>
             
             <input type="text" id="prove-tittel" placeholder="Navn på prøve (f.eks Uke 42)">
@@ -226,47 +250,23 @@
 
     <script src="js/vocabulary.js"></script>
     <script src="js/collection.js"></script>
-<script type="module">
+    <script type="module">
         import './js/init.js';
         import './js/app.js';
-
-        // Importer alle funksjoner vi trenger i HTML
-        import { velgRolle, tilbakeTilStart, visSide } from './js/core/navigation.js';
-        import { startOving, sjekkOvingSvar, byttOvingRetning, settSprakRetning, lesOppOving, avsluttOving } from './js/features/practice.js';
-        import { startProve, sjekkSvar, lesOppProve } from './js/features/quiz.js';
-        import { leggTilOrd, slettOrd, lagreProve } from './js/features/teacher.js';
-        import { startQRScanner, lukkScanner } from './js/features/qr-scanner.js';
-        import { visSamling, byttSortering, lukkKort } from './js/features/kort-display.js';
-        
-        // Koble funksjonene til window (slik at onclick="..." virker)
-        window.velgRolle = velgRolle;
-        window.tilbakeTilStart = tilbakeTilStart;
-        window.visSide = visSide;
-        
-        window.startOving = startOving;
-        window.sjekkOvingSvar = sjekkOvingSvar;
-        window.byttOvingRetning = byttOvingRetning;
-        window.settSprakRetning = settSprakRetning;
-        window.lesOppOving = lesOppOving;
-        window.avsluttOving = avsluttOving;
-        
-        window.startProve = startProve;
-        window.sjekkSvar = sjekkSvar;
-        window.lesOppProve = lesOppProve;
-        
-        window.leggTilOrd = leggTilOrd;
-        window.slettOrd = slettOrd;
-        window.lagreProve = lagreProve;
-        
-        window.startQRScanner = startQRScanner;
-        window.lukkScanner = lukkScanner;
-        
-        window.visSamling = visSamling;
-        window.byttSortering = byttSortering;
-        window.lukkKort = lukkKort;
-        
-        console.log("🔗 Alt koblet opp fra index.html!");
     </script>
     <div id="version-stamp">v0.6 beta</div>
+
+  <!-- Update banner (PWA) -->
+  <div id="update-banner" style="display:none;" aria-live="polite">
+    <div class="update-banner__text">
+      <strong>Ny versjon tilgjengelig</strong><br>
+      <span id="update-version-text"></span>
+    </div>
+    <div class="update-banner__actions">
+      <button id="update-later-btn" type="button">Ikke nå</button>
+      <button id="update-btn" type="button">Oppdater</button>
+    </div>
+  </div>
+
 </body>
 </html>

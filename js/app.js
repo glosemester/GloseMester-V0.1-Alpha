@@ -14,7 +14,8 @@ import { startQRScanner, stopQRScanner } from './features/qr-scanner.js';
 import { visEksportPopup, visImportPopup, kopierBackupKode } from './export-import.js';
 import { lagreLokaleProver, hentLokaleProver, lagreBrukerKort } from './core/storage.js';
 
-import { leggTilOrd, slettOrd, lagreProve, ensureTeacherPrivacyAccepted } from './features/teacher.js';
+import { auth, onAuthStateChanged } from './features/firebase.js';
+import { leggTilOrd, slettOrd, lagreProve, ensureTeacherPrivacyAccepted, teacherLoginWithGoogle, teacherLogout, renderTeacherAuthUI, initTeacherUI } from './features/teacher.js';
 
 // --- GLOBAL CLICK SOUND ---
 const uiClickSound = new Audio('sounds/pop.mp3');
@@ -46,19 +47,30 @@ window.avsluttOving = avsluttOving;
 
 // Åpne lærerportal med personvern-samtykke (hvis nødvendig)
 window.openTeacherPortal = async function() {
-    const ok = await ensureTeacherPrivacyAccepted();
-    if (!ok) {
-        // Bruker avbrøt
-        visSide('landing');
+    // Vis lærer-dashboard uansett, slik at mobil/Netlify ikke oppleves som "ingenting skjer"
+    visSide('laerer-dashboard');
+
+    // Hvis ikke innlogget: vis login-boks
+    if (!auth.currentUser) {
+        renderTeacherAuthUI();
         return;
     }
-    visSide('laerer-dashboard');
+
+    // Innlogget: krev samtykke
+    const ok = await ensureTeacherPrivacyAccepted();
+    if (!ok) {
+        tilbakeTilStart();
+        return;
+    }
+    renderTeacherAuthUI();
 };
 
 // Lærer-portal
 window.leggTilOrd = leggTilOrd;
 window.slettOrd = slettOrd;
 window.lagreProve = lagreProve;
+window.teacherLoginWithGoogle = teacherLoginWithGoogle;
+window.teacherLogout = teacherLogout;
 
 window.startQRScanner = startQRScanner;
 window.stopQRScanner = stopQRScanner;
@@ -86,7 +98,7 @@ window.delApp = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("🚀 GloseMester v0.5 Ready");
+    console.log("🚀 GloseMester v0.6 beta Ready");
     
     // Enter-tast støtte
     const ovingInput = document.getElementById('oving-svar');
@@ -99,8 +111,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', (e) => {
         const targetBtn = e.target.closest('button') || e.target.closest('.role-card') || e.target.closest('.kategori-btn');
         if (targetBtn && !targetBtn.classList.contains('alt-btn')) {
-            uiClickSound.currentTime = 0;
-            uiClickSound.play().catch(() => {});
+            if (window.soundEnabled !== false) {
+                uiClickSound.currentTime = 0;
+                uiClickSound.play().catch(() => {});
+            }
         }
     });
+
+    // Initialiser lærer-UI (trygt selv om lærer ikke brukes)
+    initTeacherUI();
+
+    // Hold lærer-UI synkron med innlogging
+    onAuthStateChanged(auth, () => {
+        renderTeacherAuthUI();
+    });
+
+    // Init lærer-UI (plan badge, default visibility)
+    initTeacherUI?.().catch(() => {});
 });
