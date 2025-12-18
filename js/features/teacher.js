@@ -19,7 +19,10 @@ import {
   where,
   GoogleAuthProvider,
   signInWithPopup,
-  signOut
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
 } from './firebase.js';
 
 import { visToast, spillLyd } from '../ui/helpers.js';
@@ -34,6 +37,49 @@ const PRIVACY = {
 const ACCESS = {
   FREE_MAX_SAVES: 1
 };
+
+// ------------------------
+// Skolevennlige auth-meldinger
+// ------------------------
+function mapAuthErrorToNo(err) {
+  const code = err?.code || '';
+  switch (code) {
+    case 'auth/invalid-email':
+      return 'Ugyldig e-postadresse. Sjekk at den er skrevet riktig.';
+    case 'auth/missing-password':
+      return 'Du må skrive inn et passord.';
+    case 'auth/weak-password':
+      return 'Passordet er for kort. Det må være minst 6 tegn.';
+    case 'auth/email-already-in-use':
+      return 'Det finnes allerede en konto med denne e-postadressen. Velg “Logg inn” eller bruk “Glemt passord?”.';
+    case 'auth/user-not-found':
+      return 'Ingen konto funnet for denne e-postadressen. Velg “Opprett konto” eller bruk en annen e-post.';
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':
+      return 'Feil e-post eller passord. Prøv igjen, eller bruk “Glemt passord?”.';
+    case 'auth/too-many-requests':
+      return 'For mange forsøk på kort tid. Vent litt og prøv igjen.';
+    case 'auth/network-request-failed':
+      return 'Nettverksfeil. Sjekk internettforbindelsen og prøv igjen.';
+    default:
+      return 'Innlogging feilet. Prøv igjen, eller kontakt kontakt@glosemester.no.';
+  }
+}
+
+function showTeacherAuthMessage(msg, type = 'error') {
+  if (typeof visToast === 'function') {
+    visToast(msg, type === 'error' ? 'error' : 'success');
+  } else {
+    alert(msg);
+  }
+}
+
+function getEmailPass() {
+  const email = document.getElementById('teacher-login-email')?.value?.trim() || '';
+  const pass = document.getElementById('teacher-login-pass')?.value || '';
+  return { email, pass };
+}
+
 
 // ------------------------
 // UI helpers
@@ -261,7 +307,74 @@ async function updatePlanBadge() {
 // ------------------------
 // DOM: Teacher auth UI
 // ------------------------
-export function renderTeacherAuthUI() {
+export 
+
+// ------------------------
+// Bibliotek (lagrede prøver)
+// ------------------------
+async function hentMineProver() {
+  const user = auth.currentUser;
+  if (!user) return [];
+
+  const q = query(collection(db, 'prover'), where('eierId', '==', user.uid));
+  const snap = await getDocs(q);
+
+  const list = [];
+  snap.forEach(docSnap => {
+    const d = docSnap.data() || {};
+    list.push({
+      id: docSnap.id,
+      tittel: d.tittel ?? '(uten tittel)',
+      opprettet: d.opprettet ?? null,
+      ordCount: Array.isArray(d.ord) ? d.ord.length : 0
+    });
+  });
+
+  list.sort((a, b) => (b.opprettet?.seconds ?? 0) - (a.opprettet?.seconds ?? 0));
+  return list;
+}
+
+function renderBibliotek({ prover, loggedIn }) {
+  const lib = document.getElementById('teacher-library');
+  const empty = document.getElementById('teacher-library-empty');
+  const ul = document.getElementById('teacher-prover-list');
+  if (!lib || !empty || !ul) return;
+
+  lib.style.display = 'block';
+
+  if (!loggedIn) {
+    empty.style.display = 'block';
+    empty.textContent = 'Logg inn for å se dine lagrede prøver.';
+    ul.innerHTML = '';
+    return;
+  }
+
+  if (!prover || prover.length === 0) {
+    empty.style.display = 'block';
+    empty.textContent = 'Ingen lagrede prøver enda.';
+    ul.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  ul.innerHTML = prover.map(p => `
+    <li>
+      <b>${p.tittel}</b>
+      <div style="opacity:0.75; font-size:12px;">${p.ordCount} ord</div>
+    </li>
+  `).join('');
+}
+
+export async function oppdaterBibliotek() {
+  const user = auth.currentUser;
+  if (!user) {
+    renderBibliotek({ prover: [], loggedIn: false });
+    return;
+  }
+  const prover = await hentMineProver();
+  renderBibliotek({ prover, loggedIn: true });
+}
+function renderTeacherAuthUI() {
   const authBox = document.getElementById('teacher-auth');
   const editorBox = document.getElementById('teacher-editor');
   if (!authBox || !editorBox) return;
@@ -273,6 +386,7 @@ export function renderTeacherAuthUI() {
     editorBox.style.display = 'none';
     const emailEl = document.getElementById('teacher-email');
     if (emailEl) emailEl.textContent = 'Ikke innlogget';
+    oppdaterBibliotek().catch(() => {});
     return;
   }
 
@@ -281,12 +395,72 @@ export function renderTeacherAuthUI() {
 
   const emailEl = document.getElementById('teacher-email');
   if (emailEl) emailEl.textContent = user.email ?? 'Innlogget';
+  oppdaterBibliotek().catch(() => {});
 }
 
+
 export async function initTeacherUI() {
+  // Bind e-post handling en gang
+  const loginBtn = document.getElementById('teacher-login-btn');
+  const signupBtn = document.getElementById('teacher-signup-btn');
+  const resetBtn = document.getElementById('teacher-reset-btn');
+
+  if (loginBtn && !loginBtn.dataset.bound) {
+    loginBtn.dataset.bound = '1';
+    loginBtn.addEventListener('click', async () => {
+      const { email, pass } = getEmailPass();
+      if (!email) return showTeacherAuthMessage('Skriv inn e-postadresse.');
+      if (!pass) return showTeacherAuthMessage('Skriv inn passord.');
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showTeacherAuthMessage('Du er nå logget inn.', 'success');
+        renderTeacherAuthUI();
+        await updatePlanBadge();
+        await oppdaterBibliotek();
+      } catch (e) {
+        showTeacherAuthMessage(mapAuthErrorToNo(e));
+      }
+    });
+  }
+
+  if (signupBtn && !signupBtn.dataset.bound) {
+    signupBtn.dataset.bound = '1';
+    signupBtn.addEventListener('click', async () => {
+      const { email, pass } = getEmailPass();
+      if (!email) return showTeacherAuthMessage('Skriv inn e-postadresse.');
+      if (!pass) return showTeacherAuthMessage('Skriv inn passord.');
+      if (pass.length < 6) return showTeacherAuthMessage('Passordet må være minst 6 tegn.');
+      try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        showTeacherAuthMessage('Konto opprettet. Du er nå logget inn.', 'success');
+        renderTeacherAuthUI();
+        await updatePlanBadge();
+        await oppdaterBibliotek();
+      } catch (e) {
+        showTeacherAuthMessage(mapAuthErrorToNo(e));
+      }
+    });
+  }
+
+  if (resetBtn && !resetBtn.dataset.bound) {
+    resetBtn.dataset.bound = '1';
+    resetBtn.addEventListener('click', async () => {
+      const email = document.getElementById('teacher-login-email')?.value?.trim() || '';
+      if (!email) return showTeacherAuthMessage('Skriv inn e-postadressen først.');
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showTeacherAuthMessage('E-post for tilbakestilling er sendt (hvis kontoen finnes).', 'success');
+      } catch (e) {
+        showTeacherAuthMessage(mapAuthErrorToNo(e));
+      }
+    });
+  }
+
   renderTeacherAuthUI();
   await updatePlanBadge();
+  await oppdaterBibliotek();
 }
+
 
 // ------------------------
 // Editor

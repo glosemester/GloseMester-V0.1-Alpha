@@ -191,13 +191,31 @@
                     <button class="btn-secondary" onclick="teacherLogout()">Logg ut</button>
                 </div>
             </div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+                <input id="teacher-login-email" type="email" placeholder="E-post" autocomplete="email" style="flex:1; min-width:220px;">
+                <input id="teacher-login-pass" type="password" placeholder="Passord" autocomplete="current-password" style="flex:1; min-width:180px;">
+                <button class="btn-primary" id="teacher-login-btn" type="button">Logg inn</button>
+                <button class="btn-secondary" id="teacher-signup-btn" type="button">Opprett</button>
+                <button class="btn-secondary" id="teacher-reset-btn" type="button">Glemt?</button>
+                <small class="auth-hint" style="flex-basis:100%;">Passord må være minst 6 tegn.</small>
+            </div>
+
 
             <div class="info-box" style="margin-top:12px;">
                 <b>Gratis:</b> Maks 1 lagret prøve totalt. <b>Premium:</b> Ubegrenset.
             </div>
         </div>
 
-        <div class="card-container" id="teacher-editor">
+        
+        <section id="teacher-library" class="card-container" style="display:none;">
+            <h3 style="margin-top:0;">Bibliotek</h3>
+            <div id="teacher-library-empty" style="display:none; opacity:0.85;">
+                Logg inn for å se dine lagrede prøver.
+            </div>
+            <ul id="teacher-prover-list" class="bibliotek-liste" style="min-height:50px; border:1px dashed #ccc; padding:10px;"></ul>
+        </section>
+
+<div class="card-container" id="teacher-editor">
             <p>Lag en ny gloseprøve.</p>
             
             <input type="text" id="prove-tittel" placeholder="Navn på prøve (f.eks Uke 42)">
