@@ -30,7 +30,12 @@ export function velgRolle(rolle) {
     }
     else if (rolle === 'laerer') {
         document.getElementById('laerer-meny').style.display = 'flex';
-        visSide('laerer-dashboard');
+        // Personvern-samtykke kan kreves før lærerportal åpnes
+        if (typeof window.openTeacherPortal === 'function') {
+            window.openTeacherPortal();
+        } else {
+            visSide('laerer-dashboard');
+        }
     }
 }
 

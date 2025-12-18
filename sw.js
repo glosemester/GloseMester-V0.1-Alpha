@@ -4,7 +4,7 @@
 // Strategi: Network First (Prøv nett, bruk cache hvis offline)
 // ============================================
 
-const CACHE_NAME = 'glosemester-v1.0-rc1';
+const CACHE_NAME = 'glosemester-v0.6-beta';;
 
 // Alle filene appen trenger for å virke
 const ASSETS_TO_CACHE = [

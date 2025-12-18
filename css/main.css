@@ -82,17 +82,23 @@ a:hover { text-decoration: underline; }
 /* NAVIGASJON */
 nav {
     display: none;
-    margin-bottom: 20px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    padding: 8px;
-    border-radius: 50px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    border-radius: 18px;
     box-shadow: var(--shadow);
-    width: fit-content;
-    position: sticky;
-    top: 10px;
-    z-index: 100;
+
+    /* Bottom navigation bar */
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 700px;
+
+    z-index: 1000;
     align-items: center;
+    justify-content: space-around;
     gap: 10px;
 }
 
@@ -169,7 +175,8 @@ nav button.active {
     width: 100%;
     max-width: 700px;
     animation: fadeIn 0.4s ease;
-    flex-grow: 1; 
+    flex-grow: 1;
+    padding-bottom: 90px; /* space for bottom nav */
 }
 
 .page.active { 
@@ -612,7 +619,7 @@ input:focus, textarea:focus, select:focus {
 @media (max-width: 600px) {
     body {
         padding: 15px;
-        padding-bottom: 80px;
+        padding-bottom: 110px;
     }
     
     .card-container {
@@ -624,9 +631,9 @@ input:focus, textarea:focus, select:focus {
     }
     
     nav {
-        flex-direction: column;
-        width: 100%;
-        gap: 5px;
+        flex-direction: row;
+        width: calc(100% - 20px);
+        gap: 8px;
     }
     
     .hero-image {
@@ -650,3 +657,59 @@ input:focus, textarea:focus, select:focus {
         display: block !important;
     }
 }
+
+/* =========================
+   Samling: belønningsprogresjon
+   ========================= */
+
+.samling-progresjon {
+    margin: 10px 0 15px 0;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+}
+
+.samling-prog-row {
+    font-size: 14px;
+    margin: 6px 0;
+}
+
+.samling-help {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(0,0,0,0.15);
+    font-size: 13px;
+    color: rgba(0,0,0,0.75);
+}
+
+.samling-help summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.samling-help div {
+    margin-top: 8px;
+    line-height: 1.35;
+}
+
+/* Versjons-stamp (beta) */
+#version-stamp{
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  opacity: 0.55;
+  background: rgba(255,255,255,0.85);
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+
+/* Samling: hint under resirkuler-knapp */
+.btn-resirkuler .btn-hint{ display:block; font-size:11px; opacity:0.75; margin-top:4px; }
+.samling-prog-actions{ margin-top:10px; }
+.btn-small{ font-size:12px; padding:6px 10px; }

@@ -3,10 +3,22 @@
 // ============================================
 
 import { hentTilfeldigKort, visSamling } from './kort-display.js';
-import { lagreBrukerKort, getSamling, saveCredits, getCredits } from '../core/storage.js';
+import { saveCredits, getCredits, leggTilByttepoeng } from '../core/storage.js';
 import { visToast, lesOpp, spillLyd, lagConfetti, vibrer } from '../ui/helpers.js';
 
-let valgtTrinn = ""; 
+let valgtTrinn = "";
+
+function oppdaterOvingScoreUI(riktigeDenneRunden) {
+    const scoreEl = document.getElementById('oving-score');
+    if (!scoreEl) return;
+    const riktige = Number.isFinite(riktigeDenneRunden)
+        ? riktigeDenneRunden
+        : (parseInt(scoreEl.innerText, 10) || 0);
+
+    // Viktig: starter med tallet slik at parseInt fortsatt fungerer andre steder.
+    // (Progresjon til belønninger vises i Samling-oversikten)
+    scoreEl.innerText = `${riktige} riktige`;
+}
 
 // Global bridge for språkinnstilling
 export function settSprakRetning(retning) {
@@ -59,7 +71,7 @@ export function startOving(trinn) {
 
     // Nullstill UI
     const scoreEl = document.getElementById('oving-score');
-    if(scoreEl) scoreEl.innerText = "0 riktige";
+    if(scoreEl) oppdaterOvingScoreUI(0);
     const feedback = document.getElementById('oving-feedback');
     if(feedback) feedback.innerText = "";
     
@@ -87,13 +99,22 @@ function oppdaterProgresjonUI() {
     let current = getCredits(); 
     if (typeof window.credits !== 'undefined') current = window.credits; 
     
-    const bar = document.getElementById('credit-progress-bar-oving');
-    const txt = document.getElementById('credit-progress-text-oving');
+    // Støtter både "valg"-skjerm og "spill"-skjerm (unngår ID-kollisjon i HTML)
+    const bars = [
+        document.getElementById('credit-progress-bar-oving'),
+        document.getElementById('credit-progress-bar-oving-valg'),
+    ].filter(Boolean);
+    const txts = [
+        document.getElementById('credit-progress-text-oving'),
+        document.getElementById('credit-progress-text-oving-valg'),
+    ].filter(Boolean);
     
-    const progress = current % 100; 
-    
-    if(bar) bar.style.width = progress + "%";
-    if(txt) txt.innerText = `${progress}/100`;
+    // Progresjon mot neste byttepoeng-pakke (10) per 100 riktige totalt
+    const cycle = 100;
+    const progress = current % cycle;
+
+    bars.forEach(bar => (bar.style.width = ((progress / cycle) * 100) + "%"));
+    txts.forEach(txt => (txt.innerText = `${progress}/${cycle}`));
 }
 
 function visNesteOvingSporsmaal() {
@@ -199,7 +220,7 @@ export async function sjekkOvingSvar() {
     const fasit = (window.ovingRetning === 'en') ? ord.e.toLowerCase() : ord.s.toLowerCase();
 
     if (input === fasit) {
-        handterRiktigSvar();
+        await handterRiktigSvar();
     } else {
         handterFeilSvar(fasit);
     }
@@ -216,19 +237,30 @@ async function handterRiktigSvar() {
     
     if (typeof window.credits === 'undefined') window.credits = getCredits();
     window.credits++;
-    saveCredits(window.credits); 
+    saveCredits(window.credits);
     oppdaterProgresjonUI();
     
     const scoreEl = document.getElementById('oving-score');
-    if(scoreEl) {
-        let sessionScore = parseInt(scoreEl.innerText) || 0;
-        scoreEl.innerText = (sessionScore + 1) + " riktige";
+    let sessionScore = 0;
+    if (scoreEl) sessionScore = parseInt(scoreEl.innerText, 10) || 0;
+    sessionScore++;
+
+    if (scoreEl) oppdaterOvingScoreUI(sessionScore);
+
+    // 10 riktige totalt => 1 kort (lagres i samlingen via hentTilfeldigKort)
+    if (window.credits % 10 === 0) {
+        spillLyd('vinn');
+        await hentTilfeldigKort();
+        lagConfetti();
+        visToast('10 riktige! Du fikk et nytt kort 🎴', 'success');
     }
 
-    if (window.credits % 100 === 0 && window.credits > 0) {
+    // 100 riktige totalt => 10 byttepoeng
+    if (window.credits % 100 === 0) {
         spillLyd('vinn');
-        await hentTilfeldigKort(); 
+        leggTilByttepoeng(10);
         lagConfetti();
+        visToast('100 riktige! Du fikk 10 byttepoeng ♻️', 'success');
     }
 
     window.ovingIndex++;

@@ -1,10 +1,101 @@
 // ============================================
 // TEACHER.JS - Lærerportal & Glosebank
 // ============================================
-import { db, auth, collection, addDoc, serverTimestamp } from './firebase.js'; // Sjekk at stien stemmer
+import { db, auth, collection, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from './firebase.js'; // Sjekk at stien stemmer
 import { visToast, spillLyd } from '../ui/helpers.js';
 
 let editorOrd = [];
+
+// ============================================
+// Personvern-samtykke (Lærer) - v0.6 beta
+// ============================================
+const PRIVACY = {
+    version: 'v0.6 beta',
+    url: 'https://glosemester.no/personvern'
+};
+
+function visPrivacySamtykkeModal({ onAccept, onCancel }) {
+    const el = document.createElement('div');
+    el.id = 'privacy-consent-modal';
+    el.innerHTML = `
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <h3>Personvern og vilkår (Lærer)</h3>
+        <p>
+          Ved å bruke lærerfunksjonene i GloseMester bekrefter du at du har lest og aksepterer personvernerklæringen.
+          Lærerdata (e-post og prøver) lagres i Firebase for å gi tilgang og administrasjon. Elevdata lagres lokalt på elevens enhet.
+        </p>
+        <p><a href="${PRIVACY.url}" target="_blank" rel="noopener">Les personvernerklæringen</a></p>
+        <div class="modal-actions">
+          <button id="privacy-cancel">Avbryt</button>
+          <button id="privacy-accept">Jeg godtar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(el);
+    el.querySelector('#privacy-cancel').onclick = () => { el.remove(); onCancel?.(); };
+    el.querySelector('#privacy-accept').onclick = () => { el.remove(); onAccept?.(); };
+}
+
+export async function ensureTeacherPrivacyAccepted() {
+    const user = auth?.currentUser;
+    if (!user) return false;
+
+    // Lokal snarvei per bruker + versjon
+    const localKey = `privacyAccepted_${user.uid}_${PRIVACY.version}`;
+    if (localStorage.getItem(localKey) === 'true') return true;
+
+    // Forsøk å lese fra Firestore hvis mulig
+    try {
+        const ref = doc(db, 'users', user.uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            const data = snap.data();
+            if (data?.privacyAccepted === true && data?.privacyVersion === PRIVACY.version) {
+                localStorage.setItem(localKey, 'true');
+                return true;
+            }
+        }
+
+        // Krev samtykke
+        return await new Promise((resolve) => {
+            visPrivacySamtykkeModal({
+                onAccept: async () => {
+                    try {
+                        if (!snap.exists()) {
+                            await setDoc(ref, { email: user.email ?? null }, { merge: true });
+                        }
+                        await updateDoc(ref, {
+                            privacyAccepted: true,
+                            privacyAcceptedAt: serverTimestamp(),
+                            privacyVersion: PRIVACY.version,
+                            privacyUrl: PRIVACY.url
+                        });
+                    } catch (e) {
+                        // Hvis Firestore feiler, fall tilbake til lokal aksept (beta)
+                        console.warn('Kunne ikke lagre samtykke i Firestore. Faller tilbake til lokal lagring.', e);
+                    }
+                    localStorage.setItem(localKey, 'true');
+                    resolve(true);
+                },
+                onCancel: () => resolve(false)
+            });
+        });
+    } catch (e) {
+        console.warn('Kunne ikke verifisere samtykke i Firestore. Faller tilbake til lokal modal.', e);
+        return await new Promise((resolve) => {
+            visPrivacySamtykkeModal({
+                onAccept: () => { 
+                    localStorage.setItem(localKey, 'true');
+                    resolve(true);
+                },
+                onCancel: () => resolve(false)
+            });
+        });
+    }
+}
+
 
 export function leggTilOrd() {
     const spm = document.getElementById('nytt-sporsmaal').value;

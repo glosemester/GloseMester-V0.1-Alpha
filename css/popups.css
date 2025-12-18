@@ -421,3 +421,46 @@
         display: none !important;
     }
 }
+
+
+/* RESIRKULERING: BEKREFTELSE */
+#resirkuler-popup .popup-content .btn {
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: rgba(0,0,0,0.04);
+    color: #111;
+}
+
+#resirkuler-popup .popup-content .btn.confirm {
+    background: rgba(0,0,0,0.9);
+    color: white;
+    border-color: rgba(0,0,0,0.9);
+}
+
+
+/* Personvern-samtykke (lærer) */
+#privacy-consent-modal .modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 3000;
+}
+#privacy-consent-modal .modal-card{
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100vw - 32px));
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 3001;
+  border: 1px solid #e6e6e6;
+}
+#privacy-consent-modal .modal-actions{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

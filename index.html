@@ -100,10 +100,10 @@
             <div class="credit-progress-container">
                 <div class="credit-label">
                     <span>Progresjon mot neste kort</span>
-                    <span id="credit-progress-text-oving">0 poeng</span>
+                    <span id="credit-progress-text-oving-valg">0/100</span>
                 </div>
                 <div class="credit-track">
-                    <div class="credit-fill" id="credit-progress-bar-oving"></div>
+                    <div class="credit-fill" id="credit-progress-bar-oving-valg"></div>
                 </div>
             </div>
 
@@ -122,7 +122,9 @@
                 </button>
             </div>
         
-       <div id="oving-omraade" class="card-container" style="display:none;">
+        </div>
+
+        <div id="oving-omraade" class="card-container" style="display:none;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span id="oving-score" style="font-weight:bold; color:var(--primary);">0 riktige</span>
                 <button class="btn-small btn-danger" onclick="avsluttOving()">Avslutt</button>
@@ -132,7 +134,7 @@
                 <div class="credit-fill" id="credit-progress-bar-oving"></div>
             </div>
             <div style="text-align:right; font-size:12px; color:#888; margin-top:-15px; margin-bottom:20px;">
-                <span id="credit-progress-text-oving">0</span> til neste poeng
+                <span id="credit-progress-text-oving">0/100</span>
             </div>
             
             <h1 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h1>
@@ -151,6 +153,7 @@
             
             <p id="oving-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;"></p>
         </div>
+    </div>
 
     <div id="elev-samling" class="page">
         <div class="samling-header">
@@ -165,7 +168,8 @@
             <h2>Min Samling</h2>
             <button class="btn-small" onclick="byttSortering()">Sortering ↕️</button>
         </div>
-        <div class="samling-grid"></div> </div>
+        <div class="samling-grid"></div>
+    </div>
 
     <div id="laerer-dashboard" class="page">
         <div class="card-container">
@@ -215,21 +219,20 @@
             <p>GloseMester er utviklet for å motivere elever gjennom spillmekanikk.</p>
             <h3>Priser for Skoler</h3>
             <p>Kontakt oss for lisensavtale.</p>
+            <p><a href="https://glosemester.no/personvern" target="_blank" rel="noopener">Personvern</a></p>
             <button class="btn-secondary" onclick="this.parentElement.parentElement.style.display='none'">Lukk</button>
         </div>
     </div>
 
     <script src="js/vocabulary.js"></script>
     <script src="js/collection.js"></script>
-    
-    <script src="js/init.js"></script>
-
-    <script type="module">
+<script type="module">
+        import './js/init.js';
         import './js/app.js';
 
         // Importer alle funksjoner vi trenger i HTML
         import { velgRolle, tilbakeTilStart, visSide } from './js/core/navigation.js';
-        import { startOving, sjekkOvingSvar, byttOvingRetning, lesOppOving, avsluttOving } from './js/features/practice.js';
+        import { startOving, sjekkOvingSvar, byttOvingRetning, settSprakRetning, lesOppOving, avsluttOving } from './js/features/practice.js';
         import { startProve, sjekkSvar, lesOppProve } from './js/features/quiz.js';
         import { leggTilOrd, slettOrd, lagreProve } from './js/features/teacher.js';
         import { startQRScanner, lukkScanner } from './js/features/qr-scanner.js';
@@ -243,6 +246,7 @@
         window.startOving = startOving;
         window.sjekkOvingSvar = sjekkOvingSvar;
         window.byttOvingRetning = byttOvingRetning;
+        window.settSprakRetning = settSprakRetning;
         window.lesOppOving = lesOppOving;
         window.avsluttOving = avsluttOving;
         
@@ -263,5 +267,6 @@
         
         console.log("🔗 Alt koblet opp fra index.html!");
     </script>
+    <div id="version-stamp">v0.6 beta</div>
 </body>
 </html>

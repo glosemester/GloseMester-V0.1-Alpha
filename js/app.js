@@ -1,5 +1,5 @@
 /* ============================================
-   APP.JS - GloseMester v0.5
+   APP.JS - GloseMester v0.6 beta
    Binder sammen alle moduler + Global Lyd
    ============================================ */
 
@@ -8,13 +8,13 @@ import { visSamling, visStortKort, lukkKort, byttSortering, visFeilMelding } fro
 import { startProve, sjekkSvar, settProveSprak, lesOppProve } from './features/quiz.js';
 
 // HER VAR FEILEN - NÅ ER DEN RETTET 👇 (Kun én "features/")
-import { startOving, sjekkOvingSvar, byttOvingRetning, lesOppOving, visOvingSamling, avsluttOving } from './features/practice.js';
+import { startOving, sjekkOvingSvar, byttOvingRetning, settSprakRetning, lesOppOving, visOvingSamling, avsluttOving } from './features/practice.js';
 
 import { startQRScanner, stopQRScanner } from './features/qr-scanner.js';
 import { visEksportPopup, visImportPopup, kopierBackupKode } from './export-import.js';
 import { lagreLokaleProver, hentLokaleProver, lagreBrukerKort } from './core/storage.js';
 
-import './features/teacher.js';
+import { leggTilOrd, slettOrd, lagreProve, ensureTeacherPrivacyAccepted } from './features/teacher.js';
 
 // --- GLOBAL CLICK SOUND ---
 const uiClickSound = new Audio('sounds/pop.mp3');
@@ -38,9 +38,27 @@ window.lesOppProve = lesOppProve;
 window.startOving = startOving;
 window.sjekkOvingSvar = sjekkOvingSvar;
 window.byttOvingRetning = byttOvingRetning; 
+window.settSprakRetning = settSprakRetning;
 window.lesOppOving = lesOppOving;
 window.visOvingSamling = visOvingSamling;
 window.avsluttOving = avsluttOving;
+
+
+// Åpne lærerportal med personvern-samtykke (hvis nødvendig)
+window.openTeacherPortal = async function() {
+    const ok = await ensureTeacherPrivacyAccepted();
+    if (!ok) {
+        // Bruker avbrøt
+        visSide('landing');
+        return;
+    }
+    visSide('laerer-dashboard');
+};
+
+// Lærer-portal
+window.leggTilOrd = leggTilOrd;
+window.slettOrd = slettOrd;
+window.lagreProve = lagreProve;
 
 window.startQRScanner = startQRScanner;
 window.stopQRScanner = stopQRScanner;

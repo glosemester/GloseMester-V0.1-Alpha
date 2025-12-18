@@ -2,12 +2,14 @@
 // KORT-DISPLAY.JS - GloseMester v1.1
 // ============================================
 
-import { getSamling, lagreBrukerKort, setSamling } from '../core/storage.js';
+import { getSamling, lagreBrukerKort, setSamling, getCredits, getByttepoeng, brukByttepoeng } from '../core/storage.js';
 import { spillLyd, visToast, vibrer, lagConfetti } from '../ui/helpers.js';
 
 // --- HOVEDFUNKSJONER ---
 
-export async function hentTilfeldigKort() {
+export async function hentTilfeldigKort(options = {}) {
+    const excludeIds = Array.isArray(options.excludeIds) ? options.excludeIds : (options.excludeIds != null ? [options.excludeIds] : []);
+
     const kategorier = ['biler', 'guder', 'dinosaurer', 'dyr'];
     const kat = kategorier[Math.floor(Math.random() * kategorier.length)];
     
@@ -23,9 +25,14 @@ export async function hentTilfeldigKort() {
     else if(r > 85) rarity = 'episk';
     else if(r > 60) rarity = 'sjelden';
     
-    const mulige = liste.filter(k => k.rarity.type === rarity);
-    const kort = mulige.length > 0 
-        ? mulige[Math.floor(Math.random() * mulige.length)]
+    const mulige = liste.filter(k => k.rarity.type === rarity && !excludeIds.includes(k.id));
+    const fallbackListe = liste.filter(k => !excludeIds.includes(k.id));
+
+    // Hvis vi har ekskludert alt (f.eks. ved veldig liten pool), fall tilbake til original liste.
+    const endeligMulige = mulige.length > 0 ? mulige : fallbackListe;
+
+    const kort = endeligMulige.length > 0
+        ? endeligMulige[Math.floor(Math.random() * endeligMulige.length)]
         : liste[Math.floor(Math.random() * liste.length)];
     
     lagreBrukerKort(kort);
@@ -34,6 +41,9 @@ export async function hentTilfeldigKort() {
 
 // OPPGRADERT FUNKSJON: Fyller ALLE lister (både elev og øving)
 export function visSamling() {
+    // Oppdater progresjonsvisning i samling-oversikten (hvor langt igjen til belønninger)
+    oppdaterSamlingProgresjon();
+
     const samling = getSamling();
     
     // Vi finner ALLE containere med klassen .samling-grid for å unngå ID-trøbbel
@@ -68,14 +78,39 @@ export function visSamling() {
             el.className = `poke-card rarity-${kort.rarity.type}`;
             
             let byttKnapp = '';
-            if(kort.antall > 1) {
-                byttKnapp = `<button class="btn-resirkuler" onclick="event.stopPropagation(); resirkulerKort(${kort.id})">♻️ Bytt 2 mot 1</button>`;
+            const byttepoeng = (typeof window.byttepoeng !== "undefined") ? window.byttepoeng : getByttepoeng();
+            const harDuplikat = kort.antall >= 2;
+            const kanResirkulere = harDuplikat && byttepoeng >= 1;
+
+            // Visuell indikasjon i samlingen for kort som har duplikater
+            if (harDuplikat) el.classList.add('duplikat');
+
+            if (harDuplikat) {
+                if (kanResirkulere) {
+                    byttKnapp = `
+                        <button class="btn-resirkuler" onclick="event.stopPropagation(); event.preventDefault(); resirkulerKort(${kort.id})" title="Bytt 2× ${kort.navn} mot 1 (koster 1 byttepoeng)">
+                            ♻️ Bytt 2× ${kort.navn} mot 1
+                        </button>
+                    `;
+                } else {
+                    byttKnapp = `
+                        <button class="btn-resirkuler" disabled title="Du trenger 1 byttepoeng for å resirkulere" title="Bytt 2× ${kort.navn} mot 1 (koster 1 byttepoeng)">
+                            ♻️ Bytt 2× ${kort.navn} mot 1
+                        </button>
+                        <div class="bytte-hint">Trenger 1 byttepoeng</div>
+                    `;
+                }
             }
-            
+
+            const antallBadge = kort.antall > 1 ? `<div class="antall-badge">${kort.antall}×</div>` : '';
+            const duplikatBadge = harDuplikat ? `<div class="trade-btn">♻️ Duplikat</div>` : '';
+
             el.innerHTML = `
-                <div class="kort-bilde-placeholder">${getEmoji(kort.kategori)}</div>
-                <div class="kort-navn">${kort.navn}</div>
-                <div class="kort-antall">x${kort.antall}</div>
+                ${antallBadge}
+                ${duplikatBadge}
+                <div class="kort-bilde-placeholder" data-kategori="${kort.kategori}">${getEmoji(kort.kategori)}</div>
+                <div class="poke-name">${kort.navn}</div>
+                <div class="rarity-badge">${kort.rarity.tekst}</div>
                 ${byttKnapp}
             `;
             el.onclick = () => visStortKort(kort);
@@ -85,6 +120,46 @@ export function visSamling() {
 }
 
 // --- HJELPERE ---
+
+function oppdaterSamlingProgresjon() {
+    // Finn en dedikert container hvis den finnes, ellers lag en enkel blok...
+    let holder = document.getElementById('samling-progresjon');
+
+    // Hvis index.html ikke har denne ennå, prøv å ...
+    if (!holder) {
+        const header = document.querySelector('#oving-samling .samling-header');
+        if (header) {
+            holder = document.createElement('div');
+            holder.id = 'samling-progresjon';
+            holder.className = 'samling-progresjon';
+            header.insertAdjacentElement('afterend', holder);
+        }
+    }
+    if (!holder) return;
+
+    const credits = (typeof window.credits !== 'undefined') ? window.credits : getCredits();
+    const byttepoeng = (typeof window.byttepoeng !== 'undefined') ? window.byttepoeng : getByttepoeng();
+
+    const tilNesteKort = credits % 10 === 0 ? 10 : (10 - (credits % 10));
+    // 10 byttepoeng gis per 100 riktige totalt
+    const tilNesteBytte = credits % 100 === 0 ? 100 : (100 - (credits % 100));
+
+    holder.innerHTML = `
+        <div class="samling-prog-row">🎴 Neste kort om <b>${tilNesteKort}</b> riktige</div>
+        <div class="samling-prog-row">♻️ Neste byttepoeng-pakke (10) om <b>${tilNesteBytte}</b> riktige</div>
+        <div class="samling-prog-row">Du har <b>${byttepoeng}</b> byttepoeng (1 bytte = 1 poeng)</div>
+        <details class="samling-help">
+            <summary>Hva er byttepoeng?</summary>
+            <div>
+                Du får <b>10 byttepoeng</b> for hver <b>100 riktige</b>. Byttepoeng brukes i samlingen for å
+                bytte inn <b>2 like kort</b> mot <b>1 nytt</b>.
+            </div>
+        </details>
+        <div class="samling-prog-actions">
+            <button class="btn-danger btn-small" onclick="nullstillElevdata()">Nullstill elevdata</button>
+        </div>
+    `;
+}
 
 export function visStortKort(kort) {
     visGevinstPopup(kort, false); 
@@ -136,22 +211,117 @@ function visGevinstPopup(kort, spillFanfare = true) {
 }
 
 // Koble til window
+
+// --- RESIRKULERING: BEKREFTELSESMODAL ---
+function visResirkulerBekreftelse(kort, cost = 1) {
+    return new Promise((resolve) => {
+        // Fjern evt. eksisterende modal
+        const eksisterende = document.getElementById('resirkuler-popup');
+        if (eksisterende) eksisterende.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'resirkuler-popup';
+        overlay.className = 'popup-overlay';
+        overlay.style.display = 'flex';
+
+        const emoji = kort?.kategori ? getEmoji(kort.kategori) : '🎴';
+        const navn = kort?.navn || 'kort';
+
+        overlay.innerHTML = `
+            <div class="popup-content">
+                <h2>Bekreft bytte</h2>
+                <div style="font-size:44px; line-height:1; margin: 8px 0 6px;">${emoji}</div>
+                <p>Du bytter inn <b>2 × ${navn}</b> mot <b>1 nytt kort</b>.</p>
+                <p style="margin-top:6px; opacity:0.9;">Koster <b>${cost}</b> byttepoeng.</p>
+                <div style="display:flex; gap:12px; justify-content:center; margin-top:18px;">
+                    <button id="resirkuler-avbryt" class="btn">Avbryt</button>
+                    <button id="resirkuler-bekreft" class="btn primary">Bekreft bytte</button>
+                </div>
+            </div>
+        `;
+
+        // Klikk utenfor = avbryt
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(false);
+            }
+        });
+
+        document.body.appendChild(overlay);
+
+        const avbrytBtn = overlay.querySelector('#resirkuler-avbryt');
+        const bekreftBtn = overlay.querySelector('#resirkuler-bekreft');
+
+        avbrytBtn?.addEventListener('click', () => {
+            overlay.remove();
+            resolve(false);
+        });
+        bekreftBtn?.addEventListener('click', () => {
+            overlay.remove();
+            resolve(true);
+        });
+    });
+}
+
 window.resirkulerKort = async function(kortId) {
-    if(!confirm("Vil du bytte inn 2 av dette kortet mot 1 helt nytt?")) return;
-    let samling = getSamling();
+    const byttepoeng = (typeof window.byttepoeng !== "undefined") ? window.byttepoeng : getByttepoeng();
+    if (byttepoeng < 1) {
+        visToast("Du trenger 1 byttepoeng for å resirkulere.", "error");
+        return;
+    }
+
+    const samling = getSamling();
+    const antall = samling.filter(k => k.id === kortId).length;
+    if (antall < 2) {
+        visToast("Du må ha 2 like kort for å resirkulere.", "error");
+        return;
+    }
+
+    const kort = samling.find(k => k.id === kortId);
+    const bekreftet = await visResirkulerBekreftelse(kort, 1);
+    if (!bekreftet) return;
+
+    // Fjern 2 av valgt kort
     let fjernet = 0;
-    samling = samling.filter(k => {
-        if(k.id === kortId && fjernet < 2) { fjernet++; return false; }
+    const nySamling = samling.filter(k => {
+        if (k.id === kortId && fjernet < 2) { fjernet++; return false; }
         return true;
     });
-    
-    if(fjernet < 2) { visToast("Ikke nok kort.", 'error'); return; }
-    
-    setSamling(samling);
+
+    if (fjernet < 2) {
+        visToast("Ikke nok kort.", "error");
+        return;
+    }
+
+    setSamling(nySamling);
+    brukByttepoeng(1);
     spillLyd('klikk');
     visToast('Resirkulerer...', 'info');
-    setTimeout(async () => {
-        await hentTilfeldigKort();
-        visSamling(); 
-    }, 1000);
+
+    // Resirkulering: nytt kort skal være tilfeldig, men aldri samme som kortet du ofret
+    await hentTilfeldigKort({ excludeIds: [kortId] });
+    visSamling();
+};
+
+// Nullstill elevdata lokalt (samling, credits, byttepoeng)
+window.nullstillElevdata = function() {
+    const ok = confirm('Vil du nullstille elevdata på denne enheten? Dette sletter samling, credits og byttepoeng for aktiv bruker.');
+    if (!ok) return;
+
+    const navn = window.brukerNavn || 'Spiller';
+    try {
+        localStorage.removeItem('samling_' + navn);
+        localStorage.removeItem('credits_' + navn);
+        localStorage.removeItem('byttepoeng_' + navn);
+    } catch (e) {
+        // ignore
+    }
+
+    // Oppdater runtime-state
+    window.credits = 0;
+    window.byttepoeng = 0;
+
+    visToast('Elevdata er nullstilt.', 'success');
+    visSamling();
 };

@@ -2,7 +2,7 @@
    FIREBASE.JS - Modul (Sentralen)
    ============================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { 
+import {
     getFirestore, 
     collection, 
     addDoc, 
@@ -10,7 +10,11 @@ import {
     query, 
     where, 
     orderBy, 
-    serverTimestamp 
+    serverTimestamp,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { 
     getAuth, 
@@ -40,5 +44,6 @@ const auth = getAuth(app);
 export { 
     app, db, auth, 
     collection, addDoc, getDocs, query, where, orderBy, serverTimestamp,
+    doc, getDoc, setDoc, updateDoc,
     GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
 };

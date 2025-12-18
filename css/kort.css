@@ -280,3 +280,28 @@
     .poke-card img, .kort-bilde-placeholder { width: 70px; height: 70px; font-size: 32px; }
     .poke-name { font-size: 14px; }
 }
+
+/* --- RESIRKULERING (Duplikater) --- */
+.poke-card.duplikat {
+    outline: 2px dashed rgba(0,0,0,0.25);
+    outline-offset: 4px;
+}
+
+.btn-resirkuler {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    background: rgba(0,0,0,0.06);
+}
+
+.btn-resirkuler[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.bytte-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: rgba(0,0,0,0.65);
+}

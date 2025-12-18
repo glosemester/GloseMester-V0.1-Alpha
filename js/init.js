@@ -5,6 +5,10 @@
 // Global state og app-initialisering
 // ============================================
 
+// App-versjon (brukes i UI, service worker, personvern-samtykke)
+export const APP_VERSION = 'v0.6 beta';
+window.APP_VERSION = APP_VERSION;
+
 // ============================================
 // GLOBAL STATE
 // ============================================

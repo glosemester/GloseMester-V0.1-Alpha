@@ -141,3 +141,48 @@ export function saveCredits(antall) {
         console.error("Kunne ikke lagre credits", e);
     }
 }
+
+// ============================================
+// BYTTEPOENG (Elev - Lokalt)
+// 10 byttepoeng gis per 100 riktige svar
+// ============================================
+
+export function getByttepoeng() {
+    try {
+        const navn = getBruker();
+        const stored = localStorage.getItem('byttepoeng_' + navn);
+        return stored ? parseInt(stored, 10) : 0;
+    } catch (e) {
+        return 0;
+    }
+}
+
+export function saveByttepoeng(antall) {
+    try {
+        const navn = getBruker();
+        localStorage.setItem('byttepoeng_' + navn, String(parseInt(antall, 10) || 0));
+    } catch (e) {
+        console.error('Kunne ikke lagre byttepoeng', e);
+    }
+}
+
+export function leggTilByttepoeng(antall = 1) {
+    const current = getByttepoeng();
+    const next = current + (parseInt(antall, 10) || 0);
+    saveByttepoeng(next);
+    // Oppdater global state hvis dere ønsker å bruke det i UI
+    window.byttepoeng = next;
+    return next;
+}
+
+export function brukByttepoeng(antall = 1) {
+    const current = getByttepoeng();
+    const n = (parseInt(antall, 10) || 0);
+    if (current >= n) {
+        const next = current - n;
+        saveByttepoeng(next);
+        window.byttepoeng = next;
+        return true;
+    }
+    return false;
+}
