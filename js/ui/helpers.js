@@ -1,78 +1,63 @@
 // ============================================
-// HELPERS.JS - GloseMester v1.0
-// Lyd, Vibrasjon og UI-verktøy
+// HELPERS.JS - UI & Audio
 // ============================================
 
-// --- LYD MOTOR ---
-const lyder = {
-    riktig: new Audio('sounds/correct.mp3'),
-    feil: new Audio('sounds/wrong.mp3'),
-    vinn: new Audio('sounds/win.mp3'),
-    klikk: new Audio('sounds/pop.mp3'),
-    fanfare: new Audio('sounds/fanfare.mp3') // Ny lyd for "Legendary"
-};
+export function spillLyd(navn) {
+    // VIKTIG ENDRING: Sjekk global lyd-bryter
+    if (window.appLydErPaa === false) return;
 
-// Preload lyder
-Object.values(lyder).forEach(lyd => {
-    lyd.load();
-    lyd.volume = 0.5;
-});
+    const lyder = {
+        'riktig': 'sounds/correct.mp3',
+        'feil': 'sounds/wrong.mp3',
+        'vinn': 'sounds/win.mp3',
+        'klikk': 'sounds/pop.mp3',
+        'fanfare': 'sounds/fanfare.mp3'
+    };
 
-export function spillLyd(type) {
-    if (lyder[type]) {
-        lyder[type].currentTime = 0;
-        lyder[type].play().catch(() => {}); // Ignorer feil hvis bruker ikke har interagert
+    if (lyder[navn]) {
+        const audio = new Audio(lyder[navn]);
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log("Lydfeil (autoplay?):", e));
     }
 }
 
-// --- HAPTISK FEEDBACK (Vibrasjon) ---
-export function vibrer(monster = [50]) {
+export function vibrer(monster) {
     if (navigator.vibrate) {
         navigator.vibrate(monster);
     }
 }
 
-// --- UI HJELPERE ---
-export function visToast(melding, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerText = melding;
-    toast.style.cssText = `
-        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-        background: ${type === 'success' ? '#10B981' : '#333'};
-        color: white; padding: 12px 24px; border-radius: 50px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;
-        animation: slideUp 0.3s ease; font-weight: 600;
-    `;
-    
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+export function visToast(melding, type = "info") {
+    // ... din eksisterende toast kode (eller standard under) ...
+    const container = document.getElementById('toast-container') || opprettToastContainer();
+    const div = document.createElement('div');
+    div.className = `toast toast-${type}`;
+    div.innerText = melding;
+    container.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
 }
 
-export function lesOpp(tekst, sprak = 'nb-NO') {
+function opprettToastContainer() {
+    const div = document.createElement('div');
+    div.id = 'toast-container';
+    div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:9999;";
+    document.body.appendChild(div);
+    return div;
+}
+
+export function lesOpp(tekst, lang) {
+    if (window.appLydErPaa === false) return; // Også mute TTS hvis ønskelig
+
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const tale = new SpeechSynthesisUtterance(tekst);
-        tale.lang = sprak;
-        window.speechSynthesis.speak(tale);
+        const u = new SpeechSynthesisUtterance(tekst);
+        u.lang = lang;
+        window.speechSynthesis.speak(u);
     }
 }
 
 export function lagConfetti() {
-    // Enkel CSS/JS confetti (kan byttes med bibliotek senere)
-    for(let i=0; i<30; i++) {
-        const c = document.createElement('div');
-        c.style.cssText = `
-            position: fixed; top: 50%; left: 50%; width: 10px; height: 10px;
-            background: ${['#f00','#0f0','#00f','#ff0'][Math.floor(Math.random()*4)]};
-            pointer-events: none; z-index: 9999;
-            transform: translate(-50%, -50%);
-            animation: confetti 1s ease-out forwards;
-        `;
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 1000);
-    }
+    // (Enkel confetti implementasjon - eller behold din eksisterende hvis du har bibliotek)
+    import('https://cdn.skypack.dev/canvas-confetti').then(module => {
+        module.default();
+    }).catch(e => console.log("Confetti ikke lastet", e));
 }

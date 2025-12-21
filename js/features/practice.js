@@ -1,14 +1,15 @@
 // ============================================
-// PRACTICE.JS - GloseMester v0.6.1 (Robust)
+// PRACTICE.JS - GloseMester v0.7.2 (Sikret + UI Tweak)
 // ============================================
 
-import { hentTilfeldigKort, visSamling } from './kort-display.js';
-import { lagreBrukerKort, getSamling, saveCredits, getCredits } from '../core/storage.js';
+import { hentTilfeldigKort, visSamling, oppdaterProgresjonUI } from './kort-display.js';
+import { getCredits, saveCredits, getTotalCorrect, saveTotalCorrect } from '../core/storage.js';
 import { visToast, lesOpp, spillLyd, lagConfetti, vibrer } from '../ui/helpers.js';
 
 let valgtTrinn = ""; 
+// 🛡️ LÅS: Hindrer spam-klikk/Enter
+let isProcessing = false; 
 
-// Global bridge for språkinnstilling
 export function settSprakRetning(retning) {
     window.ovingRetning = retning;
     spillLyd('klikk');
@@ -17,64 +18,53 @@ export function settSprakRetning(retning) {
     const activeBtn = document.getElementById(retning === 'en' ? 'lang-en' : 'lang-no');
     if (activeBtn) activeBtn.classList.add('active');
     
-    // Oppdater tekst hvis vi er midt i en øving
-    const ovingOmraade = document.getElementById('oving-omraade');
-    if (ovingOmraade && ovingOmraade.style.display === 'block') {
+    if (document.getElementById('oving-omraade').style.display === 'block') {
         visNesteOvingSporsmaal();
     }
 }
 
 export function startOving(trinn) {
-    console.log("▶️ Starter øving for trinn:", trinn);
     valgtTrinn = trinn;
     spillLyd('klikk');
 
-    // Last inn data
     if (window.vokabularData && window.vokabularData[trinn]) {
         window.ovingOrdliste = [...window.vokabularData[trinn]];
     } else {
-        console.error("❌ Fant ikke ordliste! Sjekk vocabulary.js");
-        alert("Fant ingen ord for dette trinnet. Prøv igjen.");
+        alert("Fant ingen ord. Last inn siden på nytt.");
         return;
     }
     
-    // Shuffle
     window.ovingOrdliste.sort(() => Math.random() - 0.5);
     window.ovingIndex = 0;
     
-    // Sett tittel (hvis elementet finnes)
-    const tittelMap = { "1-2": "1. - 2. Trinn", "3-4": "3. - 4. Trinn", "5-7": "5. - 7. Trinn" };
-    const tittelEl = document.getElementById('oving-tittel');
-    if(tittelEl) tittelEl.innerText = tittelMap[trinn] || trinn;
+    // Nullstill lås ved start
+    isProcessing = false;
     
-    // BYTT SKJERM
-    const valgSkjerm = document.getElementById('oving-valg');
-    const spillSkjerm = document.getElementById('oving-omraade');
-    
-    if(valgSkjerm) valgSkjerm.style.display = 'none';
-    if(spillSkjerm) {
-        spillSkjerm.style.display = 'block';
-        spillSkjerm.style.animation = 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    }
+    document.getElementById('oving-valg').style.display = 'none';
+    document.getElementById('oving-omraade').style.display = 'block';
 
-    // Nullstill UI
     const scoreEl = document.getElementById('oving-score');
-    if(scoreEl) scoreEl.innerText = "0 riktige";
+    if(scoreEl) scoreEl.innerText = "0 riktige i dag";
     const feedback = document.getElementById('oving-feedback');
     if(feedback) feedback.innerText = "";
     
-    // Sett standard språk hvis mangler
     if(!window.ovingRetning) settSprakRetning('no');
     
-    oppdaterProgresjonUI();
+    oppdaterProgresjonUI(); 
     visNesteOvingSporsmaal();
 }
 
 export function avsluttOving() {
     document.getElementById('oving-omraade').style.display = 'none';
     document.getElementById('oving-valg').style.display = 'block';
+    
     const input = document.getElementById('oving-svar');
-    if(input) input.value = "";
+    if(input) {
+        input.value = "";
+        input.disabled = false; // Sikre at den er åpen
+    }
+    
+    isProcessing = false; // Lås opp
     oppdaterProgresjonUI();
 }
 
@@ -83,35 +73,21 @@ export function visOvingSamling() {
     visSamling();
 }
 
-function oppdaterProgresjonUI() {
-    let current = getCredits(); 
-    if (typeof window.credits !== 'undefined') current = window.credits; 
-    
-    const bar = document.getElementById('credit-progress-bar-oving');
-    const txt = document.getElementById('credit-progress-text-oving');
-    
-    const progress = current % 100; 
-    
-    if(bar) bar.style.width = progress + "%";
-    if(txt) txt.innerText = `${progress}/100`;
-}
-
 function visNesteOvingSporsmaal() {
+    // 🛡️ LÅS OPP: Klar for nytt spørsmål
+    isProcessing = false;
+
     if (window.ovingIndex >= window.ovingOrdliste.length) {
         window.ovingOrdliste.sort(() => Math.random() - 0.5);
         window.ovingIndex = 0;
     }
     
     const ord = window.ovingOrdliste[window.ovingIndex];
-    const spmTekst = (window.ovingRetning === 'en') ? ord.s : ord.e;
+    const spm = document.getElementById('oving-spm');
+    if(!spm) return;
     
-    const spmElement = document.getElementById('oving-spm');
-    if(spmElement) {
-        spmElement.innerText = spmTekst;
-        spmElement.style.animation = 'none';
-        spmElement.offsetHeight; 
-        spmElement.style.animation = 'popIn 0.3s ease';
-    }
+    const tekst = (window.ovingRetning === 'en') ? ord.s : ord.e;
+    spm.innerText = tekst;
     
     const feedback = document.getElementById('oving-feedback');
     if(feedback) feedback.innerText = "";
@@ -120,8 +96,15 @@ function visNesteOvingSporsmaal() {
     const altContainer = document.getElementById('oving-alternativer');
     const inputFelt = document.getElementById('oving-svar');
     
-    // --- UI LOGIKK ---
-    if (valgtTrinn === '1-2') {
+    // Nullstill input state
+    if(inputFelt) {
+        inputFelt.disabled = false;
+        inputFelt.style.opacity = "1";
+        inputFelt.focus();
+    }
+    
+    // Vis input eller flervalg basert på Nivå (niva1 er flervalg)
+    if (valgtTrinn === 'niva1') {
         if(inputContainer) inputContainer.style.display = 'none';
         if(altContainer) {
             altContainer.style.display = 'grid'; 
@@ -130,11 +113,10 @@ function visNesteOvingSporsmaal() {
     } else {
         if(inputContainer) inputContainer.style.display = 'block';
         if(altContainer) altContainer.style.display = 'none';
-        
         if(inputFelt) {
             inputFelt.placeholder = (window.ovingRetning === 'en') ? "Write in English..." : "Skriv på Norsk...";
             inputFelt.value = "";
-            inputFelt.focus();
+            // focus() skjer ovenfor
         }
     }
 }
@@ -171,6 +153,10 @@ function genererAlternativer(riktigOrdObjekt) {
 }
 
 async function sjekkFlervalgSvar(valgtSvar, fasit, btnElement) {
+    // 🛡️ SJEKK LÅS
+    if(isProcessing) return;
+    isProcessing = true; 
+
     const buttons = document.querySelectorAll('#oving-alternativer button');
     buttons.forEach(b => b.disabled = true);
 
@@ -182,7 +168,6 @@ async function sjekkFlervalgSvar(valgtSvar, fasit, btnElement) {
         btnElement.style.backgroundColor = '#EF4444'; 
         btnElement.style.color = 'white';
         btnElement.style.animation = 'shake 0.4s ease-in-out';
-        
         buttons.forEach(b => {
             if(b.innerText === fasit) {
                 b.style.backgroundColor = '#10B981'; 
@@ -194,14 +179,25 @@ async function sjekkFlervalgSvar(valgtSvar, fasit, btnElement) {
 }
 
 export async function sjekkOvingSvar() {
-    const input = document.getElementById('oving-svar').value.trim().toLowerCase();
+    // 🛡️ SJEKK LÅS
+    if (isProcessing) return;
+
+    const inputFelt = document.getElementById('oving-svar');
+    const input = inputFelt.value.trim().toLowerCase();
+    
+    if(!input) return; // Ignorer tomme svar
+
+    // 🛡️ LÅS & UI FEEDBACK
+    isProcessing = true;
+    inputFelt.disabled = true; // Visuell indikasjon på at vi tenker
+    
     const ord = window.ovingOrdliste[window.ovingIndex];
     const fasit = (window.ovingRetning === 'en') ? ord.e.toLowerCase() : ord.s.toLowerCase();
 
     if (input === fasit) {
-        handterRiktigSvar();
+        await handterRiktigSvar();
     } else {
-        handterFeilSvar(fasit);
+        await handterFeilSvar(fasit);
     }
 }
 
@@ -214,31 +210,53 @@ async function handterRiktigSvar() {
         feedback.style.animation = 'popIn 0.3s ease';
     }
     
-    if (typeof window.credits === 'undefined') window.credits = getCredits();
-    window.credits++;
-    saveCredits(window.credits); 
-    oppdaterProgresjonUI();
+    // XP LOGIKK
+    let totalXP = getTotalCorrect();
+    totalXP++;
+    saveTotalCorrect(totalXP);
     
     const scoreEl = document.getElementById('oving-score');
     if(scoreEl) {
-        let sessionScore = parseInt(scoreEl.innerText) || 0;
-        scoreEl.innerText = (sessionScore + 1) + " riktige";
+        let currentText = scoreEl.innerText;
+        let num = parseInt(currentText) || 0;
+        scoreEl.innerText = (num + 1) + " riktige i dag";
     }
 
-    if (window.credits % 100 === 0 && window.credits > 0) {
-        spillLyd('vinn');
-        await hentTilfeldigKort(); 
-        lagConfetti();
+    // OPPDATER UI UMIDDELBART
+    oppdaterProgresjonUI(); 
+
+    // SJEKKER KORT (Hver 10. riktig)
+    if (totalXP % 10 === 0 && totalXP > 0) {
+        // Vent litt så spilleren ser at baren ble full
+        setTimeout(async () => {
+            spillLyd('vinn');
+            await hentTilfeldigKort(); 
+            lagConfetti();
+        }, 500); 
+    }
+
+    // SJEKKER DIAMANTER (Hver 100. riktig)
+    if (totalXP % 100 === 0 && totalXP > 0) {
+        let credits = getCredits();
+        credits += 10; 
+        saveCredits(credits);
+        
+        visToast("BONUS! +10 Diamanter 💎", "success");
+        spillLyd('fanfare');
+        vibrer([100, 50, 100]);
     }
 
     window.ovingIndex++;
-    setTimeout(visNesteOvingSporsmaal, 1200);
+    
+    // Her resetter vi låsen når neste spørsmål lastes
+    setTimeout(visNesteOvingSporsmaal, 1500); 
 }
 
-function handterFeilSvar(fasit) {
+async function handterFeilSvar(fasit) {
     spillLyd('feil');
     vibrer(200);
-    if (valgtTrinn !== '1-2') {
+    // Hvis IKKE nivå 1 (som har knapper), vis fasit tekst.
+    if (valgtTrinn !== 'niva1') {
         const feedback = document.getElementById('oving-feedback');
         if(feedback) {
             feedback.style.color = "#EF4444";
@@ -258,6 +276,9 @@ export function lesOppOving() {
 }
 
 export function byttOvingRetning() {
+    // 🛡️ Sjekk lås også her
+    if(isProcessing) return;
+
     const nyRetning = window.ovingRetning === 'no' ? 'en' : 'no';
     settSprakRetning(nyRetning);
 }

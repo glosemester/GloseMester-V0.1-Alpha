@@ -1,26 +1,36 @@
 /* ============================================
-   FIREBASE.JS - Modul (Sentralen)
+   FIREBASE.JS - Konfigurasjon og Exports
    ============================================ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    query, 
-    where, 
-    orderBy, 
-    serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+// Vi bruker URL-imports (CDN) fordi vi kjører i nettleser (ES Modules) uten "build step"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { 
     getAuth, 
     GoogleAuthProvider, 
     signInWithPopup, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    setDoc, 
+    getDoc, 
+    getDocs, 
+    doc, 
+    query, 
+    where, 
+    orderBy, 
+    serverTimestamp,
+    deleteDoc,
+    updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Dine nøkler
+// --- DIN KONFIGURASJON ---
 const firebaseConfig = {
   apiKey: "AIzaSyBVrXniqVZz5t1TdS6jDSf7uS6m-6appUU",
   authDomain: "glosemester-1e67e.firebaseapp.com",
@@ -31,14 +41,34 @@ const firebaseConfig = {
   measurementId: "G-7Q1Q9MX8QN"
 };
 
-// Initialiser Appen
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const analytics = getAnalytics(app); // Aktiverer statistikk
 const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
 
-// VIKTIG: Eksporter alt herfra så andre filer slipper å hente fra nettet selv
+// EXPORTS - Dette gjør funksjonene tilgjengelige for teacher.js, auth.js osv.
 export { 
-    app, db, auth, 
-    collection, addDoc, getDocs, query, where, orderBy, serverTimestamp,
-    GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    auth, 
+    db, 
+    googleProvider, 
+    analytics,
+    signInWithPopup, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged,
+    collection, 
+    addDoc, 
+    setDoc,
+    getDoc, 
+    getDocs, 
+    doc, 
+    query, 
+    where, 
+    orderBy, 
+    serverTimestamp,
+    deleteDoc,
+    updateDoc 
 };

@@ -1,13 +1,13 @@
 // ============================================
 // VOCABULARY.JS - GloseMester v0.1-ALPHA
-// All vokabular for 1-7 trinn
+// All vokabular for Nivå 1-3
 // ============================================
 // s = Norsk (spørsmål)
 // e = Engelsk (svar)
 // ============================================
 
-window.vokabularData ={
-    "1-2": [
+window.vokabularData = {
+    "niva1": [
         {s:"Katt",e:"Cat"},{s:"Hund",e:"Dog"},{s:"Rød",e:"Red"},{s:"Blå",e:"Blue"},{s:"Rosa",e:"Pink"},{s:"Grå",e:"Grey"},
         {s:"En",e:"One"},{s:"To",e:"Two"},{s:"Seks",e:"Six"},{s:"Ti",e:"Ten"},{s:"Fire",e:"Four"},{s:"Ni",e:"Nine"},{s:"Fem",e:"Five"},
         {s:"Mamma",e:"Mom"},{s:"Pappa",e:"Dad"},{s:"Sønn",e:"Son"},{s:"Gutt",e:"Boy"},{s:"Jente",e:"Girl"},{s:"Baby",e:"Baby"},
@@ -21,7 +21,7 @@ window.vokabularData ={
         {s:"Stor",e:"Big"},{s:"God",e:"Good"},{s:"Dårlig",e:"Bad"},{s:"Trist",e:"Sad"},{s:"Varm",e:"Hot"},{s:"Kald",e:"Cold"},{s:"Våt",e:"Wet"},{s:"Tørr",e:"Dry"}
     ],
     
-    "3-4": [
+    "niva2": [
         {s:"Hei",e:"Hello"},{s:"Ha det",e:"Goodbye"},{s:"Takk",e:"Thank you"},{s:"Ja",e:"Yes"},{s:"Nei",e:"No"},{s:"Vær så snill",e:"Please"},
         {s:"Tre",e:"Three"},{s:"Syv",e:"Seven"},{s:"Åtte",e:"Eight"},{s:"Elleve",e:"Eleven"},{s:"Tolv",e:"Twelve"},{s:"Tretten",e:"Thirteen"},
         {s:"Hvit",e:"White"},{s:"Svart",e:"Black"},{s:"Grønn",e:"Green"},{s:"Brun",e:"Brown"},{s:"Lilla",e:"Purple"},{s:"Oransje",e:"Orange"},{s:"Gul",e:"Yellow"},
@@ -39,7 +39,7 @@ window.vokabularData ={
         {s:"By",e:"City"},{s:"Land",e:"Country"},{s:"Verden",e:"World"},{s:"Hage",e:"Garden"},{s:"Blomst",e:"Flower"},{s:"Strand",e:"Beach"}
     ],
     
-    "5-7": [
+    "niva3": [
         {s:"Utrolig",e:"Incredible"},{s:"Vanskelig",e:"Difficult"},{s:"Enkel",e:"Simple"},{s:"Forskjellig",e:"Different"},{s:"Lik",e:"Similar"},
         {s:"Viktig",e:"Important"},{s:"Mulig",e:"Possible"},{s:"Umulig",e:"Impossible"},{s:"Nødvendig",e:"Necessary"},{s:"Kjedelig",e:"Boring"},
         {s:"Spennende",e:"Exciting"},{s:"Farlig",e:"Dangerous"},{s:"Trygg",e:"Safe"},{s:"Berømt",e:"Famous"},{s:"Populær",e:"Popular"},
@@ -64,4 +64,4 @@ window.vokabularData ={
     ]
 };
 
-console.log('📚 vocabulary.js lastet - 235 ordpar');
+console.log('📚 vocabulary.js lastet - 235 ordpar (Oppdatert til Nivåer)');

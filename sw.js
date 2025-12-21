@@ -1,116 +1,83 @@
-// ============================================
-// SERVICE WORKER - GloseMester v1.0
-// Oppdatert: Inkluderer js/ui og nye moduler
-// Strategi: Network First (Prøv nett, bruk cache hvis offline)
-// ============================================
-
-const CACHE_NAME = 'glosemester-v1.0-rc1';
-
-// Alle filene appen trenger for å virke
+// SERVICE WORKER - GloseMester v0.9.0-BETA (Auto-Update)
+const APP_VERSION = 'v0.9.0-BETA';
+const CACHE_NAME = 'glosemester-v0.9-beta';
 const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json',
-    
-    // CSS
-    './css/main.css',
-    './css/kort.css',
-    './css/popups.css',
-    
-    // JS Rot
-    './js/app.js',
-    './js/init.js',
-    './js/vocabulary.js',
-    './js/collection.js',
-    // './js/export-import.js', // Kommenter inn hvis du bruker denne
-    
-    // JS Core
-    './js/core/navigation.js',
-    './js/core/storage.js',
-    './js/core/credits.js',
-    './js/core/analytics.js',
-    
-    // JS Features
-    './js/features/practice.js',
-    './js/features/quiz.js',
-    './js/features/teacher.js',
-    './js/features/kort-display.js',
-    './js/features/qr-scanner.js',
-    
-    // JS UI (Denne var ny!)
-    './js/ui/helpers.js'
-    
-    // LYDER (Hvis du har lastet dem opp i en sounds-mappe)
-    // './sounds/correct.mp3',
-    // './sounds/wrong.mp3',
-    // './sounds/win.mp3',
-    // './sounds/pop.mp3',
-    // './sounds/fanfare.mp3'
+  './index.html','./manifest.json',
+  './css/main.css','./css/kort.css','./css/popups.css',
+  './js/app.js','./js/init.js','./js/vocabulary.js','./js/collection.js',
+  './js/core/navigation.js','./js/core/storage.js','./js/core/credits.js','./js/core/analytics.js',
+  './js/features/practice.js','./js/features/quiz.js','./js/features/teacher.js','./js/features/kort-display.js','./js/features/qr-scanner.js','./js/features/auth.js','./js/features/firebase.js',
+  './js/ui/helpers.js'
 ];
 
-// 1. INSTALL: Cache alle filer
-self.addEventListener('install', (event) => {
-    console.log('👷 Service Worker: Installerer...');
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            console.log('👷 Service Worker: Cacher filer');
-            return cache.addAll(ASSETS_TO_CACHE);
+// INSTALL - Cache assets
+self.addEventListener('install',(e)=>{
+  console.log(`[SW] Installerer ${APP_VERSION}`);
+  self.skipWaiting(); // Aktiver umiddelbart
+  e.waitUntil((async()=>{
+    const cache=await caches.open(CACHE_NAME);
+    await Promise.all(ASSETS_TO_CACHE.map(async url=>{
+      try{
+        const res=await fetch(url,{cache:'no-store'});
+        if(res.ok)await cache.put(url,res.clone());
+      }catch{}
+    }));
+  })());
+});
+
+// ACTIVATE - Slett gammel cache
+self.addEventListener('activate',(e)=>{
+  console.log(`[SW] Aktiverer ${APP_VERSION}`);
+  e.waitUntil((async()=>{
+    const keys=await caches.keys();
+    // Sletter alt som ikke matcher det nye versjonsnavnet
+    await Promise.all(keys.map(k=>k!==CACHE_NAME?caches.delete(k):null));
+    await self.clients.claim();
+    
+    // VARSLE ALLE KLIENTER OM NY VERSJON
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'NEW_VERSION',
+        version: APP_VERSION
+      });
+    });
+  })());
+});
+
+// MESSAGE - Håndter meldinger fra klienten
+self.addEventListener('message',(e)=>{
+  if(e.data?.type==='SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if(e.data?.type==='GET_VERSION'){
+    e.source?.postMessage({type:'SW_VERSION',version:APP_VERSION});
+  }
+});
+
+// FETCH - Network first (alltid siste versjon)
+self.addEventListener('fetch',(e)=>{
+  if(!e.request.url.startsWith('http'))return;
+  const accept=e.request.headers.get('accept')||'';
+  
+  if(accept.includes('text/html')){
+    // HTML: Prøv nettverk først, cache som fallback
+    e.respondWith(
+      fetch(e.request,{cache:'no-store'})
+        .then(res=>{
+          const c=res.clone();
+          caches.open(CACHE_NAME).then(cache=>cache.put(e.request,c));
+          return res;
         })
+        .catch(()=>caches.match(e.request)||caches.match('./index.html'))
     );
-    self.skipWaiting(); // Tving ny SW til å ta over med en gang
+    return;
+  }
+  
+  // Andre filer: Cache first, nettverk som fallback
+  e.respondWith(
+    caches.match(e.request).then(cached=>cached||fetch(e.request))
+  );
 });
 
-// 2. ACTIVATE: Rydd opp i gammel cache
-self.addEventListener('activate', (event) => {
-    console.log('👷 Service Worker: Aktivert');
-    event.waitUntil(
-        caches.keys().then((keyList) => {
-            return Promise.all(keyList.map((key) => {
-                if (key !== CACHE_NAME) {
-                    console.log('🗑️ Sletter gammel cache:', key);
-                    return caches.delete(key);
-                }
-            }));
-        })
-    );
-    return self.clients.claim();
-});
-
-// 3. FETCH: Network First (Hent alltid ferskeste versjon hvis mulig)
-self.addEventListener('fetch', (event) => {
-    // Ignorer requests som ikke er http (f.eks. chrome-extension)
-    if (!event.request.url.startsWith('http')) return;
-
-    // Strategi for Google Fonts (Cache First for ytelse)
-    if (event.request.url.includes('fonts.googleapis.com') || event.request.url.includes('fonts.gstatic.com')) {
-        event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                return cachedResponse || fetch(event.request);
-            })
-        );
-        return;
-    }
-
-    // Strategi for egne filer (Network First)
-    // Prøver å hente fra nettet først. Hvis det går, oppdater cachen. 
-    // Hvis nettet feiler (offline), bruk cache.
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Sjekk at vi fikk et gyldig svar
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response;
-                }
-                const responseClone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseClone);
-                });
-                return response;
-            })
-            .catch(() => {
-                // Hvis nettverk feiler, prøv cache
-                console.log('🔌 Ingen nett, henter fra cache:', event.request.url);
-                return caches.match(event.request);
-            })
-    );
-});
+console.log(`[SW] ${APP_VERSION} loaded`);

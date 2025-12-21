@@ -13,70 +13,98 @@
     <link rel="stylesheet" href="css/popups.css">
     
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    
+    <style>
+        .version-tag {
+            position: fixed; bottom: 10px; right: 15px; font-size: 11px;
+            color: #0071e3; z-index: 50; font-weight: 600; font-family: monospace;
+            cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.9);
+            padding: 5px 10px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .version-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        .sales-list { text-align: left; margin: 15px 0; font-size: 14px; color: #444; }
+        .sales-list li { margin-bottom: 8px; }
+        .sales-header { color: #0071e3; margin-top: 15px; font-size: 16px; }
+    </style>
 </head>
 <body>
 
-    <div id="landing-page" class="page active">
-        <header style="text-align:center; padding: 40px 20px;">
-            <h1 style="font-size: 3rem; margin-bottom: 10px;">GloseMester 🎮</h1>
-            <p style="color:#666; max-width:500px; margin: 10px auto;">
-                Samle kort, bygg din samling og lær språk samtidig.
-            </p>
-        </header>
+    <button id="lyd-toggle" class="icon-btn" 
+            style="position:fixed; top:15px; right:15px; z-index:9999; font-size:1.5rem; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:50px; height:50px; cursor:pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" 
+            aria-label="Skru av/på lyd">
+        🔇
+    </button>
 
+    <div id="landing-page" class="page active">
+        <img src="header.png" alt="GloseMester" class="hero-image" style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
+        <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 40px auto; font-size:18px;">
+            Samle kort, bygg din samling og lær språk samtidig.
+        </p>
         <div class="role-grid">
             <div class="role-card" onclick="velgRolle('oving')">
-                <span class="role-icon">💪</span>
-                <h3>Øv Selv</h3>
-                <p>Velg trinn og samle kort</p>
+                <span class="role-icon">💪</span><h3>Øv Selv</h3><p>Velg nivå og samle kort</p>
             </div>
-            
             <div class="role-card" onclick="velgRolle('kode')">
-                <span class="role-icon">🎓</span>
-                <h3>Har Kode</h3>
-                <p>Ta prøve fra lærer</p>
+                <span class="role-icon">🎓</span><h3>Har Kode</h3><p>Ta prøve fra lærer</p>
             </div>
-            
             <div class="role-card" onclick="velgRolle('laerer')">
-                <span class="role-icon">🍎</span>
-                <h3>Lærer</h3>
-                <p>Lag prøver</p>
+                <span class="role-icon">🍎</span><h3>Lærer</h3><p>Lag prøver</p>
             </div>
         </div>
-        
+
+        <button id="pwa-install-btn" class="btn-primary" onclick="installerApp()" style="display:none; margin: 30px auto; background-color: #2563EB; max-width: 300px;">
+            📲 Installer App på mobilen
+        </button>
+
         <div style="text-align:center; margin-top:40px;">
-            <button class="btn-secondary" onclick="document.getElementById('info-modal').style.display='flex'">
-                ℹ️ Om oss & Priser
-            </button>
+            <button class="btn-secondary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
         </div>
     </div>
 
     <nav id="elev-meny" style="display:none;">
         <button id="btn-elev-dashboard" onclick="visSide('elev-dashboard')">Hjem</button>
-        <button id="btn-elev-samling" onclick="visSide('elev-samling')">Samling</button>
+        <button id="btn-elev-samling" onclick="visSide('elev-samling'); visSamling()">Samling</button>
         <button class="btn-danger" onclick="tilbakeTilStart()">Logg ut</button>
     </nav>
 
     <nav id="oving-meny" style="display:none;">
         <button id="btn-oving-start" onclick="visSide('oving-start')">Øv</button>
-        <button id="btn-oving-samling" onclick="visSide('oving-samling')">Samling</button>
+        <button id="btn-oving-samling" onclick="visOvingSamling()">Samling</button>
         <button class="btn-danger" onclick="tilbakeTilStart()">Avslutt</button>
     </nav>
 
-    <nav id="laerer-meny" style="display:none;">
-        <button id="btn-laerer-dashboard" class="active">Dashboard</button>
-        <button class="btn-danger" onclick="tilbakeTilStart()">Logg ut</button>
+    <nav id="laerer-meny" style="display:none; justify-content: space-between; align-items: center; padding: 0 15px;">
+        <span id="user-info" style="font-size:13px; color:#666; font-weight:500;"></span>
+        <div style="display:flex; gap:10px;">
+            <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard')">Dashboard</button>
+            <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover')">Lagrede Prøver</button>
+        </div>
+        <button class="btn-danger" onclick="loggUt()" style="padding: 8px 15px;">Logg ut</button>
     </nav>
-    
+
     <div id="elev-dashboard" class="page">
         <div class="card-container" id="elev-start-skjerm">
+            <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:#666; margin-bottom:5px;">
+                    <span>Mot neste kort:</span>
+                    <span id="quiz-progress-text">0 / 10</span>
+                </div>
+                <div id="quiz-progress-target" style="min-height: 25px;"></div>
+            </div>
+
             <h2>Klar for prøve?</h2>
-            <p>Skriv inn koden du fikk av læreren, eller skann QR.</p>
+            <p style="margin-bottom:15px; color:#666;">Skriv inn koden du fikk av læreren, eller skann QR.</p>
             
             <input type="text" id="prove-kode" placeholder="F.eks: ABC-123">
             <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
                 <button class="btn-primary" onclick="startProve()">Start Prøve</button>
                 <button class="btn-secondary" onclick="startQRScanner()">📷 Skann QR</button>
+            </div>
+
+            <div id="elev-lagrede-prover-container" style="display:none; margin-top:30px;">
+                <h4 style="margin-bottom:10px; color:#333;">Dine prøver (Lagret i 7 dager)</h4>
+                <div id="elev-lagrede-liste" style="display:grid; gap:10px;"></div>
             </div>
         </div>
         
@@ -86,7 +114,6 @@
                 <span id="quiz-progress">1/10</span>
             </div>
             <h1 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h1>
-            
             <input type="text" id="quiz-input" placeholder="Svar her...">
             <button class="btn-primary" onclick="sjekkSvar()">Svar</button>
             <button class="btn-secondary btn-small" onclick="lesOppProve()">🔊 Les opp</button>
@@ -96,98 +123,171 @@
     <div id="oving-start" class="page">
         <div id="oving-valg" class="card-container">
             <h2>Velg Nivå</h2>
-            
             <div class="credit-progress-container">
                 <div class="credit-label">
-                    <span>Progresjon mot neste kort</span>
-                    <span id="credit-progress-text-oving">0 poeng</span>
+                    <span>Mot neste bonuspoeng (100 xp)</span>
+                    <span id="menu-credits-text">0 / 100</span>
                 </div>
-                <div class="credit-track">
-                    <div class="credit-fill" id="credit-progress-bar-oving"></div>
+                <div class="yellow-track">
+                    <div class="yellow-fill" id="menu-credits-bar"></div>
                 </div>
             </div>
-
+            
             <div class="trinn-grid" style="display:grid; gap:10px; margin: 20px 0;">
-                <button class="trinn-btn" onclick="startOving('1-2')">1. - 2. Trinn</button>
-                <button class="trinn-btn" onclick="startOving('3-4')">3. - 4. Trinn</button>
-                <button class="trinn-btn" onclick="startOving('5-7')">5. - 7. Trinn</button>
+                <button class="trinn-btn" onclick="startOving('niva1')">Nivå 1</button>
+                <button class="trinn-btn" onclick="startOving('niva2')">Nivå 2</button>
+                <button class="trinn-btn" onclick="startOving('niva3')">Nivå 3</button>
             </div>
-
+            
             <div class="lang-toggle" style="margin: 20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button class="lang-btn" id="lang-no" onclick="settSprakRetning('no')">
-                    <span style="font-size:24px;">🇳🇴</span><br>Skriv Norsk
-                </button>
-                <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')">
-                    <span style="font-size:24px;">🇬🇧</span><br>Write English
-                </button>
+                <button class="lang-btn" id="lang-no" onclick="settSprakRetning('no')"><span style="font-size:24px;">🇳🇴</span><br>Skriv Norsk</button>
+                <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')"><span style="font-size:24px;">🇬🇧</span><br>Write English</button>
             </div>
-        
-       <div id="oving-omraade" class="card-container" style="display:none;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span id="oving-score" style="font-weight:bold; color:var(--primary);">0 riktige</span>
+        </div> 
+
+        <div id="oving-omraade" class="card-container" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span id="oving-score" style="font-weight:bold; color:var(--accent-blue);">0 riktige i dag</span>
                 <button class="btn-small btn-danger" onclick="avsluttOving()">Avslutt</button>
             </div>
-            
-            <div class="credit-track" style="margin-top:10px; margin-bottom:20px;">
-                <div class="credit-fill" id="credit-progress-bar-oving"></div>
+            <div id="game-progress-target"></div>
+            <div style="text-align:center; font-size:13px; color:#888; margin-bottom:30px;">
+                <span id="game-progress-text">Start jakten på nytt kort!</span>
             </div>
-            <div style="text-align:right; font-size:12px; color:#888; margin-top:-15px; margin-bottom:20px;">
-                <span id="credit-progress-text-oving">0</span> til neste poeng
-            </div>
-            
             <h1 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h1>
-            
             <div style="text-align:center; margin-bottom:20px;">
                  <button class="btn-secondary btn-small" onclick="lesOppOving()">🔊 Les opp</button>
             </div>
-
-            <div id="oving-alternativer" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                </div>
-            
+            <div id="oving-alternativer" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;"></div>
             <div id="oving-input-container">
                 <input type="text" id="oving-svar" placeholder="Skriv svaret..." autocomplete="off">
                 <button class="btn-primary" onclick="sjekkOvingSvar()">Svar</button>
             </div>
-            
             <p id="oving-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;"></p>
         </div>
+    </div>
 
     <div id="elev-samling" class="page">
-        <div class="samling-header">
+        <div class="bank-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="font-size:24px; font-weight:bold;">💎 <span class="antall-diamanter">0</span></span>
+                <span style="font-size:12px; color:#666;">Neste bonus om:</span>
+            </div>
+            <div class="yellow-track"><div class="yellow-fill samling-bonus-bar"></div></div>
+            <div style="text-align:right; font-size:11px; color:#999; margin-top:2px;"><span class="bonus-tekst">0 / 100 XP</span></div>
+            <div style="background:#e3f2fd; border: 1px solid #bbdefb; border-radius:8px; padding:10px; margin-top:15px; font-size:13px; display:flex; gap:10px; align-items:center;">
+                <span style="font-size:24px;">♻️</span>
+                <span><strong>PANT DUBLETTER!</strong><br>Har du to like kort? Trykk på dem for å "pante" dem. Da får du diamanter du kan bruke i butikken!</span>
+            </div>
+        </div>
+        <div class="samling-header" style="margin-top:20px;">
             <h2>Min Samling</h2>
             <button class="btn-small" onclick="byttSortering()">Sortering ↕️</button>
         </div>
-        <div id="samling-liste" class="samling-grid"></div>
+        <div class="samling-grid"></div>
     </div>
     
     <div id="oving-samling" class="page">
-        <div class="samling-header">
+        <div class="bank-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="font-size:24px; font-weight:bold;">💎 <span class="antall-diamanter">0</span></span>
+                <span style="font-size:12px; color:#666;">Neste bonus om:</span>
+            </div>
+            <div class="yellow-track"><div class="yellow-fill samling-bonus-bar"></div></div>
+            <div style="text-align:right; font-size:11px; color:#999; margin-top:2px;"><span class="bonus-tekst">0 / 100 XP</span></div>
+            <div style="background:#e3f2fd; border: 1px solid #bbdefb; border-radius:8px; padding:10px; margin-top:15px; font-size:13px; display:flex; gap:10px; align-items:center;">
+                <span style="font-size:24px;">♻️</span>
+                <span><strong>PANT DUBLETTER!</strong><br>Har du to like kort? Trykk på dem for å "pante" dem. Da får du diamanter du kan bruke i butikken!</span>
+            </div>
+        </div>
+        <div class="samling-header" style="margin-top:20px;">
             <h2>Min Samling</h2>
             <button class="btn-small" onclick="byttSortering()">Sortering ↕️</button>
         </div>
-        <div class="samling-grid"></div> </div>
+        <div class="samling-grid"></div>
+    </div>
 
     <div id="laerer-dashboard" class="page">
         <div class="card-container">
             <h2>Lærerportal 🍎</h2>
             <p>Lag en ny gloseprøve.</p>
-            
             <input type="text" id="prove-tittel" placeholder="Navn på prøve (f.eks Uke 42)">
-            
             <div class="input-group" style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
                 <h4>Legg til ord:</h4>
                 <input type="text" id="nytt-sporsmaal" placeholder="Norsk ord (Spørsmål)">
                 <input type="text" id="nytt-svar" placeholder="Engelsk ord (Svar)">
                 <button class="btn-secondary" onclick="leggTilOrd()">+ Legg til i listen</button>
             </div>
-            
             <h4>Ord i prøven:</h4>
             <ul id="editor-liste" class="bibliotek-liste" style="min-height:50px; border:1px dashed #ccc; padding:10px;"></ul>
-            
             <button class="btn-primary" onclick="lagreProve()">Lagre Prøve</button>
-            <p style="font-size:12px; color:#999; margin-top:10px;">
-                * Ved å lagre godtar du at en anonym kopi sendes til Glosebanken.
-            </p>
+            <p style="font-size:12px; color:#999; margin-top:10px;">* Ved å lagre godtar du at en anonym kopi sendes til Glosebanken.</p>
+        </div>
+    </div>
+
+    <div id="lagrede-prover" class="page">
+        <div class="card-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Mine Lagrede Prøver 📚</h2>
+                <button class="btn-secondary btn-small" onclick="oppdaterProveliste()">🔄 Oppdater</button>
+            </div>
+            <p style="color:#666; font-size:14px; margin-bottom:20px;">Her finner du alle prøvene du har lagret i skyen.</p>
+            <input type="text" id="prove-sok" placeholder="🔍 Søk etter prøver..." onkeyup="sokProver()" style="margin-bottom:20px;">
+            <div id="prover-loading" style="text-align:center; padding:40px; display:none;">
+                <div style="font-size:40px;">⏳</div><p style="color:#999;">Laster prøver...</p>
+            </div>
+            <div id="prover-tom" style="text-align:center; padding:40px; display:none;">
+                <div style="font-size:60px; margin-bottom:10px;">📝</div>
+                <h3 style="color:#999;">Ingen lagrede prøver</h3>
+                <button class="btn-primary" onclick="visSide('laerer-dashboard')" style="margin-top:20px;">Lag ny prøve</button>
+            </div>
+            <div id="prover-liste" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="laerer-login-popup" class="popup-overlay" style="display:none;">
+        <div class="popup-content" style="max-width: 450px;">
+            <h2>Lærer Innlogging 🍎</h2>
+            <button class="btn-primary" onclick="loggInnMedFeide()" style="background:#00509E; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">Logg inn med Feide</button>
+            <button class="btn-primary" onclick="loggInnMedGoogle()" style="background:#4285f4; width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">Logg inn med Google</button>
+            <div style="display:flex; align-items:center; margin:20px 0;"><div style="flex:1; height:1px; background:#e0e0e0;"></div><span style="padding:0 15px; color:#999; font-size:13px;">eller</span><div style="flex:1; height:1px; background:#e0e0e0;"></div></div>
+            <input type="email" id="laerer-email" placeholder="E-post" style="margin-bottom:10px; width:100%;">
+            <input type="password" id="laerer-passord" placeholder="Passord" style="margin-bottom:15px; width:100%;">
+            <button class="btn-secondary" onclick="loggInnMedEmail()" style="width:100%;">📧 Logg inn med E-post</button>
+            <p style="text-align:center; margin-top:20px; font-size:13px; color:#666;">Ingen konto? <a href="#" onclick="event.preventDefault(); visRegistrering();" style="color:var(--accent-blue);">Registrer deg her</a></p>
+            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-login-popup').style.display='none'" style="margin-top:15px; width:100%;">Avbryt</button>
+        </div>
+    </div>
+
+    <div id="laerer-register-popup" class="popup-overlay" style="display:none;">
+        <div class="popup-content" style="max-width: 400px;">
+            <h2>Opprett Lærerkonto 🍎</h2>
+            <input type="text" id="reg-navn" placeholder="Fullt navn" style="margin-bottom:10px;">
+            <input type="email" id="reg-email" placeholder="E-post" style="margin-bottom:10px;">
+            <input type="password" id="reg-passord" placeholder="Passord (min 6 tegn)" style="margin-bottom:10px;">
+            <input type="password" id="reg-passord-bekreft" placeholder="Bekreft passord" style="margin-bottom:15px;">
+            <button class="btn-primary" onclick="registrerLaerer()" style="width:100%;">Opprett konto</button>
+            <p style="text-align:center; margin-top:15px; font-size:13px; color:#666;">Har allerede konto? <a href="#" onclick="event.preventDefault(); visInnlogging();" style="color:var(--accent-blue);">Logg inn her</a></p>
+            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-register-popup').style.display='none'" style="margin-top:15px; width:100%;">Avbryt</button>
+        </div>
+    </div>
+
+    <div id="personvern-popup" class="popup-overlay" style="display:none;">
+        <div class="popup-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h2>🛡️ Velkommen!</h2>
+            <p>Vi lagrer kun nødvendig informasjon. Se <a href="personvern.html" target="_blank">personvern.html</a> for detaljer.</p>
+            <div style="display:flex; gap:10px; margin-top:25px;">
+                <button class="btn-primary" onclick="godtaPersonvern()" style="flex:1;">✅ Jeg godtar</button>
+                <button class="btn-secondary" onclick="avvisPersonvern()" style="flex:1;">❌ Avvis</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="changelog-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
+        <div class="popup-content" style="max-width: 500px;" onclick="event.stopPropagation()">
+            <h2>📋 v0.9.0-BETA</h2>
+            <p>✅ Ny lagringsstruktur (Storage)<br>✅ iOS Installasjonshjelp<br>✅ Forbedret ytelse</p>
+            <button class="btn-secondary" onclick="document.getElementById('changelog-popup').style.display='none'" style="width:100%; margin-top:20px;">Lukk</button>
         </div>
     </div>
 
@@ -203,65 +303,74 @@
     <div id="scanner-popup" class="popup-overlay">
         <div class="popup-content" style="background:black; padding:0;">
             <video id="qr-video" style="width:100%; height:300px; object-fit:cover;"></video>
-            <div style="padding:15px;">
-                <button class="btn-danger" onclick="lukkScanner()">Lukk Kamera</button>
+            <div style="padding:15px;"><button class="btn-danger" onclick="lukkScanner()">Lukk Kamera</button></div>
+        </div>
+    </div>
+    
+    <div id="upgrade-modal" class="popup-overlay" style="z-index: 10000;">
+        <div class="popup-content" style="text-align:center; max-width:400px;">
+            <div style="font-size:50px;">💎</div>
+            <h2>Oppgrader GloseMester</h2>
+            <p>Du har brukt opp din gratiskvote på 1 prøve.</p>
+            <p>For å lagre ubegrenset med prøver, må du oppgradere til <strong>Premium Lærer</strong>.</p>
+            
+            <div style="background:#f0f9ff; padding:15px; border-radius:8px; margin:20px 0; text-align:left;">
+                <strong>Premium gir deg:</strong>
+                <ul style="margin-left:20px; margin-top:5px; color:#444;">
+                    <li>✅ Ubegrenset antall prøver</li>
+                    <li>✅ Tilgang til fremtidig statistikk</li>
+                    <li>✅ Prioritert support</li>
+                </ul>
             </div>
+
+            <button class="btn-primary" onclick="alert('Betalingsløsning kommer snart!');" style="width:100%; margin-bottom:10px;">Oppgrader nå (49,- /mnd)</button>
+            <button class="btn-secondary" onclick="document.getElementById('upgrade-modal').style.display='none'" style="width:100%;">Kanskje senere</button>
         </div>
     </div>
     
     <div id="info-modal" class="popup-overlay">
-        <div class="popup-content">
-            <h2>Om GloseMester</h2>
-            <p>GloseMester er utviklet for å motivere elever gjennom spillmekanikk.</p>
-            <h3>Priser for Skoler</h3>
-            <p>Kontakt oss for lisensavtale.</p>
-            <button class="btn-secondary" onclick="this.parentElement.parentElement.style.display='none'">Lukk</button>
+        <div class="popup-content" style="max-width:550px;">
+            <h2>Om GloseMester 💎</h2>
+            <p>Gjør glosepugging om til en skattejakt!</p>
+            
+            <h4 class="sales-header">🏫 For Skoler & Lærere</h4>
+            <ul class="sales-list">
+                <li>✅ <strong>Trygt & Enkelt:</strong> Logg inn med FEIDE. GDPR-vennlig.</li>
+                <li>✅ <strong>Spar Tid:</strong> Bruk "Øv Selv" for mengdetrening uten retting.</li>
+                <li>✅ <strong>Motivasjon:</strong> Elevene jakter på legendariske kort mens de lærer.</li>
+            </ul>
+
+            <h4 class="sales-header">🧒 For Elever</h4>
+            <ul class="sales-list">
+                <li>🦖 Samle dinosaurer, biler, guder og dyr.</li>
+                <li>♻️ <strong>Nyhet!</strong> Pant dubletter i Diamant-banken.</li>
+                <li>🎉 Lær engelsk, vinn premier.</li>
+            </ul>
+
+            <button class="btn-secondary" onclick="this.parentElement.parentElement.style.display='none'" style="width:100%; margin-top:10px;">Lukk</button>
         </div>
     </div>
 
+    <div id="ios-install-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
+        <div class="popup-content ios-prompt">
+            <h3 style="margin-top:0;">📲 Installer GloseMester</h3>
+            <p>Slik installerer du appen på iPhone/iPad:</p>
+            <div style="text-align:left; margin: 15px 0; font-size:14px;">
+                <p>1. Trykk på <strong>Del-knappen</strong> <span style="font-size:18px;">⎋</span> i menyen.</p>
+                <p>2. Scroll ned og velg <strong>Legg til på Hjem-skjerm</strong> <span style="font-size:18px;">➕</span>.</p>
+            </div>
+            <div class="ios-arrow">⬇️</div>
+            <button class="btn-secondary" onclick="document.getElementById('ios-install-popup').style.display='none'" style="width:100%;">Forstått</button>
+        </div>
+    </div>
+
+    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.9.0-BETA</div>
+
     <script src="js/vocabulary.js"></script>
     <script src="js/collection.js"></script>
-    
-    <script src="js/init.js"></script>
-
     <script type="module">
+        import './js/init.js';
         import './js/app.js';
-
-        // Importer alle funksjoner vi trenger i HTML
-        import { velgRolle, tilbakeTilStart, visSide } from './js/core/navigation.js';
-        import { startOving, sjekkOvingSvar, byttOvingRetning, lesOppOving, avsluttOving } from './js/features/practice.js';
-        import { startProve, sjekkSvar, lesOppProve } from './js/features/quiz.js';
-        import { leggTilOrd, slettOrd, lagreProve } from './js/features/teacher.js';
-        import { startQRScanner, lukkScanner } from './js/features/qr-scanner.js';
-        import { visSamling, byttSortering, lukkKort } from './js/features/kort-display.js';
-        
-        // Koble funksjonene til window (slik at onclick="..." virker)
-        window.velgRolle = velgRolle;
-        window.tilbakeTilStart = tilbakeTilStart;
-        window.visSide = visSide;
-        
-        window.startOving = startOving;
-        window.sjekkOvingSvar = sjekkOvingSvar;
-        window.byttOvingRetning = byttOvingRetning;
-        window.lesOppOving = lesOppOving;
-        window.avsluttOving = avsluttOving;
-        
-        window.startProve = startProve;
-        window.sjekkSvar = sjekkSvar;
-        window.lesOppProve = lesOppProve;
-        
-        window.leggTilOrd = leggTilOrd;
-        window.slettOrd = slettOrd;
-        window.lagreProve = lagreProve;
-        
-        window.startQRScanner = startQRScanner;
-        window.lukkScanner = lukkScanner;
-        
-        window.visSamling = visSamling;
-        window.byttSortering = byttSortering;
-        window.lukkKort = lukkKort;
-        
-        console.log("🔗 Alt koblet opp fra index.html!");
     </script>
 </body>
 </html>

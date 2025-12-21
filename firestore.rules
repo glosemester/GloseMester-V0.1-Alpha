@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // REGLER FOR BRUKERE (Lærere)
+    match /users/{userId} {
+      // Du kan kun lese/skrive din egen brukerprofil
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // REGLER FOR PRØVER
+    match /prover/{document=**} {
+      // 1. ELEVER (Uinnlogget):
+      // Kan HENTE en spesifikk prøve hvis de har ID-en (get).
+      // Kan IKKE liste opp alle prøver (list).
+      allow get: if true;
+      allow list: if false; 
+
+      // 2. LÆRERE (Innlogget):
+      // Kan opprette nye prøver (hvis auth er på plass)
+      allow create: if request.auth != null;
+      
+      // Kan kun endre/slette prøver de SELV har laget (sjekker 'opprettet_av' feltet)
+      allow update, delete: if request.auth != null && resource.data.opprettet_av == request.auth.uid;
+      
+      // Kan liste opp sine EGNE prøver
+      allow list: if request.auth != null && resource.data.opprettet_av == request.auth.uid;
+    }
+  }
+}

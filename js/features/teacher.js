@@ -1,87 +1,198 @@
-// ============================================
-// TEACHER.JS - Lærerportal & Glosebank
-// ============================================
-import { db, auth, collection, addDoc, serverTimestamp } from './firebase.js'; // Sjekk at stien stemmer
-import { visToast, spillLyd } from '../ui/helpers.js';
+/* ============================================
+   TEACHER.JS - v0.8.0 (Med Free-Tier Sperre)
+   ============================================ */
 
-let editorOrd = [];
+import { visToast, spillLyd } from '../ui/helpers.js';
+import { 
+    db, 
+    collection, 
+    addDoc, 
+    serverTimestamp, 
+    auth, 
+    query, 
+    where, 
+    getDocs, 
+    getDoc, 
+    doc 
+} from './firebase.js';
+
+let ordliste = [];
+
+// --- HJELPEFUNKSJON: SJEKK ABONNEMENT ---
+async function sjekkOmBrukerKanLagre() {
+    const user = auth.currentUser;
+    if (!user) return false;
+
+    try {
+        // 1. Hent brukerens status fra 'users' collection
+        let status = 'free';
+        const userDocRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userDocRef);
+        
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            status = data.abonnement?.status || 'free';
+        }
+
+        // HVIS PREMIUM/SKOLE: ALLTID OK
+        if (status === 'premium' || status === 'school') {
+            return true;
+        }
+
+        // HVIS GRATIS: SJEKK ANTALL PRØVER
+        if (status === 'free') {
+            const q = query(
+                collection(db, "prover"), 
+                where("opprettet_av", "==", user.uid)
+            );
+            const querySnapshot = await getDocs(q);
+            
+            // GRATIS-GRENSE: 1 PRØVE
+            // Hvis de har 1 eller flere, stopp dem.
+            if (querySnapshot.size >= 1) {
+                return false; 
+            }
+            return true; // Har 0 prøver fra før
+        }
+
+        return true; // Fallback
+
+    } catch (e) {
+        console.error("Feil ved sjekk av kvote:", e);
+        // Ved feil (f.eks. nettverk), tillat lagring for ikke å ødelegge brukeropplevelsen
+        return true; 
+    }
+}
+
+// --- EDITOR FUNKSJONER ---
 
 export function leggTilOrd() {
-    const spm = document.getElementById('nytt-sporsmaal').value;
-    const svar = document.getElementById('nytt-svar').value;
+    const spmInput = document.getElementById('nytt-sporsmaal');
+    const svarInput = document.getElementById('nytt-svar');
     
-    if(spm && svar) {
-        editorOrd.push({ sporsmaal: spm, svar: svar });
-        oppdaterEditorListe();
+    const spm = spmInput.value.trim();
+    const svar = svarInput.value.trim();
+    
+    if (spm && svar) {
+        ordliste.push({ s: spm, e: svar }); // Bruker kortformat (s/e) som i resten av appen
+        
+        // UI Feedback
         spillLyd('klikk');
         
-        // Tøm felt og sett fokus
-        document.getElementById('nytt-sporsmaal').value = '';
-        document.getElementById('nytt-svar').value = '';
-        document.getElementById('nytt-sporsmaal').focus();
+        // Nullstill feltene og sett fokus tilbake
+        spmInput.value = '';
+        svarInput.value = '';
+        spmInput.focus();
+        
+        oppdaterListeUI();
+    } else {
+        visToast("Fyll ut begge feltene", "error");
     }
 }
 
 export function slettOrd(index) {
-    editorOrd.splice(index, 1);
-    oppdaterEditorListe();
+    ordliste.splice(index, 1);
+    spillLyd('klikk');
+    oppdaterListeUI();
 }
 
-function oppdaterEditorListe() {
-    const liste = document.getElementById('editor-liste');
-    liste.innerHTML = editorOrd.map((ord, i) => `
-        <li>
-            <b>${ord.sporsmaal}</b> - ${ord.svar}
-            <button onclick="slettOrd(${i})" class="btn-slett">🗑️</button>
-        </li>
-    `).join('');
+function oppdaterListeUI() {
+    const listeEl = document.getElementById('editor-liste');
+    if (!listeEl) return;
+    
+    listeEl.innerHTML = '';
+    
+    if (ordliste.length === 0) {
+        listeEl.innerHTML = '<li style="color:#999; font-style:italic; padding:10px;">Ingen ord lagt til ennå...</li>';
+        return;
+    }
+
+    ordliste.forEach((ord, index) => {
+        const li = document.createElement('li');
+        li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; background:#f9f9f9; border-radius:6px; margin-bottom:5px;";
+        li.innerHTML = `
+            <span><b>${ord.s}</b> → ${ord.e}</span>
+            <button onclick="slettOrd(${index})" class="btn-small btn-danger" style="padding:5px 10px;">🗑️</button>
+        `;
+        listeEl.appendChild(li);
+    });
 }
+
+// --- LAGRING MED SPERRE ---
 
 export async function lagreProve() {
-    const tittel = document.getElementById('prove-tittel').value;
-    if(!tittel || editorOrd.length === 0) {
-        alert("Du må ha en tittel og minst ett ord.");
+    const tittelInput = document.getElementById('prove-tittel');
+    const tittel = tittelInput.value.trim();
+    
+    if (!tittel) {
+        alert("Prøven må ha et navn!");
+        return;
+    }
+    
+    if (ordliste.length < 1) { // Endret til 1 for testing, men sett gjerne til 3
+        alert("Legg til minst ett ordpar.");
         return;
     }
     
     const user = auth.currentUser;
-    if(!user) {
+    if (!user) {
         alert("Du må være logget inn.");
         return;
     }
 
+    visToast("⏳ Sjekker abonnement...", "info");
+
+    // 🛑 1. SJEKK OM DE HAR LOV (Gratis-kvote)
+    const kanLagre = await sjekkOmBrukerKanLagre();
+    
+    if (!kanLagre) {
+        // Vis oppgraderings-modal (definert i index.html)
+        const modal = document.getElementById('upgrade-modal');
+        if(modal) modal.style.display = 'flex';
+        visToast("Gratis-kvote oppbrukt", "error");
+        return; // AVBRYT
+    }
+
+    // 2. LAGRE HVIS OK
     try {
-        // 1. Lagre til Lærerens private bibliotek
+        console.log('💾 Lagrer prøve:', tittel);
+        
+        // A. Lagre til Lærerens bibliotek
         const docRef = await addDoc(collection(db, "prover"), {
             tittel: tittel,
-            ord: editorOrd,
-            eierId: user.uid,
-            opprettet: serverTimestamp()
+            ordliste: ordliste,
+            opprettet_av: user.uid,
+            opprettet_navn: user.displayName || user.email || "Lærer",
+            opprettet_dato: serverTimestamp(),
+            sokbare_tags: [tittel.toLowerCase()]
         });
         
-        // 2. SHADOW SAVE (Til Glosebanken - Anonymt)
-        // Vi sjekker ikke om de har betalt her ennå, vi bare samler data ;)
-        await addDoc(collection(db, "felles_prover"), {
-            tittel: tittel,
-            ord: editorOrd, // Selve innholdet
-            kilde: "Lærer-bidrag",
-            godkjent: false, // Må godkjennes av deg før den vises offentlig
-            opprettet: serverTimestamp()
-        });
+        console.log('✅ Prøve lagret med ID:', docRef.id);
 
+        // B. SHADOW SAVE (Din gamle funksjonalitet - beholder denne)
+        await addDoc(collection(db, "glosebank"), {
+            tittel: tittel,
+            ordliste: ordliste,
+            kilde: "Lærer-bidrag",
+            godkjent: false,
+            opprettet_dato: serverTimestamp()
+        });
+        
+        // Suksess UI
         spillLyd('vinn');
-        visToast('Prøve lagret! (Kopi sendt til Glosebanken)', 'success');
+        visToast("✅ Prøve lagret!", "success");
         
-        // Reset
-        editorOrd = [];
-        document.getElementById('prove-tittel').value = '';
-        oppdaterEditorListe();
+        // Nullstill skjema
+        tittelInput.value = '';
+        ordliste = [];
+        oppdaterListeUI();
         
-        // Gå tilbake til dashboard (hvis du har navigasjon funksjonen tilgjengelig)
-        if(window.visSide) window.visSide('laerer-dashboard');
+        // Oppdater listen og naviger
+        if(window.oppdaterProveliste) window.oppdaterProveliste();
+        if(window.visSide) setTimeout(() => window.visSide('lagrede-prover'), 1000);
 
     } catch (e) {
-        console.error("Feil ved lagring:", e);
-        alert("Noe gikk galt ved lagring.");
+        console.error("Feil ved lagring: ", e);
+        visToast("Kunne ikke lagre prøven. Sjekk konsoll.", "error");
     }
 }
