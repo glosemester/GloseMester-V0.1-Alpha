@@ -9,10 +9,12 @@
     <link rel="icon" href="icon.png">
     
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/kort.css">
-    <link rel="stylesheet" href="css/popups.css">
+    <link rel="stylesheet" href="css/glosebank-admin.css">
+    <link rel="stylesheet" href="css/glosebank-browse.css">
+    <link rel="stylesheet" href="css/standardprover.css">
     
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     
     <style>
         .version-tag {
@@ -21,11 +23,6 @@
             cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.9);
             padding: 5px 10px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .version-tag:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        
-        .sales-list { text-align: left; margin: 15px 0; font-size: 14px; color: #444; }
-        .sales-list li { margin-bottom: 8px; }
-        .sales-header { color: #0071e3; margin-top: 15px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -46,42 +43,64 @@
                 <span class="role-icon">💪</span><h3>Øv Selv</h3><p>Velg nivå og samle kort</p>
             </div>
             <div class="role-card" onclick="velgRolle('kode')">
-                <span class="role-icon">🎓</span><h3>Har Kode</h3><p>Ta prøve fra lærer</p>
+                <span class="role-icon">📝</span><h3>GlosePrøve</h3><p>Har du prøvekode?</p>
             </div>
             <div class="role-card" onclick="velgRolle('laerer')">
                 <span class="role-icon">🍎</span><h3>Lærer</h3><p>Lag prøver</p>
             </div>
         </div>
 
-        <button id="pwa-install-btn" class="btn-primary" onclick="installerApp()" style="display:none; margin: 30px auto; background-color: #2563EB; max-width: 300px;">
+        <button id="pwa-install-btn" class="btn-primary" style="display:none; margin: 30px auto; background-color: #2563EB; max-width: 300px;">
             📲 Installer App på mobilen
         </button>
 
         <div style="text-align:center; margin-top:40px;">
-            <button class="btn-secondary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
+            <button class="btn-primary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
+        </div>
+        
+        <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #999;">
+            <a href="personvern.html" style="color: #999; text-decoration: underline;">Personvernerklæring</a>
+            &nbsp; • &nbsp; v0.7.6-BETA
         </div>
     </div>
 
     <nav id="elev-meny" style="display:none;">
         <button id="btn-elev-dashboard" onclick="visSide('elev-dashboard')">Hjem</button>
-        <button id="btn-elev-samling" onclick="visSide('elev-samling'); visSamling()">Samling</button>
+        <button id="btn-elev-samling" onclick="visSide('elev-samling'); visSamling()">Mine Kort</button>
+        <button id="btn-galleri" onclick="visGalleriSide()">🏆 Galleri</button> 
         <button class="btn-danger" onclick="tilbakeTilStart()">Logg ut</button>
     </nav>
 
     <nav id="oving-meny" style="display:none;">
         <button id="btn-oving-start" onclick="visSide('oving-start')">Øv</button>
         <button id="btn-oving-samling" onclick="visOvingSamling()">Samling</button>
+        <button id="btn-oving-galleri" onclick="visGalleriSide()">🏆 Galleri</button>
         <button class="btn-danger" onclick="tilbakeTilStart()">Avslutt</button>
     </nav>
 
-    <nav id="laerer-meny" style="display:none; justify-content: space-between; align-items: center; padding: 0 15px;">
-        <span id="user-info" style="font-size:13px; color:#666; font-weight:500;"></span>
-        <div style="display:flex; gap:10px;">
-            <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard')">Dashboard</button>
-            <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover')">Lagrede Prøver</button>
+    <nav id="laerer-meny" class="laerer-nav" style="display:none;">
+        <button id="hamburger-btn" class="hamburger-btn" aria-label="Meny">
+            <span class="hamburger-icon">☰</span>
+            <span class="hamburger-text">Meny</span>
+        </button>
+        
+        <span id="user-info" class="user-info"></span>
+        
+        <div class="nav-actions">
+            <button class="btn-primary nav-action-btn" onclick="tilbakeTilStart()">🏠 Hjem</button>
         </div>
-        <button class="btn-danger" onclick="loggUt()" style="padding: 8px 15px;">Logg ut</button>
     </nav>
+
+    <div id="nav-items" class="nav-items">
+        <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard'); lukkHamburger()">📊 Dashboard</button>
+        <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover'); lukkHamburger()">📝 Lagrede Prøver</button>
+        <button id="btn-standardprover" onclick="visSide('standardprover'); lukkHamburger()">📚 Standardprøver</button>
+        <button id="btn-glosebank-browse" onclick="visSide('glosebank-browse'); lukkHamburger()" style="display:none;">📚 GloseBank</button>
+        <button id="btn-admin-panel" onclick="visSide('admin-panel'); lukkHamburger()" style="display:none;">🔧 Admin</button>
+        <button onclick="loggUt()" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">🚪 Logg ut</button>
+    </div>
+
+    <div id="hamburger-overlay" class="hamburger-overlay" onclick="lukkHamburger()"></div>
 
     <div id="elev-dashboard" class="page">
         <div class="card-container" id="elev-start-skjerm">
@@ -99,7 +118,7 @@
             <input type="text" id="prove-kode" placeholder="F.eks: ABC-123">
             <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
                 <button class="btn-primary" onclick="startProve()">Start Prøve</button>
-                <button class="btn-secondary" onclick="startQRScanner()">📷 Skann QR</button>
+                <button class="btn-primary" onclick="startQRScanner()">📷 Skann QR</button>
             </div>
 
             <div id="elev-lagrede-prover-container" style="display:none; margin-top:30px;">
@@ -113,10 +132,13 @@
                 <h3>Prøve</h3>
                 <span id="quiz-progress">1/10</span>
             </div>
+            
+            <div id="quiz-progress-target" style="margin: 20px 0;"></div>
+            
             <h1 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h1>
             <input type="text" id="quiz-input" placeholder="Svar her...">
             <button class="btn-primary" onclick="sjekkSvar()">Svar</button>
-            <button class="btn-secondary btn-small" onclick="lesOppProve()">🔊 Les opp</button>
+            <button class="btn-primary btn-small" onclick="lesOppProve()">🔊 Les opp</button>
         </div>
     </div>
 
@@ -132,59 +154,42 @@
                     <div class="yellow-fill" id="menu-credits-bar"></div>
                 </div>
             </div>
-            
-            <div class="trinn-grid" style="display:grid; gap:10px; margin: 20px 0;">
-                <button class="trinn-btn" onclick="startOving('niva1')">Nivå 1</button>
-                <button class="trinn-btn" onclick="startOving('niva2')">Nivå 2</button>
-                <button class="trinn-btn" onclick="startOving('niva3')">Nivå 3</button>
+            <div class="trinn-grid">
+               <button class="trinn-btn" onclick="startOving('niva1')">⭐ Nivå 1 (Begynner)</button>
+               <button class="trinn-btn" onclick="startOving('niva2')">⭐⭐ Nivå 2 (Middels)</button>
+               <button class="trinn-btn" onclick="startOving('niva3')">⭐⭐⭐ Nivå 3 (Ekspert)</button>
             </div>
-            
-            <div class="lang-toggle" style="margin: 20px 0; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button class="lang-btn" id="lang-no" onclick="settSprakRetning('no')"><span style="font-size:24px;">🇳🇴</span><br>Skriv Norsk</button>
-                <button class="lang-btn" id="lang-en" onclick="settSprakRetning('en')"><span style="font-size:24px;">🇬🇧</span><br>Write English</button>
-            </div>
-        </div> 
+        </div>
+    </div>
 
-        <div id="oving-omraade" class="card-container" style="display:none;">
+    <div id="oving-omraade" class="page">
+        <div class="card-container">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <span id="oving-score" style="font-weight:bold; color:var(--accent-blue);">0 riktige i dag</span>
                 <button class="btn-small btn-danger" onclick="avsluttOving()">Avslutt</button>
             </div>
-            <div id="game-progress-target"></div>
+            
+            <div id="game-progress-target" style="margin-bottom: 20px;"></div>
+
             <div style="text-align:center; font-size:13px; color:#888; margin-bottom:30px;">
                 <span id="game-progress-text">Start jakten på nytt kort!</span>
             </div>
+            
             <h1 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h1>
+            
             <div style="text-align:center; margin-bottom:20px;">
-                 <button class="btn-secondary btn-small" onclick="lesOppOving()">🔊 Les opp</button>
+                 <button class="btn-primary btn-small" onclick="lesOppOving()">🔊 Les opp</button>
             </div>
+            
             <div id="oving-alternativer" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;"></div>
+            
             <div id="oving-input-container">
                 <input type="text" id="oving-svar" placeholder="Skriv svaret..." autocomplete="off">
                 <button class="btn-primary" onclick="sjekkOvingSvar()">Svar</button>
             </div>
+            
             <p id="oving-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;"></p>
         </div>
-    </div>
-
-    <div id="elev-samling" class="page">
-        <div class="bank-container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <span style="font-size:24px; font-weight:bold;">💎 <span class="antall-diamanter">0</span></span>
-                <span style="font-size:12px; color:#666;">Neste bonus om:</span>
-            </div>
-            <div class="yellow-track"><div class="yellow-fill samling-bonus-bar"></div></div>
-            <div style="text-align:right; font-size:11px; color:#999; margin-top:2px;"><span class="bonus-tekst">0 / 100 XP</span></div>
-            <div style="background:#e3f2fd; border: 1px solid #bbdefb; border-radius:8px; padding:10px; margin-top:15px; font-size:13px; display:flex; gap:10px; align-items:center;">
-                <span style="font-size:24px;">♻️</span>
-                <span><strong>PANT DUBLETTER!</strong><br>Har du to like kort? Trykk på dem for å "pante" dem. Da får du diamanter du kan bruke i butikken!</span>
-            </div>
-        </div>
-        <div class="samling-header" style="margin-top:20px;">
-            <h2>Min Samling</h2>
-            <button class="btn-small" onclick="byttSortering()">Sortering ↕️</button>
-        </div>
-        <div class="samling-grid"></div>
     </div>
     
     <div id="oving-samling" class="page">
@@ -195,9 +200,14 @@
             </div>
             <div class="yellow-track"><div class="yellow-fill samling-bonus-bar"></div></div>
             <div style="text-align:right; font-size:11px; color:#999; margin-top:2px;"><span class="bonus-tekst">0 / 100 XP</span></div>
+            
             <div style="background:#e3f2fd; border: 1px solid #bbdefb; border-radius:8px; padding:10px; margin-top:15px; font-size:13px; display:flex; gap:10px; align-items:center;">
                 <span style="font-size:24px;">♻️</span>
-                <span><strong>PANT DUBLETTER!</strong><br>Har du to like kort? Trykk på dem for å "pante" dem. Da får du diamanter du kan bruke i butikken!</span>
+                <span>
+                    <strong>PANT DUBLETTER!</strong><br>
+                    Har du to like kort? Trykk på dem for å bytte dem inn.<br>
+                    Du får et helt nytt kort i retur! (Pris: 1 💎)
+                </span>
             </div>
         </div>
         <div class="samling-header" style="margin-top:20px;">
@@ -207,54 +217,229 @@
         <div class="samling-grid"></div>
     </div>
 
+    <div id="elev-samling" class="page">
+        <div class="bank-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <span style="font-size:24px; font-weight:bold;">💎 <span class="antall-diamanter">0</span></span>
+                <span style="font-size:12px; color:#666;">Neste bonus om:</span>
+            </div>
+            <div class="yellow-track"><div class="yellow-fill samling-bonus-bar"></div></div>
+            <div style="text-align:right; font-size:11px; color:#999; margin-top:2px;"><span class="bonus-tekst">0 / 100 XP</span></div>
+            
+            <div style="background:#e3f2fd; border: 1px solid #bbdefb; border-radius:8px; padding:10px; margin-top:15px; font-size:13px; display:flex; gap:10px; align-items:center;">
+                <span style="font-size:24px;">♻️</span>
+                <span>
+                    <strong>PANT DUBLETTER!</strong><br>
+                    Har du to like kort? Trykk på dem for å bytte dem inn.<br>
+                    Du får et helt nytt kort i retur! (Pris: 1 💎)
+                </span>
+            </div>
+        </div>
+        <div class="samling-header" style="margin-top:20px;">
+            <h2>Min Samling</h2>
+            <button class="btn-small" onclick="byttSortering()">Sortering ↕️</button>
+        </div>
+        <div class="samling-grid"></div>
+    </div>
+
+    <div id="galleri-visning" class="page">
+        <div class="card-container">
+            <h2>🏆 Master Galleri</h2>
+            <p style="color:#666; margin-bottom:20px;">Se alle kort du kan samle</p>
+            <div id="galleri-container" class="samling-grid"></div>
+        </div>
+    </div>
+
     <div id="laerer-dashboard" class="page">
         <div class="card-container">
-            <h2>Lærerportal 🍎</h2>
-            <p>Lag en ny gloseprøve.</p>
-            <input type="text" id="prove-tittel" placeholder="Navn på prøve (f.eks Uke 42)">
-            <div class="input-group" style="background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
-                <h4>Legg til ord:</h4>
-                <input type="text" id="nytt-sporsmaal" placeholder="Norsk ord (Spørsmål)">
-                <input type="text" id="nytt-svar" placeholder="Engelsk ord (Svar)">
-                <button class="btn-secondary" onclick="leggTilOrd()">+ Legg til i listen</button>
+            <h2>Velkommen, Lærer!</h2>
+            <p style="color:#666; margin-bottom:30px;">Lag prøver, del med QR-kode og følg med på elevenes resultater.</p>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
+                <div class="bank-container" style="text-align:center; cursor:pointer;" onclick="visSide('lag-prove')">
+                    <div style="font-size:48px; margin-bottom:10px;">📝</div>
+                    <h3 style="margin:0; font-size:18px;">Lag Prøve</h3>
+                    <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Opprett ny ordlistetest</p>
+                </div>
+                <div class="bank-container" style="text-align:center; cursor:pointer;" onclick="visSide('lagrede-prover')">
+                    <div style="font-size:48px; margin-bottom:10px;">💾</div>
+                    <h3 style="margin:0; font-size:18px;">Mine Prøver</h3>
+                    <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Se og administrer</p>
+                </div>
             </div>
-            <h4>Ord i prøven:</h4>
-            <ul id="editor-liste" class="bibliotek-liste" style="min-height:50px; border:1px dashed #ccc; padding:10px;"></ul>
-            <button class="btn-primary" onclick="lagreProve()">Lagre Prøve</button>
-            <p style="font-size:12px; color:#999; margin-top:10px;">* Ved å lagre godtar du at en anonym kopi sendes til Glosebanken.</p>
+
+            <div id="abonnement-info" style="background:#F0F9FF; padding:20px; border-radius:12px; border:2px solid #BAE6FD; margin-bottom:20px;"></div>
+
+            <div style="background:#F9FAFB; padding:20px; border-radius:12px; border:1px solid #E5E7EB;">
+                <h3 style="margin:0 0 15px 0; font-size:16px; color:#374151;">🎁 Har du kampanjekode?</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="kampanje-input" placeholder="F.eks: BETA2026" style="flex:1; margin:0;">
+                    <button class="btn-primary" onclick="aktiverKampanjekode()" style="width:auto; padding:12px 25px; margin:0;">
+                        Aktiver
+                    </button>
+                </div>
+                <p style="margin:10px 0 0 0; font-size:12px; color:#6B7280;">
+                    Premium-koder gir tilgang til ubegrenset antall prøver, standardprøver og statistikk.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="lag-prove" class="page">
+        <div class="card-container">
+            <h2>Lag Ny Prøve</h2>
+            <input type="text" id="prove-tittel" placeholder="Tittel på prøven (f.eks. Familie)">
+            
+            <div style="background:#F0F9FF; padding:15px; border-radius:12px; margin:15px 0;">
+                <h3 style="margin:0 0 10px 0; font-size:15px;">➕ Legg til ord</h3>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="norsk-ord" placeholder="Norsk ord" style="flex:1; margin:0;">
+                    <input type="text" id="engelsk-ord" placeholder="English word" style="flex:1; margin:0;">
+                    <button class="btn-primary" onclick="leggTilOrd()" style="width:auto; padding:12px 20px; margin:0;">➕</button>
+                </div>
+            </div>
+
+            <div id="ordliste-preview" style="margin:20px 0;"></div>
+
+            <button class="btn-primary" onclick="lagreProve()">💾 Lagre Prøve</button>
         </div>
     </div>
 
     <div id="lagrede-prover" class="page">
         <div class="card-container">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2>Mine Lagrede Prøver 📚</h2>
-                <button class="btn-secondary btn-small" onclick="oppdaterProveliste()">🔄 Oppdater</button>
-            </div>
-            <p style="color:#666; font-size:14px; margin-bottom:20px;">Her finner du alle prøvene du har lagret i skyen.</p>
-            <input type="text" id="prove-sok" placeholder="🔍 Søk etter prøver..." onkeyup="sokProver()" style="margin-bottom:20px;">
-            <div id="prover-loading" style="text-align:center; padding:40px; display:none;">
-                <div style="font-size:40px;">⏳</div><p style="color:#999;">Laster prøver...</p>
-            </div>
-            <div id="prover-tom" style="text-align:center; padding:40px; display:none;">
-                <div style="font-size:60px; margin-bottom:10px;">📝</div>
-                <h3 style="color:#999;">Ingen lagrede prøver</h3>
-                <button class="btn-primary" onclick="visSide('laerer-dashboard')" style="margin-top:20px;">Lag ny prøve</button>
-            </div>
-            <div id="prover-liste" style="display:none;"></div>
+            <h2>Mine Lagrede Prøver</h2>
+            <p style="color:#666; margin-bottom:20px;">Alle dine opprettede prøver. Del med QR-kode eller prøvekode.</p>
+            <div id="prover-liste"></div>
         </div>
     </div>
+
+    <div id="standardprover" class="page">
+        <div class="card-container">
+            <h2>📚 Standardprøver</h2>
+            <p style="color:#666; margin-bottom:20px;">
+                Ferdiglagde prøver alignert med LK20. Kun tilgjengelig for Premium og Skolepakke.
+            </p>
+            
+            <div class="standardprover-filter" style="margin-bottom:20px;">
+                <label style="display:block; font-weight:600; margin-bottom:8px;">Filtrer etter nivå:</label>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button id="filter-alle" class="filter-btn active" onclick="filtrerStandardprover('alle')">Alle</button>
+                    <button id="filter-barneskole" class="filter-btn" onclick="filtrerStandardprover('Barneskole')">Barneskole (1-7)</button>
+                    <button id="filter-ungdomsskole" class="filter-btn" onclick="filtrerStandardprover('Ungdomsskole')">Ungdomsskole (8-10)</button>
+                    <button id="filter-vgs" class="filter-btn" onclick="filtrerStandardprover('Videregående')">Videregående</button>
+                </div>
+            </div>
+            
+            <div id="standardprover-liste"></div>
+        </div>
+    </div>
+
+    <div id="glosebank-browse" class="page">
+        <div class="card-container">
+            <h2>📚 GloseBank</h2>
+            <p style="color:#666; margin-bottom:20px;">Søk og last ned prøver fra andre lærere. Kun tilgjengelig for Skolepakke.</p>
+            
+            <div class="glosebank-filter" style="margin-bottom:20px;">
+                <input type="text" id="glosebank-sok" placeholder="🔍 Søk etter prøver..." style="margin-bottom:10px;">
+                
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+                    <select id="filter-fag">
+                        <option value="">Alle fag</option>
+                        <option value="Engelsk">Engelsk</option>
+                        <option value="Norsk">Norsk</option>
+                        <option value="Matematikk">Matematikk</option>
+                    </select>
+                    <select id="filter-nivaa">
+                        <option value="">Alle nivå</option>
+                        <option value="Barneskole">Barneskole</option>
+                        <option value="Ungdomsskole">Ungdomsskole</option>
+                        <option value="Videregående">Videregående</option>
+                    </select>
+                    <select id="filter-sortering">
+                        <option value="nyeste">Nyeste først</option>
+                        <option value="rating">Høyest rating</option>
+                        <option value="populaer">Most populær</option>
+                    </select>
+                </div>
+            </div>
+            <div id="glosebank-liste"></div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="page">
+        <div class="card-container">
+            <h2>🔧 Admin-panel</h2>
+            <p style="color:#666; margin-bottom:20px;">Administrer GloseBank-prøver, brukere og systeminnstillinger.</p>
+            
+            <div class="admin-tabs" style="display: flex; gap: 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 30px; flex-wrap: wrap;">
+                <button id="tab-glosebank" class="admin-tab active" onclick="visFane('glosebank')" style="padding: 15px 25px; background: white; border: none; border-bottom: 3px solid #0071e3; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s;">📊 GloseBank</button>
+                <button id="tab-brukere" class="admin-tab" onclick="visFane('brukere')" style="padding: 15px 25px; background: white; border: none; border-bottom: 3px solid transparent; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; color: #666;">👥 Brukere</button>
+                <button id="tab-verktoy" class="admin-tab" onclick="visFane('verktoy')" style="padding: 15px 25px; background: white; border: none; border-bottom: 3px solid transparent; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; color: #666;">🛠️ Verktøy</button>
+            </div>
+            
+            <div id="fane-glosebank" class="admin-fane" style="display: block;">
+                <h3>📊 GloseBank-prøver</h3>
+                <p style="color:#666; margin-bottom:20px;">Godkjenn, rediger eller slett prøver fra GloseBank.</p>
+                <div class="filter-buttons" style="margin-bottom:20px; display:flex; gap:10px; flex-wrap: wrap;">
+                    <button id="filter-all" class="filter-btn" onclick="endreFilter('all')">Alle (<span id="filter-count-all">0</span>)</button>
+                    <button id="filter-pending" class="filter-btn active" onclick="endreFilter('pending')">⏳ Pending (<span id="filter-count-pending">0</span>)</button>
+                    <button id="filter-approved" class="filter-btn" onclick="endreFilter('approved')">✅ Godkjent (<span id="filter-count-approved">0</span>)</button>
+                </div>
+                <div id="glosebank-admin-liste"></div>
+            </div>
+            
+            <div id="fane-brukere" class="admin-fane" style="display: none;">
+                <h3>👥 Brukeradministrasjon</h3>
+                <p style="color:#666; margin-bottom:20px;">Administrer brukere, abonnementer og tilganger.</p>
+                <div id="brukeradmin-stats"></div>
+                <div id="brukeradmin-liste"></div>
+            </div>
+            
+            <div id="fane-verktoy" class="admin-fane" style="display: none;">
+                <h3>🛠️ Admin-verktøy</h3>
+                <p style="color:#666; margin-bottom:20px;">Systeminnstillinger og administrative verktøy.</p>
+                <div id="admin-verktoy-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .admin-tab:hover { background: #f5f5f5; color: #0071e3 !important; }
+        .admin-tab.active { border-bottom-color: #0071e3 !important; color: #0071e3 !important; }
+        .admin-fane { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 
     <div id="laerer-login-popup" class="popup-overlay" style="display:none;">
         <div class="popup-content" style="max-width: 450px;">
             <h2>Lærer Innlogging 🍎</h2>
-            <button class="btn-primary" onclick="loggInnMedFeide()" style="background:#00509E; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px;">Logg inn med Feide</button>
+            
+            <div class="feide-login-wrapper" style="margin-bottom: 20px;">
+                <button class="btn-primary" onclick="loggInnMedFeide()" style="background:#00509E; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom: 5px;">
+                    Logg inn med Feide (Skolelisens)
+                </button>
+                <p class="login-info-text" style="color: #666; font-size: 13px; text-align: center; line-height: 1.4; margin-top: 5px; margin-bottom: 0;">
+                    <small>
+                        <em>* Krever at din skole har avtale.<br>
+                        Mangler dere lisens? <a href="mailto:kontakt@glosemester.no" style="color: #00509E; text-decoration: underline;">Kontakt oss</a>.</em>
+                    </small>
+                </p>
+            </div>
             <button class="btn-primary" onclick="loggInnMedGoogle()" style="background:#4285f4; width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">Logg inn med Google</button>
-            <div style="display:flex; align-items:center; margin:20px 0;"><div style="flex:1; height:1px; background:#e0e0e0;"></div><span style="padding:0 15px; color:#999; font-size:13px;">eller</span><div style="flex:1; height:1px; background:#e0e0e0;"></div></div>
+            
+            <div style="display:flex; align-items:center; margin:20px 0;">
+                <div style="flex:1; height:1px; background:#e0e0e0;"></div>
+                <span style="padding:0 15px; color:#999; font-size:13px;">eller</span>
+                <div style="flex:1; height:1px; background:#e0e0e0;"></div>
+            </div>
+            
             <input type="email" id="laerer-email" placeholder="E-post" style="margin-bottom:10px; width:100%;">
             <input type="password" id="laerer-passord" placeholder="Passord" style="margin-bottom:15px; width:100%;">
-            <button class="btn-secondary" onclick="loggInnMedEmail()" style="width:100%;">📧 Logg inn med E-post</button>
+            
+            <button class="btn-primary" onclick="loggInnMedEmail()" style="width:100%;">📧 Logg inn med E-post</button>
+            
             <p style="text-align:center; margin-top:20px; font-size:13px; color:#666;">Ingen konto? <a href="#" onclick="event.preventDefault(); visRegistrering();" style="color:var(--accent-blue);">Registrer deg her</a></p>
+            
             <button class="btn-small btn-danger" onclick="document.getElementById('laerer-login-popup').style.display='none'" style="margin-top:15px; width:100%;">Avbryt</button>
         </div>
     </div>
@@ -278,20 +463,12 @@
             <p>Vi lagrer kun nødvendig informasjon. Se <a href="personvern.html" target="_blank">personvern.html</a> for detaljer.</p>
             <div style="display:flex; gap:10px; margin-top:25px;">
                 <button class="btn-primary" onclick="godtaPersonvern()" style="flex:1;">✅ Jeg godtar</button>
-                <button class="btn-secondary" onclick="avvisPersonvern()" style="flex:1;">❌ Avvis</button>
+                <button class="btn-primary" onclick="avvisPersonvern()" style="flex:1;">❌ Avvis</button>
             </div>
         </div>
     </div>
 
-    <div id="changelog-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
-        <div class="popup-content" style="max-width: 500px;" onclick="event.stopPropagation()">
-            <h2>📋 v0.9.0-BETA</h2>
-            <p>✅ Ny lagringsstruktur (Storage)<br>✅ iOS Installasjonshjelp<br>✅ Forbedret ytelse</p>
-            <button class="btn-secondary" onclick="document.getElementById('changelog-popup').style.display='none'" style="width:100%; margin-top:20px;">Lukk</button>
-        </div>
-    </div>
-
-    <div id="gevinst-popup" class="popup-overlay" onclick="lukkKort()">
+    <div id="gevinst-popup" class="popup-overlay" style="display:none;" onclick="lukkKort()">
         <div class="popup-content gevinst-content">
             <h2>🎉 ET KORT!</h2>
             <div id="gevinst-navn" style="font-size:24px; font-weight:bold; margin:10px 0;"></div>
@@ -299,78 +476,228 @@
             <p style="margin-top:20px; color:#666;">Trykk for å lukke</p>
         </div>
     </div>
+    
+    <div id="feil-svar-popup" class="popup-overlay" style="display:none; z-index: 15000;">
+        <div class="popup-content" style="text-align:center; border-top: 5px solid #ff3b30;">
+            <div style="font-size: 50px; margin-bottom: 10px;">😣</div>
+            <h2 style="color: #ff3b30; margin: 0 0 10px 0;">Søren heller!</h2>
+            <p style="color:#666; font-size: 14px; margin-bottom:5px;">Riktig svar var:</p>
+            <h3 id="fasit-tekst" style="font-size: 24px; color: #333; background: #f5f5f5; padding: 15px; border-radius: 10px; border: 1px dashed #ccc;">...</h3>
+            <button class="btn-primary" onclick="lukkFeilPopup()" style="width:100%; margin-top:20px; background-color: #333;">Neste ord ➡️</button>
+        </div>
+    </div>
 
-    <div id="scanner-popup" class="popup-overlay">
+    <div id="scanner-popup" class="popup-overlay" style="display:none;">
         <div class="popup-content" style="background:black; padding:0;">
             <video id="qr-video" style="width:100%; height:300px; object-fit:cover;"></video>
             <div style="padding:15px;"><button class="btn-danger" onclick="lukkScanner()">Lukk Kamera</button></div>
         </div>
     </div>
-    
-    <div id="upgrade-modal" class="popup-overlay" style="z-index: 10000;">
-        <div class="popup-content" style="text-align:center; max-width:400px;">
-            <div style="font-size:50px;">💎</div>
-            <h2>Oppgrader GloseMester</h2>
-            <p>Du har brukt opp din gratiskvote på 1 prøve.</p>
-            <p>For å lagre ubegrenset med prøver, må du oppgradere til <strong>Premium Lærer</strong>.</p>
-            
-            <div style="background:#f0f9ff; padding:15px; border-radius:8px; margin:20px 0; text-align:left;">
-                <strong>Premium gir deg:</strong>
-                <ul style="margin-left:20px; margin-top:5px; color:#444;">
-                    <li>✅ Ubegrenset antall prøver</li>
-                    <li>✅ Tilgang til fremtidig statistikk</li>
-                    <li>✅ Prioritert support</li>
-                </ul>
-            </div>
 
-            <button class="btn-primary" onclick="alert('Betalingsløsning kommer snart!');" style="width:100%; margin-bottom:10px;">Oppgrader nå (49,- /mnd)</button>
-            <button class="btn-secondary" onclick="document.getElementById('upgrade-modal').style.display='none'" style="width:100%;">Kanskje senere</button>
+    <div id="ios-install-popup" class="popup-overlay" style="display:none; z-index: 12000;">
+        <div class="popup-content" style="max-width:350px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">📲 Installer på iPhone</h3>
+                <button onclick="document.getElementById('ios-install-popup').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <p style="font-size:14px; line-height:1.5; margin-bottom:20px;">Apple tillater ikke automatisk installasjon. Gjør dette:</p>
+            <div style="background:#f5f5f7; padding:15px; border-radius:12px; font-size:14px;">
+                <div style="margin-bottom:12px; display:flex; align-items:center; gap:10px;"><span style="font-size:20px;">1️⃣</span> <span>Trykk på <strong>Del-knappen</strong> <br><span style="font-size:12px; color:#666;">(Ligger nederst eller øverst i nettleseren)</span></span></div>
+                <div style="margin-bottom:12px; display:flex; align-items:center; gap:10px;"><span style="font-size:20px;">2️⃣</span> <span>Scroll ned og velg <br><strong>"Legg til på Hjem-skjerm"</strong> ➕</span></div>
+                <div style="display:flex; align-items:center; gap:10px;"><span style="font-size:20px;">3️⃣</span> <span>Trykk <strong>"Legg til"</strong> oppe til høyre.</span></div>
+            </div>
+            <button class="btn-primary" onclick="document.getElementById('ios-install-popup').style.display='none'" style="margin-top:20px;">Jeg forstår 👍</button>
         </div>
     </div>
+
+    <div id="upgrade-modal" class="popup-overlay" style="display:none;" onclick="if(event.target === this) this.style.display='none'">
+        <div class="popup-content" style="max-width:600px; max-height:90vh; overflow-y:auto;" onclick="event.stopPropagation()">
+            <h2 style="margin-top:0;">⭐ Oppgrader til Premium</h2>
+            <p style="color:#666; margin-bottom:30px;">Få ubegrenset antall prøver, statistikk og tilgang til standardprøver.</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:30px;">
+                <div style="background:#F9FAFB; padding:20px; border-radius:12px; border:2px solid #E5E7EB;">
+                    <div style="font-size:14px; color:#6B7280; font-weight:600; margin-bottom:10px;">GRATIS</div>
+                    <div style="font-size:32px; font-weight:700; margin-bottom:5px;">0 kr</div>
+                    <div style="color:#666; font-size:13px; margin-bottom:20px;">For utprøving</div>
+                    <ul style="list-style:none; padding:0; margin:0 0 20px 0; font-size:13px;">
+                        <li style="padding:8px 0; border-bottom:1px solid #E5E7EB;">✅ 3 prøver</li>
+                        <li style="padding:8px 0; border-bottom:1px solid #E5E7EB;">✅ QR-deling</li>
+                        <li style="padding:8px 0; border-bottom:1px solid #E5E7EB;">❌ Statistikk</li>
+                        <li style="padding:8px 0; border-bottom:1px solid #E5E7EB;">❌ Rediger & Dupliser</li>
+                        <li style="padding:8px 0;">❌ Standardprøver</li>
+                    </ul>
+                    <button class="btn-primary" disabled style="width:100%; opacity:0.5;">Nåværende plan</button>
+                </div>
+                <div style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding:20px; border-radius:12px; border:3px solid #5B21B6; color:white; position:relative;">
+                    <div style="position:absolute; top:-12px; right:20px; background:#10B981; color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700;">ANBEFALT</div>
+                    <div style="font-size:14px; font-weight:600; margin-bottom:10px; opacity:0.9;">PREMIUM LÆRER</div>
+                    <div style="font-size:32px; font-weight:700; margin-bottom:5px;">99 kr/mnd</div>
+                    <div style="font-size:13px; margin-bottom:10px; opacity:0.9;">eller</div>
+                    <div style="font-size:24px; font-weight:700; margin-bottom:5px;">800 kr/år</div>
+                    <div style="font-size:13px; margin-bottom:20px; opacity:0.9;">(spar 388 kr)</div>
+                    <ul style="list-style:none; padding:0; margin:0 0 20px 0; font-size:13px;">
+                        <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.2);">✅ Ubegrenset prøver</li>
+                        <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.2);">✅ Statistikk & analyse</li>
+                        <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.2);">✅ Rediger & Dupliser</li>
+                        <li style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.2);">✅ 16 Standardprøver</li>
+                        <li style="padding:8px 0;">✅ Excel-eksport</li>
+                    </ul>
+                    <button onclick="startPremiumBetaling()" class="btn-primary" style="width:100%; background:white; color:#5B21B6; font-weight:700;">⭐ Oppgrader nå</button>
+                </div>
+            </div>
+            
+            <div style="background:#FFF7ED; padding:20px; border-radius:12px; border:2px solid #FDBA74; margin-bottom:20px;">
+                <h3 style="margin:0 0 10px 0; font-size:18px; color:#C2410C;">🏫 Skolepakker</h3>
+                <p style="color:#9A3412; font-size:14px; margin-bottom:15px;">Spesialtilbud for skoler og kommuner</p>
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <thead><tr style="background:rgba(194,65,12,0.1);"><th style="padding:10px; text-align:left; border-bottom:2px solid #FDBA74;">Antall lærere</th><th style="padding:10px; text-align:right; border-bottom:2px solid #FDBA74;">Pris per år</th><th style="padding:10px; text-align:right; border-bottom:2px solid #FDBA74;">Per lærer</th></tr></thead>
+                    <tbody>
+                        <tr><td style="padding:10px; border-bottom:1px solid #FED7AA;">1-5 lærere</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; font-weight:600;">5 000 kr</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; color:#059669;">1 000 kr</td></tr>
+                        <tr><td style="padding:10px; border-bottom:1px solid #FED7AA;">6-15 lærere</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; font-weight:600;">7 000 kr</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; color:#059669;">467-1167 kr</td></tr>
+                        <tr><td style="padding:10px;">16+ lærere</td><td style="padding:10px; text-align:right; font-weight:600;">10 000 kr</td><td style="padding:10px; text-align:right; color:#059669;">&lt;625 kr</td></tr>
+                    </tbody>
+                </table>
+                <button onclick="kontaktForSkolepakke()" class="btn-primary" style="width:100%; margin-top:20px; background:#C2410C; border:none;">📧 Kontakt oss for tilbud</button>
+            </div>
+            
+            <div style="background:#F0FDF4; padding:20px; border-radius:12px; border:2px solid #86EFAC; margin-bottom:20px;">
+                <h3 style="margin:0 0 10px 0; font-size:16px; color:#166534;">🎁 Har du kampanjekode?</h3>
+                <p style="color:#15803D; font-size:13px; margin-bottom:15px;">Aktiver kampanjekode for gratis premium-tilgang</p>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="kampanje-input-modal" placeholder="F.eks: BETA2026" style="flex:1; margin:0;">
+                    <button class="btn-primary" onclick="aktiverKampanjekode()" style="width:auto; padding:12px 25px; margin:0; background:#16A34A; border:none;">Aktiver</button>
+                </div>
+                <p style="margin:15px 0 0 0; font-size:12px; color:#15803D;">
+                    <strong>Tilgjengelige kampanjekoder:</strong><br>
+                    • <code>BETA2026</code> - 90 dager Premium<br>
+                    • <code>LANSERING</code> - 30 dager Premium<br>
+                    • <code>TEST30</code> - 30 dager Premium<br>
+                    • <code>SKOLE2026</code> - 365 dager Skolepakke
+                </p>
+            </div>
+            <button class="btn-danger" onclick="document.getElementById('upgrade-modal').style.display='none'" style="width:100%; margin-top:20px;">Kanskje senere</button>
+        </div>
+    </div>
+
+    <script>
+        function startPremiumBetaling() {
+            alert("Betaling kommer snart!\n\nVi jobber med å integrere Vipps og Stripe.\n\nTil da kan du bruke kampanjekode 'BETA2026' for 3 måneders gratis tilgang.");
+            const input = document.getElementById('kampanje-input');
+            if (input) input.value = 'BETA2026';
+        }
+        function kontaktForSkolepakke() {
+            const user = auth?.currentUser;
+            const epost = user ? user.email : 'din@skole.no';
+            const subject = encodeURIComponent('Forespørsel om skolepakke - GloseMester');
+            const body = encodeURIComponent(`Hei!\n\nJeg er interessert i en skolepakke for GloseMester.\n\nSkole/Organisasjon: [Skriv inn]\nAntall lærere: [Skriv inn]\nKontaktperson: [Skriv inn]\nTelefon: [Skriv inn]\n\nMin e-post: ${epost}\n\nMvh`);
+            window.location.href = `mailto:kontakt@glosemester.no?subject=${subject}&body=${body}`;
+        }
+    </script>
     
-    <div id="info-modal" class="popup-overlay">
+    <div id="info-modal" class="popup-overlay" style="display:none;">
         <div class="popup-content" style="max-width:550px;">
             <h2>Om GloseMester 💎</h2>
             <p>Gjør glosepugging om til en skattejakt!</p>
-            
             <h4 class="sales-header">🏫 For Skoler & Lærere</h4>
             <ul class="sales-list">
-                <li>✅ <strong>Trygt & Enkelt:</strong> Logg inn med FEIDE. GDPR-vennlig.</li>
+                <li>✅ <strong>Trygt & Enkelt:</strong> GDPR-vennlig.</li>
                 <li>✅ <strong>Spar Tid:</strong> Bruk "Øv Selv" for mengdetrening uten retting.</li>
                 <li>✅ <strong>Motivasjon:</strong> Elevene jakter på legendariske kort mens de lærer.</li>
             </ul>
-
             <h4 class="sales-header">🧒 For Elever</h4>
             <ul class="sales-list">
                 <li>🦖 Samle dinosaurer, biler, guder og dyr.</li>
                 <li>♻️ <strong>Nyhet!</strong> Pant dubletter i Diamant-banken.</li>
                 <li>🎉 Lær engelsk, vinn premier.</li>
             </ul>
-
-            <button class="btn-secondary" onclick="this.parentElement.parentElement.style.display='none'" style="width:100%; margin-top:10px;">Lukk</button>
-        </div>
-    </div>
-
-    <div id="ios-install-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
-        <div class="popup-content ios-prompt">
-            <h3 style="margin-top:0;">📲 Installer GloseMester</h3>
-            <p>Slik installerer du appen på iPhone/iPad:</p>
-            <div style="text-align:left; margin: 15px 0; font-size:14px;">
-                <p>1. Trykk på <strong>Del-knappen</strong> <span style="font-size:18px;">⎋</span> i menyen.</p>
-                <p>2. Scroll ned og velg <strong>Legg til på Hjem-skjerm</strong> <span style="font-size:18px;">➕</span>.</p>
+            <div style="margin-top:30px; padding-top:20px; border-top:1px solid #eee;">
+                <p style="font-size:14px; font-weight:bold; margin-bottom:10px;">Fant du en feil eller har du et tips?</p>
+                <div style="display:flex; gap:10px;">
+                    <a href="mailto:system@glosemester.no" class="btn-primary" style="flex:1; text-decoration:none; font-size:13px; display:flex; align-items:center; justify-content:center;">🐞 Meld feil (System)</a>
+                    <a href="mailto:kontakt@glosemester.no" class="btn-primary" style="flex:1; text-decoration:none; font-size:13px; display:flex; align-items:center; justify-content:center;">✉️ Kontakt Oss</a>
+                </div>
             </div>
-            <div class="ios-arrow">⬇️</div>
-            <button class="btn-secondary" onclick="document.getElementById('ios-install-popup').style.display='none'" style="width:100%;">Forstått</button>
+            <button class="btn-primary" onclick="this.parentElement.parentElement.style.display='none'" style="width:100%; margin-top:20px; background:#f0f0f0;">Lukk vindu</button>
+        </div>
+    </div>
+    
+    <div id="changelog-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
+        <div class="popup-content" style="max-width: 500px;" onclick="event.stopPropagation()">
+            <h2>📋 v0.7.6-BETA</h2>
+            <p><strong>🎉 Hamburger-meny redesign (FERDIG)</strong><br>
+            ✅ Hamburger-meny ALLTID synlig (Desktop/Mobil)<br>
+            ✅ Clean code structure (Drawer flyttet ut)<br>
+            ✅ Ingen z-index konflikter<br>
+            ✅ Navne-visning fikset (Navn/Google/Epost)<br>
+            ✅ Dobbeltklikk-bug fikset</p>
+            <button class="btn-primary" onclick="document.getElementById('changelog-popup').style.display='none'" style="width:100%; margin-top:20px;">Lukk</button>
         </div>
     </div>
 
-    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.9.0-BETA</div>
+    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.7.6-BETA</div>
 
-    <script src="js/vocabulary.js"></script>
-    <script src="js/collection.js"></script>
-    <script type="module">
-        import './js/init.js';
-        import './js/app.js';
-    </script>
+    <script type="module" src="js/init.js"></script>
+<!-- SKOLEPAKKE MODAL -->
+<div id="skolepakke-modal" class="popup-overlay" style="display:none;">
+    <div class="popup-content" style="max-width:600px;">
+        <button class="popup-close" onclick="lukkPopup('skolepakke-modal')">×</button>
+        
+        <h2 style="text-align:center; margin-bottom:10px;">🏫 Skolepakke</h2>
+        <p style="text-align:center; color:#666; margin-bottom:30px;">
+            GloseMester for hele skolen - fra 5000 kr/år
+        </p>
+        
+        <!-- Forespørselsskjema -->
+        <form id="skolepakke-form" onsubmit="event.preventDefault(); sendSchoolInquiry();" style="margin-top:25px;">
+            <h3 style="margin-bottom:15px;">Send forespørsel:</h3>
+            
+            <label style="display:block; margin-bottom:15px;">
+                <span style="display:block; margin-bottom:5px; font-weight:500;">Skolens navn *</span>
+                <input type="text" id="school-name" required placeholder="Eks: Levanger Ungdomsskole" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+            </label>
+            
+            <label style="display:block; margin-bottom:15px;">
+                <span style="display:block; margin-bottom:5px; font-weight:500;">Organisasjonsnummer *</span>
+                <input type="text" id="org-number" required placeholder="9 siffer" pattern="[0-9]{9}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+            </label>
+            
+            <label style="display:block; margin-bottom:15px;">
+                <span style="display:block; margin-bottom:5px; font-weight:500;">Kontaktperson *</span>
+                <input type="text" id="contact-person" required placeholder="Fullt navn" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+            </label>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                <label style="display:block;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">E-post *</span>
+                    <input type="email" id="contact-email" required placeholder="navn@skole.no" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                </label>
+                
+                <label style="display:block;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Telefon *</span>
+                    <input type="tel" id="contact-phone" required placeholder="8 siffer" pattern="[0-9]{8}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                </label>
+            </div>
+            
+            <label style="display:block; margin-bottom:15px;">
+                <span style="display:block; margin-bottom:5px; font-weight:500;">Antall lærere *</span>
+                <select id="teacher-count" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    <option value="">Velg...</option>
+                    <option value="1-5">1-5 lærere</option>
+                    <option value="6-15">6-15 lærere</option>
+                    <option value="16+">16+ lærere</option>
+                </select>
+            </label>
+            
+            <label style="display:block; margin-bottom:20px;">
+                <span style="display:block; margin-bottom:5px; font-weight:500;">Melding (valgfritt)</span>
+                <textarea id="school-message" rows="3" placeholder="Har dere spørsmål eller spesielle behov?" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; resize:vertical;"></textarea>
+            </label>
+            
+            <button type="submit" class="btn-primary" style="width:100%; padding:12px; font-size:16px;">
+                Send forespørsel
+            </button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

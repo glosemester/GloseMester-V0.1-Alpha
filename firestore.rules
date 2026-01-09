@@ -1,30 +1,77 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // REGLER FOR BRUKERE (Lærere)
-    match /users/{userId} {
-      // Du kan kun lese/skrive din egen brukerprofil
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    
+    // Admin har full tilgang til alt
+    function isAdmin() {
+      return request.auth != null && 
+             request.auth.uid == 'QrFRB6xQDnVQsiSd0bzE6rH8z4x2';
     }
-
-    // REGLER FOR PRØVER
-    match /prover/{document=**} {
-      // 1. ELEVER (Uinnlogget):
-      // Kan HENTE en spesifikk prøve hvis de har ID-en (get).
-      // Kan IKKE liste opp alle prøver (list).
-      allow get: if true;
-      allow list: if false; 
-
-      // 2. LÆRERE (Innlogget):
-      // Kan opprette nye prøver (hvis auth er på plass)
+    
+    // GloseBank - admin har full tilgang
+    match /glosebank/{glosebankId} {
+      allow read: if request.auth != null && 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'skolepakke'
+                      || isAdmin());
+      
+      allow write: if isAdmin();
+    }
+    
+    // GloseBank Ratings
+    match /glosebank_ratings/{ratingId} {
+      allow read: if request.auth != null;
       allow create: if request.auth != null;
+      allow update: if request.auth != null && resource.data.bruker_id == request.auth.uid;
+    }
+    
+    // Standardprøver - premium/skolepakke + admin
+    match /standardprover/{proveId} {
+      allow read: if request.auth != null && 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'premium'
+                      || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'skolepakke'
+                      || isAdmin());
       
-      // Kan kun endre/slette prøver de SELV har laget (sjekker 'opprettet_av' feltet)
-      allow update, delete: if request.auth != null && resource.data.opprettet_av == request.auth.uid;
-      
-      // Kan liste opp sine EGNE prøver
-      allow list: if request.auth != null && resource.data.opprettet_av == request.auth.uid;
+      allow write: if isAdmin();
+    }
+    
+    // Users - admin kan lese/skrive alle
+    match /users/{userId} {
+      allow read: if request.auth != null && 
+                     (request.auth.uid == userId || isAdmin());
+      allow write: if request.auth != null && 
+                      (request.auth.uid == userId || isAdmin());
+    }
+    
+    // Prøver - admin kan lese/skrive alle
+    match /prover/{proveId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && 
+                              (resource.data.opprettet_av == request.auth.uid || isAdmin());
+    }
+    
+    // Resultater
+    match /resultater/{resultatId} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow update, delete: if request.auth != null && 
+                              (resource.data.prove_eier == request.auth.uid || isAdmin());
+    }
+    
+    // School inquiries (Skolepakke-forespørsler) - NY!
+    match /school_inquiries/{inquiryId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Orders (Vipps-betalinger) - NY!
+    match /orders/{orderId} {
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if request.auth != null;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

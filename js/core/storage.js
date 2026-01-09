@@ -1,226 +1,148 @@
-// ============================================
-// STORAGE.JS - GloseMester v1.0 (SECURED)
-// Håndterer LocalStorage med obfuskering (Anti-Juks)
-// ============================================
+/* ============================================
+   STORAGE.JS - Sikker lagring v0.9.5
+   Håndterer Kort, XP, Diamanter OG Elev-prøver
+   ============================================ */
 
-const getBruker = () => window.brukerNavn || "Spiller";
+const STORAGE_KEY = 'glosemester_samling';
+const CREDITS_KEY = 'glosemester_credits';
+const XP_KEY = 'glosemester_xp';
+const ELEV_PROVER_KEY = 'glosemester_elev_prover'; // NYTT
 
-// 🛡️ SIKKERHET: Enkel XOR-kryptering for å hindre redigering av poeng
-// Dette hindrer elever i å endre "10" til "9999" i Inspector.
-const SALT = "GM_2025_NO_CHEAT_KEY_X9";
-
-const safeSave = (key, value) => {
-    try {
-        const textStr = String(value);
-        let result = '';
-        // XOR Cipher
-        for (let i = 0; i < textStr.length; i++) {
-            result += String.fromCharCode(textStr.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-        }
-        // Base64 Encode for lagring
-        const encoded = btoa(result);
-        localStorage.setItem(key, encoded);
-    } catch (e) {
-        console.error("❌ Feil ved sikker lagring:", e);
-    }
-};
-
-const safeLoad = (key) => {
-    try {
-        const encoded = localStorage.getItem(key);
-        if (!encoded) return 0;
-
-        // Base64 Decode
-        const text = atob(encoded);
-        let result = '';
-        // XOR Decipher
-        for (let i = 0; i < text.length; i++) {
-            result += String.fromCharCode(text.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-        }
-        
-        const num = parseInt(result);
-        
-        // Sjekk: Er resultatet et faktisk tall?
-        if (isNaN(num)) {
-            throw new Error("Korrupt data");
-        }
-        return num;
-
-    } catch (e) {
-        console.warn(`⚠️ Jukse-forsøk eller korrupt data oppdaget for ${key}. Resetter til 0.`);
-        // STRAFF: Hvis dataen er tuklet med, nullstill poengene.
-        localStorage.removeItem(key); 
-        return 0;
-    }
-};
-
-// ============================================
-// PUBLIC API (Uendret signatur)
-// ============================================
-
-export function getSamling() {
-    try {
-        const navn = getBruker();
-        const data = localStorage.getItem('samling_' + navn);
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        console.error('❌ Feil ved henting av samling:', e);
-        return [];
-    }
+// Hent brukernavn (brukes som nøkkel hvis flere spiller på samme enhet)
+function getUserKey(baseKey) {
+    const user = window.brukerNavn || "Spiller";
+    return `${baseKey}_${user}`;
 }
 
-export function setSamling(samling) {
-    try {
-        const navn = getBruker();
-        localStorage.setItem('samling_' + navn, JSON.stringify(samling));
-    } catch (e) {
-        console.error('❌ Feil ved lagring av samling:', e);
-    }
+// --- KORTSAMLING ---
+
+export function getSamling() {
+    const raw = localStorage.getItem(getUserKey(STORAGE_KEY));
+    return raw ? JSON.parse(raw) : [];
+}
+
+export function setSamling(nySamling) {
+    localStorage.setItem(getUserKey(STORAGE_KEY), JSON.stringify(nySamling));
 }
 
 export function lagreBrukerKort(kort) {
-    const samling = getSamling();
-    samling.push(kort);
-    setSamling(samling);
-    console.log('✅ Kort lagret sikkert:', kort.navn);
-}
-
-// --- SECURED FUNCTIONS START ---
-
-export function getCredits() {
-    const navn = getBruker();
-    return safeLoad('credits_' + navn); // Bruker nå safeLoad
-}
-
-export function saveCredits(antall) {
-    const navn = getBruker();
-    safeSave('credits_' + navn, antall); // Bruker nå safeSave
-}
-
-export function getTotalCorrect() {
-    const navn = getBruker();
-    return safeLoad('total_correct_' + navn); // Bruker nå safeLoad
-}
-
-export function saveTotalCorrect(antall) {
-    const navn = getBruker();
-    safeSave('total_correct_' + navn, antall); // Bruker nå safeSave
-}
-
-// --- SECURED FUNCTIONS END ---
-
-export async function hentLokaleProver() {
-    let lokaleData = [];
-    try {
-        const rawLocal = localStorage.getItem('lokale_prover');
-        lokaleData = rawLocal ? JSON.parse(rawLocal) : [];
-        
-        if (navigator.onLine) {
-            const fb = await import('../features/firebase.js');
-            const user = fb.auth.currentUser;
-
-            if (user) {
-                console.log("☁️ Henter prøver fra skyen...");
-                const q = fb.query(
-                    fb.collection(fb.db, "prover"), 
-                    fb.where("opprettet_av", "==", user.uid),
-                    fb.orderBy("opprettet_dato", "desc")
-                );
-                
-                const querySnapshot = await fb.getDocs(q);
-                const cloudData = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    cloudData.push({ 
-                        id: doc.id, 
-                        tittel: data.tittel || data.navn || "Uten navn",
-                        ordliste: data.ordliste || [],
-                        opprettet_dato: data.opprettet_dato
-                    });
-                });
-
-                localStorage.setItem('lokale_prover', JSON.stringify(cloudData));
-                return cloudData;
-            }
-        }
-    } catch (e) {
-        console.warn("⚠️ Kunne ikke hente fra skyen, bruker lokal cache.", e);
+    if (!kort || !kort.id) {
+        console.error("Forsokte a lagre ugyldig kort:", kort);
+        return;
     }
-    return lokaleData;
-}
 
-export async function lagreLokaleProver(prove) {
-    let bib = [];
-    try {
-        bib = JSON.parse(localStorage.getItem('lokale_prover')) || [];
-    } catch(e) {}
+    let samling = getSamling();
     
-    const nyProve = {
-        id: prove.id || Date.now().toString(),
-        tittel: prove.tittel || prove.navn || "Ny Prøve",
-        ordliste: prove.ordliste || [],
-        opprettet_dato: prove.opprettet_dato || new Date().toISOString()
+    // Legg til dato for når kortet ble vunnet
+    const kortMedData = {
+        ...kort,
+        vunnetDato: new Date().toISOString()
     };
     
-    bib.push(nyProve);
-    localStorage.setItem('lokale_prover', JSON.stringify(bib));
-
-    try {
-        if (navigator.onLine) {
-            const fb = await import('../features/firebase.js');
-            const user = fb.auth.currentUser;
-
-            if (user) {
-                console.log("☁️ Lagrer backup i skyen...");
-                const docData = {
-                    tittel: nyProve.tittel,
-                    ordliste: nyProve.ordliste,
-                    opprettet_av: user.uid,
-                    opprettet_dato: fb.serverTimestamp()
-                };
-                await fb.addDoc(fb.collection(fb.db, "prover"), docData);
-                console.log("✅ Lagret i skyen!");
-            }
-        }
-    } catch (e) {
-        console.error("❌ Feil ved skylagring (storage.js):", e);
-    }
+    samling.push(kortMedData);
+    setSamling(samling);
+    
+    // Fiks for undefined-feilen: Sjekk både name og navn
+    const kortNavn = kort.name || kort.navn || "Ukjent kort";
+    console.log(`Kort lagret sikkert: ${kortNavn}`);
 }
 
+// --- DIAMANTER (CREDITS) ---
+
+export function getCredits() {
+    const raw = localStorage.getItem(getUserKey(CREDITS_KEY));
+    return raw ? parseInt(raw, 10) : 0; // Standard: 0 diamanter
+}
+
+export function saveCredits(amount) {
+    localStorage.setItem(getUserKey(CREDITS_KEY), amount);
+}
+
+// --- TOTAL XP (Progresjon) ---
+
+export function getTotalCorrect() {
+    const raw = localStorage.getItem(getUserKey(XP_KEY));
+    return raw ? parseInt(raw, 10) : 0;
+}
+
+export function saveTotalCorrect(amount) {
+    localStorage.setItem(getUserKey(XP_KEY), amount);
+}
+
+// ==============================================
+// NYTT: ELEV-PRØVER (7-dagers lagring)
+// ==============================================
+
+/**
+ * Lagrer en prøve lokalt for eleven (7 dagers cache)
+ */
 export function lagreElevProveLokalt(proveData) {
-    let historikk = hentElevProverLokalt();
-    const id = proveData.id || "ukjent_" + Date.now();
+    const prover = hentElevProverLokalt();
     
-    historikk = historikk.filter(p => p.id !== id);
+    // Sjekk om prøven allerede finnes
+    const eksisterende = prover.findIndex(p => p.id === proveData.id);
     
-    historikk.unshift({
-        id: id,
-        tittel: proveData.tittel || "Navnløs Prøve",
-        ordliste: proveData.ord || proveData.ordliste,
+    const proveObjekt = {
+        id: proveData.id,
+        tittel: proveData.tittel,
+        ordliste: proveData.ordliste,
         lagretDato: Date.now(),
         utloperDato: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 dager
-    });
+    };
     
-    localStorage.setItem('elev_prove_historikk', JSON.stringify(historikk));
+    if (eksisterende > -1) {
+        // Oppdater eksisterende
+        prover[eksisterende] = proveObjekt;
+    } else {
+        // Legg til ny
+        prover.push(proveObjekt);
+    }
+    
+    // Lagre tilbake
+    localStorage.setItem(getUserKey(ELEV_PROVER_KEY), JSON.stringify(prover));
+    console.log(`Prove lagret lokalt: ${proveData.tittel}`);
 }
 
+/**
+ * Henter alle lagrede prøver for eleven
+ * Fjerner automatisk utløpte prøver
+ */
 export function hentElevProverLokalt() {
+    const raw = localStorage.getItem(getUserKey(ELEV_PROVER_KEY));
+    if (!raw) return [];
+    
     try {
-        const raw = localStorage.getItem('elev_prove_historikk');
-        if (!raw) return [];
+        const prover = JSON.parse(raw);
+        const now = Date.now();
         
-        let liste = JSON.parse(raw);
-        const naa = Date.now();
+        // Filtrer bort utløpte prøver
+        const aktiveProver = prover.filter(p => p.utloperDato > now);
         
-        const gyldige = liste.filter(p => p.utloperDato > naa);
-        
-        if (gyldige.length !== liste.length) {
-            localStorage.setItem('elev_prove_historikk', JSON.stringify(gyldige));
+        // Lagre tilbake den rensede listen
+        if (aktiveProver.length !== prover.length) {
+            localStorage.setItem(getUserKey(ELEV_PROVER_KEY), JSON.stringify(aktiveProver));
+            console.log(`Fjernet ${prover.length - aktiveProver.length} utlopte prover`);
         }
         
-        return gyldige;
-    } catch (e) {
+        return aktiveProver;
+    } catch (error) {
+        console.error("Feil ved henting av elev-prover:", error);
         return [];
     }
+}
+
+/**
+ * Sletter en spesifikk prøve
+ */
+export function slettElevProveLokalt(proveId) {
+    const prover = hentElevProverLokalt();
+    const filtrert = prover.filter(p => p.id !== proveId);
+    localStorage.setItem(getUserKey(ELEV_PROVER_KEY), JSON.stringify(filtrert));
+}
+
+/**
+ * Sletter alle elev-prøver
+ */
+export function tomElevProverLokalt() {
+    localStorage.removeItem(getUserKey(ELEV_PROVER_KEY));
 }

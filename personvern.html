@@ -159,8 +159,8 @@
 <body>
     <div class="container">
         <h1>🛡️ Personvernerklæring</h1>
-        <p><strong>GloseMester v0.9.0-BETA</strong></p>
-        <p><em>Sist oppdatert: 20. desember 2025</em></p>
+        <p><strong>GloseMester v0.7.4-BETA</strong></p>
+        <p><em>Sist oppdatert: 8. januar 2025</em></p>
 
         <div class="highlight-box">
             <h3>📌 Kort oppsummert:</h3>
@@ -188,7 +188,7 @@
             </tr>
             <tr>
                 <th>E-post</th>
-                <td><a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></td>
+                <td><a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></td>
             </tr>
             <tr>
                 <th>Rolle</th>
@@ -203,8 +203,9 @@
         <ul>
             <li>Elever øver på gloser og samler digitale monsterkort</li>
             <li>Unike bilder generert spesielt for GloseMester</li>
-            <li>Lærere kan lage egne prøver og dele koder (krever betaling)</li>
+            <li>Lærere kan lage egne prøver og dele koder</li>
             <li>Alt elevdata lagres lokalt på brukerens enhet (ingen sentral database)</li>
+            <li><strong>Nytt i v0.7.4:</strong> Lærere kan duplisere og redigere prøver</li>
         </ul>
 
         <h2>2.1 Behandlingsansvarlig for betalende kunder</h2>
@@ -214,7 +215,7 @@
             <ul>
                 <li><strong>E-postadresse:</strong> For faktura og kommunikasjon</li>
                 <li><strong>Betalingsinformasjon:</strong> Via Stripe/Vipps (vi lagrer IKKE kortnummer)</li>
-                <li><strong>Skolekode:</strong> Unik identifikator for tilgangskontroll</li>
+                <li><strong>Brukerprofil:</strong> Prøver, innstillinger, brukerstatistikk</li>
                 <li><strong>Kjøpshistorikk:</strong> For regnskapsformål (lovpålagt)</li>
             </ul>
             <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
@@ -263,25 +264,41 @@
             </tr>
             <tr>
                 <td>E-postadresse</td>
-                <td>Kommunikasjon, faktura</td>
-                <td>Firebase (kryptert)</td>
+                <td>Kommunikasjon, faktura, innlogging</td>
+                <td>Firebase Authentication (kryptert)</td>
             </tr>
             <tr>
-                <td>Skolekode</td>
-                <td>Tilgangskontroll</td>
-                <td>Firebase (kryptert)</td>
+                <td>Navn (valgfritt)</td>
+                <td>Personalisering</td>
+                <td>Firebase Firestore (kryptert)</td>
             </tr>
             <tr>
                 <td>Kjøpshistorikk</td>
                 <td>Regnskap (lovpålagt)</td>
-                <td>Firebase (kryptert)</td>
+                <td>Firebase Firestore (kryptert)</td>
             </tr>
             <tr>
-                <td>Prøver (innhold)</td>
+                <td>Prøver (innhold og ordlister)</td>
                 <td>Lagring av egne prøver</td>
-                <td>Firebase (kryptert)</td>
+                <td>Firebase Firestore (kryptert)</td>
+            </tr>
+            <tr>
+                <td>Brukerstatistikk (anonym)</td>
+                <td>Antall gjennomføringer, ikke individuelle resultater</td>
+                <td>Firebase Firestore (kryptert)</td>
             </tr>
         </table>
+
+        <div class="warning-box">
+            <h3>🆕 Ny i v0.7.4: Brukeradministrasjon</h3>
+            <p>For administrativ styring av brukerkontoer lagres også:</p>
+            <ul>
+                <li><strong>Abonnementsstatus:</strong> Free, Premium, eller Skolepakke</li>
+                <li><strong>Utløpsdato:</strong> For betalte abonnementer</li>
+                <li><strong>Rolle:</strong> Lærer eller Admin</li>
+            </ul>
+            <p>Denne informasjonen brukes kun til tilgangskontroll og er ikke synlig for andre brukere.</p>
+        </div>
 
         <h2>4. Hva samler vi IKKE inn?</h2>
 
@@ -292,9 +309,10 @@
                 <li>❌ Fødselsnumre</li>
                 <li>❌ Telefonnumre (unntatt Vipps-betaling)</li>
                 <li>❌ IP-adresser eller lokasjonsdata</li>
-                <li>❌ Elevernes svar eller resultater</li>
+                <li>❌ Elevernes individuelle svar eller resultater</li>
                 <li>❌ Hvilke elever som bruker appen</li>
                 <li>❌ Skoletilhørighet (for elever)</li>
+                <li>❌ Biometriske data</li>
             </ul>
         </div>
 
@@ -303,9 +321,9 @@
         <h3>5.1 Betalende brukere (lærere/skoler):</h3>
         <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
         <ul>
-            <li>E-post, navn, org.nr nødvendig for fakturering</li>
+            <li>E-post, navn nødvendig for fakturering og kommunikasjon</li>
             <li>Betalingsinfo nødvendig for gjennomføring av kjøp</li>
-            <li>Kjøpshistorikk lovpålagt (regnskapsloven)</li>
+            <li>Kjøpshistorikk lovpålagt (regnskapsloven § 13)</li>
         </ul>
 
         <h3>5.2 Lokal lagring (localStorage):</h3>
@@ -323,11 +341,19 @@
                 <th>Tjeneste</th>
                 <th>Formål</th>
                 <th>Data delt</th>
+                <th>Lokasjon</th>
             </tr>
             <tr>
                 <td>Firebase (Google Cloud)</td>
                 <td>Database for betalende kunder</td>
-                <td>E-post, skolekode, kjøpshistorikk</td>
+                <td>E-post, prøver, kjøpshistorikk</td>
+                <td>EU-region</td>
+            </tr>
+            <tr>
+                <td>Netlify</td>
+                <td>Hosting av nettside</td>
+                <td>Ingen persondata</td>
+                <td>Globalt CDN</td>
             </tr>
         </table>
 
@@ -378,8 +404,13 @@
                 <td>Manuell (GDPR-forespørsel)</td>
             </tr>
             <tr>
+                <td>Prøver og innhold</td>
+                <td>Til bruker sletter</td>
+                <td>Manuell (bruker kan slette selv)</td>
+            </tr>
+            <tr>
                 <td>Betalingsinformasjon</td>
-                <td>3 år etter siste kjøp</td>
+                <td>5 år etter siste kjøp</td>
                 <td>Automatisk (regnskapsloven)</td>
             </tr>
         </table>
@@ -400,12 +431,24 @@
             </ol>
         </div>
 
+        <h3>8.1 For lærere/betalende kunder:</h3>
+        <ul>
+            <li><strong>Innsyn:</strong> Du kan be om kopi av alle data vi har om deg</li>
+            <li><strong>Retting:</strong> Du kan rette feil i dine personopplysninger</li>
+            <li><strong>Sletting:</strong> Du kan be om å slette kontoen din</li>
+            <li><strong>Dataportabilitet:</strong> Du kan få data i maskinlesbart format</li>
+            <li><strong>Innsigelse:</strong> Du kan protestere på behandling av dine data</li>
+        </ul>
+        <p><strong>Kontakt:</strong> <a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></p>
+
         <h2>9. Informasjonssikkerhet</h2>
         <ul>
             <li>✅ <strong>HTTPS-kryptering</strong> - all kommunikasjon er kryptert</li>
             <li>✅ <strong>Lokal lagring</strong> - ingen sentral database å hacke (for elever)</li>
             <li>✅ <strong>Ingen sporing</strong> - ingen Google Analytics eller tracking</li>
             <li>✅ <strong>AES-256 kryptering</strong> - for betalingsdata (Firebase)</li>
+            <li>✅ <strong>Firebase Security Rules</strong> - tilgangskontroll per bruker</li>
+            <li>✅ <strong>Regular backups</strong> - daglige sikkerhetskopier</li>
         </ul>
 
         <h2>10. Informasjon til foreldre/foresatte</h2>
@@ -418,18 +461,35 @@
                 <li>✅ <strong>Ingen sporing:</strong> Vi vet ikke hvem som bruker appen</li>
                 <li>✅ <strong>Ingen annonser:</strong> Appen er reklamefri</li>
                 <li>✅ <strong>Gratis:</strong> Ingen skjulte kostnader eller in-app kjøp (for elever)</li>
+                <li>✅ <strong>Trygt innhold:</strong> Alle bilder og tekster er egenutviklet og barnevennlige</li>
             </ul>
         </div>
 
         <h2>11. Kontaktinformasjon</h2>
-        <p>For spørsmål, kontakt: <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></p>
+        <p>For spørsmål om personvern, kontakt:</p>
+        <ul>
+            <li><strong>E-post:</strong> <a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></li>
+            <li><strong>Behandlingsansvarlig:</strong> Øyvind Nilsen Oksvold</li>
+            <li><strong>Responstid:</strong> Innen 30 dager (GDPR-krav)</li>
+        </ul>
 
-        <h2>12. Lisenser og opphavsrett</h2>
+        <h2>12. Endringer i personvernerklæringen</h2>
+        <p>Vi forbeholder oss retten til å oppdatere denne personvernerklæringen. Ved vesentlige endringer vil brukere bli varslet via e-post (for registrerte brukere) eller på nettsiden.</p>
+        
+        <h3>Versjonhistorikk:</h3>
+        <ul>
+            <li><strong>v0.7.4-BETA (8. januar 2025):</strong> Oppdatert med brukeradministrasjon, dupliser prøver, anonym statistikk</li>
+            <li><strong>v0.7.0-BETA (20. desember 2024):</strong> Standardprøver, GloseBank, nye funksjoner</li>
+            <li><strong>v0.5.0-BETA (15. november 2024):</strong> Første offentlige versjon</li>
+        </ul>
+
+        <h2>13. Lisenser og opphavsrett</h2>
         
         <h3>Programvare og biblioteker:</h3>
         <ul>
             <li><strong>Firebase:</strong> Google Cloud Platform Terms</li>
             <li><strong>QRCode.js / jsQR:</strong> MIT / Apache 2.0 License</li>
+            <li><strong>Font Awesome (ikoner):</strong> CC BY 4.0 License</li>
         </ul>
 
         <h3>Innhold:</h3>
@@ -438,14 +498,13 @@
             Kopiering eller kommersiell bruk av bildene uten tillatelse er ikke tillatt.
         </p>
 
-        <div style="text-align: center;">
-            <a href="index.html" class="btn-back">← Tilbake til GloseMester</a>
+        <div class="footer">
+            <p>GloseMester v0.7.4-BETA | Personvernerklæring sist oppdatert: 8. januar 2025</p>
+            <p>© 2024-2025 Øyvind Nilsen Oksvold - Alle rettigheter forbeholdt</p>
         </div>
 
-        <div class="footer">
-            <p><strong>GloseMester v0.9.0-BETA</strong></p>
-            <p>Utviklet av Øyvind Nilsen Oksvold</p>
-            <p>Personvernerklæring sist oppdatert: 20. desember 2025</p>
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="index.html" class="btn-back">← Tilbake til GloseMester</a>
         </div>
     </div>
 </body>
