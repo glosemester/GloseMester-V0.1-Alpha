@@ -94,8 +94,8 @@ exports.handler = async (event, context) => {
             const resend = new Resend(process.env.RESEND_API_KEY);
             
             const emailData = await resend.emails.send({
-                from: process.env.RESEND_FROM_EMAIL || 'kontakt@glosemester.no',
-                to: process.env.RESEND_TO_EMAIL || 'oyvind.nilsoks@gmail.com',
+                from: 'kontakt@glosemester.no',
+to: 'kontakt@glosemester.no',
                 subject: `🏫 Ny skolepakke-forespørsel: ${schoolName}`,
                 html: `
 <!DOCTYPE html>
