@@ -89,11 +89,8 @@ export async function lastInnGlosebankProver() {
         
         console.log('🔍 Henter prøver fra glosebank...');
         
-        // Bruker glosebank collection
-        const q = query(
-            collection(db, "glosebank"),
-            orderBy("delt_dato", "desc")
-        );
+        // Bruker glosebank collection (uten sorting - gjøres i JS)
+        const q = query(collection(db, "glosebank"));
         
         const querySnapshot = await getDocs(q);
         
@@ -109,6 +106,15 @@ export async function lastInnGlosebankProver() {
                 id: docSnap.id,
                 ...docSnap.data()
             });
+        });
+        
+        // Sorter i JavaScript (støtter både delt_dato og opprettet_dato)
+        allProver.sort((a, b) => {
+            const dateA = a.delt_dato || a.opprettet_dato;
+            const dateB = b.delt_dato || b.opprettet_dato;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB.toMillis() - dateA.toMillis();
         });
         
         console.log(`✅ Lastet ${allProver.length} GloseBank-prøver`);
@@ -163,10 +169,12 @@ function visFilterteProver() {
     filtrert.forEach((prove) => {
         const tittel = prove.tittel || 'Uten tittel';
         const antallOrd = prove.ordliste ? prove.ordliste.length : 0;
-        const dato = prove.opprettet_dato 
-            ? new Date(prove.opprettet_dato.toDate()).toLocaleDateString('nb-NO')
-            : 'Ukjent';
-        const epost = prove.opprettet_av_epost || 'Ukjent';
+        const dato = prove.delt_dato 
+            ? new Date(prove.delt_dato.toDate()).toLocaleDateString('nb-NO')
+            : (prove.opprettet_dato 
+                ? new Date(prove.opprettet_dato.toDate()).toLocaleDateString('nb-NO')
+                : 'Ukjent');
+        const epost = prove.delt_av_epost || prove.opprettet_av_epost || 'Ukjent';
         const status = prove.status || 'pending';
         const synlig = prove.synlig_for_kunder ? 'Ja' : 'Nei';
         
