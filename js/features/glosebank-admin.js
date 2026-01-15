@@ -92,7 +92,7 @@ export async function lastInnGlosebankProver() {
         // Bruker glosebank collection
         const q = query(
             collection(db, "glosebank"),
-            orderBy("opprettet_dato", "desc")
+            orderBy("delt_dato", "desc")
         );
         
         const querySnapshot = await getDocs(q);
@@ -163,10 +163,10 @@ function visFilterteProver() {
     filtrert.forEach((prove) => {
         const tittel = prove.tittel || 'Uten tittel';
         const antallOrd = prove.ordliste ? prove.ordliste.length : 0;
-        const dato = prove.delt_dato 
-            ? new Date(prove.delt_dato.toDate()).toLocaleDateString('nb-NO')
+        const dato = prove.opprettet_dato 
+            ? new Date(prove.opprettet_dato.toDate()).toLocaleDateString('nb-NO')
             : 'Ukjent';
-        const epost = prove.delt_av_epost || 'Ukjent';
+        const epost = prove.opprettet_av_epost || 'Ukjent';
         const status = prove.status || 'pending';
         const synlig = prove.synlig_for_kunder ? 'Ja' : 'Nei';
         
