@@ -4,7 +4,7 @@
 
 🌐 **Nettside:** [glosemester.no](https://glosemester.no)  
 👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)  
-📅 **Versjon:** v0.9.8-BETA (Januar 2026)  
+📅 **Versjon:** v0.9.9-BETA (Januar 2026)  
 📋 **Launch-plan:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 
 GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en skattejakt. Elevene samler digitale kort, bytter dubletter og klatrer i nivåene, mens lærere enkelt kan lage prøver med QR-kode deling.
@@ -14,7 +14,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 ## 🚀 LANSERINGSSTATUS
 
 **Nåværende fase:** BETA-testing  
-**Prod-klar:** ~90% (venter på Vipps produksjon)  
+**Prod-klar:** ~95% (venter på Vipps produksjon)  
 **Launch ETA:** Februar 2026
 
 ✅ **Ferdig:**
@@ -22,13 +22,47 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - Vipps betalingsintegrasjon (test)
 - Firebase backend & Firestore
 - PWA med offline-støtte
-- Admin-panel & GloseBank
+- Admin-panel & GloseBank (alle lærere kan dele)
+- Resend e-postvarsel for skolepakke-forespørsler
+- Git + Netlify auto-deploy
 - Juridiske dokumenter (klare for juridisk gjennomgang)
 
 🟡 **Pågående:**
 - Vipps produksjonsgodkjenning (søknad sendt 13. jan 2026)
 - Beta-testing med pilotskoler
 - Juridisk gjennomgang av personvernerklæring
+
+---
+
+## 🆕 NYTT I v0.9.9-BETA (15. Januar 2026)
+
+### ✅ GloseBank - Deling for alle lærere 🏦
+- **Alle lærere kan dele:** Fjernet admin-begrensning på deling til GloseBank
+- **Admin-godkjenning:** Admin godkjenner/avslår før prøver blir synlige
+- **Firestore Rules:** Oppdatert for å tillate alle lærere å skrive til `glosebank`
+- **teacher.js:** Automatisk backup til GloseBank ved lagring (bruker `delt_av`, `delt_dato`)
+- **glosebank-admin.js:** Støtter både `delt_dato` og `opprettet_dato` (bakoverkompatibelt)
+- **Testing:** Feide-bruker delte prøve → Pending → Godkjent → Synlig i Browse ✅
+
+### ✅ E-postvarsel med Resend 📧
+- **DNS verifisert:** DKIM + SPF records aktivert
+- **Automatisk varsling:** Skolepakke-forespørsler sendes til kontakt@glosemester.no
+- **Pent formatert HTML:** Profesjonell e-postmal med all kontaktinfo
+- **Testing:** E-post mottatt innen 10 sekunder ✅
+
+### ✅ Git + Netlify Auto-Deploy 🚀
+- **GitHub-kobling:** Netlify deployer automatisk ved `git push`
+- **Environment Variables:** Konfigurert for Vipps, Resend, Firebase
+- **Ingen mer manuell opplasting:** Sparer tid på hver endring
+
+### ✅ Multi-bruker Progressbar 📊
+- **Felles teller:** Alle elever på samme prøve deler progressbar
+- **Real-time synkronisering:** Oppdateres dynamisk uten refresh
+- **Firestore-basert:** Bruker `resultat_av` array for å telle unike brukere
+
+### 🛠 Bugfixes
+- **glosebank-admin.js:** Fikset query-feil ved sortering (linje 90-119)
+- **teacher.js:** Støtter nå både `delt_dato` og `opprettet_dato` i visning
 
 ---
 

@@ -34,11 +34,11 @@ Dette dokumentet inneholder ALT som må være på plass før GloseMester kan lan
   - Test restore-prosedyre
 
 ## 1.3 E-post Setup
-- [ ] 🔴 **Profesjonell e-postdomene: kontakt@glosemester.no**
-  - Sett opp via Netlify/Google Workspace/Outlook
-  - Konfigurer SPF, DKIM, DMARC records
-  - Test sending og mottak
-- [ ] ❌ **E-postvarsel for skoleforespørsler** (Se seksjon 3.3)
+- [x] ✅ **Profesjonell e-postdomene: kontakt@glosemester.no**
+  - Satt opp via Gmail
+  - SPF, DKIM, DMARC records konfigurert (Resend)
+  - Sending og mottak testet ✅
+- [x] ✅ **E-postvarsel for skoleforespørsler** (Resend aktivert)
 - [ ] ❌ **Transaksjonelle e-poster** (bekreftelser, kvitteringer)
 - [ ] ❌ **Support-ticket system eller forwarding**
 
@@ -88,113 +88,32 @@ Dette dokumentet inneholder ALT som må være på plass før GloseMester kan lan
 # 3️⃣ AUTOMATISERTE VARSLER & KOMMUNIKASJON
 
 ## 3.1 E-postvarsel - Skoleforespørsler
-**STATUS:** ❌ MANGLER
+**STATUS:** ✅ FERDIG (15. januar 2026)
 
-**LØSNING 1: SendGrid (Anbefalt)**
+**IMPLEMENTERT MED RESEND**
 
-### Steg 1: Setup SendGrid
+### ✅ Setup komplett
+- Resend-konto opprettet
+- DNS verifisert (DKIM + SPF)
+- API-key konfigurert i Netlify Environment Variables
+- Netlify Function: `school-inquiry.js` aktivert
+- Sender til: kontakt@glosemester.no
+- Testet: E-post mottas innen 10 sekunder ✅
+
+### Konfigurasjon
 ```bash
-# 1. Opprett SendGrid-konto (gratis tier: 100 e-poster/dag)
-https://signup.sendgrid.com/
-
-# 2. Verifiser domene (glosemester.no)
-# 3. Opprett API key
-# 4. Legg til i Netlify Environment Variables
-SENDGRID_API_KEY=SG.xxx
-SENDGRID_FROM_EMAIL=kontakt@glosemester.no
-SENDGRID_TO_EMAIL=oyvind.nilsoks@gmail.com
+RESEND_API_KEY=re_xxx (satt i Netlify)
 ```
 
-### Steg 2: Opprett Netlify Function
-```javascript
-// netlify/functions/send-inquiry-email.js
-
-const sgMail = require('@sendgrid/mail');
-
-exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-
-    try {
-        const data = JSON.parse(event.body);
-        
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        
-        const msg = {
-            to: process.env.SENDGRID_TO_EMAIL,
-            from: process.env.SENDGRID_FROM_EMAIL,
-            subject: `🏫 Ny skolepakke-forespørsel: ${data.schoolName}`,
-            text: `
-Ny forespørsel om skolepakke!
-
-Skole: ${data.schoolName}
-Kontaktperson: ${data.contactName}
-E-post: ${data.contactEmail}
-Telefon: ${data.contactPhone || 'Ikke oppgitt'}
-Antall lærere: ${data.teacherCount || 'Ikke oppgitt'}
-Melding: ${data.message || 'Ingen melding'}
-
-Sendt: ${new Date().toLocaleString('no-NO')}
-            `,
-            html: `
-<h2>🏫 Ny skolepakke-forespørsel</h2>
-<table style="border-collapse: collapse; width: 100%;">
-    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Skole:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.schoolName}</td></tr>
-    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Kontaktperson:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.contactName}</td></tr>
-    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>E-post:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${data.contactEmail}">${data.contactEmail}</a></td></tr>
-    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Telefon:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.contactPhone || 'Ikke oppgitt'}</td></tr>
-    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Antall lærere:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.teacherCount || 'Ikke oppgitt'}</td></tr>
-</table>
-<p><strong>Melding:</strong></p>
-<p style="background: #f5f5f5; padding: 15px; border-radius: 5px;">${data.message || 'Ingen melding'}</p>
-<p style="color: #666; font-size: 12px;">Sendt: ${new Date().toLocaleString('no-NO')}</p>
-            `
-        };
-        
-        await sgMail.send(msg);
-        
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ success: true })
-        };
-    } catch (error) {
-        console.error('SendGrid error:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to send email' })
-        };
-    }
-};
-```
-
-### Steg 3: Installer avhengigheter
-```bash
-npm install @sendgrid/mail
-```
-
-### Steg 4: Oppdater skoleforespørsel-skjema
-I filen som håndterer skoleforespørsler, legg til:
-```javascript
-// Etter at forespørsel er lagret i Firestore
-await fetch('/.netlify/functions/send-inquiry-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        schoolName: schoolNameInput,
-        contactName: contactNameInput,
-        contactEmail: contactEmailInput,
-        contactPhone: contactPhoneInput,
-        teacherCount: teacherCountInput,
-        message: messageInput
-    })
-});
-```
-
-**ALTERNATIV: Zapier/Make.com**
-- Billigere (gratis tier)
-- Enklere setup
-- Mindre fleksibelt
+### Netlify Function
+Fil: `netlify/functions/school-inquiry.js`
+- Lagrer forespørsel i Firestore (`school_inquiries`)
+- Sender formatert HTML-e-post via Resend
+- Inkluderer: Skoleinfo, kontaktperson, melding, reply-knapp
+**ALTERNATIV: SendGrid (ikke i bruk)**
+- Gratis tier: 100 e-poster/dag
+- Enklere setup enn Resend
+- Kan vurderes hvis Resend blir for dyrt
 
 ## 3.2 E-postbekreftelser til kunder
 - [ ] ❌ **Bekreftelse på Premium-kjøp (Vipps)**
@@ -208,7 +127,7 @@ await fetch('/.netlify/functions/send-inquiry-email', {
   - Inkluderer: Betalingsdetaljer, forfallsdato, supportinfo
 
 ## 3.3 Admin-varsler
-- [ ] 🔴 **E-post ved skoleforespørsel** (Se 3.1)
+- [x] ✅ **E-post ved skoleforespørsel** (Resend aktivert)
 - [ ] ❌ **Slack/Discord webhook** (valgfri)
   - Real-time varsler i Slack-kanal
   - Nyttig for rask respons
@@ -545,37 +464,38 @@ await fetch('/.netlify/functions/send-inquiry-email', {
 ## 🔴 KRITISK (MÅ VÆRE FERDIG FØR LAUNCH)
 
 1. **Vipps produksjon**
-   - Søk om tilgang
-   - Oppdater credentials
-   - Test betalinger
+   - ✅ Søknad sendt (13. jan 2026)
+   - ⏳ Venter på godkjenning
+   - ❌ Oppdater credentials når godkjent
+   - ❌ Test betalinger i produksjon
 
 2. **E-post setup**
-   - kontakt@glosemester.no fungerer
-   - E-postvarsel for skoleforespørsler
-   - Bekreftelser til kunder
+   - ✅ kontakt@glosemester.no fungerer
+   - ✅ E-postvarsel for skoleforespørsler (Resend)
+   - ❌ Bekreftelser til kunder (Vipps-kvitteringer)
 
 3. **Juridiske dokumenter**
-   - Personvernerklæring publisert
-   - Bruksvilkår publisert
-   - Få advokat til å gjennomgå
+   - ❌ Personvernerklæring publisert
+   - ❌ Bruksvilkår publisert
+   - ❌ Få advokat til å gjennomgå
 
 4. **Firestore backup**
-   - Automatiske backups aktivert
-   - Test restore
+   - ❌ Automatiske backups aktivert
+   - ❌ Test restore
 
 5. **Uptime monitoring**
-   - UptimeRobot setup
-   - Varsler deg ved nedetid
+   - ❌ UptimeRobot setup
+   - ❌ Varsler deg ved nedetid
 
 6. **Sikkerhet**
-   - Rate limiting på functions
-   - CAPTCHA på skjemaer
-   - Fjern debug-logging
+   - ❌ Rate limiting på functions
+   - ❌ CAPTCHA på skjemaer
+   - ❌ Fjern debug-logging
 
 7. **Testing**
-   - Beta-test med 1-2 skoler
-   - Manuell testing av alle flows
-   - Fix kritiske bugs
+   - ❌ Beta-test med 1-2 skoler
+   - 🟡 Manuell testing av alle flows
+   - ❌ Fix kritiske bugs
 
 ## 🟡 VIKTIG (BØR VÆRE FERDIG)
 
@@ -620,25 +540,33 @@ await fetch('/.netlify/functions/send-inquiry-email', {
 
 # ✅ OPPSUMMERING
 
+**Oppdatert:** 15. januar 2026
+
 **Total estimert tid før launch:**
-- Kritiske oppgaver: 3-5 uker
+- Kritiske oppgaver: 2-4 uker (Vipps + Juridisk)
 - Viktige oppgaver: 2-3 uker
-- Total: **5-8 uker**
+- Total: **4-7 uker**
 
 **Estimert kostnad:**
 - Vipps setup: Gratis
 - Advokat (juridisk): 5.000-15.000 kr
 - Fakturasystem: 0-500 kr/mnd
-- SendGrid: Gratis (100/dag)
+- Resend e-post: Gratis (100/dag)
 - Forsikring: 2.000-5.000 kr/år (valgfri)
 - **Total one-time: 5.000-15.000 kr**
 - **Total månedlig: 0-500 kr**
 
-**Neste steg:**
-1. Prioriter listen over
-2. Start med Vipps-søknad (tar lengst tid)
-3. Sett opp e-post og varsler
-4. Lag personvernerklæring
-5. Beta-test i 2-4 uker
-6. Launch! 🚀
+**Ferdigstilt 15. januar 2026:**
+✅ GloseBank - Alle lærere kan dele prøver
+✅ Multi-bruker progressbar
+✅ Resend e-postvarsel (DNS verifisert)
+✅ Git + Netlify auto-deploy
+✅ Firestore Rules oppdatert
 
+**Neste steg:**
+1. ⏳ Vent på Vipps produksjonsgodkjenning (2-5 dager)
+2. 📄 Lag personvernerklæring (få advokat til å gjennomgå)
+3. 🔒 Sett opp Firestore backup
+4. 📊 Sett opp UptimeRobot
+5. 🧪 Beta-test med 1-2 skoler (2-4 uker)
+6. 🚀 Launch Februar 2026!
