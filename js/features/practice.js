@@ -1,7 +1,6 @@
 /* ============================================
-   PRACTICE.JS - Øve Modus v0.10.17 (FIXED v0.7.5)
-   Fix: Popup ved feil svar (Læringsmodus)
-   Fix: Venter på at vocabulary er lastet før start
+   PRACTICE.JS - Øve Modus v0.10.18 (TYDELIGERE ORD)
+   Fix: Fet skrift og større font for bedre lesbarhet
    ============================================ */
 
 import { hentTilfeldigKort, visSamling } from './kort-display.js';
@@ -31,7 +30,6 @@ async function ventPaVocabulary(maxTid = 5000) {
             console.error('❌ Timeout: Vocabulary ikke lastet etter', maxTid, 'ms');
             return false;
         }
-        // Vent 50ms og prøv igjen
         await new Promise(resolve => setTimeout(resolve, 50));
     }
     
@@ -42,12 +40,10 @@ async function ventPaVocabulary(maxTid = 5000) {
 export async function startOving(nivaValg) {
     gjeldendeNiva = nivaValg;
 
-    // VIKTIG: Vent på at vocabulary er lastet
     const erKlar = await ventPaVocabulary();
     
     if (!erKlar || !window.vokabularData || !window.vokabularData[nivaValg]) {
         console.error('❌ Kunne ikke laste ordliste for', nivaValg);
-        console.error('vokabularData:', window.vokabularData);
         alert("Kunne ikke laste ordliste. Prøv en hard refresh (Ctrl+F5).");
         return;
     }
@@ -58,7 +54,6 @@ export async function startOving(nivaValg) {
     window.ovingIndex = 0;
     window.riktigeSvar = 0;
     
-    // Standard: Engelsk Spørsmål -> Norsk Svar
     if (!window.ovingRetning || window.ovingRetning === 'no') {
         window.ovingRetning = 'en'; 
     }
@@ -144,7 +139,6 @@ function visNesteSporsmaal() {
     
     const altLang = window.ovingRetning === 'no' ? 'en-US' : 'no-NO';
 
-    // --- VANSKELIGHETSGRAD ---
     let erFlervalg = false;
 
     if (gjeldendeNiva === 'niva1') {
@@ -158,7 +152,7 @@ function visNesteSporsmaal() {
     }
 
     if (erFlervalg) {
-        // --- FLERVALG ---
+        // --- FLERVALG MED TYDELIGERE TEKST ---
         inputContainer.style.display = 'none';
         altContainer.style.display = 'grid'; 
         altContainer.innerHTML = '';
@@ -188,8 +182,9 @@ function visNesteSporsmaal() {
             btn.style.padding = '12px 15px';
             btn.style.textAlign = 'left';
 
+            // ✅ FIX: Tydeligere tekst med fet skrift og større font
             btn.innerHTML = `
-                <span style="pointer-events: none; font-weight:500;">${btnTekst}</span>
+                <span style="pointer-events: none; font-weight:700; font-size:1.05rem; color:#333;">${btnTekst}</span>
                 <div onclick="event.stopPropagation(); window.lesOppOving('${btnTekst}', '${altLang}')" 
                       style="font-size:1.3rem; cursor:pointer; padding:8px; background:rgba(0,0,0,0.05); border-radius:50%; margin-left:15px; display:flex; align-items:center; justify-content:center;">
                     🔊
@@ -227,7 +222,6 @@ export function sjekkOvingSvar(valgtOrd = null) {
     }
 
     if (erRiktig) {
-        // --- HVIS RIKTIG ---
         window.riktigeSvar++;
         saveTotalCorrect(getTotalCorrect() + 1);
         
@@ -242,28 +236,20 @@ export function sjekkOvingSvar(valgtOrd = null) {
 
         sjekkOmGevinst();
         
-        // Gå videre automatisk
         setTimeout(() => {
             window.ovingIndex++;
             visNesteSporsmaal();
         }, 1500);
 
     } else {
-        // --- HVIS FEIL (Vis Popup) ---
         spillLyd('feil');
         vibrer(200);
         
-        // Sett inn fasit i popupen
         document.getElementById('fasit-tekst').innerText = riktigSvarTekst;
-        
-        // Vis popupen
         document.getElementById('feil-svar-popup').style.display = 'flex';
-        
-        // MERK: Vi setter IKKE timeout her. Spillet pauser til man trykker på knappen.
     }
 }
 
-// Funksjon som kalles når man trykker "Neste ord" i popupen
 window.lukkFeilPopup = function() {
     document.getElementById('feil-svar-popup').style.display = 'none';
     window.ovingIndex++;

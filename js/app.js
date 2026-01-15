@@ -51,7 +51,7 @@ import {
 
 import { 
     lastInnStandardprover 
-} from './features/standardprover.js';
+} from './features/standardprove.js';
 
 // --- GLOBALE FUNKSJONER ---
 
@@ -111,7 +111,11 @@ window.gaTilbakeFraGalleri = function() {
 window.velgRolle = function(rolle) {
     spillLyd('klikk');
     sessionStorage.setItem('aktivRolle', rolle); 
-    document.getElementById('landing-page').classList.remove('active');
+    
+    // KRITISK FIX: Skjul landing page ordentlig
+    const landingPage = document.getElementById('landing-page');
+    landingPage.classList.remove('active');
+    landingPage.style.display = 'none';
     
     document.getElementById('elev-meny').style.display = 'none';
     document.getElementById('oving-meny').style.display = 'none';
@@ -351,7 +355,6 @@ window.aktiverKampanjekode = async function() {
     const kampanjekoder = {
         'BETA2026': { type: 'premium', dager: 90, beskrivelse: 'Beta-testkode (90 dager)' },
         'LANSERING': { type: 'premium', dager: 30, beskrivelse: 'Lanseringskode (30 dager)' },
-        'TEST30': { type: 'premium', dager: 30, beskrivelse: 'Testkode (30 dager)' },
         'TEST7': { type: 'premium', dager: 7, beskrivelse: 'Testkode (7 dager)' },
         'SKOLE2026': { type: 'skolepakke', dager: 365, beskrivelse: 'Skolepakke (365 dager)' },
         'SKOLEPILOT': { type: 'skolepakke', dager: 180, beskrivelse: 'Skolepilot (180 dager)' },
@@ -400,7 +403,7 @@ window.aktiverKampanjekode = async function() {
    ============================================ */
 
 export function initApp() {
-    console.log('✅ GloseMester v0.7.6-BETA kjører...');
+    console.log('✅ GloseMester v0.9.8-BETA kjører...');
     
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {

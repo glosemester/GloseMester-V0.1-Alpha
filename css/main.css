@@ -1,6 +1,6 @@
 /* ============================================
-   MAIN.CSS - v0.9.4 (NAME FIX)
-   Inkluderer: Popups, Kort, Galleri, Responsivitet
+   MAIN.CSS - v0.9.8-BETA (INKLUDERER NY MODAL)
+   Inkluderer: Popups, Kort, Galleri, Responsivitet, Om Oss styling
    ============================================ */
 
 /* --- 1. POPUPS & MODALS (VIKTIGST - LIGGER FØRST) --- */
@@ -384,10 +384,7 @@ input, textarea, select {
 .btn-info:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* =========================================================
-   LÆRER-MENY SYSTEM (RESTRUCTURED FOR v0.7.6-BETA)
-   Her er den rene løsningen:
-   1. .laerer-nav: "Pillen" i bunnen (Trigger)
-   2. .nav-items: Skuffen (Drawer) som flyter fritt
+   LÆRER-MENY SYSTEM
    ========================================================= */
 
 /* 1. NAVIGASJONS-PILLEN (Trigger og Hjem) */
@@ -516,6 +513,7 @@ input, textarea, select {
     .laerer-nav { width: 90%; justify-content: space-between; }
     .nav-items { width: 85vw; } /* Bredere drawer på mobil */
 }
+
 /* --- FEIDE INFO TEKST --- */
 .login-info-text {
     color: #666;
@@ -529,4 +527,142 @@ input, textarea, select {
     color: #00509E;
     text-decoration: underline;
     font-weight: 600;
+}
+
+/* --- PROFESJONELL INFO MODAL (OM OSS V.2) --- */
+
+/* Gjør selve boksen penere */
+#info-modal .popup-content {
+    padding: 0; /* Vi styrer padding internt for bedre header-design */
+    overflow: hidden; /* Sikrer at header-fargen følger rundingen */
+    border-radius: 24px;
+    text-align: left; /* Bedre lesbarhet enn sentrert tekst */
+}
+
+/* Header med gradient */
+.modal-header-fancy {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header-fancy h2 {
+    margin: 0;
+    color: #333;
+    font-size: 28px;
+}
+
+.modal-header-fancy p {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Innholdet */
+.modal-body {
+    padding: 25px;
+}
+
+.feature-section {
+    margin-bottom: 25px;
+}
+
+.feature-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Penere lister */
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.feature-icon {
+    font-size: 18px;
+    min-width: 24px; /* Sikrer at ikoner står rett under hverandre */
+}
+
+/* KONTAKT-SEKSJON */
+.contact-box {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #eee;
+}
+
+.contact-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.contact-btn {
+    text-decoration: none;
+    background: white;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.contact-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* HOVEDKNAPP (Lukk Vindu) - DEN STORE FIKSEN */
+.btn-close-fancy {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #0071e3 0%, #0056b3 100%); /* Apple Blue */
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3); /* Fin glød */
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+}
+
+.btn-close-fancy:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4);
+}
+
+.btn-close-fancy:active {
+    transform: scale(0.98);
 }

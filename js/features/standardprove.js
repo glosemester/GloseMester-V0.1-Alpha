@@ -1,46 +1,38 @@
 /**
- * STANDARDPRØVER - Ferdiglagde prøver for Premium/Skolepakke
- * v0.7.0-BETA
+ * STANDARDPRØVER v0.8.2 - FINAL
+ * Oppdatert dørvakt: Vipps + Skolepakke
+ * Fjernet gammel melding om "Kun for Premium"
  */
 
 import { auth, db, collection, query, where, orderBy, getDocs, getDoc, doc, addDoc, updateDoc, increment, serverTimestamp } from './firebase.js';
 
 let alleStandardProver = [];
-let brukerAbonnement = null;
 
-/**
- * Last inn Standardprøver-siden
- */
 export async function lastInnStandardprover() {
   const mainContent = document.getElementById('standardprover');
   const currentUser = auth.currentUser;
 
-  if (!mainContent) {
-    console.error('❌ standardprover element ikke funnet');
-    return;
-  }
+  if (!mainContent) return;
 
+  // 1. Er du logget inn?
   if (!currentUser) {
-    mainContent.innerHTML = '<div class="melding">Du må være logget inn for å se Standardprøver.</div>';
+    mainContent.innerHTML = '<div class="melding">Du må være logget inn.</div>';
     return;
   }
 
-  // Sjekk abonnement
-  const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-  const userData = userDoc.data();
-  brukerAbonnement = userData?.abonnement?.type || 'free';
+  // 2. SJEKK TILGANG (Dørvakten)
+  const harTilgang = await sjekkTilgang(currentUser);
 
-  // Kun premium og skolepakke har tilgang
-  if (brukerAbonnement !== 'premium' && brukerAbonnement !== 'skolepakke') {
+  if (!harTilgang) {
     mainContent.innerHTML = `
       <div class="standard-container">
         <div class="standard-header">
           <h1>📚 Standardprøver</h1>
-          <p class="undertekst">Kvalitetssikrede prøver for premium-brukere</p>
+          <p class="undertekst">Kvalitetssikrede prøver</p>
         </div>
-        <div class="oppgrader-melding">
-          <h2>🔒 Kun for Premium-brukere</h2>
-          <p>Standardprøver er kun tilgjengelig for premium- og skolepakke-brukere.</p>
+        <div class="oppgrader-melding" style="text-align:center; padding:40px; background:white; border-radius:12px; margin-top:20px;">
+          <h2>🔒 Krever Premium eller Skolepakke</h2>
+          <p>Standardprøver er kun tilgjengelig for betalende brukere.</p>
           <div style="margin-top: 20px;">
             <strong>Få tilgang til 16+ ferdiglagde prøver:</strong>
             <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
@@ -51,8 +43,8 @@ export async function lastInnStandardprover() {
               <li>✅ Spar tid på prøveplanlegging</li>
             </ul>
           </div>
-          <button class="btn-primary" onclick="visSide('laerer-dashboard')" style="margin-top: 20px;">
-            ⭐ Oppgrader til Premium - 500 kr/år
+          <button class="btn-primary" onclick="document.getElementById('upgrade-modal').style.display='flex'" style="margin-top:20px;">
+            ⭐ Se tilbud
           </button>
         </div>
       </div>
@@ -60,14 +52,14 @@ export async function lastInnStandardprover() {
     return;
   }
 
-  // Premium/Skolepakke - vis standardprøver
+  // 3. ✅ HAR TILGANG - VIS INNHOLD
   mainContent.innerHTML = `
     <div class="standard-container">
       <div class="standard-header">
         <h1>📚 Standardprøver</h1>
         <p class="undertekst">Kvalitetssikrede prøver klar til bruk</p>
       </div>
-
+      
       <div class="filter-container">
         <label>Filter etter nivå:</label>
         <select id="nivaa-filter" onchange="filtrerStandardProver()">
@@ -88,54 +80,88 @@ export async function lastInnStandardprover() {
       <div class="modal-content">
         <h2 id="preview-tittel"></h2>
         <p id="preview-metadata"></p>
-        <div id="preview-ordliste" style="max-height: 400px; overflow-y: auto; margin: 20px 0;"></div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button class="btn-secondary" onclick="lukkPreviewStandard()">Lukk</button>
+        <div id="preview-ordliste" style="max-height:400px; overflow-y:auto; margin:20px 0;"></div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button class="btn-secondary" onclick="document.getElementById('standard-preview-modal').style.display='none'">Lukk</button>
           <button class="btn-primary" id="preview-kopier-btn">✅ Bruk denne</button>
         </div>
       </div>
     </div>
   `;
 
-  // Last inn prøver
   await lastInnProver();
 }
 
-/**
- * Last inn standardprøver fra Firestore
- */
+// --- HJELPEFUNKSJONER ---
+
+async function sjekkTilgang(user) {
+    console.log("🔐 Sjekker StandardProver tilgang for:", user.uid);
+    
+    try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists()) {
+            console.log("❌ Bruker finnes ikke i Firestore");
+            return false;
+        }
+        
+        const d = snap.data();
+        console.log("👤 Brukerdata:", d);
+        
+        // 1. Sjekk Vipps Premium (subscription-feltet)
+        if (d.subscription?.status === 'premium') {
+            const exp = d.subscription.expiresAt?.toDate();
+            if (exp && Date.now() < exp.getTime()) {
+                console.log("✅ Har Vipps Premium tilgang");
+                return true;
+            }
+        }
+        
+        // 2. Sjekk Skolepakke/Admin (abonnement-feltet)
+        const abo = d.abonnement || {};
+        if (abo.status === 'active' || abo.type === 'skolepakke' || abo.status === 'school') {
+            const exp = abo.utloper?.toDate();
+            if (!exp || Date.now() < exp.getTime()) {
+                console.log("✅ Har Skolepakke/Admin tilgang");
+                return true;
+            }
+        }
+        
+        console.log("❌ Ingen tilgang funnet");
+        return false;
+    } catch (e) { 
+        console.error("❌ Feil ved tilgangssjekk:", e);
+        return false; 
+    }
+}
+
 async function lastInnProver() {
+  console.log("📡 Starter lastInnProver()");
+  
   try {
     const q = query(
       collection(db, 'standardprover'),
       where('synlig', '==', true),
       orderBy('rekkefolge', 'asc')
     );
-
-    const snapshot = await getDocs(q);
-    alleStandardProver = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    console.log(`✅ Lastet ${alleStandardProver.length} standardprøver`);
+    
+    const snap = await getDocs(q);
+    console.log("✅ Query OK - Antall prøver:", snap.size);
+    
+    alleStandardProver = snap.docs.map(d => {
+        const data = d.data();
+        return { id: d.id, ...data };
+    });
+    
     visStandardProver(alleStandardProver);
-
-  } catch (error) {
-    console.error('Feil ved lasting av standardprøver:', error);
-    document.getElementById('standard-liste').innerHTML = `
-      <div class="melding error">
-        Kunne ikke laste standardprøver. Prøv å refresh siden.
-      </div>
-    `;
+  } catch (e) { 
+      console.error("❌ StandardProver fetch error:", e);
+      document.getElementById('standard-liste').innerHTML = '<p>Kunne ikke laste prøver: ' + e.message + '</p>'; 
   }
 }
 
-/**
- * Vis standardprøver i UI
- */
 function visStandardProver(prover) {
   const listeEl = document.getElementById('standard-liste');
+  if(!listeEl) return;
 
   if (prover.length === 0) {
     listeEl.innerHTML = '<div class="melding">Ingen standardprøver tilgjengelig ennå.</div>';
@@ -154,7 +180,7 @@ function visStandardProver(prover) {
 
   // Barneskole
   if (gruppert.barneskole && gruppert.barneskole.length > 0) {
-    html += '<h3 class="nivaa-header">━━ BARNESKOLE ━━</h3>';
+    html += '<h3 class="nivaa-header">┏━ BARNESKOLE ━┓</h3>';
     gruppert.barneskole.forEach(prove => {
       html += lagProveKort(prove);
     });
@@ -162,7 +188,7 @@ function visStandardProver(prover) {
 
   // Ungdomsskole
   if (gruppert.ungdomsskole && gruppert.ungdomsskole.length > 0) {
-    html += '<h3 class="nivaa-header">━━ UNGDOMSSKOLE ━━</h3>';
+    html += '<h3 class="nivaa-header">┏━ UNGDOMSSKOLE ━┓</h3>';
     gruppert.ungdomsskole.forEach(prove => {
       html += lagProveKort(prove);
     });
@@ -170,7 +196,7 @@ function visStandardProver(prover) {
 
   // Videregående
   if (gruppert.videregaende && gruppert.videregaende.length > 0) {
-    html += '<h3 class="nivaa-header">━━ VIDEREGÅENDE ━━</h3>';
+    html += '<h3 class="nivaa-header">┏━ VIDEREGÅENDE ━┓</h3>';
     gruppert.videregaende.forEach(prove => {
       html += lagProveKort(prove);
     });
@@ -179,9 +205,6 @@ function visStandardProver(prover) {
   listeEl.innerHTML = html;
 }
 
-/**
- * Lag HTML-kort for en standardprøve
- */
 function lagProveKort(prove) {
   const emoji = getEmojiForEmne(prove.emne);
   const LK20_text = prove.LK20_kompetansemaal?.join(', ') || 'N/A';
@@ -191,23 +214,23 @@ function lagProveKort(prove) {
   return `
     <div class="standard-kort">
       <div class="kort-header">
-        <h3>${emoji} ${prove.tittel} (${antallOrd} ord)</h3>
+        <h3>${emoji} ${prove.tittel}</h3>
         <span class="vanskelighet vanskelighet-${prove.vanskelighetsgrad}">
           ${prove.vanskelighetsgrad}
         </span>
       </div>
       <div class="kort-metadata">
-        ${prove.nivaa} • ${prove.trinn} • LK20: ${LK20_text}
+        ${prove.nivaa} • ${prove.trinn} • ${antallOrd} ord
       </div>
-      <p class="kort-beskrivelse">${prove.beskrivelse}</p>
+      <p class="kort-beskrivelse">${prove.beskrivelse || ''}</p>
       <div class="kort-stats">
-        <span>📥 ${kopierCount} lærere bruker denne</span>
+        <span>🔥 ${kopierCount} lærere bruker denne</span>
       </div>
       <div class="kort-actions">
-        <button class="btn-secondary btn-small" onclick="visForhandsvisningStandard('${prove.id}')">
+        <button class="btn-secondary btn-small" onclick="visPreview('${prove.id}')">
           👁️ Forhåndsvis
         </button>
-        <button class="btn-primary btn-small" onclick="kopierStandardprove('${prove.id}')">
+        <button class="btn-primary btn-small" onclick="kopierProve('${prove.id}')">
           ✅ Bruk denne
         </button>
       </div>
@@ -215,9 +238,6 @@ function lagProveKort(prove) {
   `;
 }
 
-/**
- * Få emoji basert på emne
- */
 function getEmojiForEmne(emne) {
   const emojis = {
     'familie': '👨‍👩‍👧‍👦',
@@ -236,10 +256,7 @@ function getEmojiForEmne(emne) {
   return emojis[emne] || '📚';
 }
 
-/**
- * Vis forhåndsvisning av standardprøve
- */
-window.visForhandsvisningStandard = function(proveId) {
+window.visPreview = function(proveId) {
   const prove = alleStandardProver.find(p => p.id === proveId);
   if (!prove) return;
 
@@ -248,13 +265,12 @@ window.visForhandsvisningStandard = function(proveId) {
   document.getElementById('preview-metadata').textContent = 
     `${prove.nivaa} • ${prove.trinn} • ${prove.ordliste.length} ord`;
 
-  // Vis ordliste
   let ordlisteHTML = '<div class="ordliste-preview">';
   prove.ordliste.forEach((ord, index) => {
     ordlisteHTML += `
       <div class="ord-rad">
         <span class="ord-nummer">${index + 1}.</span>
-        <span class="ord-norsk">${ord.s}</span>
+        <span class="ord-norsk"><strong>${ord.s}</strong></span>
         <span class="ord-pil">→</span>
         <span class="ord-engelsk">${ord.e}</span>
       </div>
@@ -263,26 +279,15 @@ window.visForhandsvisningStandard = function(proveId) {
   ordlisteHTML += '</div>';
   document.getElementById('preview-ordliste').innerHTML = ordlisteHTML;
 
-  // Sett onclick for kopier-knapp
   document.getElementById('preview-kopier-btn').onclick = () => {
-    kopierStandardprove(proveId);
-    lukkPreviewStandard();
+    kopierProve(proveId);
+    document.getElementById('standard-preview-modal').style.display = 'none';
   };
 
   modal.style.display = 'flex';
 };
 
-/**
- * Lukk forhåndsvisning
- */
-window.lukkPreviewStandard = function() {
-  document.getElementById('standard-preview-modal').style.display = 'none';
-};
-
-/**
- * Kopier standardprøve til lærerens bibliotek
- */
-window.kopierStandardprove = async function(proveId) {
+window.kopierProve = async function(proveId) {
   const prove = alleStandardProver.find(p => p.id === proveId);
   if (!prove) return;
 
@@ -293,7 +298,6 @@ window.kopierStandardprove = async function(proveId) {
   }
 
   try {
-    // Kopier til lærerens prøver
     await addDoc(collection(db, 'prover'), {
       tittel: prove.tittel + ' (Standard)',
       ordliste: prove.ordliste,
@@ -306,17 +310,17 @@ window.kopierStandardprove = async function(proveId) {
       trinn: prove.trinn,
       emne: prove.emne,
       LK20_kompetansemaal: prove.LK20_kompetansemaal,
-      vanskelighetsgrad: prove.vanskelighetsgrad
+      vanskelighetsgrad: prove.vanskelighetsgrad,
+      antall_gjennomforinger: 0,
+      aktiv: true
     });
 
-    // Øk antall_kopier
     await updateDoc(doc(db, 'standardprover', prove.id), {
       antall_kopier: increment(1)
     });
 
     alert(`✅ "${prove.tittel}" lagt til i dine prøver!`);
     
-    // Oppdater visning
     prove.antall_kopier = (prove.antall_kopier || 0) + 1;
     visStandardProver(alleStandardProver);
 
@@ -326,9 +330,6 @@ window.kopierStandardprove = async function(proveId) {
   }
 };
 
-/**
- * Filtrer standardprøver etter nivå
- */
 window.filtrerStandardProver = function() {
   const filter = document.getElementById('nivaa-filter').value;
 

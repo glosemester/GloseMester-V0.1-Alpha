@@ -17,11 +17,69 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     
     <style>
+        /* KRITISK FIX: Hindrer blank side ved innlasting */
+        .page { display: none; }
+        .page.active { display: block !important; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .version-tag {
             position: fixed; bottom: 10px; right: 15px; font-size: 11px;
             color: #0071e3; z-index: 50; font-weight: 600; font-family: monospace;
             cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.9);
             padding: 5px 10px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Footer styling spesifikt for landingssiden */
+        .landing-footer {
+            margin-top: 60px;
+            padding: 30px 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* Floating Upgrade Button Styling */
+        .upgrade-btn-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .upgrade-btn-float:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            text-decoration: none;
+        }
+
+        /* Mobile responsiv */
+        @media (max-width: 768px) {
+            .upgrade-btn-float {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 4px 30px rgba(102, 126, 234, 0.7); }
+            100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
         }
     </style>
 </head>
@@ -54,14 +112,23 @@
             📲 Installer App på mobilen
         </button>
 
-        <div style="text-align:center; margin-top:40px;">
+        <div style="text-align:center; margin-top:40px; margin-bottom: 40px;">
             <button class="btn-primary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
         </div>
         
-        <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #999;">
-            <a href="personvern.html" style="color: #999; text-decoration: underline;">Personvernerklæring</a>
-            &nbsp; • &nbsp; v0.7.6-BETA
-        </div>
+        <a href="/oppgrader.html" class="upgrade-btn-float" title="Oppgrader til Premium">
+            ⭐ Oppgrader
+        </a>
+
+        <footer class="landing-footer">
+            <p style="margin: 0 0 10px 0;">&copy; 2025 GloseMester | Laget med ❤️ for norske lærere</p>
+            <p style="margin: 0; font-size: 13px;">
+                <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> | 
+                <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a> | 
+                <a href="/personvern.html" style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> | 
+                <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px; text-decoration: none;">Kontakt</a>
+            </p>
+        </footer>
     </div>
 
     <nav id="elev-meny" style="display:none;">
@@ -109,7 +176,7 @@
                     <span>Mot neste kort:</span>
                     <span id="quiz-progress-text">0 / 10</span>
                 </div>
-                <div id="quiz-progress-target" style="min-height: 25px;"></div>
+                <div id="elev-start-progress-target" style="min-height: 25px;"></div>
             </div>
 
             <h2>Klar for prøve?</h2>
@@ -403,13 +470,6 @@
         </div>
     </div>
 
-    <style>
-        .admin-tab:hover { background: #f5f5f5; color: #0071e3 !important; }
-        .admin-tab.active { border-bottom-color: #0071e3 !important; color: #0071e3 !important; }
-        .admin-fane { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-
     <div id="laerer-login-popup" class="popup-overlay" style="display:none;">
         <div class="popup-content" style="max-width: 450px;">
             <h2>Lærer Innlogging 🍎</h2>
@@ -440,7 +500,7 @@
             
             <p style="text-align:center; margin-top:20px; font-size:13px; color:#666;">Ingen konto? <a href="#" onclick="event.preventDefault(); visRegistrering();" style="color:var(--accent-blue);">Registrer deg her</a></p>
             
-            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-login-popup').style.display='none'" style="margin-top:15px; width:100%;">Avbryt</button>
+            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-login-popup').style.display='none'; tilbakeTilStart();" style="margin-top:15px; width:100%;">Avbryt</button>
         </div>
     </div>
 
@@ -453,7 +513,8 @@
             <input type="password" id="reg-passord-bekreft" placeholder="Bekreft passord" style="margin-bottom:15px;">
             <button class="btn-primary" onclick="registrerLaerer()" style="width:100%;">Opprett konto</button>
             <p style="text-align:center; margin-top:15px; font-size:13px; color:#666;">Har allerede konto? <a href="#" onclick="event.preventDefault(); visInnlogging();" style="color:var(--accent-blue);">Logg inn her</a></p>
-            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-register-popup').style.display='none'" style="margin-top:15px; width:100%;">Avbryt</button>
+            
+            <button class="btn-small btn-danger" onclick="document.getElementById('laerer-register-popup').style.display='none'; tilbakeTilStart();" style="margin-top:15px; width:100%;">Avbryt</button>
         </div>
     </div>
 
@@ -549,14 +610,6 @@
             <div style="background:#FFF7ED; padding:20px; border-radius:12px; border:2px solid #FDBA74; margin-bottom:20px;">
                 <h3 style="margin:0 0 10px 0; font-size:18px; color:#C2410C;">🏫 Skolepakker</h3>
                 <p style="color:#9A3412; font-size:14px; margin-bottom:15px;">Spesialtilbud for skoler og kommuner</p>
-                <table style="width:100%; border-collapse:collapse; font-size:14px;">
-                    <thead><tr style="background:rgba(194,65,12,0.1);"><th style="padding:10px; text-align:left; border-bottom:2px solid #FDBA74;">Antall lærere</th><th style="padding:10px; text-align:right; border-bottom:2px solid #FDBA74;">Pris per år</th><th style="padding:10px; text-align:right; border-bottom:2px solid #FDBA74;">Per lærer</th></tr></thead>
-                    <tbody>
-                        <tr><td style="padding:10px; border-bottom:1px solid #FED7AA;">1-5 lærere</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; font-weight:600;">5 000 kr</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; color:#059669;">1 000 kr</td></tr>
-                        <tr><td style="padding:10px; border-bottom:1px solid #FED7AA;">6-15 lærere</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; font-weight:600;">7 000 kr</td><td style="padding:10px; text-align:right; border-bottom:1px solid #FED7AA; color:#059669;">467-1167 kr</td></tr>
-                        <tr><td style="padding:10px;">16+ lærere</td><td style="padding:10px; text-align:right; font-weight:600;">10 000 kr</td><td style="padding:10px; text-align:right; color:#059669;">&lt;625 kr</td></tr>
-                    </tbody>
-                </table>
                 <button onclick="kontaktForSkolepakke()" class="btn-primary" style="width:100%; margin-top:20px; background:#C2410C; border:none;">📧 Kontakt oss for tilbud</button>
             </div>
             
@@ -595,109 +648,143 @@
     </script>
     
     <div id="info-modal" class="popup-overlay" style="display:none;">
-        <div class="popup-content" style="max-width:550px;">
-            <h2>Om GloseMester 💎</h2>
+    <div class="popup-content" style="max-width:500px;">
+        
+        <div class="modal-header-fancy">
+            <h2>GloseMester 💎</h2>
             <p>Gjør glosepugging om til en skattejakt!</p>
-            <h4 class="sales-header">🏫 For Skoler & Lærere</h4>
-            <ul class="sales-list">
-                <li>✅ <strong>Trygt & Enkelt:</strong> GDPR-vennlig.</li>
-                <li>✅ <strong>Spar Tid:</strong> Bruk "Øv Selv" for mengdetrening uten retting.</li>
-                <li>✅ <strong>Motivasjon:</strong> Elevene jakter på legendariske kort mens de lærer.</li>
-            </ul>
-            <h4 class="sales-header">🧒 For Elever</h4>
-            <ul class="sales-list">
-                <li>🦖 Samle dinosaurer, biler, guder og dyr.</li>
-                <li>♻️ <strong>Nyhet!</strong> Pant dubletter i Diamant-banken.</li>
-                <li>🎉 Lær engelsk, vinn premier.</li>
-            </ul>
-            <div style="margin-top:30px; padding-top:20px; border-top:1px solid #eee;">
-                <p style="font-size:14px; font-weight:bold; margin-bottom:10px;">Fant du en feil eller har du et tips?</p>
-                <div style="display:flex; gap:10px;">
-                    <a href="mailto:system@glosemester.no" class="btn-primary" style="flex:1; text-decoration:none; font-size:13px; display:flex; align-items:center; justify-content:center;">🐞 Meld feil (System)</a>
-                    <a href="mailto:kontakt@glosemester.no" class="btn-primary" style="flex:1; text-decoration:none; font-size:13px; display:flex; align-items:center; justify-content:center;">✉️ Kontakt Oss</a>
+        </div>
+
+        <div class="modal-body">
+            
+            <div class="feature-section">
+                <div class="feature-title">🏫 FOR SKOLER & LÆRERE</div>
+                <ul class="feature-list">
+                    <li><span class="feature-icon">✅</span> <span><strong>Trygt & Enkelt:</strong> GDPR-vennlig og ingen elev-login nødvendig.</span></li>
+                    <li><span class="feature-icon">⏱️</span> <span><strong>Spar Tid:</strong> "Øv Selv" gir mengdetrening uten at du må rette.</span></li>
+                    <li><span class="feature-icon">🔥</span> <span><strong>Motivasjon:</strong> Elevene jakter på legendariske kort mens de lærer.</span></li>
+                </ul>
+            </div>
+
+            <div class="feature-section">
+                <div class="feature-title">🧒 FOR ELEVER</div>
+                <ul class="feature-list">
+                    <li><span class="feature-icon">🦖</span> <span>Samle <strong>150+ unike kort</strong> (biler, dyr, guder).</span></li>
+                    <li><span class="feature-icon">♻️</span> <span><strong>Panteordning:</strong> Bytt dubletter mot diamanter.</span></li>
+                    <li><span class="feature-icon">🎉</span> <span>Lær engelsk, vinn premier i spillet.</span></li>
+                </ul>
+            </div>
+
+            <div class="contact-box">
+                <p style="font-size:13px; font-weight:bold; margin:0 0 10px 0; color:#333;">Fant du en feil eller har et tips?</p>
+                <div class="contact-links">
+                    <a href="mailto:system@glosemester.no?subject=Feilmelding" class="contact-btn">
+                        🐞 Meld feil
+                    </a>
+                    <a href="mailto:kontakt@glosemester.no?subject=Hei" class="contact-btn">
+                        ✉️ Kontakt oss
+                    </a>
                 </div>
             </div>
-            <button class="btn-primary" onclick="this.parentElement.parentElement.style.display='none'" style="width:100%; margin-top:20px; background:#f0f0f0;">Lukk vindu</button>
+
+            <button class="btn-close-fancy" onclick="document.getElementById('info-modal').style.display='none'">
+                Lukk vindu
+            </button>
         </div>
+
     </div>
+</div>
     
     <div id="changelog-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
         <div class="popup-content" style="max-width: 500px;" onclick="event.stopPropagation()">
-            <h2>📋 v0.7.6-BETA</h2>
-            <p><strong>🎉 Hamburger-meny redesign (FERDIG)</strong><br>
-            ✅ Hamburger-meny ALLTID synlig (Desktop/Mobil)<br>
-            ✅ Clean code structure (Drawer flyttet ut)<br>
-            ✅ Ingen z-index konflikter<br>
-            ✅ Navne-visning fikset (Navn/Google/Epost)<br>
-            ✅ Dobbeltklikk-bug fikset</p>
+            <h2>📋 v0.9.8-BETA</h2>
+            <p><strong>🎉 Feilrettinger & Forbedringer</strong><br>
+            ✅ Fikset problem med blank side<br>
+            ✅ Oppdatert navigasjon<br>
+            ✅ Lagt til Om Oss & Footer (kun på forside)<br>
+            </p>
             <button class="btn-primary" onclick="document.getElementById('changelog-popup').style.display='none'" style="width:100%; margin-top:20px;">Lukk</button>
         </div>
     </div>
 
-    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.7.6-BETA</div>
+    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.9.8-BETA</div>
 
     <script type="module" src="js/init.js"></script>
-<!-- SKOLEPAKKE MODAL -->
-<div id="skolepakke-modal" class="popup-overlay" style="display:none;">
-    <div class="popup-content" style="max-width:600px;">
-        <button class="popup-close" onclick="lukkPopup('skolepakke-modal')">×</button>
+    <script type="module">
+        import './js/init.js';
+        import './js/app.js';
         
-        <h2 style="text-align:center; margin-bottom:10px;">🏫 Skolepakke</h2>
-        <p style="text-align:center; color:#666; margin-bottom:30px;">
-            GloseMester for hele skolen - fra 5000 kr/år
-        </p>
-        
-        <!-- Forespørselsskjema -->
-        <form id="skolepakke-form" onsubmit="event.preventDefault(); sendSchoolInquiry();" style="margin-top:25px;">
-            <h3 style="margin-bottom:15px;">Send forespørsel:</h3>
+        // Ekstra sikkerhet: Sjekk at app.js lastes
+        window.addEventListener('load', function() {
+            if (typeof velgRolle !== 'function') {
+                console.warn('⚠️ App.js funksjoner mangler, laster fallback...');
+                import('./js/app.js').then(module => {
+                    console.log('✅ App.js lastet manuelt');
+                }).catch(err => console.error('❌ Kunne ikke laste App.js:', err));
+            }
+        });
+    </script>
+
+    <div id="skolepakke-modal" class="popup-overlay" style="display:none;">
+        <div class="popup-content" style="max-width:600px;">
+            <button class="popup-close" onclick="lukkPopup('skolepakke-modal')" style="position:absolute; top:15px; right:15px; background:none; border:none; font-size:24px; cursor:pointer;">×</button>
             
-            <label style="display:block; margin-bottom:15px;">
-                <span style="display:block; margin-bottom:5px; font-weight:500;">Skolens navn *</span>
-                <input type="text" id="school-name" required placeholder="Eks: Levanger Ungdomsskole" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-            </label>
+            <h2 style="text-align:center; margin-bottom:10px;">🏫 Skolepakke</h2>
+            <p style="text-align:center; color:#666; margin-bottom:30px;">
+                GloseMester for hele skolen - fra 5000 kr/år
+            </p>
             
-            <label style="display:block; margin-bottom:15px;">
-                <span style="display:block; margin-bottom:5px; font-weight:500;">Organisasjonsnummer *</span>
-                <input type="text" id="org-number" required placeholder="9 siffer" pattern="[0-9]{9}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-            </label>
-            
-            <label style="display:block; margin-bottom:15px;">
-                <span style="display:block; margin-bottom:5px; font-weight:500;">Kontaktperson *</span>
-                <input type="text" id="contact-person" required placeholder="Fullt navn" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-            </label>
-            
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
-                <label style="display:block;">
-                    <span style="display:block; margin-bottom:5px; font-weight:500;">E-post *</span>
-                    <input type="email" id="contact-email" required placeholder="navn@skole.no" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+            <form id="skolepakke-form" onsubmit="event.preventDefault(); sendSchoolInquiry();" style="margin-top:25px;">
+                <h3 style="margin-bottom:15px;">Send forespørsel:</h3>
+                
+                <label style="display:block; margin-bottom:15px;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Skolens navn *</span>
+                    <input type="text" id="school-name" required placeholder="Eks: Levanger Ungdomsskole" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
                 </label>
                 
-                <label style="display:block;">
-                    <span style="display:block; margin-bottom:5px; font-weight:500;">Telefon *</span>
-                    <input type="tel" id="contact-phone" required placeholder="8 siffer" pattern="[0-9]{8}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <label style="display:block; margin-bottom:15px;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Organisasjonsnummer *</span>
+                    <input type="text" id="org-number" required placeholder="9 siffer" pattern="[0-9]{9}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
                 </label>
-            </div>
-            
-            <label style="display:block; margin-bottom:15px;">
-                <span style="display:block; margin-bottom:5px; font-weight:500;">Antall lærere *</span>
-                <select id="teacher-count" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-                    <option value="">Velg...</option>
-                    <option value="1-5">1-5 lærere</option>
-                    <option value="6-15">6-15 lærere</option>
-                    <option value="16+">16+ lærere</option>
-                </select>
-            </label>
-            
-            <label style="display:block; margin-bottom:20px;">
-                <span style="display:block; margin-bottom:5px; font-weight:500;">Melding (valgfritt)</span>
-                <textarea id="school-message" rows="3" placeholder="Har dere spørsmål eller spesielle behov?" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; resize:vertical;"></textarea>
-            </label>
-            
-            <button type="submit" class="btn-primary" style="width:100%; padding:12px; font-size:16px;">
-                Send forespørsel
-            </button>
-        </form>
+                
+                <label style="display:block; margin-bottom:15px;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Kontaktperson *</span>
+                    <input type="text" id="contact-person" required placeholder="Fullt navn" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                </label>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <label style="display:block;">
+                        <span style="display:block; margin-bottom:5px; font-weight:500;">E-post *</span>
+                        <input type="email" id="contact-email" required placeholder="navn@skole.no" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </label>
+                    
+                    <label style="display:block;">
+                        <span style="display:block; margin-bottom:5px; font-weight:500;">Telefon *</span>
+                        <input type="tel" id="contact-phone" required placeholder="8 siffer" pattern="[0-9]{8}" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </label>
+                </div>
+                
+                <label style="display:block; margin-bottom:15px;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Antall lærere *</span>
+                    <select id="teacher-count" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                        <option value="">Velg...</option>
+                        <option value="1-5">1-5 lærere</option>
+                        <option value="6-15">6-15 lærere</option>
+                        <option value="16+">16+ lærere</option>
+                    </select>
+                </label>
+                
+                <label style="display:block; margin-bottom:20px;">
+                    <span style="display:block; margin-bottom:5px; font-weight:500;">Melding (valgfritt)</span>
+                    <textarea id="school-message" rows="3" placeholder="Har dere spørsmål eller spesielle behov?" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; resize:vertical;"></textarea>
+                </label>
+                
+                <button type="submit" class="btn-primary" style="width:100%; padding:12px; font-size:16px;">
+                    Send forespørsel
+                </button>
+            </form>
+        </div>
     </div>
-</div>
+
 </body>
 </html>

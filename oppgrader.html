@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppgrader til Premium | GloseMester</title>
+    <meta name="description" content="Få ubegrenset tilgang til GloseMester med Premium eller Skolepakke. Fra 99 kr/måned.">
+    
+    <link rel="icon" type="image/png" href="icon.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0071e3;
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: #0071e3;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            max-width: 1200px;
+            margin: -60px auto 80px;
+            padding: 0 20px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .pricing-card.featured {
+            border: 3px solid #0071e3;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: "MEST POPULÆR";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0071e3;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .plan-name {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: bold;
+            color: #0071e3;
+            margin-bottom: 10px;
+        }
+
+        .plan-price span {
+            font-size: 18px;
+            font-weight: normal;
+            color: #666;
+        }
+
+        .plan-savings {
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .plan-description {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .features-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list li:last-child {
+            border-bottom: none;
+        }
+
+        .features-list li::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0071e3;
+            border: 2px solid #0071e3;
+        }
+
+        .btn-secondary:hover {
+            background: #0071e3;
+            color: white;
+        }
+
+        .btn-skolepakke {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-skolepakke:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-table td:first-child {
+            font-weight: 500;
+        }
+
+        .check {
+            color: #27ae60;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .cross {
+            color: #ccc;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .faq-item h3 {
+            color: #0071e3;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .faq-item p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 80px;
+        }
+
+        /* Modal for Skolepakke */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            border: none;
+            background: none;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .comparison-table {
+                overflow-x: auto;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">🎓 GloseMester</a>
+            <a href="/" class="back-link">← Tilbake til forsiden</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Oppgrader til Premium</h1>
+        <p>Ubegrenset tilgang til alle funksjoner. Velg den planen som passer best for deg.</p>
+    </section>
+
+    <section class="pricing-section">
+        <div class="pricing-grid">
+            
+            <div class="pricing-card">
+                <div class="plan-name">Gratis</div>
+                <div class="plan-price">
+                    0 kr
+                    <span>/alltid</span>
+                </div>
+                <p class="plan-description">Perfekt for å teste GloseMester</p>
+                
+                <ul class="features-list">
+                    <li>Opp til 3 prøver</li>
+                    <li>QR-kode deling</li>
+                    <li>Grunnleggende statistikk</li>
+                    <li>Alle elev-funksjoner</li>
+                </ul>
+                
+                <a href="/" class="btn btn-secondary">Kom i gang gratis</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-name">Premium - Månedlig</div>
+                <div class="plan-price">
+                    99 kr
+                    <span>/måned</span>
+                </div>
+                <p class="plan-description">Fleksibel betaling for enkeltstående lærere</p>
+                
+                <ul class="features-list">
+                    <li>Ubegrenset prøver</li>
+                    <li>16 standardprøver (LK20)</li>
+                    <li>Rediger og dupliser prøver</li>
+                    <li>Excel-eksport av resultater</li>
+                    <li>Avansert statistikk</li>
+                </ul>
+                
+                <button class="btn btn-primary" onclick="startVippsBetaling('premium_monthly')">
+                    Velg månedlig
+                </button>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="plan-name">Premium - Årlig</div>
+                <div class="plan-price">
+                    800 kr
+                    <span>/år</span>
+                </div>
+                <span class="plan-savings">💰 Spar 388 kr per år!</span>
+                <p class="plan-description">Best verdi for lærere som bruker GloseMester regelmessig</p>
+                
+                <ul class="features-list">
+                    <li>Ubegrenset prøver</li>
+                    <li>16 standardprøver (LK20)</li>
+                    <li>Rediger og dupliser prøver</li>
+                    <li>Excel-eksport av resultater</li>
+                    <li>Avansert statistikk</li>
+                    <li>Prioritert support</li>
+                </ul>
+                
+                <button class="btn btn-primary" onclick="startVippsBetaling('premium_yearly')">
+                    Velg årlig (spar 388 kr)
+                </button>
+            </div>
+
+            <div class="pricing-card">
+                <div class="plan-name">Skolepakke</div>
+                <div class="plan-price">
+                    Fra 5000 kr
+                    <span>/år</span>
+                </div>
+                <p class="plan-description">For hele skolen - alle lærere inkludert</p>
+                
+                <ul class="features-list">
+                    <li>Alt i Premium</li>
+                    <li>GloseBank - del prøver med kolleger</li>
+                    <li>Ubegrenset lærere</li>
+                    <li>Faktura (30 dagers betalingsfrist)</li>
+                    <li>Dedikert support</li>
+                    <li>Gratis onboarding</li>
+                </ul>
+                
+                <button class="btn btn-skolepakke" onclick="visSkolepakkeModal()">
+                    Send forespørsel
+                </button>
+                
+                <p style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
+                    1-5 lærere: 5000 kr | 6-15 lærere: 7000 kr | 16+ lærere: 10000 kr
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="comparison-section">
+        <h2>Sammenlign planene</h2>
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funksjon</th>
+                        <th>Gratis</th>
+                        <th>Premium</th>
+                        <th>Skolepakke</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Antall prøver</td>
+                        <td class="check">3 prøver</td>
+                        <td class="check">Ubegrenset</td>
+                        <td class="check">Ubegrenset</td>
+                    </tr>
+                    <tr>
+                        <td>QR-kode deling</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>16 standardprøver (LK20)</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>Rediger og dupliser prøver</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>Excel-eksport</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>GloseBank (deling)</td>
+                        <td class="cross">✗</td>
+                        <td class="cross">✗</td>
+                        <td class="check">✓</td>
+                    </tr>
+                    <tr>
+                        <td>Antall lærere</td>
+                        <td class="check">1</td>
+                        <td class="check">1</td>
+                        <td class="check">Ubegrenset</td>
+                    </tr>
+                    <tr>
+                        <td>Support</td>
+                        <td>E-post</td>
+                        <td>Prioritert</td>
+                        <td>Dedikert</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <h2>Ofte stilte spørsmål</h2>
+        
+        <div class="faq-item">
+            <h3>Hvordan betaler jeg?</h3>
+            <p>Premium-planer betales enkelt og sikkert med Vipps. Skolepakke betales med faktura (30 dagers betalingsfrist).</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Kan jeg kansellere når som helst?</h3>
+            <p>Ja! Premium-abonnement kan kanselleres når som helst. Du har tilgang til slutten av den betalte perioden.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Hva skjer med mine prøver hvis jeg avslutter Premium?</h3>
+            <p>Alle prøvene dine blir værende, men du kan kun ha 3 aktive prøver på gratis-planen. Du kan velge hvilke 3 som skal være aktive.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Kan jeg oppgradere fra månedlig til årlig senere?</h3>
+            <p>Ja, du kan når som helst bytte fra månedlig til årlig abonnement. Du får tilbakebetalt ubrukt tid.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Hvordan fungerer Skolepakken?</h3>
+            <p>Skolepakken gir alle lærere på skolen ubegrenset tilgang. Vi sender faktura til skolen, og dere velger selv hvilke lærere som skal ha tilgang.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Er det noen binding?</h3>
+            <p>Nei, ingen bindingstid. Premium er fleksibelt og kan kanselleres når som helst. Skolepakke betales årlig.</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 GloseMester. Laget med ❤️ for norske lærere.</p>
+        <p style="margin-top: 10px;">
+            <a href="/personvern.html" style="color: white; margin: 0 10px;">Personvern</a> | 
+            <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px;">Kontakt</a>
+        </p>
+    </footer>
+
+    <div id="skolepakke-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="lukkSkolepakkeModal()">×</button>
+            
+            <h2 style="text-align: center; margin-bottom: 10px;">🏫 Skolepakke-forespørsel</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                Vi kontakter dere innen 1-2 virkedager
+            </p>
+            
+            <form id="skolepakke-form" onsubmit="sendSkolepakkeForespørsel(event)">
+                <div class="form-group">
+                    <label>Skolens navn *</label>
+                    <input type="text" id="school-name" required placeholder="Eks: Levanger Ungdomsskole">
+                </div>
+                
+                <div class="form-group">
+                    <label>Organisasjonsnummer *</label>
+                    <input type="text" id="org-number" required placeholder="9 siffer" pattern="[0-9]{9}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Kontaktperson *</label>
+                    <input type="text" id="contact-person" required placeholder="Fullt navn">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>E-post *</label>
+                        <input type="email" id="contact-email" required placeholder="navn@skole.no">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Telefon *</label>
+                        <input type="tel" id="contact-phone" required placeholder="8 siffer" pattern="[0-9]{8}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Antall lærere *</label>
+                    <select id="teacher-count" required>
+                        <option value="">Velg...</option>
+                        <option value="1-5">1-5 lærere (5000 kr/år)</option>
+                        <option value="6-15">6-15 lærere (7000 kr/år)</option>
+                        <option value="16+">16+ lærere (10000 kr/år)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Melding (valgfritt)</label>
+                    <textarea id="school-message" placeholder="Har dere spørsmål eller spesielle behov?"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    Send forespørsel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+   <script type="module" src="js/features/firebase.js"></script>
+    <script type="module" src="js/features/auth.js"></script>
+    <script type="module" src="js/features/payment.js"></script>
+
+    <script>
+        function visSkolepakkeModal() {
+            document.getElementById('skolepakke-modal').style.display = 'flex';
+        }
+
+        function lukkSkolepakkeModal() {
+            document.getElementById('skolepakke-modal').style.display = 'none';
+        }
+
+        // Lukk modal ved klikk utenfor
+        window.onclick = function(event) {
+            const modal = document.getElementById('skolepakke-modal');
+            if (event.target === modal) {
+                lukkSkolepakkeModal();
+            }
+        }
+
+        function visToast(melding, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = melding;
+            toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+            
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        async function sendSkolepakkeForespørsel(event) {
+            event.preventDefault();
+            
+            const data = {
+                schoolName: document.getElementById('school-name').value.trim(),
+                orgNumber: document.getElementById('org-number').value.trim(),
+                contactPerson: document.getElementById('contact-person').value.trim(),
+                contactEmail: document.getElementById('contact-email').value.trim(),
+                contactPhone: document.getElementById('contact-phone').value.trim(),
+                teacherCount: document.getElementById('teacher-count').value,
+                message: document.getElementById('school-message').value.trim()
+            };
+
+            try {
+                const response = await fetch('/.netlify/functions/school-inquiry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Kunne ikke sende forespørsel');
+                }
+
+                const result = await response.json();
+                console.log('✅ Forespørsel sendt:', result.inquiryId);
+
+                visToast('🎉 Forespørsel sendt! Vi kontakter dere snart.', 'success');
+                lukkSkolepakkeModal();
+                document.getElementById('skolepakke-form').reset();
+
+            } catch (error) {
+                console.error('❌ Feil:', error);
+                visToast('Kunne ikke sende forespørsel. Prøv igjen.', 'error');
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.8.1-BETA (GloseBank Admin)
+// SERVICE WORKER - GloseMester v0.9.81-BETA (GloseBank Admin)
 // Oppdatert: Inkluderer GloseBank Admin modul
-const APP_VERSION = 'v0.8.1-BETA';
-const CACHE_NAME = 'glosemester-v0.8.1-beta';
+const APP_VERSION = 'v0.9.9.81-BETA';
+const CACHE_NAME = 'glosemester-v0.9.81-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler

@@ -1,5 +1,6 @@
 // ============================================
-// GLOSEBANK ADMIN v0.7.3-BETA
+// GLOSEBANK ADMIN v0.8.0-BETA
+// OPPDATERT: Bruker felles_prover collection
 // Kun tilgjengelig for admin (Øyvind)
 // ============================================
 
@@ -86,7 +87,9 @@ export async function lastInnGlosebankProver() {
             return;
         }
         
-        // Hent ALLE prøver fra glosebank (admin kan se alt)
+        console.log('🔍 Henter prøver fra glosebank...');
+        
+        // Bruker glosebank collection
         const q = query(
             collection(db, "glosebank"),
             orderBy("opprettet_dato", "desc")
@@ -132,13 +135,13 @@ function visFilterteProver() {
     // Filtrer prøver
     let filtrert = allProver;
     if (currentFilter === 'pending') {
-        filtrert = allProver.filter(p => p.status === 'pending');
+        filtrert = allProver.filter(p => p.status === 'pending' || !p.status);
     } else if (currentFilter === 'approved') {
         filtrert = allProver.filter(p => p.status === 'approved');
     }
     
     // Oppdater filter-tellere
-    const pendingCount = allProver.filter(p => p.status === 'pending').length;
+    const pendingCount = allProver.filter(p => p.status === 'pending' || !p.status).length;
     const approvedCount = allProver.filter(p => p.status === 'approved').length;
     
     const countAll = document.getElementById('filter-count-all');
@@ -160,10 +163,10 @@ function visFilterteProver() {
     filtrert.forEach((prove) => {
         const tittel = prove.tittel || 'Uten tittel';
         const antallOrd = prove.ordliste ? prove.ordliste.length : 0;
-        const dato = prove.opprettet_dato 
-            ? new Date(prove.opprettet_dato.toDate()).toLocaleDateString('nb-NO')
+        const dato = prove.delt_dato 
+            ? new Date(prove.delt_dato.toDate()).toLocaleDateString('nb-NO')
             : 'Ukjent';
-        const epost = prove.opprettet_av_epost || 'Ukjent';
+        const epost = prove.delt_av_epost || 'Ukjent';
         const status = prove.status || 'pending';
         const synlig = prove.synlig_for_kunder ? 'Ja' : 'Nei';
         
@@ -177,7 +180,7 @@ function visFilterteProver() {
         
         // Status badge
         let statusBadge = '';
-        if (status === 'pending') {
+        if (status === 'pending' || !status) {
             statusBadge = '<span class="badge badge-warning">⏳ Pending</span>';
         } else if (status === 'approved') {
             statusBadge = '<span class="badge badge-success">✅ Godkjent</span>';
@@ -203,7 +206,7 @@ function visFilterteProver() {
                     <button class="btn-primary btn-small" onclick="window.visProveDetaljerAdmin('${prove.id}')">
                         👁️ Se detaljer
                     </button>
-                    ${status === 'pending' ? `
+                    ${status === 'pending' || !status ? `
                         <button class="btn-success btn-small" onclick="window.godkjennProve('${prove.id}')">
                             ✅ Godkjenn
                         </button>
@@ -211,11 +214,9 @@ function visFilterteProver() {
                     <button class="btn-secondary btn-small" onclick="window.redigerProveMetadata('${prove.id}')">
                         ✏️ Rediger
                     </button>
-                    ${status === 'approved' ? `
-                        <button class="btn-warning btn-small" onclick="window.skjulProve('${prove.id}')">
-                            🔒 Skjul
-                        </button>
-                    ` : ''}
+                    <button class="btn-warning btn-small" onclick="window.skjulProve('${prove.id}')">
+                        👁️‍🗨️ Skjul
+                    </button>
                     <button class="btn-danger btn-small" onclick="window.slettFraGlosebank('${prove.id}')">
                         🗑️ Slett
                     </button>
@@ -229,134 +230,27 @@ function visFilterteProver() {
 }
 
 // ============================================
-// ENDRE FILTER
-// ============================================
-window.endreFilter = function(filter) {
-    currentFilter = filter;
-    
-    // Oppdater knapp-stil
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.getElementById(`filter-${filter}`).classList.add('active');
-    
-    // Vis filtrerte prøver
-    visFilterteProver();
-};
-
-// ============================================
-// VIS PRØVE-DETALJER
-// ============================================
-window.visProveDetaljerAdmin = async function(proveId) {
-    try {
-        const docSnap = await getDoc(doc(db, "glosebank", proveId));
-        if (!docSnap.exists()) {
-            alert('❌ Prøve ikke funnet');
-            return;
-        }
-        
-        const data = docSnap.data();
-        const ordliste = data.ordliste || [];
-        
-        let ordlisteHTML = '<ol class="ordliste-preview">';
-        ordliste.forEach(ord => {
-            ordlisteHTML += `<li><strong>${ord.s}</strong> → ${ord.e}</li>`;
-        });
-        ordlisteHTML += '</ol>';
-        
-        const modal = `
-            <div class="modal-overlay" onclick="this.remove()">
-                <div class="modal-content" onclick="event.stopPropagation()">
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
-                    <h2>📋 ${data.tittel || 'Uten tittel'}</h2>
-                    <p><strong>Antall ord:</strong> ${ordliste.length}</p>
-                    <p><strong>Opprettet av:</strong> ${data.opprettet_av_epost || 'Ukjent'}</p>
-                    <p><strong>Status:</strong> ${data.status || 'pending'}</p>
-                    <h3>Ordliste:</h3>
-                    ${ordlisteHTML}
-                    <button class="btn-primary" onclick="this.closest('.modal-overlay').remove()">Lukk</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', modal);
-        
-    } catch (error) {
-        console.error('❌ Feil ved visning:', error);
-        alert('❌ Kunne ikke vise detaljer: ' + error.message);
-    }
-};
-
-// ============================================
 // GODKJENN PRØVE
 // ============================================
 window.godkjennProve = async function(proveId) {
+    if (!confirm('Godkjenn denne prøven for GloseBank? Den vil bli synlig for alle lærere med skolepakke.')) {
+        return;
+    }
+    
     try {
-        const docSnap = await getDoc(doc(db, "glosebank", proveId));
-        if (!docSnap.exists()) {
-            alert('❌ Prøve ikke funnet');
-            return;
-        }
+        console.log('✅ Godkjenner prøve:', proveId);
         
-        const data = docSnap.data();
+        // Bruker glosebank collection
+        await updateDoc(doc(db, "glosebank", proveId), {
+            status: 'approved',
+            synlig_for_kunder: true,
+            godkjent_dato: serverTimestamp(),
+            godkjent_av: window.currentUser.uid,
+            nedlastninger: 0  // Start på 0
+        });
         
-        const modal = `
-            <div class="modal-overlay">
-                <div class="modal-content modal-medium">
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
-                    <h2>✅ Godkjenn prøve: ${data.tittel}</h2>
-                    
-                    <form id="godkjenn-form" onsubmit="window.lagreGodkjenning('${proveId}'); return false;">
-                        <label>
-                            Nivå:
-                            <select id="godkjenn-nivå" required>
-                                <option value="">Velg nivå</option>
-                                <option value="barneskole">Barneskole</option>
-                                <option value="ungdomsskole">Ungdomsskole</option>
-                                <option value="vgs">VGS</option>
-                            </select>
-                        </label>
-                        
-                        <label>
-                            Trinn:
-                            <input type="text" id="godkjenn-trinn" placeholder="F.eks. 2-4" required>
-                        </label>
-                        
-                        <label>
-                            Emne:
-                            <input type="text" id="godkjenn-emne" placeholder="F.eks. Familie" required>
-                        </label>
-                        
-                        <label>
-                            LK20 (kommaseparert):
-                            <input type="text" id="godkjenn-lk20" placeholder="K1, K3">
-                        </label>
-                        
-                        <label>
-                            Vanskelighetsgrad:
-                            <select id="godkjenn-vanskelighet" required>
-                                <option value="">Velg vanskelighetsgrad</option>
-                                <option value="lett">Lett</option>
-                                <option value="middels">Middels</option>
-                                <option value="vanskelig">Vanskelig</option>
-                            </select>
-                        </label>
-                        
-                        <label>
-                            Admin-notat (valgfritt):
-                            <textarea id="godkjenn-notat" rows="3" placeholder="Interne notater..."></textarea>
-                        </label>
-                        
-                        <div style="display:flex; gap:10px; margin-top:20px;">
-                            <button type="submit" class="btn-success">✅ Godkjenn og publiser</button>
-                            <button type="button" class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Avbryt</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', modal);
+        await lastInnGlosebankProver();
+        alert('✅ Prøve godkjent!');
         
     } catch (error) {
         console.error('❌ Feil ved godkjenning:', error);
@@ -365,50 +259,76 @@ window.godkjennProve = async function(proveId) {
 };
 
 // ============================================
-// LAGRE GODKJENNING
+// ENDRE FILTER
 // ============================================
-window.lagreGodkjenning = async function(proveId) {
+window.endreFil = function(filterNavn) {
+    currentFilter = filterNavn;
+    
+    // Oppdater UI
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const activeBtn = document.getElementById(`filter-${filterNavn}`);
+    if (activeBtn) activeBtn.classList.add('active');
+    
+    visFilterteProver();
+};
+
+// Alias for kompatibilitet
+window.endreFilter = window.endreFil;
+
+// ============================================
+// VIS PRØVE-DETALJER (Modal)
+// ============================================
+window.visProveDetaljerAdmin = async function(proveId) {
     try {
-        const nivå = document.getElementById('godkjenn-nivå').value;
-        const trinn = document.getElementById('godkjenn-trinn').value;
-        const emne = document.getElementById('godkjenn-emne').value;
-        const lk20Input = document.getElementById('godkjenn-lk20').value;
-        const vanskelighet = document.getElementById('godkjenn-vanskelighet').value;
-        const notat = document.getElementById('godkjenn-notat').value;
+        // ✅ ENDRET: Bruker felles_prover
+        const docSnap = await getDoc(doc(db, "glosebank", proveId));
         
-        // Parse LK20 (kommaseparert)
-        const lk20 = lk20Input 
-            ? lk20Input.split(',').map(k => k.trim()).filter(k => k.length > 0)
-            : [];
+        if (!docSnap.exists()) {
+            alert('❌ Prøve ikke funnet');
+            return;
+        }
         
-        // Generer tags
-        const tags = ['engelsk', emne.toLowerCase(), nivå];
+        const data = docSnap.data();
+        const ordliste = data.ordliste || [];
         
-        // Oppdater i Firestore
-        await updateDoc(doc(db, "glosebank", proveId), {
-            nivå: nivå,
-            trinn: trinn,
-            emne: emne,
-            LK20_kompetansemål: lk20,
-            vanskelighetsgrad: vanskelighet,
-            admin_notat: notat,
-            tags: tags,
-            status: 'approved',
-            synlig_for_kunder: true,
-            sist_redigert: serverTimestamp()
+        let ordlisteHTML = '<table class="ordliste-tabell"><tr><th>Norsk</th><th>Engelsk</th></tr>';
+        ordliste.forEach(ord => {
+            ordlisteHTML += `<tr><td>${ord.s}</td><td>${ord.e}</td></tr>`;
         });
+        ordlisteHTML += '</table>';
         
-        // Lukk modal
-        document.querySelector('.modal-overlay').remove();
+        const modal = `
+            <div class="modal-overlay">
+                <div class="modal-content modal-large">
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
+                    <h2>${data.tittel || 'Uten tittel'}</h2>
+                    
+                    <div class="prove-detaljer">
+                        <p><strong>📚 Antall ord:</strong> ${ordliste.length}</p>
+                        <p><strong>👤 Laget av:</strong> ${data.opprettet_av_epost || 'Ukjent'}</p>
+                        <p><strong>📅 Dato:</strong> ${data.opprettet_dato ? new Date(data.opprettet_dato.toDate()).toLocaleDateString('nb-NO') : 'Ukjent'}</p>
+                        <p><strong>🎓 Nivå:</strong> ${data.nivå || '—'}</p>
+                        <p><strong>📖 Trinn:</strong> ${data.trinn || '—'}</p>
+                        <p><strong>🏷️ Emne:</strong> ${data.emne || '—'}</p>
+                        <p><strong>📋 LK20:</strong> ${data.LK20_kompetansemål ? data.LK20_kompetansemål.join(', ') : '—'}</p>
+                        <p><strong>⚡ Status:</strong> ${data.status || 'pending'}</p>
+                        <p><strong>👁️ Synlig:</strong> ${data.synlig_for_kunder ? 'Ja' : 'Nei'}</p>
+                        ${data.admin_notat ? `<p><strong>📝 Admin-notat:</strong> ${data.admin_notat}</p>` : ''}
+                    </div>
+                    
+                    <h3>Ordliste</h3>
+                    ${ordlisteHTML}
+                </div>
+            </div>
+        `;
         
-        // Reload liste
-        await lastInnGlosebankProver();
-        
-        alert('✅ Prøve godkjent og publisert!');
+        document.body.insertAdjacentHTML('beforeend', modal);
         
     } catch (error) {
-        console.error('❌ Feil ved lagring:', error);
-        alert('❌ Kunne ikke lagre: ' + error.message);
+        console.error('❌ Feil ved henting av detaljer:', error);
+        alert('❌ Kunne ikke hente detaljer: ' + error.message);
     }
 };
 
@@ -417,7 +337,9 @@ window.lagreGodkjenning = async function(proveId) {
 // ============================================
 window.redigerProveMetadata = async function(proveId) {
     try {
+        // ✅ ENDRET: Bruker felles_prover
         const docSnap = await getDoc(doc(db, "glosebank", proveId));
+        
         if (!docSnap.exists()) {
             alert('❌ Prøve ikke funnet');
             return;
@@ -511,6 +433,7 @@ window.lagreRedigering = async function(proveId) {
             ? lk20Input.split(',').map(k => k.trim()).filter(k => k.length > 0)
             : [];
         
+        // ✅ ENDRET: Bruker felles_prover
         await updateDoc(doc(db, "glosebank", proveId), {
             tittel: tittel,
             nivå: nivå,
@@ -541,6 +464,7 @@ window.skjulProve = async function(proveId) {
     }
     
     try {
+        // ✅ ENDRET: Bruker felles_prover
         await updateDoc(doc(db, "glosebank", proveId), {
             synlig_for_kunder: false,
             sist_redigert: serverTimestamp()
@@ -564,6 +488,7 @@ window.slettFraGlosebank = async function(proveId) {
     }
     
     try {
+        // ✅ ENDRET: Bruker felles_prover
         await deleteDoc(doc(db, "glosebank", proveId));
         await lastInnGlosebankProver();
         alert('✅ Prøve slettet!');

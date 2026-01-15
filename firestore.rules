@@ -8,6 +8,18 @@ service cloud.firestore {
              request.auth.uid == 'QrFRB6xQDnVQsiSd0bzE6rH8z4x2';
     }
     
+    // ============================================
+    // FELLES_PROVER - GloseBank (kun admin deler)
+    // ============================================
+    match /felles_prover/{testId} {
+      // Les: Alle innloggede kan se GODKJENTE prøver
+      allow read: if request.auth != null && 
+                     (resource.data.status == 'approved' || isAdmin());
+      
+      // Skriv: KUN ADMIN (du godkjenner og deler)
+      allow write: if isAdmin();
+    }
+    
     // GloseBank - admin har full tilgang
     match /glosebank/{glosebankId} {
       allow read: if request.auth != null && 
@@ -58,14 +70,14 @@ service cloud.firestore {
                               (resource.data.prove_eier == request.auth.uid || isAdmin());
     }
     
-    // School inquiries (Skolepakke-forespørsler) - NY!
+    // School inquiries (Skolepakke-forespørsler)
     match /school_inquiries/{inquiryId} {
       allow read: if isAdmin();
       allow create: if true;
       allow update, delete: if isAdmin();
     }
     
-    // Orders (Vipps-betalinger) - NY!
+    // Orders (Vipps-betalinger)
     match /orders/{orderId} {
       allow read: if request.auth != null && 
                      (resource.data.userId == request.auth.uid || isAdmin());

@@ -1,81 +1,227 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
 
-exports.handler = async function(event, context) {
-  // Kun tillat POST requests
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
-  // Hent miljøvariabler
-  const FEIDE_CLIENT_ID = process.env.FEIDE_CLIENT_ID;
-  const FEIDE_CLIENT_SECRET = process.env.FEIDE_CLIENT_SECRET;
-  const FEIDE_REDIRECT_URI = process.env.FEIDE_REDIRECT_URI; // Sjekk at denne er https://glosemester.no/ i Netlify
-
-  // Initialiser Firebase Admin TRYGT inne i funksjonen
-  if (!admin.apps.length) {
-    try {
-      if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-        throw new Error("Mangler FIREBASE_SERVICE_ACCOUNT i Netlify env vars");
-      }
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-    } catch (error) {
-      console.error("Firebase Init Error:", error);
-      return { statusCode: 500, body: JSON.stringify({ error: "Serverkonfigurasjon feilet (Firebase)" }) };
-    }
-  }
-
-  try {
-    const { code } = JSON.parse(event.body);
-
-    if (!code) {
-      return { statusCode: 400, body: "Mangler auth code" };
-    }
-
-    // 1. Bytt 'code' mot 'access_token' hos Feide
-    const tokenResponse = await axios.post('https://auth.dataporten.no/oauth/token', new URLSearchParams({
-      'grant_type': 'authorization_code',
-      'code': code,
-      'client_id': FEIDE_CLIENT_ID,
-      'client_secret': FEIDE_CLIENT_SECRET,
-      'redirect_uri': FEIDE_REDIRECT_URI
-    }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-
-    const accessToken = tokenResponse.data.access_token;
-
-    // 2. Hent brukerinfo
-    const userInfoResponse = await axios.get('https://auth.dataporten.no/userinfo', {
-      headers: { 'Authorization': `Bearer ${accessToken}` }
+if (!admin.apps.length) {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        projectId: serviceAccount.project_id
     });
+}
+const db = admin.firestore();
 
-    const user = userInfoResponse.data;
-    console.log("Feide user info:", user.sub, user.name);
+const FEIDE_CLIENT_ID = "82131d17-cccd-48da-8397-4e9d70434d4d";
+const FEIDE_CLIENT_SECRET = process.env.FEIDE_CLIENT_SECRET;
+const FEIDE_TOKEN_URL = "https://auth.dataporten.no/oauth/token";
+const FEIDE_USERINFO_URL = "https://auth.dataporten.no/openid/userinfo";
 
-    // 3. Lag Firebase Custom Token
-    // Vi bruker Feide sin ID (sub) som Firebase UID
-    const uid = `feide:${user.sub}`; 
+// ⚠️ VIKTIG: Groups API krever spesifikk tilgang i Feide-portalen
+const FEIDE_GROUPS_URL = "https://groups-api.dataporten.no/groups/me/groups";
+
+function erLaerer(userinfo, groupsData = null) {
+    console.log(`🔍 Sjekker rolle: ${userinfo.name}`);
+
+    // ============================================
+    // STEG 1: SJEKK eduPersonPrimaryAffiliation
+    // ============================================
+    const primaryAffiliation = userinfo.eduPersonPrimaryAffiliation || 
+                              userinfo['https://n.feide.no/claims/eduPersonPrimaryAffiliation'];
     
-    const additionalClaims = {
-      navn: user.name,
-      email: user.email,
-      feideUser: true
+    if (primaryAffiliation) {
+        console.log("✅ Fant primaryAffiliation:", primaryAffiliation);
+        
+        if (primaryAffiliation.toLowerCase() === 'employee' || 
+            primaryAffiliation.toLowerCase() === 'faculty' ||
+            primaryAffiliation.toLowerCase() === 'staff') {
+            console.log("✅ LÆRER (employee/faculty/staff)");
+            return true;
+        }
+        
+        if (primaryAffiliation.toLowerCase() === 'student' ||
+            primaryAffiliation.toLowerCase() === 'pupil') {
+            console.log("❌ ELEV (student/pupil)");
+            return false;
+        }
+    }
+
+    // ============================================
+    // STEG 2: SJEKK GROUPS DATA (hvis tilgjengelig)
+    // ============================================
+    if (groupsData && Array.isArray(groupsData)) {
+        console.log("🔍 Sjekker groups data...");
+        
+        for (const group of groupsData) {
+            const membership = group.membership || {};
+            const primaryAff = membership.primaryAffiliation || membership.basic;
+            
+            if (primaryAff) {
+                console.log("  - Group affiliation:", primaryAff);
+                
+                if (primaryAff.toLowerCase() === 'employee' ||
+                    primaryAff.toLowerCase() === 'faculty' ||
+                    primaryAff.toLowerCase() === 'staff') {
+                    console.log("✅ LÆRER (fra groups)");
+                    return true;
+                }
+                
+                if (primaryAff.toLowerCase() === 'student' ||
+                    primaryAff.toLowerCase() === 'pupil') {
+                    console.log("❌ ELEV (fra groups)");
+                    return false;
+                }
+            }
+        }
+    }
+
+    // ============================================
+    // STEG 3: FALLBACK - SJEKK BRUKERNAVN
+    // ============================================
+    console.log("⚠️ Ingen klar affiliation - sjekker brukernavn...");
+    
+    const principalName = (userinfo.eduPersonPrincipalName || 
+                          userinfo['https://n.feide.no/claims/eduPersonPrincipalName'] || '').toLowerCase();
+    
+    const email = (userinfo.email || '').toLowerCase();
+    
+    console.log("  - principalName:", principalName);
+    console.log("  - email:", email);
+    
+    // LÆRER-ORD I BRUKERNAVN (for test-brukere)
+    const laererOrd = ['teacher', 'ansatt', 'tilsatt', 'laerer', 'lærer', 'admin'];
+    
+    if (laererOrd.some(ord => principalName.includes(ord) || email.includes(ord))) {
+        console.log("✅ LÆRER (brukernavn inneholder lærer-ord)");
+        return true;
+    }
+    
+    // ELEV-ORD I BRUKERNAVN
+    const elevOrd = ['student', 'elev', 'pupil'];
+    
+    if (elevOrd.some(ord => principalName.includes(ord) || email.includes(ord))) {
+        console.log("❌ ELEV (brukernavn inneholder elev-ord)");
+        return false;
+    }
+
+    // ============================================
+    // STEG 4: STANDARD = BLOKKÉR
+    // ============================================
+    console.log("⚠️ UKLAR ROLLE - blokkerer som standard");
+    return false;
+}
+
+exports.handler = async (event) => {
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Content-Type': 'application/json'
     };
 
-    const firebaseToken = await admin.auth().createCustomToken(uid, additionalClaims);
+    if (event.httpMethod !== 'POST') return { statusCode: 200, headers, body: '' };
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ token: firebaseToken, user: user })
-    };
+    try {
+        const { code, redirect_uri } = JSON.parse(event.body);
+        if (!code) throw new Error('Missing code');
 
-  } catch (error) {
-    console.error("Feide Auth Error:", error.response ? error.response.data : error.message);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Feilet under Feide-innlogging.", details: error.message })
-    };
-  }
+        console.log("📥 Feide auth request");
+
+        // 1. TOKEN EXCHANGE
+        const tokenRes = await axios.post(FEIDE_TOKEN_URL, new URLSearchParams({
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: redirect_uri || 'https://glosemester.no/',
+            client_id: FEIDE_CLIENT_ID,
+            client_secret: FEIDE_CLIENT_SECRET
+        }));
+
+        console.log("✅ Token OK");
+        const accessToken = tokenRes.data.access_token;
+
+        // 2. USERINFO
+        const userRes = await axios.get(FEIDE_USERINFO_URL, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const feideUser = userRes.data;
+
+        console.log("✅ Userinfo:", feideUser.name);
+        console.log("📋 Userinfo data:", JSON.stringify(feideUser, null, 2));
+
+        // 3. PRØV Å HENTE GROUPS DATA
+        // ⚠️ Dette vil feile hvis "system-all-users" ikke er aktivert
+        let groupsData = null;
+        try {
+            const groupsRes = await axios.get(FEIDE_GROUPS_URL, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            groupsData = groupsRes.data;
+            console.log("✅ Groups data hentet:", JSON.stringify(groupsData, null, 2));
+        } catch (e) {
+            // Dette er FORVENTET hvis du ikke har aktivert groups-tilgang
+            console.log("⚠️ Kunne ikke hente groups (forventet hvis ikke aktivert):", e.response?.status || e.message);
+        }
+
+        // 4. UID
+        let feideId = feideUser.sub;
+        if (!feideId && feideUser.userid) {
+            feideId = Array.isArray(feideUser.userid) ? feideUser.userid[0] : feideUser.userid;
+        }
+        const uid = `feide_${feideId}`;
+
+        // 5. SJEKK ROLLE
+        if (!erLaerer(feideUser, groupsData)) {
+            console.log("🚫 BLOKKERT");
+            
+            return {
+                statusCode: 403,
+                headers,
+                body: JSON.stringify({
+                    error: 'student_blocked',
+                    message: 'GloseMester er kun for lærere.',
+                    rolle: 'elev'
+                })
+            };
+        }
+
+        console.log("✅ GODKJENT");
+
+        // 6. LAGRE
+        await db.collection('users').doc(uid).set({
+            navn: feideUser.name,
+            email: feideUser.email || '',
+            feide_id: feideId,
+            kilde: 'feide',
+            rolle: 'laerer',
+            siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log("✅ User saved");
+
+        // 7. TOKEN
+        const token = await admin.auth().createCustomToken(uid, { 
+            rolle: 'laerer', 
+            feide_id: feideId 
+        });
+
+        console.log("✅ Returnerer 200 OK");
+
+        return {
+            statusCode: 200, 
+            headers,
+            body: JSON.stringify({ 
+                token, 
+                user: { 
+                    ...feideUser, 
+                    rolle: 'laerer'
+                } 
+            })
+        };
+
+    } catch (err) {
+        console.error("❌ Error:", err.message);
+        console.error("Stack:", err.stack);
+        return { 
+            statusCode: 500, 
+            headers, 
+            body: JSON.stringify({ error: err.message }) 
+        };
+    }
 };

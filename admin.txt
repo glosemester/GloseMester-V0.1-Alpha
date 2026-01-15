@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>body{font-family:sans-serif;padding:20px;background:#f4f6f8;}</style>
+</head>
+<body>
+    <h1>⚙️ Admin Dashboard</h1>
+    <div id="brukeradmin-stats"></div>
+    <div id="brukeradmin-liste"></div>
+
+    <script type="module">
+        import { auth, onAuthStateChanged } from './js/features/firebase.js';
+        import { lastInnBrukere } from './js/features/brukeradmin.js';
+
+        // Gjør brukeren tilgjengelig globalt slik brukeradmin.js forventer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                lastInnBrukere();
+            } else {
+                document.body.innerHTML = "<h1>⛔ Ingen tilgang. Logg inn som admin.</h1>";
+            }
+        });
+    </script>
+</body>
+</html>

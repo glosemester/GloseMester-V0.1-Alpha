@@ -159,36 +159,35 @@
 <body>
     <div class="container">
         <h1>🛡️ Personvernerklæring</h1>
-        <p><strong>GloseMester v0.7.4-BETA</strong></p>
-        <p><em>Sist oppdatert: 8. januar 2025</em></p>
+        <p><strong>GloseMester v0.9.8-BETA</strong></p>
+        <p><em>Sist oppdatert: 13. januar 2026</em></p>
 
         <div class="highlight-box">
             <h3>📌 Kort oppsummert:</h3>
             <ul>
-                <li>✅ <strong>100% anonymt for elever</strong> - vi vet ikke hvem som bruker appen</li>
-                <li>✅ <strong>Ingen personopplysninger lagres</strong> på servere (for elever)</li>
-                <li>✅ <strong>Lokal lagring</strong> - alt lagres kun på elevens enhet</li>
-                <li>✅ <strong>INGEN SPORING</strong> - Vi bruker ikke Google Analytics eller cookies</li>
+                <li>✅ <strong>100% anonymt for elever</strong> - vi vet ikke hvem eleven er</li>
+                <li>✅ <strong>Lokal lagring</strong> - elevers data lagres kun på deres enhet</li>
+                <li>✅ <strong>Feide-innlogging</strong> - sikker autentisering for lærere</li>
                 <li>✅ <strong>GDPR-compliant</strong> - full etterlevelse av personvernforordningen</li>
-                <li>💳 <strong>Lærere/skoler:</strong> Kun e-post og betalingsinfo lagres (kryptert)</li>
+                <li>💳 <strong>Betaling:</strong> Vipps MobilePay brukes for lærerkjøp</li>
             </ul>
         </div>
 
         <h2>1. Behandlingsansvarlig</h2>
-        <p><strong>Øyvind Nilsen Oksvold</strong> er behandlingsansvarlig for personopplysninger som behandles i forbindelse med GloseMester.</p>
+        <p><strong>Oksvold EDB</strong> er behandlingsansvarlig for personopplysninger som behandles i forbindelse med GloseMester.</p>
         
         <table>
             <tr>
                 <th>Navn</th>
-                <td>Øyvind Nilsen Oksvold</td>
+                <td>Oksvold EDB (Øyvind Nilsen Oksvold)</td>
             </tr>
             <tr>
-                <th>Organisasjonsform</th>
-                <td>Enkeltpersonforetak</td>
+                <th>Org. nummer</th>
+                <td>836 906 012</td>
             </tr>
             <tr>
                 <th>E-post</th>
-                <td><a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></td>
+                <td><a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></td>
             </tr>
             <tr>
                 <th>Rolle</th>
@@ -197,36 +196,17 @@
         </table>
 
         <h2>2. Hva er GloseMester?</h2>
-        <p>GloseMester er et digitalt læringsverktøy utviklet for å gjøre glosepugging engasjerende og gøy.</p>
-
-        <h3>Funksjonalitet:</h3>
+        <p>GloseMester er en Progressiv Web App (PWA) som gjør glosepugging om til en skattejakt gjennom gamification. Tjenesten er delt i to nivåer:</p>
         <ul>
-            <li>Elever øver på gloser og samler digitale monsterkort</li>
-            <li>Unike bilder generert spesielt for GloseMester</li>
-            <li>Lærere kan lage egne prøver og dele koder</li>
-            <li>Alt elevdata lagres lokalt på brukerens enhet (ingen sentral database)</li>
-            <li><strong>Nytt i v0.7.4:</strong> Lærere kan duplisere og redigere prøver</li>
+            <li><strong>For elever:</strong> En anonym øvingsplattform som lagrer progresjon lokalt.</li>
+            <li><strong>For lærere:</strong> Et administrasjonsverktøy for å lage prøver, dele via QR-koder og administrere innhold.</li>
         </ul>
-
-        <h2>2.1 Behandlingsansvarlig for betalende kunder</h2>
-        <div class="warning-box">
-            <p><strong>For lærere/skoler som betaler:</strong></p>
-            <p>Ved kjøp av lisens lagres følgende informasjon (kryptert):</p>
-            <ul>
-                <li><strong>E-postadresse:</strong> For faktura og kommunikasjon</li>
-                <li><strong>Betalingsinformasjon:</strong> Via Stripe/Vipps (vi lagrer IKKE kortnummer)</li>
-                <li><strong>Brukerprofil:</strong> Prøver, innstillinger, brukerstatistikk</li>
-                <li><strong>Kjøpshistorikk:</strong> For regnskapsformål (lovpålagt)</li>
-            </ul>
-            <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
-            <p><strong>Lagring:</strong> Firebase Firestore (Google Cloud, EU-region)</p>
-        </div>
 
         <h2>3. Hvilke personopplysninger behandles?</h2>
 
         <div class="success-box">
-            <h3>✅ FOR ELEVER: INGEN PERSONOPPLYSNINGER</h3>
-            <p>GloseMester krever <strong>ingen registrering</strong> for elever. Appen er <strong>100% anonym</strong>.</p>
+            <h3>✅ FOR ELEVER: ANONYM BRUK</h3>
+            <p>GloseMester krever <strong>ingen innlogging</strong> for elever. Vi lagrer ingen personopplysninger om elever på våre servere.</p>
         </div>
 
         <h3>3.1 Data som lagres lokalt (kun på elevens enhet):</h3>
@@ -237,274 +217,155 @@
                 <th>Lagringssted</th>
             </tr>
             <tr>
-                <td>Samling av monsterkort</td>
-                <td>Motivasjon og belønning</td>
+                <td>Samling av kort</td>
+                <td>Spillmekanikk og belønning</td>
                 <td>localStorage (nettleser)</td>
             </tr>
             <tr>
-                <td>Byttepoeng (kreditter)</td>
-                <td>Spillmekanikk</td>
+                <td>Progresjon</td>
+                <td>Huske hvor langt eleven kom</td>
                 <td>localStorage (nettleser)</td>
             </tr>
             <tr>
-                <td>Lagrede prøver (14 dager)</td>
+                <td>Lagrede prøver</td>
                 <td>Gjenta prøver uten ny kode</td>
                 <td>localStorage (nettleser)</td>
             </tr>
         </table>
 
-        <p><strong>Viktig:</strong> Denne dataen lagres <strong>kun lokalt</strong> på brukerens enhet. Vi har <strong>ingen tilgang</strong> til denne informasjonen.</p>
-
-        <h3>3.2 Data for betalende brukere (lærere/skoler):</h3>
+        <h3>3.2 Data for lærere og betalende brukere:</h3>
+        <p>For lærere som logger inn (via Feide, Google eller E-post) lagres følgende:</p>
         <table>
             <tr>
                 <th>Datatype</th>
                 <th>Formål</th>
-                <th>Lagring</th>
+                <th>Kilde</th>
             </tr>
             <tr>
-                <td>E-postadresse</td>
-                <td>Kommunikasjon, faktura, innlogging</td>
-                <td>Firebase Authentication (kryptert)</td>
+                <td>Identitet (Navn, E-post)</td>
+                <td>Innlogging og identifikasjon</td>
+                <td>Feide / Google / Bruker</td>
             </tr>
             <tr>
-                <td>Navn (valgfritt)</td>
-                <td>Personalisering</td>
-                <td>Firebase Firestore (kryptert)</td>
-            </tr>
-            <tr>
-                <td>Kjøpshistorikk</td>
-                <td>Regnskap (lovpålagt)</td>
-                <td>Firebase Firestore (kryptert)</td>
-            </tr>
-            <tr>
-                <td>Prøver (innhold og ordlister)</td>
-                <td>Lagring av egne prøver</td>
-                <td>Firebase Firestore (kryptert)</td>
-            </tr>
-            <tr>
-                <td>Brukerstatistikk (anonym)</td>
-                <td>Antall gjennomføringer, ikke individuelle resultater</td>
-                <td>Firebase Firestore (kryptert)</td>
-            </tr>
-        </table>
-
-        <div class="warning-box">
-            <h3>🆕 Ny i v0.7.4: Brukeradministrasjon</h3>
-            <p>For administrativ styring av brukerkontoer lagres også:</p>
-            <ul>
-                <li><strong>Abonnementsstatus:</strong> Free, Premium, eller Skolepakke</li>
-                <li><strong>Utløpsdato:</strong> For betalte abonnementer</li>
-                <li><strong>Rolle:</strong> Lærer eller Admin</li>
-            </ul>
-            <p>Denne informasjonen brukes kun til tilgangskontroll og er ikke synlig for andre brukere.</p>
-        </div>
-
-        <h2>4. Hva samler vi IKKE inn?</h2>
-
-        <div class="success-box">
-            <h3>❌ Vi registrerer ALDRI:</h3>
-            <ul>
-                <li>❌ Navn eller identifiserbar informasjon (elever)</li>
-                <li>❌ Fødselsnumre</li>
-                <li>❌ Telefonnumre (unntatt Vipps-betaling)</li>
-                <li>❌ IP-adresser eller lokasjonsdata</li>
-                <li>❌ Elevernes individuelle svar eller resultater</li>
-                <li>❌ Hvilke elever som bruker appen</li>
-                <li>❌ Skoletilhørighet (for elever)</li>
-                <li>❌ Biometriske data</li>
-            </ul>
-        </div>
-
-        <h2>5. Rettslig grunnlag</h2>
-        
-        <h3>5.1 Betalende brukere (lærere/skoler):</h3>
-        <p><strong>Rettslig grunnlag:</strong> Oppfyllelse av avtale (GDPR art. 6(1)(b))</p>
-        <ul>
-            <li>E-post, navn nødvendig for fakturering og kommunikasjon</li>
-            <li>Betalingsinfo nødvendig for gjennomføring av kjøp</li>
-            <li>Kjøpshistorikk lovpålagt (regnskapsloven § 13)</li>
-        </ul>
-
-        <h3>5.2 Lokal lagring (localStorage):</h3>
-        <p><strong>Rettslig grunnlag:</strong> Ikke relevant (ingen personopplysninger)</p>
-        <ul>
-            <li>Data lagres kun lokalt på brukerens enhet</li>
-            <li>Vi har ingen tilgang til denne dataen</li>
-        </ul>
-
-        <h2>6. Deling av data</h2>
-
-        <h3>6.1 Tredjeparter (Teknisk):</h3>
-        <table>
-            <tr>
-                <th>Tjeneste</th>
-                <th>Formål</th>
-                <th>Data delt</th>
-                <th>Lokasjon</th>
-            </tr>
-            <tr>
-                <td>Firebase (Google Cloud)</td>
-                <td>Database for betalende kunder</td>
-                <td>E-post, prøver, kjøpshistorikk</td>
-                <td>EU-region</td>
-            </tr>
-            <tr>
-                <td>Netlify</td>
-                <td>Hosting av nettside</td>
-                <td>Ingen persondata</td>
-                <td>Globalt CDN</td>
-            </tr>
-        </table>
-
-        <h3>6.2 Betalingsleverandører:</h3>
-        <table>
-            <tr>
-                <th>Tjeneste</th>
-                <th>Formål</th>
-                <th>Data delt</th>
-            </tr>
-            <tr>
-                <td><strong>Stripe</strong></td>
-                <td>Kortbetaling</td>
-                <td>E-post, beløp, kortnummer (kryptert av Stripe)</td>
-            </tr>
-            <tr>
-                <td><strong>Vipps</strong></td>
-                <td>Mobilbetaling (Norge)</td>
-                <td>Telefonnummer, beløp</td>
-            </tr>
-        </table>
-
-        <div class="warning-box">
-            <p><strong>Viktig:</strong> Vi deler <strong>aldri</strong> data med markedsføringsselskaper, annonsebyrået eller andre kommersielle aktører.</p>
-        </div>
-
-        <h2>7. Lagringstid</h2>
-
-        <table>
-            <tr>
-                <th>Datatype</th>
-                <th>Lagringstid</th>
-                <th>Sletting</th>
-            </tr>
-            <tr>
-                <td>Lokal data (kort, poeng)</td>
-                <td>Til brukeren sletter nettleserdata</td>
-                <td>Manuell (Settings → Cookies)</td>
-            </tr>
-            <tr>
-                <td>Lagrede prøver</td>
-                <td>14 dager (automatisk)</td>
-                <td>Automatisk sletting</td>
-            </tr>
-            <tr>
-                <td>E-postadresse (lærere)</td>
-                <td>Til konto slettes</td>
-                <td>Manuell (GDPR-forespørsel)</td>
+                <td>Feide-ID / Tilhørighet</td>
+                <td>Sikre at bruker er ansatt/lærer (ikke elev)</td>
+                <td>Feide (Sikt)</td>
             </tr>
             <tr>
                 <td>Prøver og innhold</td>
-                <td>Til bruker sletter</td>
-                <td>Manuell (bruker kan slette selv)</td>
+                <td>Lagring av lærerens materiale</td>
+                <td>Generert av bruker</td>
             </tr>
             <tr>
-                <td>Betalingsinformasjon</td>
-                <td>5 år etter siste kjøp</td>
-                <td>Automatisk (regnskapsloven)</td>
+                <td>Betalingshistorikk</td>
+                <td>Regnskap og tilgangsstyring</td>
+                <td>Vipps MobilePay</td>
             </tr>
         </table>
 
-        <h2>8. Dine rettigheter</h2>
-        <p>Som betalende kunde (lærer) har du fullt innsyn, rett til sletting og dataportabilitet.</p>
-
         <div class="highlight-box">
-            <h3>💡 For GloseMester-elever:</h3>
-            <p>Siden appen er <strong>100% anonym</strong> for elever, er de fleste GDPR-rettigheter ikke relevante. Vi har ingen personopplysninger å rette, slette eller utlevere.</p>
-            <p><strong>For å slette lokal data:</strong></p>
-            <ol>
-                <li>Åpne nettleserinnstillinger</li>
-                <li>Gå til "Personvern og sikkerhet"</li>
-                <li>Velg "Slett nettleserdata"</li>
-                <li>Velg "Cookies og annen nettstedsdata"</li>
-                <li>Klikk "Slett data"</li>
-            </ol>
+            <h3>🔐 Om Feide-innlogging</h3>
+            <p>Når en lærer logger inn med Feide, mottar vi følgende informasjon fra Sikt:</p>
+            <ul>
+                <li>Navn</li>
+                <li>E-postadresse</li>
+                <li>Feide-ID (unik identifikator)</li>
+                <li>Tilhørighet (for å verifisere lærer-status vs. elev-status)</li>
+                <li>Skole/Organisasjonstilhørighet</li>
+            </ul>
+            <p>Disse dataene brukes utelukkende for å gi tilgang til tjenesten.</p>
         </div>
 
-        <h3>8.1 For lærere/betalende kunder:</h3>
-        <ul>
-            <li><strong>Innsyn:</strong> Du kan be om kopi av alle data vi har om deg</li>
-            <li><strong>Retting:</strong> Du kan rette feil i dine personopplysninger</li>
-            <li><strong>Sletting:</strong> Du kan be om å slette kontoen din</li>
-            <li><strong>Dataportabilitet:</strong> Du kan få data i maskinlesbart format</li>
-            <li><strong>Innsigelse:</strong> Du kan protestere på behandling av dine data</li>
-        </ul>
-        <p><strong>Kontakt:</strong> <a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></p>
-
-        <h2>9. Informasjonssikkerhet</h2>
-        <ul>
-            <li>✅ <strong>HTTPS-kryptering</strong> - all kommunikasjon er kryptert</li>
-            <li>✅ <strong>Lokal lagring</strong> - ingen sentral database å hacke (for elever)</li>
-            <li>✅ <strong>Ingen sporing</strong> - ingen Google Analytics eller tracking</li>
-            <li>✅ <strong>AES-256 kryptering</strong> - for betalingsdata (Firebase)</li>
-            <li>✅ <strong>Firebase Security Rules</strong> - tilgangskontroll per bruker</li>
-            <li>✅ <strong>Regular backups</strong> - daglige sikkerhetskopier</li>
-        </ul>
-
-        <h2>10. Informasjon til foreldre/foresatte</h2>
-
+        <h2>4. Hva samler vi IKKE inn?</h2>
         <div class="success-box">
-            <h3>👨‍👩‍👧‍👦 Viktig informasjon for foreldre:</h3>
-            <p>GloseMester er utviklet med barns personvern som høyeste prioritet:</p>
+            <h3>❌ Vi registrerer ALDRI:</h3>
             <ul>
-                <li>✅ <strong>Ingen registrering:</strong> Barnet ditt trenger ikke oppgi navn, e-post eller annen informasjon</li>
-                <li>✅ <strong>Ingen sporing:</strong> Vi vet ikke hvem som bruker appen</li>
-                <li>✅ <strong>Ingen annonser:</strong> Appen er reklamefri</li>
-                <li>✅ <strong>Gratis:</strong> Ingen skjulte kostnader eller in-app kjøp (for elever)</li>
-                <li>✅ <strong>Trygt innhold:</strong> Alle bilder og tekster er egenutviklet og barnevennlige</li>
+                <li>❌ Elevers navn, e-post eller fødselsnummer</li>
+                <li>❌ Elevers individuelle prøvesvar knyttet til person</li>
+                <li>❌ Lokasjonsdata (GPS)</li>
+                <li>❌ Biometriske data</li>
+                <li>❌ Sensitive personopplysninger</li>
             </ul>
         </div>
 
-        <h2>11. Kontaktinformasjon</h2>
-        <p>For spørsmål om personvern, kontakt:</p>
+        <h2>5. Deling av data og underleverandører</h2>
+        <p>Vi selger aldri dine data. Vi bruker følgende underleverandører for å drifte tjenesten:</p>
+
+        <table>
+            <tr>
+                <th>Tjeneste</th>
+                <th>Formål</th>
+                <th>Lokasjon</th>
+            </tr>
+            <tr>
+                <td><strong>Google Cloud (Firebase)</strong></td>
+                <td>Database, autentisering og hosting</td>
+                <td>EU (Europe-west1)</td>
+            </tr>
+            <tr>
+                <td><strong>Netlify</strong></td>
+                <td>Hosting av frontend og serverless functions</td>
+                <td>EU (Frankfurt)</td>
+            </tr>
+            <tr>
+                <td><strong>Sikt (Feide)</strong></td>
+                <td>Identitetsforvaltning og innlogging</td>
+                <td>Norge</td>
+            </tr>
+            <tr>
+                <td><strong>Vipps MobilePay</strong></td>
+                <td>Betalingsformidling</td>
+                <td>Norge</td>
+            </tr>
+        </table>
+
+        <h2>6. Skoleavtaler (Databehandleravtale)</h2>
+        <p>For skoler som kjøper <strong>Skolepakke</strong>, inngås en egen databehandleravtale. I disse tilfellene opptrer Oksvold EDB som <em>databehandler</em> på vegne av skolen (behandlingsansvarlig).</p>
+        <p>Databehandleravtalen regulerer hvordan vi behandler lærernes opplysninger på vegne av skolen.</p>
+
+        <h2>7. Lagringstid og sletting</h2>
         <ul>
-            <li><strong>E-post:</strong> <a href="mailto:oyvind.nilsoks@gmail.com">oyvind.nilsoks@gmail.com</a></li>
-            <li><strong>Behandlingsansvarlig:</strong> Øyvind Nilsen Oksvold</li>
-            <li><strong>Responstid:</strong> Innen 30 dager (GDPR-krav)</li>
+            <li><strong>Lærerkontoer:</strong> Lagres så lenge kontoen er aktiv. Lærere kan når som helst be om sletting ved å kontakte oss.</li>
+            <li><strong>Inaktive kontoer:</strong> Slettes etter 24 måneder med inaktivitet (varsles i forkant).</li>
+            <li><strong>Regnskapsdata:</strong> Lagres i 5 år i henhold til bokføringsloven.</li>
+            <li><strong>Lokale data (elever):</strong> Slettes når brukeren tømmer nettleserdata eller manuelt i appens innstillinger.</li>
         </ul>
 
-        <h2>12. Endringer i personvernerklæringen</h2>
-        <p>Vi forbeholder oss retten til å oppdatere denne personvernerklæringen. Ved vesentlige endringer vil brukere bli varslet via e-post (for registrerte brukere) eller på nettsiden.</p>
-        
-        <h3>Versjonhistorikk:</h3>
+        <h2>8. Dine rettigheter</h2>
+        <p>Som registrert bruker (lærer) har du rett til:</p>
         <ul>
-            <li><strong>v0.7.4-BETA (8. januar 2025):</strong> Oppdatert med brukeradministrasjon, dupliser prøver, anonym statistikk</li>
-            <li><strong>v0.7.0-BETA (20. desember 2024):</strong> Standardprøver, GloseBank, nye funksjoner</li>
-            <li><strong>v0.5.0-BETA (15. november 2024):</strong> Første offentlige versjon</li>
+            <li><strong>Innsyn:</strong> Få vite hvilke data vi har lagret om deg.</li>
+            <li><strong>Retting:</strong> Korrigere feilaktig informasjon.</li>
+            <li><strong>Sletting:</strong> Be om at vi sletter din konto og data.</li>
+            <li><strong>Dataportabilitet:</strong> Få utlevert dine data (f.eks. prøver du har laget) i et maskinlesbart format.</li>
         </ul>
+        <p>Kontakt <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a> for å utøve dine rettigheter.</p>
 
-        <h2>13. Lisenser og opphavsrett</h2>
-        
-        <h3>Programvare og biblioteker:</h3>
+        <h2>9. Informasjonskapsler (Cookies)</h2>
+        <p>GloseMester bruker <strong>ikke</strong> sporing-cookies eller tredjeparts analyseverktøy (som Google Analytics) som sporer brukere på tvers av nettsteder.</p>
+        <p>Vi bruker kun nødvendig lokal lagring (localStorage) for å huske innlogging og innstillinger.</p>
+
+        <h2>10. Kontaktinformasjon</h2>
+        <p>Har du spørsmål om personvern eller vilkår?</p>
+        <div class="highlight-box" style="text-align: center;">
+            <p><strong>Oksvold EDB</strong></p>
+            <p>E-post: <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></p>
+            <p>Org.nr: 836 906 012</p>
+        </div>
+
+        <h2>11. Endringslogg</h2>
         <ul>
-            <li><strong>Firebase:</strong> Google Cloud Platform Terms</li>
-            <li><strong>QRCode.js / jsQR:</strong> MIT / Apache 2.0 License</li>
-            <li><strong>Font Awesome (ikoner):</strong> CC BY 4.0 License</li>
+            <li><strong>v0.9.8 (Januar 2026):</strong> Oppdatert med Feide-innlogging, Vipps ePay og nye sletterutiner.</li>
+            <li><strong>v0.7.4 (Januar 2025):</strong> Brukeradministrasjon og lokal lagring.</li>
+            <li><strong>v0.5.0 (November 2024):</strong> Første offentlige versjon.</li>
         </ul>
-
-        <h3>Innhold:</h3>
-        <p style="font-size: 14px; color: #666; font-style: italic;">
-            Alle monsterbilder og grafisk innhold er generert for og eies av GloseMester (Øyvind Nilsen Oksvold). 
-            Kopiering eller kommersiell bruk av bildene uten tillatelse er ikke tillatt.
-        </p>
 
         <div class="footer">
-            <p>GloseMester v0.7.4-BETA | Personvernerklæring sist oppdatert: 8. januar 2025</p>
-            <p>© 2024-2025 Øyvind Nilsen Oksvold - Alle rettigheter forbeholdt</p>
+            <p>© 2024-2026 Øyvind Nilsen Oksvold / Oksvold EDB. Alle rettigheter forbeholdt.</p>
         </div>
 
         <div style="text-align: center; margin-top: 40px;">
-            <a href="index.html" class="btn-back">← Tilbake til GloseMester</a>
+            <a href="/" class="btn-back">← Tilbake til forsiden</a>
         </div>
     </div>
 </body>

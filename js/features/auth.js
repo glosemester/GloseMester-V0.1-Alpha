@@ -1,6 +1,5 @@
 /* ============================================
-   AUTH.JS - Master v1.5
-   OPPDATERT: Full Feide-integrasjon via Netlify Functions
+   AUTH.JS - KOMPLETT MED ELEV-BLOKKERING
    ============================================ */
 
 import { visToast } from '../ui/helpers.js';
@@ -17,7 +16,7 @@ import {
     getDoc,
     doc,
     onAuthStateChanged,
-    signInWithCustomToken // <--- Brukes for Feide-token
+    signInWithCustomToken
 } from './firebase.js';
 
 import { oppdaterProveliste } from './saved-tests.js';
@@ -25,22 +24,41 @@ import { oppdaterProveliste } from './saved-tests.js';
 // --- FEIDE KONFIGURASJON ---
 const FEIDE_CLIENT_ID = "82131d17-cccd-48da-8397-4e9d70434d4d";
 
-// Bestem Redirect URI dynamisk (Localhost vs Prod) for å unngå feil under testing
-const REDIRECT_URI = window.location.hostname === "localhost" || window.location.hostname.includes("127.0.0.1")
-    ? "http://127.0.0.1:5500/"  // Sørg for at denne porten stemmer med din Live Server
-    : "https://glosemester.no/";
+// Automatisk origin-deteksjon
+const REDIRECT_URI = (() => {
+    const origin = window.location.origin;
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return `${origin}/`;
+    }
+    return "https://glosemester.no/";
+})();
 
-// ------------------------------------------------------------------
+console.log("🔐 Feide config initialisert:", { 
+    clientId: FEIDE_CLIENT_ID, 
+    redirectUri: REDIRECT_URI 
+});
+
+// ============================================
+// POPUP-HÅNDTERING
+// ============================================
 
 export function visInnlogging() {
-    document.getElementById('laerer-register-popup').style.display = 'none';
-    document.getElementById('laerer-login-popup').style.display = 'flex';
+    const regPopup = document.getElementById('laerer-register-popup');
+    const loginPopup = document.getElementById('laerer-login-popup');
+    if (regPopup) regPopup.style.display = 'none';
+    if (loginPopup) loginPopup.style.display = 'flex';
 }
 
 export function visRegistrering() {
-    document.getElementById('laerer-login-popup').style.display = 'none';
-    document.getElementById('laerer-register-popup').style.display = 'flex';
+    const loginPopup = document.getElementById('laerer-login-popup');
+    const regPopup = document.getElementById('laerer-register-popup');
+    if (loginPopup) loginPopup.style.display = 'none';
+    if (regPopup) regPopup.style.display = 'flex';
 }
+
+// ============================================
+// GOOGLE LOGIN
+// ============================================
 
 export async function loggInnMedGoogle() {
     try {
@@ -49,23 +67,41 @@ export async function loggInnMedGoogle() {
         await oppdaterBrukerIFirestore(user, user.displayName || "Google Bruker", "google");
         handterVellykketInnlogging(user);
     } catch (error) {
-        console.error("Google login feil:", error);
+        console.error("❌ Google login feil:", error);
         visToast("Innlogging feilet", "error");
     }
 }
 
+// ============================================
+// EMAIL LOGIN
+// ============================================
+
 export async function loggInnMedEmail() {
-    const email = document.getElementById('laerer-email').value;
-    const pass = document.getElementById('laerer-passord').value;
-    if (!email || !pass) { visToast("Fyll ut felt", "error"); return; }
+    const emailEl = document.getElementById('laerer-email');
+    const passEl = document.getElementById('laerer-passord');
+    
+    if (!emailEl || !passEl) return;
+
+    const email = emailEl.value;
+    const pass = passEl.value;
+
+    if (!email || !pass) { 
+        visToast("Fyll ut felt", "error"); 
+        return; 
+    }
 
     try {
         const result = await signInWithEmailAndPassword(auth, email, pass);
         handterVellykketInnlogging(result.user);
     } catch (error) {
+        console.error("❌ Email login feil:", error);
         visToast("Feil e-post eller passord", "error");
     }
 }
+
+// ============================================
+// REGISTRERING
+// ============================================
 
 export async function registrerLaerer() {
     const navn = document.getElementById('reg-navn').value;
@@ -74,7 +110,10 @@ export async function registrerLaerer() {
     const passBekreft = document.getElementById('reg-passord-bekreft').value;
 
     if (!navn || !email || !pass) return;
-    if (pass !== passBekreft) { visToast("Passord ulike", "error"); return; }
+    if (pass !== passBekreft) { 
+        visToast("Passord ulike", "error"); 
+        return; 
+    }
 
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -82,117 +121,245 @@ export async function registrerLaerer() {
         await oppdaterBrukerIFirestore(user, navn, "email");
         handterVellykketInnlogging(user);
     } catch (error) {
+        console.error("❌ Registrering feil:", error);
         visToast("Kunne ikke registrere: " + error.message, "error");
     }
 }
 
-// --- FEIDE LOGIKK START ---
+// ============================================
+// FEIDE LOGIN - START
+// ============================================
 
 export function loggInnMedFeide() { 
-    // 1. Bygg URL for Feide-innlogging
-    // Vi ber om: openid, userid, email, navn, organisasjon og utdanningstilhørighet
     const scope = "openid userid-feide email userinfo-name groups-org groups-edu";
     const authUrl = `https://auth.dataporten.no/oauth/authorization?client_id=${FEIDE_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}`;
     
-    // Lagre flagg i session så vi vet at vi venter på Feide når siden laster på nytt
-    sessionStorage.setItem('feideLoginProcess', 'true');
+    console.log("🚀 Starter Feide login...");
     
-    console.log("Sender bruker til Feide:", authUrl);
+    sessionStorage.setItem('feideLoginProcess', 'true');
     window.location.href = authUrl;
 }
+
+// ============================================
+// FEIDE CALLBACK - HÅNDTER RETUR
+// ============================================
 
 export async function sjekkFeideRetur() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const error = urlParams.get('error');
     const isFeideProcess = sessionStorage.getItem('feideLoginProcess');
 
-    // Hvis vi har en kode i URL-en OG vi vet at vi startet en Feide-prosess
+    // DEBUG
+    if (code || error || isFeideProcess) {
+        console.log("🔍 Feide callback:", {
+            harCode: !!code,
+            harError: !!error,
+            errorType: error
+        });
+    }
+
+    // FEIDE-FEIL
+    if (error) {
+        console.error("❌ Feide error:", error);
+        sessionStorage.removeItem('feideLoginProcess');
+        visToast(`Feide feilet: ${error}`, "error");
+        return;
+    }
+
     if (code && isFeideProcess) {
-        console.log("🔄 Fant Feide-kode, kontakter backend...");
+        console.log("✅ Feide callback OK - behandler...");
         
-        // Rydd opp URL (fjern ?code=... så det ser pent ut)
         window.history.replaceState({}, document.title, "/");
         sessionStorage.removeItem('feideLoginProcess');
-
         visToast("Logger inn med Feide...", "info");
 
         try {
-            // 2. Send koden til Netlify Function for veksling
+            console.log("📡 Sender code til backend...");
+            
             const response = await fetch('/.netlify/functions/feide-auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code })
+                body: JSON.stringify({ code: code, redirect_uri: REDIRECT_URI })
             });
 
+            console.log("📥 Backend response:", response.status);
+
+            // HÅNDTER FEIL
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Server feil");
+                const errorData = await response.json().catch(() => ({}));
+                
+                // 🎒 ELEV BLOKKERT
+                if (response.status === 403 && errorData.error === 'student_blocked') {
+                    console.log("🎓 Elev blokkert - viser popup");
+                    visElevPopup();
+                    return;
+                }
+                
+                // ANDRE FEIL
+                console.error("❌ Backend error:", errorData);
+                throw new Error(`Backend feil (${response.status})`);
             }
 
+            // SUCCESS - PARSE DATA
             const data = await response.json();
             const firebaseToken = data.token;
-            const feideUser = data.user; // Info hentet fra Feide i backend
+            const feideUser = data.user;
 
-            // 3. Logg inn i Firebase med Custom Token
+            console.log("👤 Feide user:", feideUser.name);
+            console.log("🔐 Logger inn i Firebase...");
+
+            // LOGG INN MED FIREBASE TOKEN
             const result = await signInWithCustomToken(auth, firebaseToken);
             const user = result.user;
 
-            console.log("✅ Feide-login vellykket for:", user.uid);
+            console.log("✅ Firebase login OK:", user.uid);
 
-            // 4. Lagre/Oppdater brukerinfo i Firestore
+            // OPPDATER FIRESTORE
             await oppdaterBrukerIFirestore(user, feideUser.name, "feide", feideUser.email);
 
             visToast("Logget inn med Feide! 🎉", "success");
             
-            // Send til dashboard hvis vi er på landingssiden
-            if(document.getElementById('landing-page').classList.contains('active')) {
-                window.visSide('laerer-dashboard');
+            // NAVIGER TIL DASHBOARD
+            const landingPageEl = document.getElementById('landing-page');
+            if(landingPageEl && landingPageEl.classList.contains('active')) {
+                if (typeof window.visSide === 'function') {
+                    window.visSide('laerer-dashboard');
+                }
             }
 
         } catch (error) {
-            console.error("Feide login feilet:", error);
-            visToast("Innlogging med Feide feilet. Prøv igjen.", "error");
+            console.error("💥 Feide FATAL:", error);
+            visToast("Innlogging feilet. Prøv igjen.", "error");
         }
     }
 }
 
-// --- FEIDE LOGIKK SLUTT ---
+// ============================================
+// ELEV-POPUP
+// ============================================
 
-// Hjelpefunksjon for å lagre brukerdata
+function visElevPopup() {
+    const popup = document.createElement('div');
+    popup.id = 'elev-blokkert-popup';
+    popup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s;
+    `;
+    
+    popup.innerHTML = `
+        <div style="
+            background: white;
+            padding: 50px;
+            border-radius: 16px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        ">
+            <div style="font-size: 80px; margin-bottom: 20px;">🎒</div>
+            <h2 style="color: #0071e3; margin: 0 0 20px 0; font-size: 28px;">Hei elev!</h2>
+            <p style="color: #666; line-height: 1.8; font-size: 16px; margin-bottom: 25px;">
+                Denne siden er for lærere som skal <strong>lage prøver</strong>.
+            </p>
+            <div style="background: #f0f7ff; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                <p style="color: #0071e3; margin: 0; font-size: 15px;">
+                    <strong>💡 Skal du ta en prøve?</strong><br>
+                    <span style="color: #666;">Bruk koden du fikk av læreren din på forsiden.</span>
+                </p>
+            </div>
+            <button onclick="document.getElementById('elev-blokkert-popup').remove(); window.location.reload();" 
+                style="
+                    padding: 15px 40px;
+                    background: #0071e3;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                "
+                onmouseover="this.style.background='#005bb5'"
+                onmouseout="this.style.background='#0071e3'">
+                OK, jeg forstår
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+}
+
+// ============================================
+// FIRESTORE OPPDATERING
+// ============================================
+
 async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null) {
     const userDocRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userDocRef);
+
+    console.log("💾 Oppdaterer bruker:", user.uid);
 
     if (!userSnap.exists()) {
         await setDoc(userDocRef, {
             email: emailOverride || user.email,
             navn: navn || "Ukjent Bruker",
             rolle: "laerer",
-            kilde: kilde, // 'feide', 'google' eller 'email'
+            kilde: kilde,
             opprettet: new Date(),
             abonnement: { status: "free", start_dato: new Date() }
         });
+        console.log("✅ Ny bruker opprettet");
+    } else {
+        console.log("✅ Eksisterende bruker");
     }
 }
 
+// ============================================
+// LOGG UT
+// ============================================
+
 export async function loggUt() {
     try {
+        console.log("👋 Logger ut...");
         await signOut(auth);
         window.currentUser = null;
         window.location.reload(); 
-    } catch (error) { console.error("Logout feil", error); }
+    } catch (error) { 
+        console.error("❌ Logout error:", error); 
+    }
 }
 
+// ============================================
+// VELLYKKET INNLOGGING
+// ============================================
+
 function handterVellykketInnlogging(user) {
+    console.log("🎉 Login OK:", user.uid);
     document.querySelectorAll('.popup-overlay').forEach(p => p.style.display = 'none');
     visToast(`Velkommen!`, "success");
     oppdaterUIForInnloggetBruker(user);
-    window.visSide('laerer-dashboard');
+    if (typeof window.visSide === 'function') {
+        window.visSide('laerer-dashboard');
+    }
 }
+
+// ============================================
+// UI OPPDATERING
+// ============================================
 
 function oppdaterUIForInnloggetBruker(user) {
     window.currentUser = user;
-    console.log("✅ window.currentUser satt:", user.email);
+    console.log("✅ window.currentUser:", user.email);
     
     const infoSpan = document.getElementById('user-info');
     if(infoSpan) infoSpan.innerText = user.email;
@@ -205,9 +372,15 @@ function oppdaterUIForInnloggetBruker(user) {
     sjekkOgOppdaterAdminTilgang(user);
 }
 
+// ============================================
+// ADMIN-SJEKK
+// ============================================
+
 async function sjekkOgOppdaterAdminTilgang(user) {
     const ADMIN_UID = "QrFRB6xQDnVQsiSd0bzE6rH8z4x2";
     if (user.uid !== ADMIN_UID) return;
+    
+    console.log("👑 Admin detektert");
     
     try {
         const userDocRef = doc(db, "users", user.uid);
@@ -221,46 +394,67 @@ async function sjekkOgOppdaterAdminTilgang(user) {
                     'abonnement.status': 'active',
                     'abonnement.kampanjekode': 'ADMIN'
                 });
+                console.log("✅ Admin skolepakke aktivert");
             }
         }
+        
         setTimeout(() => {
             const glosebankBtn = document.getElementById('btn-glosebank-browse');
-            if (glosebankBtn) glosebankBtn.style.display = 'inline-block';
+            if (glosebankBtn) {
+                glosebankBtn.style.display = 'inline-block';
+                console.log("✅ GloseBank aktivert");
+            }
         }, 200);
     } catch (error) {
-        console.error("Admin check error", error);
+        console.error("⚠️ Admin check error:", error);
     }
 }
+
+// ============================================
+// PERSONVERN
+// ============================================
 
 export function godtaPersonvern() { 
     document.getElementById('personvern-popup').style.display = 'none'; 
 }
+
 export function avvisPersonvern() { 
     alert("Du må godta for å bruke tjenesten."); 
 }
 
-// Eksponering til window
+// ============================================
+// GLOBALE FUNKSJONER
+// ============================================
+
 window.loggInnMedGoogle = loggInnMedGoogle;
 window.loggInnMedEmail = loggInnMedEmail;
-window.loggInnMedFeide = loggInnMedFeide; // <--- Nå virker denne!
+window.loggInnMedFeide = loggInnMedFeide;
 window.registrerLaerer = registrerLaerer;
 window.loggUt = loggUt;
 window.visInnlogging = visInnlogging;
 window.visRegistrering = visRegistrering;
 window.godtaPersonvern = godtaPersonvern;
 window.avvisPersonvern = avvisPersonvern;
+window.auth = auth;
 
-// Auto-login listener
+// ============================================
+// AUTH STATE LISTENER
+// ============================================
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        console.log("🔒 Bruker autentisert:", user.uid);
         window.currentUser = user;
         const aktivRolle = sessionStorage.getItem('aktivRolle');
-        const erPåLandingPage = document.getElementById('landing-page').classList.contains('active');
+        
+        const landingPageEl = document.getElementById('landing-page');
+        const erPåLandingPage = landingPageEl ? landingPageEl.classList.contains('active') : false;
         
         if (aktivRolle === 'laerer' && !erPåLandingPage) {
             oppdaterUIForInnloggetBruker(user);
         }
     } else {
+        console.log("👤 Ingen bruker");
         window.currentUser = null;
     }
 });

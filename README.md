@@ -1,49 +1,72 @@
 # 🎓 GloseMester
 
-**Gamifisert språklæring for skoler og selvstudium**
+**Gamifisert språklæring for norske skoler og selvstudium**
 
 🌐 **Nettside:** [glosemester.no](https://glosemester.no)  
-👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold  
-📅 **Versjon:** v0.7.6-BETA (Januar 2026)
+👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)  
+📅 **Versjon:** v0.9.8-BETA (Januar 2026)  
+📋 **Launch-plan:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 
 GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en skattejakt. Elevene samler digitale kort, bytter dubletter og klatrer i nivåene, mens lærere enkelt kan lage prøver med QR-kode deling.
 
 ---
 
-## 🆕 NYTT I v0.7.6-BETA (8. Januar 2026)
+## 🚀 LANSERINGSSTATUS
 
-### ✅ Feide Innlogging & Backend (FERDIG) 🔐
-- **Full OIDC Integrasjon:** Sikker innlogging for lærere via Feide.
-- **Serverless Backend:** Ny `Netlify Functions` arkitektur for å håndtere hemmeligheter.
-- **Firebase Custom Auth:** Feide-brukere konverteres automatisk til sikre Firebase-brukere.
-- **Skolelisens-UI:** Tydelig skille mellom privat innlogging og skole-innlogging.
-- **Test-støtte:** Full støtte for Feide Test Users i utviklingsmodus.
+**Nåværende fase:** BETA-testing  
+**Prod-klar:** ~90% (venter på Vipps produksjon)  
+**Launch ETA:** Februar 2026
 
-### ✅ Sikkerhetsoppgradering (FERDIG) 🛡️
-- **Environment Variables:** Ingen hemmeligheter (API keys/Secrets) ligger lenger i koden.
-- **Secure Token Exchange:** "Handshake" med Feide skjer på lukket server, ikke i nettleseren.
-- **Package Management:** Innført `package.json` for håndtering av backend-avhengigheter (`axios`, `firebase-admin`).
+✅ **Ferdig:**
+- Feide innlogging med lærer/elev-skille
+- Vipps betalingsintegrasjon (test)
+- Firebase backend & Firestore
+- PWA med offline-støtte
+- Admin-panel & GloseBank
+- Juridiske dokumenter (klare for juridisk gjennomgang)
+
+🟡 **Pågående:**
+- Vipps produksjonsgodkjenning (søknad sendt 13. jan 2026)
+- Beta-testing med pilotskoler
+- Juridisk gjennomgang av personvernerklæring
 
 ---
 
-## 🆕 NYTT I v0.7.5-BETA (8. Januar 2025)
+## 🆕 NYTT I v0.9.8-BETA (13. Januar 2026)
 
-### ✅ Mobilmeny-forbedring (FERDIG) 📱
-- **☰ Hamburger-meny** for mobil (<768px)
-- **Desktop uendret:** Alle knapper synlige som før
-- **Thumb-friendly:** Stor slide-in meny fra venstre
-- **Auto-lukking:** Klikk utenfor eller på overlay → meny lukkes
-- **User-email:** Vises øverst i hamburger-menyen
+### ✅ Sikkerhet & Autentisering 🔐
+- **Feide Rolle-verifisering:** 4-trinns sjekk for lærer/elev
+  - Steg 1: `eduPersonPrimaryAffiliation` (employee/student)
+  - Steg 2: Groups API (organisasjonstilhørighet)
+  - Steg 3: Brukernavn-analyse (fallback for test-brukere)
+  - Steg 4: Sikker blokkering (default: elev hvis uklar)
+- **Elev-blokkering:** Vennlig popup med veiledning til prøvekoder
+- **Min Side forbedringer:** Viser korrekt navn og e-post fra Firestore
+- **Automatisk abonnement-oppdatering:** Vipps webhook aktiverer Premium umiddelbart
 
-### ✅ Konsistent UX: Øving = Prøve (FERDIG) 🎯
-- **10-rute progress bar** i BÅDE øving og prøve
-- **Visuell motivasjon:** Se tydelig hvor nær du er neste kort
-- **Persistent progress:** Lagres automatisk i localStorage
-- **Lik samling-visning:** Diamanter, bonus-bar, pant-info overalt
+### ✅ Betalingsintegrasjon 💳
+- **Vipps ePay (Integrert betaling):** Produksjonsklar kode
+  - Dynamisk miljø-switching (test/prod)
+  - Automatisk Premium-aktivering via webhook
+  - Komplett ordre-tracking i Firestore
+- **Skolepakke-forespørsel:** Fullstendig skjema med Firestore-lagring
+- **Kjøpsvilkår:** Publisert på glosemester.no/vilkar.html
 
-### ✅ Oppdaterte priser (FERDIG) 💰
-- **Premium:** 99 kr/mnd eller 800 kr/år (før: 500 kr/år)
-- **Skolepakke:** Uendret (5000-10000 kr/år)
+### 🐛 Bugfixes
+- **teacher.js:** Fikset `undefined variable` i abonnement-sjekk (linje 154)
+- **auth.js:** Håndterer elev-blokkering gracefully
+- **min-side.html:** Prioriterer Firestore-data over Firebase Auth
+
+---
+
+## 🆕 NYTT I v0.9.7-BETA (9. Januar 2026)
+
+### ✅ Profesjonalisering & UI/UX 🎨
+- **Ny "Om oss"-side:** Fullstendig redesignet profilside med oppdatert biografi og kontaktinfo
+- **Smart Footer-logikk:** Footer vises kun på landingssiden
+- **Floating Upgrade Button:** Flyttet inn i landingssiden
+- **Sikkerhets-CSS:** Kritisk CSS i `<head>` for å hindre blank side
+- **Navigasjons-fiks:** "Avbryt"-knapper tar deg korrekt tilbake
 
 ---
 
@@ -51,99 +74,229 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ### 🎮 For Elever (Øv Selv)
 
-**Nivåbasert læring:**
-- **Nivå 1:** Kun flervalg (knapper) – perfekt for nybegynnere
-- **Nivå 2:** Blanding av skriving og knapper (50/50)
-- **Nivå 3:** Mest skriving (80%) – for de som vil bli eksperter
+**Læringssystemer:**
+- **3 nivåer:** Knapper, Mix, Skriving (progressiv vanskelighetsgrad)
+- **Progresjon:** 10-rute visuell bar med automatisk lagring
+- **Lydstøtte:** Syntetisk tale (Web Speech API) for alle ord
+- **Umiddelbar feedback:** Grønne/røde indikatorer, ingen poeng for feil
 
-**Progresjon:** - **10-rute visuell bar** (samme i øving OG prøve!)
-- Hvert riktig svar fyller en rute
-- Ved 10/10 får man en belønning (et kort)
-- **PERSISTENT:** Progress lagres automatisk, nullstilles IKKE ved avslutning
+**Gamification:**
+- **Kortsamling:** 4 sjeldenhetsgrader (Common, Rare, Epic, Legendary)
+- **Panteordning:** Pant 2 like kort → 1 diamant
+- **Master Galleri:** Full oversikt over alle samlebokskort
+- **Nivåbasert belønning:** Nye kort ved fullføring av nivåer
 
-**Læringsfokus:** - Ved feil svar stopper spillet opp, viser fasiten
-- "Søren heller"-popup krever at eleven trykker videre
-- Ingen poeng for feil svar
+**Tekniske features:**
+- Progressive Web App (PWA) - installerbar på mobil/desktop
+- Offline-støtte med Service Worker
+- Responsive design (mobil-først)
+- LocalStorage for lokal progresjon
 
-**Lydstøtte:** - Alle ord kan leses opp med syntetisk tale (Norsk/Engelsk)
-
-### 🏆 Samling & Galleri
-
-**Kortsamling:** - Samle unike kort med ulik sjeldenhetsgrad (Common, Rare, Epic, Legendary)
-- **Lik visning overalt:** Diamanter, bonus-bar, pant-info i både øving og prøve
-
-**Panteordning:** - Pant to like kort mot 1 diamant
-- Bruk diamanter til å kjøpe nye kort
-
-**Master Galleri:** - Oversikt over alle mulige kort i spillet
-- Se hva du mangler!
+---
 
 ### 🎯 For Lærere
 
-**Lærerportal:**
-- **Feide-innlogging:** Sikker tilgang med skolekonto.
-- Lag egne prøver med norsk-engelsk ordlister
-- Dashboard med oversikt over alle prøver
-- **Auto-lagring til GloseBank** (deles med andre lærere)
-- **Mobiloptimalisert:** Hamburger-meny på små skjermer
+**Autentisering:**
+- **Feide OIDC:** Sikker innlogging for norske skoler
+- **Google OAuth:** Alternativ innlogging
+- **E-post/passord:** Tradisjonell registrering
+- **Rolle-verifisering:** Automatisk skille mellom lærer og elev
 
-**Lagrede Prøver:**
-- Se alle dine prøver
-- **✏️ Rediger prøver:** Endre tittel og ordliste
-- **📋 Dupliser prøver:** Lag kopier med nytt navn
-- Generer QR-kode (elever kan skanne og starte umiddelbart)
-- Prøvekode (20 tegn) for deling
-- Resultater fra elever (anonyme)
-- Excel-eksport av resultater
-- Vanskeligste ord-analyse
-- Slett prøver
+**Prøvehåndtering:**
+- **Dashboard:** Komplett oversikt over alle prøver
+- **Prøve-editor:** Legg til/slett ord, min. 3 ord per prøve
+- **QR-kode generering:** Del prøver umiddelbart med elever
+- **Duplisering:** Kopier og modifiser eksisterende prøver
+- **Redigering:** Endre tittel og ordliste på lagrede prøver
+- **Resultatstatistikk:** Se fullføringsrate og gjennomsnittsscore
 
-**📚 Standardprøver (Premium/Skolepakke):**
-- **16 ferdiglagde prøver** (290 ord totalt)
-- LK20-alignerte prøver for barneskole og ungdomsskole
-- Filter etter nivå
-- Forhåndsvisning
-- Kopieres til eget bibliotek med ett klikk
+**Innholdsbibliotek:**
+- **Standardprøver:** 16 ferdiglagde LK20-alignerte prøver
+  - Nivå 1 (8.-10. trinn): 8 prøver
+  - Nivå 2 (Vg1-Vg2): 5 prøver
+  - Nivå 3 (Vg3): 3 prøver
+- **GloseBank:** Deling av prøver mellom lærere (Skolepakke/Admin)
+  - Søk og filtrer etter emne/nivå
+  - Last ned andres prøver
+  - Del egne prøver (admin-godkjenning)
 
-**📚 GloseBank (Skolepakke):**
-- Søk og bla i godkjente prøver fra andre lærere
-- Filter på fag, nivå, emne, LK20
-- Forhåndsvisning av ordlister
-- Last ned til eget bibliotek
-- Gi rating (1-5 stjerner + kommentar)
-- Se statistikk (nedlastninger, ratings)
+**Admin-funksjoner:**
+- **Admin-panel:** Full CRUD på prøver, brukere, standardprøver
+- **GloseBank-moderering:** Godkjenn/avvis innsendte prøver
+- **Brukeradministrasjon:** Håndter abonnementer og tilganger
+- **Statistikk-dashboard:** Oversikt over bruk og aktivitet
 
-**🔧 Admin (Kun admin-bruker):**
-- **Fanebasert admin-panel:** GloseBank, Brukere, Verktøy
-- **GloseBank:** Godkjenn/avvis prøver, rediger metadata, publiser/skjul/slett
-- **Brukeradministrasjon:** Se alle brukere, rediger abonnementer, statistikk
-- **Verktøy:** Legg til standardprøver med ett klikk
+---
 
-### 💳 Betalingsmodell
+### 💳 Betalingsmodell & Abonnementer
 
 **Gratis Tier:**
-- Lag opptil **3 prøver**
-- Alle elev-funksjoner (Øv Selv, Samling, Galleri)
-- QR-koder og prøvekoder
+- ✅ Opptil 3 prøver
+- ✅ Alle elev-funksjoner (øving, samling, galleri)
+- ✅ QR-kode deling
+- ✅ Basis resultatstatistikk
 
 **Premium Lærer (99 kr/mnd eller 800 kr/år):**
-- **Ubegrenset** antall prøver
-- **✏️ Rediger** og **📋 Dupliser** prøver
-- Resultatvisning og Excel-eksport
-- Tilgang til **16 Standardprøver**
-- **Fleksibel betaling:** Månedlig eller årlig
+- ✅ **Ubegrenset** antall prøver
+- ✅ Full redigering og duplisering
+- ✅ Tilgang til 16 Standardprøver (LK20-alignert)
+- ✅ Avansert resultatstatistikk
+- ✅ Prioritert support (2 virkedager)
+- 💳 Betaling via **Vipps** (automatisk fornyelse)
 
-**Skolepakke (5000-10000 kr/år):**
-- Alt i Premium
-- **GloseBank** - Søk og del prøver med andre lærere
-- **Feide-integrasjon** (Krever databehandleravtale)
-- Priser:
-  - 1-5 lærere: 5000 kr/år
-  - 6-15 lærere: 7000 kr/år
-  - 16+ lærere: 10000 kr/år
+**Skolepakke (5.000-10.000 kr/år):**
+- ✅ Alt i Premium
+- ✅ **GloseBank:** Del prøver internt på skolen
+- ✅ **Ubegrenset antall lærere** (skolelisensiering)
+- ✅ **Feide-integrasjon:** SSO for alle lærere
+- ✅ Dedikert support og opplæring
+- ✅ Faktura med 30 dagers betalingsfrist
+- 📧 Forespørsel via kontakt@glosemester.no
 
 ---
 
 ## 🗂️ TEKNISK OVERSIKT
 
-### Filstruktur
+### Arkitektur
+
+**Frontend:**
+- Progressive Web App (PWA)
+- Vanilla JavaScript (ES6+)
+- Firebase Client SDK v9 (modular)
+- CSS Grid & Flexbox (responsive design)
+- Service Worker for offline-støtte
+
+**Backend:**
+- Netlify Functions (serverless Node.js)
+- Firebase Admin SDK
+- Feide OIDC integrasjon
+- Vipps ePay API v2
+
+**Database:**
+- Cloud Firestore (NoSQL)
+- Collections: `users`, `prover`, `glosebank`, `orders`, `school_inquiries`
+- Firestore Security Rules (rolle-basert tilgang)
+
+**Hosting & Deployment:**
+- Netlify (glosemester.no)
+- Continuous Deployment via GitHub
+- Environment Variables for secrets
+
+### Viktige filer
+
+```
+glosemester/
+├── index.html                    # Landingsside
+├── min-side.html                 # Brukerprofilside med abo-info
+├── oppgrader.html                # Prisside med Vipps-integrasjon
+├── vilkar.html                   # Kjøpsvilkår (for Vipps)
+├── js/
+│   ├── app.js                    # Hovedapp-logikk
+│   ├── features/
+│   │   ├── auth.js               # Autentisering (Feide, Google, Email)
+│   │   ├── teacher.js            # Lærer-funksjoner & abo-sjekk
+│   │   ├── saved-tests.js        # Prøvehåndtering
+│   │   └── firebase.js           # Firebase config
+│   └── core/
+│       └── navigation.js         # SPA-navigasjon
+├── netlify/functions/
+│   ├── feide-auth.js             # Feide OIDC token exchange
+│   ├── vipps-initiate.js         # Vipps betalingsinitiering
+│   ├── vipps-webhook.js          # Vipps callback (auto-aktivering)
+│   └── school-inquiry.js         # Skolepakke-forespørsel
+├── sw.js                         # Service Worker
+└── firestore.rules               # Sikkerhet & tilgangskontroll
+```
+
+---
+
+## 🔐 Sikkerhet & Personvern
+
+**Autentisering:**
+- Firebase Authentication med Feide OIDC
+- Rolle-basert tilgangskontroll (lærer/elev/admin)
+- Custom tokens for Feide-brukere
+
+**Datahåndtering:**
+- GDPR-compliant personvernerklæring (under juridisk gjennomgang)
+- Databehandleravtale for skoler
+- Minimal datainnsamling (kun nødvendig info)
+- Feide-data lagres kryptert i Firestore
+
+**Betalingssikkerhet:**
+- Vipps-integrasjon (PCI DSS-compliant)
+- Ingen lagring av betalingskort
+- Webhook-verifisering for ordre-bekreftelse
+
+---
+
+## 📋 Utviklingsplan
+
+Se fullstendig launch-sjekkliste: **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**
+
+### Kritiske prioriteter (før launch):
+
+**1. Vipps produksjon** ⏱️ 2-5 dager
+- ✅ Søknad sendt (13. jan 2026)
+- ⏳ Venter på godkjenning
+- 🔧 Oppdater env vars ved godkjenning
+
+**2. Beta-testing** ⏱️ 2-4 uker
+- 🔍 Rekrutter 1-2 pilotskoler
+- 🧪 Test alle kritiske flyter
+- 📊 Samle feedback
+
+**3. Juridisk gjennomgang** ⏱️ 1-2 uker
+- 📄 Personvernerklæring (advokat)
+- 📄 Bruksvilkår
+- 💰 Kostnad: 5.000-15.000 kr
+
+**4. Infrastruktur** ⏱️ 1 dag
+- ☁️ Firebase backup (daily)
+- 📊 UptimeRobot monitoring
+- 🔒 Rate limiting på Functions
+
+---
+
+## 📞 Kontakt & Support
+
+**Utvikler:** Øyvind Nilsen Oksvold  
+**Bedrift:** Oksvold EDB (Org.nr: 836 906 012)  
+**E-post:** kontakt@glosemester.no  
+**Support:** Innen 2 virkedager  
+**Nettside:** https://glosemester.no
+
+---
+
+## 📜 Lisens & Opphavsrett
+
+© 2025-2026 Øyvind Nilsen Oksvold / Oksvold EDB  
+Alle rettigheter forbeholdt.
+
+**GloseMester** er et registrert merke.
+
+---
+
+## 🙏 Takk til
+
+- **Feide / Sikt:** For sikker autentisering i norsk utdanningssektor
+- **Vipps:** For enkel betalingsintegrasjon
+- **Firebase:** For robust backend-infrastruktur
+- **Netlify:** For serverless hosting og deployment
+- **Beta-testere:** (kommer snart)
+
+---
+
+## 📊 Statistikk
+
+**Utviklet:** November 2024 - Januar 2026  
+**Kodebasis:** ~15.000 linjer (JS, HTML, CSS)  
+**Standardprøver:** 16 LK20-alignerte prøver  
+**Samlebokskort:** 50+ unike kort (4 sjeldenhetsgrader)  
+**Støttede plattformer:** Web, iOS, Android (PWA)
+
+---
+
+**🚀 Klar for lansering Februar 2026!**
+
+For teknisk dokumentasjon, se [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)

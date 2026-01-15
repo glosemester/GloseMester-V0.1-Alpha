@@ -48,6 +48,48 @@ function visLagredeProverUI() {
         `;
         listeDiv.appendChild(div);
     });
+    
+    // ✅ OPPDATER OGSÅ START-SKJERM PROGRESS
+    oppdaterStartSkjermProgress();
+}
+
+// ✅ NY FUNKSJON: Oppdater progress i START-SKJERMEN
+function oppdaterStartSkjermProgress() {
+    const container = document.getElementById('elev-start-progress-target');
+    if (!container) return;
+
+    const totalXP = getTotalCorrect();
+    const antallFylte = totalXP % 10;
+    const antallRuter = 10;
+
+    let ruterHTML = '';
+    
+    for (let i = 0; i < antallRuter; i++) {
+        const erFylt = i < antallFylte;
+        const farge = erFylt ? '#4CAF50' : '#e0e0e0'; 
+        const border = erFylt ? '1px solid #388E3C' : '1px solid #ccc';
+        
+        ruterHTML += `
+            <div style="
+                flex: 1; 
+                height: 12px; 
+                background-color: ${farge}; 
+                border: ${border}; 
+                border-radius: 3px;
+                transition: background-color 0.3s ease;
+            "></div>
+        `;
+    }
+
+    container.innerHTML = `
+        <div style="display:flex; gap:4px;">
+            ${ruterHTML}
+        </div>
+    `;
+    
+    // Oppdater også teksten
+    const textElem = document.getElementById('quiz-progress-text');
+    if (textElem) textElem.innerText = `${antallFylte} / 10`;
 }
 
 window.startLagretProve = function(id) {

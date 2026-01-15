@@ -1,191 +1,205 @@
 /* ============================================
-   SKOLEPAKKE FORESPØRSEL - Netlify Function
-   Håndterer forespørsler om Skolepakke fra skoler
+   SKOLEPAKKE FORESPØRSEL - MED RESEND E-POST
    ============================================ */
 
 const admin = require('firebase-admin');
+const { Resend } = require('resend'); // ✅ RESEND
 
-// Initialize Firebase Admin (hvis ikke allerede initialisert)
+// Initialize Firebase Admin
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    })
-  });
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+        throw new Error("Mangler FIREBASE_SERVICE_ACCOUNT i Netlify env vars");
+    }
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+    });
 }
 
 const db = admin.firestore();
 
-/**
- * Send e-post til admin om ny forespørsel
- */
-async function sendAdminNotification(inquiryData) {
-  console.log('📧 Admin-notifikasjon:', inquiryData);
-  
-  // TODO: Implementer faktisk e-post-sending
-  // For nå: bare logg til konsoll
-  
-  /* Eksempel med SendGrid:
-  const sgMail = require('@sendgrid/mail');
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  
-  const msg = {
-    to: 'kontakt@glosemester.no',
-    from: 'system@glosemester.no',
-    subject: `Ny skolepakke-forespørsel: ${inquiryData.schoolName}`,
-    html: `
-      <h2>Ny forespørsel om Skolepakke</h2>
-      <p><strong>Skole:</strong> ${inquiryData.schoolName}</p>
-      <p><strong>Org.nr:</strong> ${inquiryData.orgNumber}</p>
-      <p><strong>Kontaktperson:</strong> ${inquiryData.contactPerson}</p>
-      <p><strong>E-post:</strong> ${inquiryData.contactEmail}</p>
-      <p><strong>Telefon:</strong> ${inquiryData.contactPhone}</p>
-      <p><strong>Antall lærere:</strong> ${inquiryData.teacherCount}</p>
-      <p><strong>Melding:</strong> ${inquiryData.message || 'Ingen'}</p>
-    `
-  };
-  
-  await sgMail.send(msg);
-  */
-}
-
-/**
- * Send automatisk svar til skolen
- */
-async function sendAutoReply(email, contactPerson, schoolName) {
-  console.log(`📧 Automatisk svar til ${email}`);
-  
-  // TODO: Implementer faktisk e-post
-  
-  /* Eksempel:
-  const sgMail = require('@sendgrid/mail');
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  
-  const msg = {
-    to: email,
-    from: 'kontakt@glosemester.no',
-    subject: 'Takk for din interesse i GloseMester Skolepakke',
-    html: `
-      <h2>Hei ${contactPerson}!</h2>
-      <p>Takk for at ${schoolName} ønsker å bruke GloseMester Skolepakke.</p>
-      <p>Vi har mottatt deres forespørsel og vil kontakte dere innen 1-2 virkedager.</p>
-      <h3>Dette får dere med Skolepakke:</h3>
-      <ul>
-        <li>✅ Ubegrenset prøver for alle lærere</li>
-        <li>✅ Tilgang til GloseBank med deling mellom lærere</li>
-        <li>✅ 16 ferdiglagde standardprøver</li>
-        <li>✅ Resultatanalyse og Excel-eksport</li>
-      </ul>
-      <p>Med vennlig hilsen,<br>GloseMester-teamet</p>
-    `
-  };
-  
-  await sgMail.send(msg);
-  */
-}
-
-/**
- * HOVEDFUNKSJON: Håndter skolepakke-forespørsel
- */
 exports.handler = async (event, context) => {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json'
-  };
-
-  // Handle OPTIONS (CORS preflight)
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-
-  // Kun POST tillatt
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Content-Type': 'application/json'
     };
-  }
 
-  try {
-    const data = JSON.parse(event.body);
-    
-    const {
-      schoolName,
-      orgNumber,
-      contactPerson,
-      contactEmail,
-      contactPhone,
-      teacherCount,
-      message
-    } = data;
-
-    // Validering
-    if (!schoolName || !orgNumber || !contactPerson || !contactEmail || !contactPhone || !teacherCount) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Alle påkrevde felter må fylles ut' 
-        })
-      };
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' };
     }
 
-    // Valider e-postformat
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(contactEmail)) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'Ugyldig e-postadresse' })
-      };
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ error: 'Method not allowed' })
+        };
     }
 
-    console.log('📋 Ny skolepakke-forespørsel:', schoolName);
+    try {
+        const data = JSON.parse(event.body);
+        
+        const {
+            schoolName,
+            orgNumber,
+            contactPerson,
+            contactEmail,
+            contactPhone,
+            teacherCount,
+            message
+        } = data;
 
-    // Lagre forespørsel i Firestore
-    const inquiryRef = await db.collection('school_inquiries').add({
-      schoolName,
-      orgNumber,
-      contactPerson,
-      contactEmail,
-      contactPhone,
-      teacherCount,
-      message: message || '',
-      status: 'pending',
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+        // Validering
+        if (!schoolName || !orgNumber || !contactPerson || !contactEmail || !contactPhone || !teacherCount) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ 
+                    error: 'Alle påkrevde felter må fylles ut' 
+                })
+            };
+        }
 
-    console.log(`✅ Forespørsel lagret: ${inquiryRef.id}`);
+        // Valider e-postformat
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactEmail)) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ error: 'Ugyldig e-postadresse' })
+            };
+        }
 
-    // Send notifikasjoner
-    await sendAdminNotification(data);
-    await sendAutoReply(contactEmail, contactPerson, schoolName);
+        console.log('📋 Ny skolepakke-forespørsel:', schoolName);
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({
-        success: true,
-        message: 'Forespørsel mottatt! Vi kontakter dere snart.',
-        inquiryId: inquiryRef.id
-      })
-    };
+        // Lagre forespørsel i Firestore
+        const inquiryRef = await db.collection('school_inquiries').add({
+            schoolName,
+            orgNumber: orgNumber.replace(/\s/g, ''),
+            contactPerson,
+            contactEmail: contactEmail.toLowerCase(),
+            contactPhone,
+            teacherCount: parseInt(teacherCount),
+            message: message || '',
+            status: 'pending',
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
 
-  } catch (error) {
-    console.error('❌ School inquiry error:', error);
-    
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error: 'Kunne ikke sende forespørsel',
-        message: error.message
-      })
-    };
-  }
+        console.log(`✅ Forespørsel lagret: ${inquiryRef.id}`);
+        
+        // ✅ SEND E-POSTVARSEL MED RESEND
+        try {
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            
+            const emailData = await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL || 'kontakt@glosemester.no',
+                to: process.env.RESEND_TO_EMAIL || 'oyvind.nilsoks@gmail.com',
+                subject: `🏫 Ny skolepakke-forespørsel: ${schoolName}`,
+                html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: #0071e3; color: white; padding: 25px; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { background: #f9f9f9; padding: 25px; border-radius: 0 0 8px 8px; }
+        .info-section { background: white; padding: 15px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #0071e3; }
+        .label { font-weight: bold; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .value { color: #333; font-size: 16px; }
+        .message-box { background: white; padding: 15px; margin: 20px 0; border-radius: 6px; border: 1px solid #ddd; }
+        .footer { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px; }
+        .button { display: inline-block; background: #0071e3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏫 Ny Skolepakke-forespørsel</h1>
+    </div>
+    <div class="content">
+        <div class="info-section">
+            <div class="label">Skole</div>
+            <div class="value">${schoolName}</div>
+        </div>
+        
+        <div class="info-section">
+            <div class="label">Organisasjonsnummer</div>
+            <div class="value">${orgNumber}</div>
+        </div>
+        
+        <div class="info-section">
+            <div class="label">Kontaktperson</div>
+            <div class="value">${contactPerson}</div>
+        </div>
+        
+        <div class="info-section">
+            <div class="label">E-post</div>
+            <div class="value"><a href="mailto:${contactEmail}" style="color: #0071e3;">${contactEmail}</a></div>
+        </div>
+        
+        <div class="info-section">
+            <div class="label">Telefon</div>
+            <div class="value">${contactPhone}</div>
+        </div>
+        
+        <div class="info-section">
+            <div class="label">Antall lærere</div>
+            <div class="value">${teacherCount}</div>
+        </div>
+        
+        ${message ? `
+        <div class="message-box">
+            <div class="label">Melding fra skolen</div>
+            <div class="value" style="margin-top: 10px;">${message}</div>
+        </div>
+        ` : ''}
+        
+        <a href="mailto:${contactEmail}?subject=Re: Skolepakke-forespørsel GloseMester" class="button">
+            📧 Svar på forespørsel
+        </a>
+        
+        <div class="footer">
+            <strong>Forespørsel-ID:</strong> ${inquiryRef.id}<br>
+            <strong>Mottatt:</strong> ${new Date().toLocaleString('no-NO', { timeZone: 'Europe/Oslo' })}<br>
+            <br>
+            <em>Denne e-posten ble automatisk sendt fra GloseMester</em>
+        </div>
+    </div>
+</body>
+</html>
+                `
+            });
+            
+            console.log('✅ E-postvarsel sendt via Resend:', emailData.id);
+            
+        } catch (emailError) {
+            // Logg feilen, men ikke fail hele requesten
+            console.error('⚠️ Resend e-post feilet:', emailError.message);
+            // Forespørselen er allerede lagret i Firestore, så det er OK
+        }
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                message: 'Forespørsel mottatt! Vi kontakter dere snart.',
+                inquiryId: inquiryRef.id
+            })
+        };
+
+    } catch (error) {
+        console.error('❌ School inquiry error:', error);
+        
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({
+                error: 'Kunne ikke sende forespørsel',
+                message: error.message
+            })
+        };
+    }
 };

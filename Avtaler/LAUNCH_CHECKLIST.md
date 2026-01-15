@@ -1,0 +1,644 @@
+# 🚀 GLOSEMESTER v1.0 - KOMPLETT LAUNCH-SJEKKLISTE
+
+## 📊 OVERSIKT
+
+Dette dokumentet inneholder ALT som må være på plass før GloseMester kan lanseres i produksjon.
+
+**Status-koder:**
+- ✅ FERDIG - Allerede implementert
+- 🟡 DELVIS - Fungerer, men trenger produksjonsoppsett
+- ❌ MANGLER - Må implementeres
+- 🔴 KRITISK - Må være på plass før lansering
+
+---
+
+# 1️⃣ TEKNISK INFRASTRUKTUR
+
+## 1.1 Hosting & Domene
+- [x] ✅ Domene registrert: glosemester.no
+- [x] ✅ Netlify hosting konfigurert
+- [x] ✅ HTTPS/SSL aktivert
+- [x] ✅ Firebase project opprettet
+- [ ] 🔴 **DNS-konfigurasjoner verifisert**
+  - Sjekk at alle subdomener fungerer
+  - Verifiser e-post redirects
+
+## 1.2 Database & Backend
+- [x] ✅ Firebase Firestore setup
+- [x] ✅ Firestore Security Rules deployed
+- [x] ✅ Firebase Authentication setup (Feide)
+- [x] ✅ Netlify Functions for Feide OAuth
+- [ ] 🔴 **Firestore backup-strategi**
+  - Automatiske daglige backups
+  - Point-in-time recovery aktivert
+  - Test restore-prosedyre
+
+## 1.3 E-post Setup
+- [ ] 🔴 **Profesjonell e-postdomene: kontakt@glosemester.no**
+  - Sett opp via Netlify/Google Workspace/Outlook
+  - Konfigurer SPF, DKIM, DMARC records
+  - Test sending og mottak
+- [ ] ❌ **E-postvarsel for skoleforespørsler** (Se seksjon 3.3)
+- [ ] ❌ **Transaksjonelle e-poster** (bekreftelser, kvitteringer)
+- [ ] ❌ **Support-ticket system eller forwarding**
+
+---
+
+# 2️⃣ BETALINGSINTEGRASJON
+
+## 2.1 Vipps - Fra Test til Produksjon
+- [x] 🟡 Vipps test-integrasjon fungerer
+- [ ] 🔴 **Søk om Vipps produksjonstilgang**
+  - Gå til https://portal.vipps.no
+  - Søk om "Vipps ePay" (engangsbetalinger)
+  - Søk om "Vipps Recurring" (abonnementer)
+  - Venter 2-5 virkedager på godkjenning
+- [ ] 🔴 **Motta produksjons-credentials**
+  - Client ID
+  - Client Secret
+  - Subscription Key (Ocp-Apim-Subscription-Key)
+  - Merchant Serial Number (MSN)
+- [ ] 🔴 **Oppdater Netlify Environment Variables**
+  ```
+  VIPPS_CLIENT_ID=<prod-id>
+  VIPPS_CLIENT_SECRET=<prod-secret>
+  VIPPS_SUBSCRIPTION_KEY=<prod-key>
+  VIPPS_MSN=<prod-msn>
+  VIPPS_MODE=production
+  ```
+- [ ] 🔴 **Test produksjonsbetalinger**
+  - Gjennomfør test-kjøp med ekte kort
+  - Verifiser at beløp trekkes
+  - Sjekk at callback fungerer
+  - Test refusjon
+
+## 2.2 Fakturasystem for Skolepakker
+- [ ] 🔴 **Velg fakturasystem**
+  - Alternativer: Tripletex, Fiken, Poweroffice, Visma
+  - Anbefaling: **Fiken** (enkel, rimelig for små bedrifter)
+- [ ] ❌ **Sett opp automatisk fakturering**
+  - API-integrasjon eller manuell prosess
+  - Fakturamal med logo og kontaktinfo
+- [ ] ❌ **Betalingspåminnelser**
+  - Automatiske purringer ved forsinket betaling
+  - Inkassorutiner
+
+---
+
+# 3️⃣ AUTOMATISERTE VARSLER & KOMMUNIKASJON
+
+## 3.1 E-postvarsel - Skoleforespørsler
+**STATUS:** ❌ MANGLER
+
+**LØSNING 1: SendGrid (Anbefalt)**
+
+### Steg 1: Setup SendGrid
+```bash
+# 1. Opprett SendGrid-konto (gratis tier: 100 e-poster/dag)
+https://signup.sendgrid.com/
+
+# 2. Verifiser domene (glosemester.no)
+# 3. Opprett API key
+# 4. Legg til i Netlify Environment Variables
+SENDGRID_API_KEY=SG.xxx
+SENDGRID_FROM_EMAIL=kontakt@glosemester.no
+SENDGRID_TO_EMAIL=oyvind.nilsoks@gmail.com
+```
+
+### Steg 2: Opprett Netlify Function
+```javascript
+// netlify/functions/send-inquiry-email.js
+
+const sgMail = require('@sendgrid/mail');
+
+exports.handler = async (event) => {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: 'Method Not Allowed' };
+    }
+
+    try {
+        const data = JSON.parse(event.body);
+        
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        
+        const msg = {
+            to: process.env.SENDGRID_TO_EMAIL,
+            from: process.env.SENDGRID_FROM_EMAIL,
+            subject: `🏫 Ny skolepakke-forespørsel: ${data.schoolName}`,
+            text: `
+Ny forespørsel om skolepakke!
+
+Skole: ${data.schoolName}
+Kontaktperson: ${data.contactName}
+E-post: ${data.contactEmail}
+Telefon: ${data.contactPhone || 'Ikke oppgitt'}
+Antall lærere: ${data.teacherCount || 'Ikke oppgitt'}
+Melding: ${data.message || 'Ingen melding'}
+
+Sendt: ${new Date().toLocaleString('no-NO')}
+            `,
+            html: `
+<h2>🏫 Ny skolepakke-forespørsel</h2>
+<table style="border-collapse: collapse; width: 100%;">
+    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Skole:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.schoolName}</td></tr>
+    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Kontaktperson:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.contactName}</td></tr>
+    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>E-post:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><a href="mailto:${data.contactEmail}">${data.contactEmail}</a></td></tr>
+    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Telefon:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.contactPhone || 'Ikke oppgitt'}</td></tr>
+    <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Antall lærere:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${data.teacherCount || 'Ikke oppgitt'}</td></tr>
+</table>
+<p><strong>Melding:</strong></p>
+<p style="background: #f5f5f5; padding: 15px; border-radius: 5px;">${data.message || 'Ingen melding'}</p>
+<p style="color: #666; font-size: 12px;">Sendt: ${new Date().toLocaleString('no-NO')}</p>
+            `
+        };
+        
+        await sgMail.send(msg);
+        
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ success: true })
+        };
+    } catch (error) {
+        console.error('SendGrid error:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Failed to send email' })
+        };
+    }
+};
+```
+
+### Steg 3: Installer avhengigheter
+```bash
+npm install @sendgrid/mail
+```
+
+### Steg 4: Oppdater skoleforespørsel-skjema
+I filen som håndterer skoleforespørsler, legg til:
+```javascript
+// Etter at forespørsel er lagret i Firestore
+await fetch('/.netlify/functions/send-inquiry-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        schoolName: schoolNameInput,
+        contactName: contactNameInput,
+        contactEmail: contactEmailInput,
+        contactPhone: contactPhoneInput,
+        teacherCount: teacherCountInput,
+        message: messageInput
+    })
+});
+```
+
+**ALTERNATIV: Zapier/Make.com**
+- Billigere (gratis tier)
+- Enklere setup
+- Mindre fleksibelt
+
+## 3.2 E-postbekreftelser til kunder
+- [ ] ❌ **Bekreftelse på Premium-kjøp (Vipps)**
+  - Sendes automatisk etter vellykket betaling
+  - Inkluderer: Kvittering, abonnementsdetaljer, supportinfo
+- [ ] ❌ **Bekreftelse på skolepakke-forespørsel**
+  - Sendes til skolen umiddelbart
+  - "Vi har mottatt forespørselen og kontakter dere innen 2 virkedager"
+- [ ] ❌ **Faktura sendt (Skolepakke)**
+  - Automatisk fra fakturasystem
+  - Inkluderer: Betalingsdetaljer, forfallsdato, supportinfo
+
+## 3.3 Admin-varsler
+- [ ] 🔴 **E-post ved skoleforespørsel** (Se 3.1)
+- [ ] ❌ **Slack/Discord webhook** (valgfri)
+  - Real-time varsler i Slack-kanal
+  - Nyttig for rask respons
+
+---
+
+# 4️⃣ JURIDISKE DOKUMENTER
+
+## 4.1 Dokumenter som MÅ være tilgjengelige
+- [x] ✅ Databehandleravtale (ferdig)
+- [x] ✅ Kjøpsvilkår/Salgsvilkår (ferdig)
+- [ ] 🔴 **Personvernerklæring**
+  - Må være tilgjengelig på /personvern.html
+  - Se mal i seksjon 7.1
+- [ ] 🔴 **Bruksvilkår**
+  - Generelle vilkår for bruk av GloseMester
+  - Må aksepteres ved registrering
+  - Se mal i seksjon 7.2
+- [ ] ❌ **Informasjonskapsler (Cookie Policy)**
+  - Hvis du bruker cookies/analytics
+
+## 4.2 Juridisk gjennomgang
+- [ ] 🔴 **Få advokat til å gjennomgå avtaler**
+  - Spesielt databehandleravtale
+  - Kostnad: 5.000-15.000 kr
+  - Anbefaling: Advokatfirma med edtech-erfaring
+- [ ] ❌ **Registrere i Foretaksregisteret**
+  - Hvis ikke allerede gjort
+  - https://www.brreg.no/
+
+## 4.3 Samtykker & Aksepteringer
+- [ ] ❌ **Implementer aksept av bruksvilkår ved registrering**
+  - Checkbox: "Jeg aksepterer bruksvilkårene"
+  - Lagre tidspunkt og IP i Firestore
+- [ ] ❌ **Cookie-banner** (hvis nødvendig)
+  - Kun hvis du bruker Google Analytics eller lignende
+
+---
+
+# 5️⃣ SIKKERHET & COMPLIANCE
+
+## 5.1 GDPR-compliance
+- [x] ✅ Firestore Security Rules implementert
+- [x] ✅ Databehandleravtale klar
+- [ ] 🔴 **Personvernerklæring publisert**
+- [ ] ❌ **Implementer "Slett min konto" funksjon**
+  - Bruker kan selv slette konto + alle data
+  - Skal være i Min Side
+- [ ] ❌ **Implementer "Eksporter mine data" funksjon**
+  - GDPR-krav: Bruker kan be om sine data i maskinlesbart format
+- [ ] ❌ **Logg personvernhendelser**
+  - Når data slettes, eksporteres, etc.
+
+## 5.2 Sikkerhetstiltak
+- [x] ✅ HTTPS/TLS aktivert
+- [x] ✅ Feide OAuth sikker autentisering
+- [x] ✅ Firebase kryptering at rest
+- [ ] 🔴 **Rate limiting på Netlify Functions**
+  - Forhindre misbruk av API
+  - Spesielt viktig for e-postvarsler
+- [ ] ❌ **CAPTCHA på skoleforespørsel-skjema**
+  - Google reCAPTCHA v3 (usynlig)
+  - Forhindre spam
+- [ ] ❌ **Sikkerhetsaudit**
+  - Penetrasjonstesting
+  - Eller minimum: OWASP Top 10-sjekk
+
+## 5.3 Backup & Disaster Recovery
+- [ ] 🔴 **Firebase backup-strategi** (Se 1.2)
+- [ ] ❌ **Dokumenter restore-prosedyre**
+  - Steg-for-steg guide
+  - Test prosedyren
+- [ ] ❌ **Koderepository backup**
+  - Backup av GitHub-repo eksternt
+  - Eller: Bruk GitHub sponsors for private backup
+
+---
+
+# 6️⃣ BRUKEROPPLEVELSE & FUNKSJONALITET
+
+## 6.1 Feilhåndtering & Logging
+- [ ] 🟡 **Console.log i produksjon**
+  - FJERN eller begrens debugging-meldinger
+  - Kun kritiske feil skal logges
+- [ ] ❌ **Sentry/LogRocket for error tracking**
+  - Fang ukjente feil i produksjon
+  - Alert ved kritiske feil
+  - Gratis tier: https://sentry.io/
+- [ ] ❌ **Brukervennlige feilmeldinger**
+  - Erstatt tekniske feil med klare meldinger
+  - Eksempel: "Noe gikk galt" i stedet for "Firebase error 403"
+
+## 6.2 Ytelse & Optimalisering
+- [ ] ❌ **Service Worker optimalisering**
+  - Verifiser caching-strategi
+  - Test offline-funksjonalitet
+- [ ] ❌ **Lazy loading av bilder**
+  - Hvis dere bruker mange bilder
+- [ ] ❌ **Code splitting**
+  - Split JS-filer for raskere lasting
+- [ ] ❌ **Lighthouse-audit**
+  - Kjør Google Lighthouse
+  - Mål: >90 i alle kategorier
+
+## 6.3 Responsivitet & Kompatibilitet
+- [ ] 🟡 **Test på mobile enheter**
+  - iOS Safari
+  - Android Chrome
+  - Ulike skjermstørrelser
+- [ ] 🟡 **Test på nettlesere**
+  - Chrome, Firefox, Safari, Edge
+  - Minimum: Siste 2 versjoner
+- [ ] ❌ **PWA-funksjonalitet**
+  - Verifiser installering fungerer
+  - Test push-varsler (hvis relevant)
+
+## 6.4 Tilgjengelige (Accessibility)
+- [ ] ❌ **WCAG 2.1 AA-compliance**
+  - Minimum for offentlige tjenester
+  - Bruk: https://wave.webaim.org/
+- [ ] ❌ **Tastaturnavigasjon**
+  - Alle funksjoner tilgjengelig uten mus
+  - Tab-rekkefølge logisk
+- [ ] ❌ **Skjermleser-testing**
+  - Test med NVDA/JAWS (Windows) eller VoiceOver (Mac)
+
+---
+
+# 7️⃣ MANGLENDE SIDER & INNHOLD
+
+## 7.1 Personvernerklæring (personvern.html)
+**STATUS:** ❌ MANGLER
+
+**INNHOLD:**
+1. Hvem som er behandlingsansvarlig
+2. Hvilke personopplysninger som samles inn
+3. Formålet med behandlingen
+4. Rettsgrunnlag for behandling
+5. Hvor lenge data lagres
+6. Hvem data deles med (underleverandører)
+7. Dine rettigheter (innsyn, sletting, etc.)
+8. Hvordan kontakte oss
+
+**MAL:** Jeg kan lage dette hvis ønskelig (si ifra!)
+
+## 7.2 Bruksvilkår (bruksvilkar.html)
+**STATUS:** ❌ MANGLER (Har kjøpsvilkår, men trenger også generelle bruksvilkår)
+
+**INNHOLD:**
+1. Hvem kan bruke tjenesten
+2. Brukerens ansvar
+3. Forbudt bruk
+4. Immaterielle rettigheter
+5. Ansvarsbegrensning
+6. Oppsigelse/stenging av konto
+7. Endringer i vilkårene
+
+## 7.3 Støttesider
+- [ ] ❌ **/hjelp.html eller /support.html**
+  - FAQ (Ofte stilte spørsmål)
+  - Brukerveiledninger
+  - Kontaktskjema
+- [ ] ❌ **/om.html**
+  - Om GloseMester
+  - Teamet bak
+  - Hvorfor vi laget tjenesten
+- [ ] ❌ **/oppgrader.html**
+  - Oversikt over pakker (Gratis, Premium, Skolepakke)
+  - Prissammenligning
+  - CTA-knapper for kjøp
+
+## 7.4 Landing Page
+- [ ] 🟡 **Forbedre forsiden**
+  - Klar verdiproposisjon
+  - Demonstrasjonsvideo
+  - Testimonials (hvis mulig)
+  - CTA: "Prøv gratis" / "Logg inn med Feide"
+
+---
+
+# 8️⃣ MARKEDSFØRING & KOMMUNIKASJON
+
+## 8.1 Pre-launch
+- [ ] ❌ **Beta-testing med pilotskole**
+  - 1-3 skoler tester i 4-6 uker
+  - Samle tilbakemeldinger
+  - Fiks kritiske bugs
+- [ ] ❌ **Lag pitch-deck for skoler**
+  - Presentasjon for skoleledere
+  - PDF-versjon for utsending
+
+## 8.2 Launch-strategi
+- [ ] ❌ **Pressemeld ing til lokale medier**
+  - "Lokal edtech-startup lanserer gloselæringsverktøy"
+- [ ] ❌ **Sosiale medier**
+  - Facebook-side for GloseMester
+  - LinkedIn-profil
+  - Instagram (hvis relevant)
+- [ ] ❌ **Kontakt Feide/Sikt**
+  - Be om å bli listet som "Feide-integrasjon"
+  - Gi synlighet i skolesektoren
+
+## 8.3 Salgsmateriell
+- [ ] ❌ **Produktark (PDF)**
+  - 1-2 sider med funksjoner, priser, kontaktinfo
+  - Kan sendes til skoleledere
+- [ ] ❌ **Demo-video**
+  - 2-3 minutter
+  - Vis hvordan GloseMester fungerer
+  - Publiser på YouTube
+
+---
+
+# 9️⃣ SUPPORT & VEDLIKEHOLD
+
+## 9.1 Support-rutiner
+- [ ] 🔴 **Definer responstid**
+  - Eksempel: "Vi svarer innen 2 virkedager"
+  - Hold løftet!
+- [ ] ❌ **Support-mal (e-post templates)**
+  - Standardsvar på vanlige spørsmål
+  - Profesjonell tone
+- [ ] ❌ **Eskaleringsprosedyre**
+  - Hva gjør du ved kritisk feil?
+  - Hvem kontakter du?
+
+## 9.2 Overvåking
+- [ ] 🔴 **Uptime monitoring**
+  - Gratis: UptimeRobot (https://uptimerobot.com/)
+  - Varsler deg hvis siden er nede
+- [ ] ❌ **Firebase usage monitoring**
+  - Hold øye med kostnader
+  - Sett alarmer hvis trafikk eksploderer
+- [ ] ❌ **Analytics**
+  - Google Analytics 4 (valgfri)
+  - Firebase Analytics
+  - Plausible Analytics (GDPR-vennlig alternativ)
+
+## 9.3 Oppdateringsrutiner
+- [ ] ❌ **Changelog**
+  - Dokumenter alle endringer
+  - Informer brukere om nye funksjoner
+- [ ] ❌ **Versjonshåndtering**
+  - Semantisk versjonering (v1.0.0, v1.1.0, etc.)
+  - Tag releases i GitHub
+- [ ] ❌ **Regelmessige sikkerhetoppdateringer**
+  - Oppdater npm-pakker månedlig
+  - Følg med på CVE-er
+
+---
+
+# 🔟 TESTING & KVALITETSSIKRING
+
+## 10.1 Funksjonstesting
+- [ ] 🟡 **Manuell testing av alle kritiske flows**
+  - Registrering / Innlogging (Feide)
+  - Lag prøve
+  - Elev gjennomfører prøve
+  - Resultatvisning
+  - Kjøp Premium (Vipps test → prod)
+  - Skolepakke-forespørsel
+- [ ] ❌ **Automated testing**
+  - Minimum: E2E-tester for kritiske flows
+  - Verktøy: Cypress, Playwright
+- [ ] ❌ **Load testing**
+  - Hva skjer hvis 100 elever tar prøve samtidig?
+  - Verktøy: k6, JMeter
+
+## 10.2 User Acceptance Testing (UAT)
+- [ ] ❌ **Test med ekte lærere**
+  - Minst 5 lærere
+  - Ulike nivå (barneskole, ungdomsskole, vgs)
+- [ ] ❌ **Test med ekte elever**
+  - Minst 20 elever
+  - Ulike aldre
+- [ ] ❌ **Samle tilbakemeldinger**
+  - Exit-survey etter testing
+  - Iterér basert på feedback
+
+---
+
+# 1️⃣1️⃣ ADMINISTRATIVT
+
+## 11.1 Fakturering & Regnskap
+- [ ] 🔴 **Velg regnskapssystem**
+  - Fiken, Tripletex, Poweroffice
+  - Integrer med fakturasystem
+- [ ] 🔴 **MVA-registrering**
+  - Hvis ikke allerede gjort
+  - Obligatorisk ved omsetning >50.000 kr/år
+- [ ] ❌ **Rutiner for manuell fakturering**
+  - Skolepakker som ikke betaler via fakturasystem
+
+## 11.2 Forsikring
+- [ ] ❌ **Ansvarsforsikring**
+  - Dekker feil/mangler i produktet
+  - Anbefalt for bedrifter som leverer tjenester til skoler
+- [ ] ❌ **Cyberforsikring** (valgfri)
+  - Dekker datalekkasjer, cyberangrep
+
+## 11.3 Kontrakter & Avtaler
+- [ ] 🔴 **Standard skolepakke-avtale**
+  - Mal for avtale med skoler
+  - Inkluderer: Pris, varighet, databehandleravtale
+- [ ] ❌ **Underleverandøravtaler**
+  - Firebase/Google Cloud
+  - Netlify
+  - Vipps
+
+---
+
+# 1️⃣2️⃣ POST-LAUNCH
+
+## 12.1 Første måned
+- [ ] ❌ **Daglig monitoring**
+  - Sjekk feil, bugs, brukerklager
+  - Rask respons på problemer
+- [ ] ❌ **Samle feedback**
+  - Survey til early adopters
+  - Hva fungerer? Hva må forbedres?
+
+## 12.2 Kontinuerlig forbedring
+- [ ] ❌ **Roadmap for neste features**
+  - Basert på brukertilbakemeldinger
+  - Prioriter høyest verdi først
+- [ ] ❌ **A/B-testing**
+  - Test ulike UI-variabler
+  - Optimaliser konverteringsrate
+
+---
+
+# 📊 PRIORITERT LAUNCH-LISTE
+
+## 🔴 KRITISK (MÅ VÆRE FERDIG FØR LAUNCH)
+
+1. **Vipps produksjon**
+   - Søk om tilgang
+   - Oppdater credentials
+   - Test betalinger
+
+2. **E-post setup**
+   - kontakt@glosemester.no fungerer
+   - E-postvarsel for skoleforespørsler
+   - Bekreftelser til kunder
+
+3. **Juridiske dokumenter**
+   - Personvernerklæring publisert
+   - Bruksvilkår publisert
+   - Få advokat til å gjennomgå
+
+4. **Firestore backup**
+   - Automatiske backups aktivert
+   - Test restore
+
+5. **Uptime monitoring**
+   - UptimeRobot setup
+   - Varsler deg ved nedetid
+
+6. **Sikkerhet**
+   - Rate limiting på functions
+   - CAPTCHA på skjemaer
+   - Fjern debug-logging
+
+7. **Testing**
+   - Beta-test med 1-2 skoler
+   - Manuell testing av alle flows
+   - Fix kritiske bugs
+
+## 🟡 VIKTIG (BØR VÆRE FERDIG)
+
+8. Fakturasystem for skolepakker
+9. "Slett min konto" funksjon
+10. Feilhåndtering & Sentry
+11. Mobile testing
+12. Forbedre landing page
+
+## ⚪ NICE TO HAVE (KAN VENTE)
+
+13. Analytics
+14. A/B-testing
+15. Automated testing
+16. Demo-video
+
+---
+
+# 📞 KONTAKTINFO FOR EKSTERNE TJENESTER
+
+**Vipps:**
+- Portal: https://portal.vipps.no
+- Support: https://vipps.no/hjelp/bedrift/
+
+**SendGrid:**
+- Registrering: https://signup.sendgrid.com/
+- Docs: https://docs.sendgrid.com/
+
+**Fiken (Regnskap/Faktura):**
+- Registrering: https://fiken.no/
+- Pris: Fra 0 kr/mnd (gratis tier)
+
+**UptimeRobot:**
+- Registrering: https://uptimerobot.com/
+- Gratis: 50 monitors
+
+**Sentry (Error tracking):**
+- Registrering: https://sentry.io/signup/
+- Gratis: 5000 errors/mnd
+
+---
+
+# ✅ OPPSUMMERING
+
+**Total estimert tid før launch:**
+- Kritiske oppgaver: 3-5 uker
+- Viktige oppgaver: 2-3 uker
+- Total: **5-8 uker**
+
+**Estimert kostnad:**
+- Vipps setup: Gratis
+- Advokat (juridisk): 5.000-15.000 kr
+- Fakturasystem: 0-500 kr/mnd
+- SendGrid: Gratis (100/dag)
+- Forsikring: 2.000-5.000 kr/år (valgfri)
+- **Total one-time: 5.000-15.000 kr**
+- **Total månedlig: 0-500 kr**
+
+**Neste steg:**
+1. Prioriter listen over
+2. Start med Vipps-søknad (tar lengst tid)
+3. Sett opp e-post og varsler
+4. Lag personvernerklæring
+5. Beta-test i 2-4 uker
+6. Launch! 🚀
+
