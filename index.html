@@ -156,9 +156,19 @@
             <div id="quiz-progress-target" style="margin: 20px 0;"></div>
             
             <h1 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h1>
-            <input type="text" id="quiz-input" placeholder="Svar her...">
-            <button class="btn-primary" onclick="sjekkSvar()">Svar</button>
-            <button class="btn-primary btn-small" onclick="lesOppProve()">🔊 Les opp</button>
+            <label for="quiz-input" class="visually-hidden">Skriv ditt svar her</label>
+            <input
+                type="text"
+                id="quiz-input"
+                placeholder="Svar her..."
+                aria-label="Skriv ditt svar på spørsmålet"
+                aria-required="true"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false">
+            <button class="btn-primary" onclick="sjekkSvar()" aria-label="Send inn svar">Svar</button>
+            <button class="btn-primary btn-small" onclick="lesOppProve()" aria-label="Les opp spørsmålet med talesyntese">🔊 Les opp</button>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 // ============================================
-// QUIZ.JS - GloseMester v0.7.5 (10-RUTE PROGRESS)
-// NYTT: 10-rute progress som øving + persistent lagring
+// QUIZ.JS - GloseMester v0.8.0 (PROFESJONELL VERSJON)
+// Oppdatert: Konstanter, sikkerhet, accessibility, memory management
 // ============================================
 import { spillLyd, vibrer, visToast, lagConfetti, lesOpp } from '../ui/helpers.js';
 import { hentTilfeldigKort } from './kort-display.js';
@@ -8,16 +8,41 @@ import { trackEvent } from '../core/analytics.js';
 import { db, doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, increment } from './firebase.js';
 import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits, lagreElevProveLokalt, hentElevProverLokalt } from '../core/storage.js';
 
+// ============================================
+// KONSTANTER (fjerner magic numbers)
+// ============================================
+const TIMING = {
+    RIKTIG_SVAR_PAUSE: 1200,      // ms før neste ord ved riktig svar
+    FEIL_SVAR_PAUSE: 3200,         // ms før neste ord ved feil svar
+    RIKTIG_POPUP_VARIGHET: 1000,  // ms riktig-popup vises
+    FEIL_POPUP_AUTO_LUKK: 3000,   // ms feil-popup auto-lukker
+};
+
+const PROGRESS = {
+    RUTER_ANTALL: 10,              // Antall ruter i progress bar
+    XP_PER_KORT: 10,               // XP needed per kort
+    XP_PER_DIAMANT_BONUS: 100,    // XP needed for diamant-bonus
+    DIAMANTER_PER_BONUS: 10,       // Antall diamanter ved bonus
+};
+
+const STORAGE = {
+    ELEV_PROVER_VARIGHET_DAGER: 7, // Dager før prøver slettes
+};
+
+// ============================================
+// STATE VARIABLER
+// ============================================
 let aktivProve = [];
 let aktivProveId = null;
-let aktivProveEier = null; // ✅ NYTT: Lagre hvem som opprettet prøven
+let aktivProveEier = null;
 let quizIndex = 0;
 let antallRiktige = 0;
 let kortVunnetISesjon = 0;
 let diamanterVunnetISesjon = 0;
 let alleElevSvar = [];
 let proveStartTid = null;
-let besvarer = false; // ✅ NYTT: Forhindrer flere svar samtidig
+let besvarer = false;
+let activePopupCleanup = null; // ✅ NYTT: For å unngå memory leaks
 
 // --- TEGN LISTEN OVER LAGREDE PRØVER ---
 function visLagredeProverUI() {
@@ -61,8 +86,10 @@ function oppdaterStartSkjermProgress() {
     if (!container) return;
 
     const totalXP = getTotalCorrect();
-    const antallFylte = (totalXP % 10 === 0 && totalXP > 0) ? 10 : totalXP % 10;
-    const antallRuter = 10;
+    const antallFylte = (totalXP % PROGRESS.XP_PER_KORT === 0 && totalXP > 0)
+        ? PROGRESS.XP_PER_KORT
+        : totalXP % PROGRESS.XP_PER_KORT;
+    const antallRuter = PROGRESS.RUTER_ANTALL;
 
     let ruterHTML = '';
     
@@ -212,8 +239,10 @@ function oppdaterQuizProgress() {
     if (!container) return;
 
     const totalXP = getTotalCorrect();
-    const antallFylte = (totalXP % 10 === 0 && totalXP > 0) ? 10 : totalXP % 10;
-    const antallRuter = 10;
+    const antallFylte = (totalXP % PROGRESS.XP_PER_KORT === 0 && totalXP > 0)
+        ? PROGRESS.XP_PER_KORT
+        : totalXP % PROGRESS.XP_PER_KORT;
+    const antallRuter = PROGRESS.RUTER_ANTALL;
 
     let ruterHTML = '';
     
@@ -310,18 +339,26 @@ function visRiktigPopup() {
 
     document.body.appendChild(popup);
 
-    // Auto-lukk etter 1 sekund
+    // Auto-lukk etter definert varighet
     setTimeout(() => {
         if (popup.parentElement) popup.remove();
-    }, 1000);
+    }, TIMING.RIKTIG_POPUP_VARIGHET);
 }
 
 // ==============================================
-// MODERNE POPUP FOR FEIL SVAR
+// MODERNE POPUP FOR FEIL SVAR (MED SIKKERHET & A11Y)
 // ==============================================
 function visFeilPopup(fasit) {
+    // ✅ Rydd opp eksisterende popup først (forhindre duplikater)
+    if (activePopupCleanup) {
+        activePopupCleanup();
+    }
+
     const popup = document.createElement('div');
     popup.className = 'quiz-popup-overlay';
+    popup.setAttribute('role', 'alertdialog');
+    popup.setAttribute('aria-labelledby', 'feil-popup-tittel');
+    popup.setAttribute('aria-describedby', 'feil-popup-beskrivelse');
     popup.style.cssText = `
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -333,6 +370,13 @@ function visFeilPopup(fasit) {
         animation: fadeIn 0.3s;
     `;
 
+    // ✅ Sanitér fasit for å forhindre XSS
+    const sanitizedFasit = String(fasit)
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+
     popup.innerHTML = `
         <div style="
             background: white;
@@ -343,15 +387,16 @@ function visFeilPopup(fasit) {
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.3s;
         ">
-            <div style="font-size: 60px; margin-bottom: 15px;">❌</div>
-            <h2 style="color: #ff3b30; margin: 0 0 15px 0; font-size: 24px;">Beklager!</h2>
-            <p style="color: #666; font-size: 16px; margin-bottom: 10px;">
+            <div style="font-size: 60px; margin-bottom: 15px;" aria-hidden="true">❌</div>
+            <h2 id="feil-popup-tittel" style="color: #ff3b30; margin: 0 0 15px 0; font-size: 24px;">Beklager!</h2>
+            <p id="feil-popup-beskrivelse" style="color: #666; font-size: 16px; margin-bottom: 10px;">
                 Riktig svar var:
             </p>
             <p style="color: #0071e3; font-size: 22px; font-weight: bold; margin-bottom: 25px;">
-                ${fasit}
+                ${sanitizedFasit}
             </p>
-            <button onclick="this.closest('.quiz-popup-overlay').remove();"
+            <button class="feil-popup-lukk-btn"
+                aria-label="Lukk og gå til neste spørsmål"
                 style="
                     padding: 12px 30px;
                     background: #0071e3;
@@ -372,22 +417,37 @@ function visFeilPopup(fasit) {
 
     document.body.appendChild(popup);
 
+    // ✅ Focus på lukk-knapp for keyboard navigation
+    const lukkBtn = popup.querySelector('.feil-popup-lukk-btn');
+    if (lukkBtn) {
+        lukkBtn.focus();
+        lukkBtn.addEventListener('click', cleanupPopup);
+    }
+
     // ✅ Escape-key support
     const handleEscape = (e) => {
-        if (e.key === 'Escape' && popup.parentElement) {
-            popup.remove();
-            document.removeEventListener('keydown', handleEscape);
+        if (e.key === 'Escape') {
+            cleanupPopup();
         }
     };
     document.addEventListener('keydown', handleEscape);
 
-    // Auto-lukk etter 3 sekunder
-    setTimeout(() => {
+    // ✅ Cleanup funksjon (forhindrer memory leaks)
+    const cleanupPopup = () => {
         if (popup.parentElement) {
             popup.remove();
-            document.removeEventListener('keydown', handleEscape);
         }
-    }, 3000);
+        document.removeEventListener('keydown', handleEscape);
+        if (lukkBtn) {
+            lukkBtn.removeEventListener('click', cleanupPopup);
+        }
+        activePopupCleanup = null;
+    };
+
+    activePopupCleanup = cleanupPopup;
+
+    // Auto-lukk etter definert tid
+    setTimeout(cleanupPopup, TIMING.FEIL_POPUP_AUTO_LUKK);
 }
 
 function sjekkSvar() {
@@ -441,17 +501,17 @@ function sjekkSvar() {
         // Oppdater progress-visning
         oppdaterQuizProgress();
 
-        if (totalXP % 10 === 0) {
+        if (totalXP % PROGRESS.XP_PER_KORT === 0) {
             kortVunnetISesjon++;
             visToast("Du har tjent opp et KORT!", "success");
         }
 
-        if (totalXP % 100 === 0) {
-            diamanterVunnetISesjon += 10;
+        if (totalXP % PROGRESS.XP_PER_DIAMANT_BONUS === 0) {
+            diamanterVunnetISesjon += PROGRESS.DIAMANTER_PER_BONUS;
             let credits = getCredits();
-            credits += 10;
+            credits += PROGRESS.DIAMANTER_PER_BONUS;
             saveCredits(credits);
-            visToast("BONUS! +10 Diamanter!", "success");
+            visToast(`BONUS! +${PROGRESS.DIAMANTER_PER_BONUS} Diamanter!`, "success");
         }
 
         // Vis riktig-popup og vent før neste ord
@@ -460,7 +520,7 @@ function sjekkSvar() {
         setTimeout(() => {
             quizIndex++;
             visNesteSporsmaal();
-        }, 1200);
+        }, TIMING.RIKTIG_SVAR_PAUSE);
 
     } else {
         spillLyd('feil');
@@ -471,7 +531,7 @@ function sjekkSvar() {
         setTimeout(() => {
             quizIndex++;
             visNesteSporsmaal();
-        }, 3200);
+        }, TIMING.FEIL_SVAR_PAUSE);
     }
 }
 
@@ -629,7 +689,7 @@ async function avsluttProve() {
         lagConfetti();
     } else {
         const totalXP = getTotalCorrect();
-        const mangler = 10 - (totalXP % 10);
+        const mangler = PROGRESS.XP_PER_KORT - (totalXP % PROGRESS.XP_PER_KORT);
         melding += `\n(Du trenger ${mangler} riktige til for å få neste kort)`;
     }
 

@@ -1,7 +1,20 @@
 /* ============================================
-   MAIN.CSS - v0.9.8-BETA (INKLUDERER NY MODAL)
-   Inkluderer: Popups, Kort, Galleri, Responsivitet, Om Oss styling
+   MAIN.CSS - v0.9.9-BETA (ACCESSIBILITY & PROFESJONELL)
+   Inkluderer: A11y, Popups, Kort, Galleri, Responsivitet
    ============================================ */
+
+/* --- 0. ACCESSIBILITY UTILITIES --- */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
 
 /* --- 1. POPUPS & MODALS (VIKTIGST - LIGGER FØRST) --- */
 .popup-overlay {
