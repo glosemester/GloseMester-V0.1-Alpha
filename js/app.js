@@ -49,9 +49,16 @@ import {
     lastInnGlosebankSok 
 } from './features/glosebank-browse.js';
 
-import { 
-    lastInnStandardprover 
+import {
+    lastInnStandardprover
 } from './features/standardprove.js';
+
+import {
+    initGDPR,
+    visCookieInnstillinger,
+    slettMinData,
+    eksporterMinData
+} from './features/gdpr.js';
 
 // --- GLOBALE FUNKSJONER ---
 
@@ -80,6 +87,11 @@ window.lastInnGlosebankProver = lastInnGlosebankProver;
 window.visAdminMenyHvisAdmin = visAdminMenyHvisAdmin;
 window.lastInnGlosebankSok = lastInnGlosebankSok;
 window.lastInnStandardprover = lastInnStandardprover;
+
+// GDPR-funksjoner
+window.visCookieInnstillinger = visCookieInnstillinger;
+window.slettMinData = slettMinData;
+window.eksporterMinData = eksporterMinData;
 
 // Galleri
 window.visGalleriSide = function() {
@@ -428,7 +440,8 @@ export function initApp() {
     initSoundSystem();
     initNavigation();
     initPWAInstaller();
-    
+    initGDPR(); // ✅ Initialiser GDPR-funksjoner (cookie-banner, etc.)
+
     // SETUP HAMBURGER EVENT LISTENERS
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const hamburgerOverlay = document.getElementById('hamburger-overlay');

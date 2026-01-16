@@ -2,10 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Admin har full tilgang til alt
+    // ✅ OPPDATERT: Admin-sjekk via Firestore config (ikke hardkodet)
+    // Admin-status er nå lagret i users-dokumentet
     function isAdmin() {
-      return request.auth != null && 
-             request.auth.uid == 'QrFRB6xQDnVQsiSd0bzE6rH8z4x2';
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rolle == 'admin';
     }
     
     // ============================================

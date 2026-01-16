@@ -1,11 +1,13 @@
 /* ============================================
-   TEACHER.JS - FIXED v3.6
+   TEACHER.JS - v3.7 (MED RATE LIMITING)
    Fikset: abonnement → abo (linje 154)
+   Ny: Rate limiting for prøvelagring
    ============================================ */
 
 import { visSide } from '../core/navigation.js';
 import { visToast, spillLyd } from '../ui/helpers.js';
 import { auth, db, collection, addDoc, serverTimestamp, getDoc, doc, updateDoc } from './firebase.js';
+import { testSaveLimiter } from '../core/rate-limiter.js';
 
 // ==============================================
 // INITIALISERING
@@ -227,12 +229,24 @@ export function tomListe() {
 export async function lagreProve() {
     const tittelInput = document.getElementById('prove-tittel');
     const tittel = tittelInput?.value.trim();
-    
+
     if (!tittel) { visToast("Prøven må ha et navn!", "error"); return; }
     if (midlertidigProveListe.length < 3) { visToast("Minst 3 ord må legges til.", "error"); return; }
-    
+
     const user = auth.currentUser;
     if (!user) { visToast("Logg inn først.", "error"); return; }
+
+    // ✅ RATE LIMITING: Sjekk om bruker har lagret for mange prøver
+    const rateCheck = testSaveLimiter.check('test_save');
+
+    if (!rateCheck.allowed) {
+        const minutter = Math.ceil(rateCheck.remainingMs / 60000);
+        visToast(
+            `⏰ Du har lagret mange prøver! Vent ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} før neste.`,
+            'warning'
+        );
+        return;
+    }
 
     try {
         const abo = await sjekkAbonnement(user);

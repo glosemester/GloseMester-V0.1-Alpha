@@ -1,54 +1,57 @@
 // ============================================
-// GLOSEBANK ADMIN v0.8.0-BETA
+// GLOSEBANK ADMIN v0.9.0-BETA
 // OPPDATERT: Bruker felles_prover collection
-// Kun tilgjengelig for admin (Øyvind)
+// ✅ NY: Bruker dynamisk admin-sjekk (ikke hardkodet UID)
 // ============================================
 
-import { 
-    db, 
-    collection, 
-    query, 
-    where, 
-    getDocs, 
-    doc, 
+import {
+    db,
+    collection,
+    query,
+    where,
+    getDocs,
+    doc,
     getDoc,
-    updateDoc, 
+    updateDoc,
     deleteDoc,
     orderBy,
-    serverTimestamp 
+    serverTimestamp
 } from './firebase.js';
 
 import { visAdminVerktoy } from './admin-verktoey.js';
 import { lastInnBrukere } from './brukeradmin.js';
+import { erAdmin as erAdminHelper, visAdminMenyHvisAdmin as visAdminMenyHelper } from '../core/auth-helpers.js';
 
 // Eksponer til window
 window.lastInnBrukere = lastInnBrukere;
 
-// Admin bruker-ID (Øyvind)
-const ADMIN_UID = "QrFRB6xQDnVQsiSd0bzE6rH8z4x2";
+// ✅ FJERNET HARDKODET ADMIN_UID - Bruker nå Firestore-basert sjekk
 
 // Globale variabler
 let currentFilter = 'pending'; // 'all', 'pending', 'approved'
 let allProver = []; // Cache av alle prøver
 
 // ============================================
-// SJEKK OM BRUKER ER ADMIN
+// SJEKK OM BRUKER ER ADMIN (NY VERSJON)
 // ============================================
-export function erAdmin(user) {
-    return user && user.uid === ADMIN_UID;
+export async function erAdmin(user) {
+    // Bruk den nye hjelperfunksjonen fra auth-helpers.js
+    return await erAdminHelper();
 }
 
 // ============================================
-// VIS ADMIN-MENY (kun for admin)
+// VIS ADMIN-MENY (kun for admin) - NY VERSJON
 // ============================================
-export function visAdminMenyHvisAdmin(user) {
-    if (!erAdmin(user)) {
+export async function visAdminMenyHvisAdmin(user) {
+    const isAdmin = await erAdmin(user);
+
+    if (!isAdmin) {
         console.log('❌ Ikke admin-bruker');
         return;
     }
-    
-    console.log('✅ Admin-bruker detektert:', user.email);
-    
+
+    console.log('✅ Admin-bruker detektert:', user?.email);
+
     // Vis admin-knappen (oppdatert ID)
     setTimeout(() => {
         const adminBtn = document.getElementById('btn-admin-panel');

@@ -5,9 +5,9 @@
 
 // VIKTIG: La til setDoc i importen for å kunne bestemme ID på dokumentene
 import { db, collection, doc, setDoc, getDoc, serverTimestamp } from './firebase.js';
+import { erAdmin } from '../core/auth-helpers.js';
 
-// Admin bruker-ID (Øyvind)
-const ADMIN_UID = "QrFRB6xQDnVQsiSd0bzE6rH8z4x2";
+// ✅ FJERNET HARDKODET ADMIN_UID - Bruker nå Firestore-basert sjekk
 
 // ============================================
 // ALLE STANDARDPRØVER (21 stk)
