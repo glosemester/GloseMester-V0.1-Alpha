@@ -17,6 +17,7 @@ let kortVunnetISesjon = 0;
 let diamanterVunnetISesjon = 0;
 let alleElevSvar = [];
 let proveStartTid = null;
+let besvarer = false; // ✅ NYTT: Forhindrer flere svar samtidig
 
 // --- TEGN LISTEN OVER LAGREDE PRØVER ---
 function visLagredeProverUI() {
@@ -163,6 +164,7 @@ function kjorProveInit(ordliste, tittel = "Prove", proveId = null) {
     antallRiktige = 0;
     alleElevSvar = [];
     proveStartTid = Date.now();
+    besvarer = false; // ✅ Reset svar-lås
     window.proveSprak = 'no';
 
     if(window.visSide) window.visSide('elev-dashboard');
@@ -241,25 +243,70 @@ function oppdaterQuizProgress() {
 function visNesteSporsmaal() {
     // Oppdater progress først
     oppdaterQuizProgress();
-    
+
     if (quizIndex >= aktivProve.length) {
         avsluttProve();
         return;
     }
-    
+
     const ord = aktivProve[quizIndex];
     const spraak = window.proveSprak || 'no';
-    
+
     const spmNorsk = ord.sporsmaal || ord.s;
     const svarEngelsk = ord.svar || ord.e;
     const spmTekst = spraak === 'en' ? svarEngelsk : spmNorsk;
-    
+
+    const inputFelt = document.getElementById('quiz-input');
+
     document.getElementById('quiz-spm').innerText = spmTekst;
-    document.getElementById('quiz-input').value = '';
-    document.getElementById('quiz-input').focus();
-    
+    inputFelt.value = '';
+
+    // ✅ Lås opp input for neste svar
+    besvarer = false;
+    inputFelt.disabled = false;
+    inputFelt.focus();
+
     const progressElem = document.getElementById('quiz-progress');
     if(progressElem) progressElem.innerText = `${quizIndex + 1} / ${aktivProve.length}`;
+}
+
+// ==============================================
+// MODERNE POPUP FOR RIKTIG SVAR
+// ==============================================
+function visRiktigPopup() {
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s;
+    `;
+
+    popup.innerHTML = `
+        <div style="
+            background: white;
+            padding: 40px 60px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.2s;
+            border-top: 5px solid #34c759;
+        ">
+            <div style="font-size: 70px; margin-bottom: 10px;">✅</div>
+            <h2 style="color: #34c759; margin: 0; font-size: 28px;">Riktig!</h2>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Auto-lukk etter 1 sekund
+    setTimeout(() => {
+        if (popup.parentElement) popup.remove();
+    }, 1000);
 }
 
 // ==============================================
@@ -324,15 +371,24 @@ function visFeilPopup(fasit) {
 }
 
 function sjekkSvar() {
+    // ✅ Forhindre flere svar samtidig
+    if (besvarer) return;
+
     const inputFelt = document.getElementById('quiz-input');
     const input = inputFelt.value.trim().toLowerCase();
-    
+
+    if (!input) return; // Ikke send tom svar
+
+    // Lås input mens vi behandler
+    besvarer = true;
+    inputFelt.disabled = true;
+
     const ord = aktivProve[quizIndex];
     const spraak = window.proveSprak || 'no';
-    
+
     const spmNorsk = ord.sporsmaal || ord.s;
     const svarEngelsk = ord.svar || ord.e;
-    
+
     const fasit = (spraak === 'en' ? spmNorsk : svarEngelsk).toLowerCase();
     const erRiktig = (input === fasit);
 
@@ -347,14 +403,13 @@ function sjekkSvar() {
 
     if (erRiktig) {
         spillLyd('riktig');
-        visToast('Riktig!', 'success');
         antallRiktige++;
-        
+
         // VIKTIG: Oppdater GLOBAL progress (lagres automatisk i storage.js)
         let totalXP = getTotalCorrect();
         totalXP++;
         saveTotalCorrect(totalXP);
-        
+
         // Oppdater progress-visning
         oppdaterQuizProgress();
 
@@ -362,7 +417,7 @@ function sjekkSvar() {
             kortVunnetISesjon++;
             visToast("Du har tjent opp et KORT!", "success");
         }
-        
+
         if (totalXP % 100 === 0) {
             diamanterVunnetISesjon += 10;
             let credits = getCredits();
@@ -371,14 +426,25 @@ function sjekkSvar() {
             visToast("BONUS! +10 Diamanter!", "success");
         }
 
+        // Vis riktig-popup og vent før neste ord
+        visRiktigPopup();
+
+        setTimeout(() => {
+            quizIndex++;
+            visNesteSporsmaal();
+        }, 1200);
+
     } else {
         spillLyd('feil');
         vibrer(200);
         visFeilPopup(fasit);
+
+        // For feil svar, vent litt lenger før neste ord
+        setTimeout(() => {
+            quizIndex++;
+            visNesteSporsmaal();
+        }, 3200);
     }
-    
-    quizIndex++;
-    visNesteSporsmaal();
 }
 
 function settProveSprak(retning) {
