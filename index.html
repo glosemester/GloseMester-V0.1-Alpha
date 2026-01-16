@@ -38,49 +38,6 @@
             border-radius: 12px;
             text-align: center;
         }
-
-        /* Floating Upgrade Button Styling */
-        .upgrade-btn-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white !important;
-            padding: 15px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 16px;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            z-index: 9999;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        .upgrade-btn-float:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
-            text-decoration: none;
-        }
-
-        /* Mobile responsiv */
-        @media (max-width: 768px) {
-            .upgrade-btn-float {
-                bottom: 20px;
-                right: 20px;
-                padding: 12px 20px;
-                font-size: 14px;
-            }
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
-            50% { box-shadow: 0 4px 30px rgba(102, 126, 234, 0.7); }
-            100% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
-        }
     </style>
 </head>
 <body>
@@ -115,10 +72,6 @@
         <div style="text-align:center; margin-top:40px; margin-bottom: 40px;">
             <button class="btn-primary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
         </div>
-        
-        <a href="/oppgrader.html" class="upgrade-btn-float" title="Oppgrader til Premium">
-            ⭐ Oppgrader
-        </a>
 
         <footer class="landing-footer">
             <p style="margin: 0 0 10px 0;">&copy; 2025 GloseMester | Laget med ❤️ for norske lærere</p>
