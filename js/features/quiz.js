@@ -163,21 +163,38 @@ function kjorProveInit(ordliste, tittel = "Prove", proveId = null) {
     antallRiktige = 0;
     alleElevSvar = [];
     proveStartTid = Date.now();
-    window.proveSprak = 'no'; 
-    
-    if(window.visSide) window.visSide('elev-dashboard'); 
-    
+    window.proveSprak = 'no';
+
+    if(window.visSide) window.visSide('elev-dashboard');
+
     document.getElementById('prove-omraade').style.display = 'block';
     document.getElementById('elev-start-skjerm').style.display = 'none';
-    
+
     const header = document.querySelector('#prove-omraade h3');
     if(header) header.innerText = tittel;
-    
+
+    // ✅ FIX: Legg til Enter-taste funksjonalitet
+    const inputFelt = document.getElementById('quiz-input');
+    if (inputFelt) {
+        // Fjern eksisterende listeners først (unngå duplikater)
+        inputFelt.removeEventListener('keypress', handleQuizEnter);
+        // Legg til ny listener
+        inputFelt.addEventListener('keypress', handleQuizEnter);
+    }
+
     // Oppdater progress ved start
     oppdaterQuizProgress();
-    
+
     visNesteSporsmaal();
     trackEvent('Quiz', 'Start', tittel);
+}
+
+// ✅ NYTT: Event handler for Enter-taste i prøvemodus
+function handleQuizEnter(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Hindre form-submit
+        sjekkSvar();
+    }
 }
 
 // ============================================
