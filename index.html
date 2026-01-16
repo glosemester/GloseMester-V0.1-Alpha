@@ -320,8 +320,20 @@
     <div id="laerer-dashboard" class="page">
         <div class="card-container">
             <h2>Velkommen, Lærer!</h2>
-            <p style="color:#666; margin-bottom:30px;">Lag prøver, del med QR-kode og følg med på elevenes resultater.</p>
-            
+            <p style="color:#666; margin-bottom:20px;">Lag prøver, del med QR-kode og følg med på elevenes resultater.</p>
+
+            <!-- ✅ NY: Analytics Dashboard -->
+            <div id="dashboard-stats" style="margin-bottom: 30px;">
+                <!-- Dashboard-data lastes her av teacher-analytics.js -->
+            </div>
+
+            <!-- Eksporter-knapp -->
+            <div style="text-align: right; margin-bottom: 20px;">
+                <button class="btn-secondary btn-small" onclick="eksporterTilCSV(window.lastLoadedDashboardData)" style="padding: 8px 16px;">
+                    📥 Eksporter statistikk (CSV)
+                </button>
+            </div>
+
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
                 <div class="bank-container" style="text-align:center; cursor:pointer;" onclick="visSide('lag-prove')">
                     <div style="font-size:48px; margin-bottom:10px;">📝</div>

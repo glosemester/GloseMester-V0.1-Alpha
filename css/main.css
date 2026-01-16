@@ -666,3 +666,103 @@ input, textarea, select {
 .btn-close-fancy:active {
     transform: scale(0.98);
 }
+
+/* ============================================
+   LÆRER-ANALYTICS DASHBOARD
+   v1.0.0 - 16. januar 2026
+   ============================================ */
+
+/* Stat-kort (4-kolonne grid) */
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--accent-blue);
+    margin-bottom: 5px;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Stats grid - responsiv */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+        font-size: 28px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Graf-container */
+.chart-container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.chart-container h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+#aktivitet-graf {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Top prøver liste */
+.top-prover {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.top-prover h3 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #333;
+}

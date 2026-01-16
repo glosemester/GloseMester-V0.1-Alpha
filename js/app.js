@@ -60,6 +60,11 @@ import {
     eksporterMinData
 } from './features/gdpr.js';
 
+import {
+    initDashboard,
+    eksporterTilCSV
+} from './features/teacher-analytics.js';
+
 // --- GLOBALE FUNKSJONER ---
 
 window.visSide = visSide;
@@ -92,6 +97,10 @@ window.lastInnStandardprover = lastInnStandardprover;
 window.visCookieInnstillinger = visCookieInnstillinger;
 window.slettMinData = slettMinData;
 window.eksporterMinData = eksporterMinData;
+
+// Analytics/Dashboard
+window.initDashboard = initDashboard;
+window.eksporterTilCSV = eksporterTilCSV;
 
 // Galleri
 window.visGalleriSide = function() {
