@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.9.82-BETA (Bugfixes & UX)
-// Oppdatert: Kritiske bugfikser, moderne modaler, race condition fix
-const APP_VERSION = 'v0.9.82-BETA';
-const CACHE_NAME = 'glosemester-v0.9.82-beta';
+// SERVICE WORKER - GloseMester v0.9.83-BETA (Profesjonell)
+// Oppdatert: XSS-sikkerhet, WCAG 2.1 accessibility, minnelekkasje-prevensjon
+const APP_VERSION = 'v0.9.83-BETA';
+const CACHE_NAME = 'glosemester-v0.9.83-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
