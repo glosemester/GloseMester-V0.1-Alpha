@@ -121,10 +121,12 @@ async function hentProveStatistikk(proveId) {
             return (now - timestamp) < dayMs;
         }).length;
 
-        // Unike elever (hvis resultat_av array finnes)
+        // ✅ FIX: Unike elever basert på elev_id (anonyme IDer)
         const unikeElever = new Set();
         resultater.forEach(r => {
-            if (r.resultat_av && Array.isArray(r.resultat_av)) {
+            if (r.elev_id) {
+                unikeElever.add(r.elev_id);
+            } else if (r.resultat_av && Array.isArray(r.resultat_av)) {
                 r.resultat_av.forEach(uid => unikeElever.add(uid));
             } else if (r.bruker_id) {
                 unikeElever.add(r.bruker_id);
@@ -161,8 +163,6 @@ async function hentProveStatistikk(proveId) {
  */
 async function hentAktivitetGraf(userId, dager) {
     const resultat = [];
-    const now = Date.now();
-    const dayMs = 24 * 60 * 60 * 1000;
 
     try {
         // Hent alle resultater for lærerens prøver
@@ -177,17 +177,27 @@ async function hentAktivitetGraf(userId, dager) {
             timestamp: d.data().opprettet?.toMillis ? d.data().opprettet.toMillis() : 0
         }));
 
+        // ✅ FIX: Bruk norsk tidssone (UTC+1/UTC+2) for å bestemme hvilken dag det er
+        const norwegianTimeOffset = 1 * 60 * 60 * 1000; // CET = UTC+1 (vinterstid)
+        const now = Date.now();
+
         // Bygg daglig statistikk
         for (let i = dager - 1; i >= 0; i--) {
-            const startOfDay = now - (i * dayMs);
-            const endOfDay = startOfDay + dayMs;
+            // Beregn midnatt norsk tid for denne dagen
+            const dateInNorway = new Date(now + norwegianTimeOffset);
+            dateInNorway.setHours(0, 0, 0, 0); // Midnatt i dag (norsk tid)
+            const midnattNorskTid = dateInNorway.getTime() - norwegianTimeOffset; // Konverter tilbake til UTC
+
+            const startOfDay = midnattNorskTid - (i * 24 * 60 * 60 * 1000);
+            const endOfDay = startOfDay + (24 * 60 * 60 * 1000);
 
             // Tell resultater for denne dagen
             const dagenResultater = alleResultater.filter(r =>
                 r.timestamp >= startOfDay && r.timestamp < endOfDay
             );
 
-            const dagNavn = new Date(startOfDay).toLocaleDateString('no-NO', {
+            // Bruk norsk datoformat for visning
+            const dagNavn = new Date(startOfDay + norwegianTimeOffset).toLocaleDateString('no-NO', {
                 weekday: 'short'
             });
 
@@ -203,9 +213,15 @@ async function hentAktivitetGraf(userId, dager) {
     } catch (error) {
         console.error('Feil ved henting av aktivitetsdata:', error);
         // Returner tom data hvis feil
+        const norwegianTimeOffset = 1 * 60 * 60 * 1000;
+        const now = Date.now();
         for (let i = dager - 1; i >= 0; i--) {
-            const startOfDay = now - (i * dayMs);
-            const dagNavn = new Date(startOfDay).toLocaleDateString('no-NO', {
+            const dateInNorway = new Date(now + norwegianTimeOffset);
+            dateInNorway.setHours(0, 0, 0, 0);
+            const midnattNorskTid = dateInNorway.getTime() - norwegianTimeOffset;
+            const startOfDay = midnattNorskTid - (i * 24 * 60 * 60 * 1000);
+
+            const dagNavn = new Date(startOfDay + norwegianTimeOffset).toLocaleDateString('no-NO', {
                 weekday: 'short'
             });
             resultat.push({ dato: dagNavn, antall: 0, timestamp: startOfDay });
