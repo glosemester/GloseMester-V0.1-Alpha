@@ -110,7 +110,7 @@ async function hentProveStatistikk(proveId) {
         const resultater = snapshot.docs.map(d => d.data());
 
         // Beregn statistikk
-        const totalScore = resultater.reduce((sum, r) => sum + (r.score || 0), 0);
+        const totalScore = resultater.reduce((sum, r) => sum + (r.prosent || r.score || 0), 0);
         const gjennomsnitt = resultater.length > 0 ? totalScore / resultater.length : 0;
 
         // Aktivitet siste 24 timer
