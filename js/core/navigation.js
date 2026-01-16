@@ -19,24 +19,31 @@ export function visSide(sideId) {
         
         // Auto-load data for spesifikke sider
         switch(sideId) {
+            case 'laerer-dashboard':
+                // ✅ NY: Last dashboard-statistikk automatisk
+                if (typeof window.initDashboard === 'function') {
+                    setTimeout(() => window.initDashboard(), 50);
+                }
+                break;
+
             case 'lagrede-prover':
                 if (typeof window.visSavedTests === 'function') {
                     setTimeout(() => window.visSavedTests(), 50);
                 }
                 break;
-            
+
             case 'admin-panel':
                 if (typeof window.visFane === 'function') {
                     setTimeout(() => window.visFane('glosebank'), 50);
                 }
                 break;
-            
+
             case 'glosebank-browse':
                 if (typeof window.lastInnGlosebankSok === 'function') {
                     setTimeout(() => window.lastInnGlosebankSok(), 50);
                 }
                 break;
-            
+
             case 'standardprover':
                 if (typeof window.lastInnStandardprover === 'function') {
                     setTimeout(() => window.lastInnStandardprover(), 50);

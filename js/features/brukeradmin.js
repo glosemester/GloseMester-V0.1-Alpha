@@ -1,14 +1,16 @@
 // ============================================
-// BRUKERADMINISTRASJON v1.1
+// BRUKERADMINISTRASJON v1.2
 // Håndterer "null" e-post og direkte admin
+// ✅ OPPDATERT: Bruker rolle-basert admin-sjekk
 // ============================================
 
 import { db, collection, query, getDocs, doc, updateDoc, orderBy } from './firebase.js';
+import { erAdmin as erAdminHelper } from '../core/auth-helpers.js';
 
-const ADMIN_UID = "QrFRB6xQDnVQsiSd0bzE6rH8z4x2";
+// ✅ FJERNET HARDKODET ADMIN_UID
 let alleBrukere = [];
 
-function erAdmin(user) { return user && user.uid === ADMIN_UID; }
+async function erAdmin(user) { return await erAdminHelper(); }
 
 export async function lastInnBrukere() {
     const container = document.getElementById('brukeradmin-liste');

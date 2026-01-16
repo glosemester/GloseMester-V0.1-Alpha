@@ -1,12 +1,14 @@
 /* ============================================
-   PRACTICE.JS - Øve Modus v0.10.18 (TYDELIGERE ORD)
+   PRACTICE.JS - Øve Modus v0.10.19 (MED RATE LIMITING)
    Fix: Fet skrift og større font for bedre lesbarhet
+   Ny: Rate limiting for å forhindre misbruk
    ============================================ */
 
 import { hentTilfeldigKort, visSamling } from './kort-display.js';
 import { visSide } from '../core/navigation.js';
 import { visToast, spillLyd, vibrer, lesOpp } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
+import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
 
 let gjeldendeOrd = null;
 let gjeldendeNiva = 'niva1'; 
@@ -208,9 +210,22 @@ function visNesteSporsmaal() {
 }
 
 export function sjekkOvingSvar(valgtOrd = null) {
+    // ✅ RATE LIMITING: Sjekk om bruker har svart for mange ganger
+    const rateCheck = practiceLimiter.check('practice_answer');
+
+    if (!rateCheck.allowed) {
+        const minutter = Math.ceil(rateCheck.remainingMs / 60000);
+        visToast(
+            `⏰ Du må ta en pause! Vent ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} før du kan fortsette.`,
+            'warning'
+        );
+        spillLyd('feil');
+        return;
+    }
+
     const feedbackEl = document.getElementById('oving-feedback');
     let erRiktig = false;
-    
+
     const riktigSvarTekst = window.ovingRetning === 'no' ? gjeldendeOrd.e : gjeldendeOrd.s;
 
     if (valgtOrd) {
@@ -258,6 +273,18 @@ window.lukkFeilPopup = function() {
 
 function sjekkOmGevinst() {
     if (window.riktigeSvar > 0 && window.riktigeSvar % 10 === 0) {
+        // ✅ RATE LIMITING: Sjekk om bruker har mottatt for mange kort
+        const cardCheck = cardLimiter.check('card_reward');
+
+        if (!cardCheck.allowed) {
+            const minutter = Math.ceil(cardCheck.remainingMs / 60000);
+            visToast(
+                `🃏 Du har mottatt nok kort for nå! Kom tilbake om ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} for flere.`,
+                'info'
+            );
+            return;
+        }
+
         setTimeout(() => hentTilfeldigKort(), 600);
     }
 }

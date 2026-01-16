@@ -178,6 +178,35 @@
             </div>
         </div>
 
+        <!-- PERSONVERN & GDPR -->
+        <div class="card">
+            <h2>🛡️ Personvern & Dine Rettigheter</h2>
+            <p>I henhold til GDPR (personvernforordningen) har du følgende rettigheter:</p>
+
+            <div style="margin-top: 20px;">
+                <button onclick="window.eksporterMinData()" class="btn btn-outline" style="margin-bottom: 10px; width: 100%; max-width: 300px;">
+                    📥 Last ned mine data
+                </button>
+                <p style="font-size: 0.85rem; color: #666; margin: 0 0 20px 0;">
+                    Eksporter all din data i JSON-format (GDPR Artikkel 20 - Rett til dataportabilitet)
+                </p>
+
+                <button onclick="window.visCookieInnstillinger()" class="btn btn-outline" style="margin-bottom: 10px; width: 100%; max-width: 300px;">
+                    🍪 Cookie-innstillinger
+                </button>
+                <p style="font-size: 0.85rem; color: #666; margin: 0 0 20px 0;">
+                    Administrer dine cookie-preferanser
+                </p>
+
+                <button onclick="window.slettMinData()" class="btn btn-outline" style="margin-bottom: 10px; width: 100%; max-width: 300px; border-color: #d32f2f; color: #d32f2f;">
+                    🗑️ Slett min konto
+                </button>
+                <p style="font-size: 0.85rem; color: #d32f2f; margin: 0;">
+                    <strong>Advarsel:</strong> Dette sletter permanent all din data og kan ikke angres (GDPR Artikkel 17 - Rett til sletting)
+                </p>
+            </div>
+        </div>
+
         <div id="error-log"></div>
     </div>
 

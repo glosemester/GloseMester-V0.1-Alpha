@@ -373,31 +373,39 @@ function oppdaterUIForInnloggetBruker(user) {
 }
 
 // ============================================
-// ADMIN-SJEKK
+// ADMIN-SJEKK (OPPDATERT - BRUKER ROLLE FRA FIRESTORE)
 // ============================================
 
 async function sjekkOgOppdaterAdminTilgang(user) {
-    const ADMIN_UID = "QrFRB6xQDnVQsiSd0bzE6rH8z4x2";
-    if (user.uid !== ADMIN_UID) return;
-    
-    console.log("👑 Admin detektert");
-    
+    // ✅ OPPDATERT: Sjekker rolle i stedet for hardkodet UID
+
     try {
         const userDocRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userDocRef);
-        
-        if (userSnap.exists()) {
-            const userData = userSnap.data();
-            if (userData.abonnement?.type !== 'skolepakke') {
-                await updateDoc(userDocRef, {
-                    'abonnement.type': 'skolepakke',
-                    'abonnement.status': 'active',
-                    'abonnement.kampanjekode': 'ADMIN'
-                });
-                console.log("✅ Admin skolepakke aktivert");
-            }
+
+        if (!userSnap.exists()) {
+            return;
         }
-        
+
+        const userData = userSnap.data();
+
+        // Sjekk om bruker har admin-rolle
+        if (userData.rolle !== 'admin') {
+            return;
+        }
+
+        console.log("👑 Admin detektert");
+
+        // Sørg for at admin har skolepakke-tilgang
+        if (userData.abonnement?.type !== 'skolepakke') {
+            await updateDoc(userDocRef, {
+                'abonnement.type': 'skolepakke',
+                'abonnement.status': 'active',
+                'abonnement.kampanjekode': 'ADMIN'
+            });
+            console.log("✅ Admin skolepakke aktivert");
+        }
+
         setTimeout(() => {
             const glosebankBtn = document.getElementById('btn-glosebank-browse');
             if (glosebankBtn) {
