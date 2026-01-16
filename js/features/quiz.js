@@ -10,6 +10,7 @@ import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits, lagreElevPr
 
 let aktivProve = [];
 let aktivProveId = null;
+let aktivProveEier = null; // ✅ NYTT: Lagre hvem som opprettet prøven
 let quizIndex = 0;
 let antallRiktige = 0;
 let kortVunnetISesjon = 0;
@@ -96,6 +97,7 @@ window.startLagretProve = function(id) {
     const liste = hentElevProverLokalt();
     const prove = liste.find(p => p.id === id);
     if(prove) {
+        aktivProveEier = prove.opprettet_av || null; // ✅ Sett eier hvis tilgjengelig
         kjorProveInit(prove.ordliste, prove.tittel, id);
     }
 };
@@ -124,9 +126,10 @@ async function startProve(kode) {
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                aktivProveEier = data.opprettet_av || null; // ✅ NYTT: Lagre prøveeier
                 lagreElevProveLokalt({ id: kode, ...data });
                 kjorProveInit(data.ordliste, data.tittel, kode);
-                return; 
+                return;
             }
         } catch (e) {
             console.error("Feil mot skyen:", e);
@@ -140,7 +143,7 @@ async function startProve(kode) {
         const ordliste = data.ord || data.ordliste || data;
         const tittel = data.tittel || "Offline Prove";
         const offlineId = "offline_"+Date.now();
-        
+        aktivProveEier = null; // ✅ Offline-prøver har ingen eier
         lagreElevProveLokalt({ id: offlineId, tittel: tittel, ordliste: ordliste });
         kjorProveInit(ordliste, tittel, offlineId);
     } catch (e) {
@@ -335,8 +338,10 @@ async function lagreResultatTilFirebase() {
         
         const resultatData = {
             prove_id: aktivProveId,
+            prove_eier: aktivProveEier, // ✅ NYTT: Lagre hvem som eier prøven (for analytics)
             elev_id: elevId,
             tidspunkt: serverTimestamp(),
+            opprettet: serverTimestamp(), // ✅ NYTT: For aktivitetsgraf
             poengsum: antallRiktige,
             maks_poeng: aktivProve.length,
             prosent: prosent,
