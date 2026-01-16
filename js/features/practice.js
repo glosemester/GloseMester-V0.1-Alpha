@@ -35,7 +35,7 @@ async function ventPaVocabulary(maxTid = 5000) {
         await new Promise(resolve => setTimeout(resolve, 50));
     }
     
-    console.log('✅ Vocabulary klar:', Object.keys(window.vokabularData));
+    // console.log('✅ Vocabulary klar:', Object.keys(window.vokabularData));
     return true;
 }
 
@@ -50,7 +50,7 @@ export async function startOving(nivaValg) {
         return;
     }
     
-    console.log('✅ Starter øving med nivå:', nivaValg, '- Antall ord:', window.vokabularData[nivaValg].length);
+    // console.log('✅ Starter øving med nivå:', nivaValg, '- Antall ord:', window.vokabularData[nivaValg].length);
     
     window.ovingOrdliste = stokkArray([...window.vokabularData[nivaValg]]);
     window.ovingIndex = 0;
@@ -85,9 +85,9 @@ export function settSprakRetning(retning) {
 
 function oppdaterProgress() {
     const container = document.getElementById('game-progress-target');
-    if (!container) return; 
+    if (!container) return;
 
-    const antallFylte = window.riktigeSvar % 10;
+    const antallFylte = (window.riktigeSvar % 10 === 0 && window.riktigeSvar > 0) ? 10 : window.riktigeSvar % 10;
     const antallRuter = 10;
 
     let ruterHTML = '';

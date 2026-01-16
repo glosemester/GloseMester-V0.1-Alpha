@@ -60,7 +60,7 @@ function oppdaterStartSkjermProgress() {
     if (!container) return;
 
     const totalXP = getTotalCorrect();
-    const antallFylte = totalXP % 10;
+    const antallFylte = (totalXP % 10 === 0 && totalXP > 0) ? 10 : totalXP % 10;
     const antallRuter = 10;
 
     let ruterHTML = '';
@@ -205,7 +205,7 @@ function oppdaterQuizProgress() {
     if (!container) return;
 
     const totalXP = getTotalCorrect();
-    const antallFylte = totalXP % 10;
+    const antallFylte = (totalXP % 10 === 0 && totalXP > 0) ? 10 : totalXP % 10;
     const antallRuter = 10;
 
     let ruterHTML = '';
@@ -262,6 +262,67 @@ function visNesteSporsmaal() {
     if(progressElem) progressElem.innerText = `${quizIndex + 1} / ${aktivProve.length}`;
 }
 
+// ==============================================
+// MODERNE POPUP FOR FEIL SVAR
+// ==============================================
+function visFeilPopup(fasit) {
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s;
+    `;
+
+    popup.innerHTML = `
+        <div style="
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        ">
+            <div style="font-size: 60px; margin-bottom: 15px;">❌</div>
+            <h2 style="color: #ff3b30; margin: 0 0 15px 0; font-size: 24px;">Beklager!</h2>
+            <p style="color: #666; font-size: 16px; margin-bottom: 10px;">
+                Riktig svar var:
+            </p>
+            <p style="color: #0071e3; font-size: 22px; font-weight: bold; margin-bottom: 25px;">
+                ${fasit}
+            </p>
+            <button onclick="this.closest('div').parentElement.remove();"
+                style="
+                    padding: 12px 30px;
+                    background: #0071e3;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                "
+                onmouseover="this.style.background='#005bb5'"
+                onmouseout="this.style.background='#0071e3'">
+                Neste spørsmål
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Auto-lukk etter 3 sekunder
+    setTimeout(() => {
+        if (popup.parentElement) popup.remove();
+    }, 3000);
+}
+
 function sjekkSvar() {
     const inputFelt = document.getElementById('quiz-input');
     const input = inputFelt.value.trim().toLowerCase();
@@ -313,7 +374,7 @@ function sjekkSvar() {
     } else {
         spillLyd('feil');
         vibrer(200);
-        alert(`Feil dessverre.\nRiktig svar var: ${fasit}`);
+        visFeilPopup(fasit);
     }
     
     quizIndex++;
@@ -373,7 +434,7 @@ async function lagreResultatTilFirebase() {
             antall_gjennomforinger: increment(1)
         });
         
-        console.log("Resultat lagret til Firebase!");
+        // console.log("Resultat lagret til Firebase!");
         
     } catch (error) {
         console.error("Kunne ikke lagre resultat:", error);
@@ -389,6 +450,61 @@ function genererAnonymtElevId() {
     }
     
     return elevId;
+}
+
+// ==============================================
+// MODERNE POPUP FOR FERDIG PRØVE
+// ==============================================
+function visFerdigPopup(melding) {
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s;
+    `;
+
+    const meldingMedBreaks = melding.split('\n').join('<br>');
+
+    popup.innerHTML = `
+        <div style="
+            background: white;
+            padding: 50px;
+            border-radius: 16px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        ">
+            <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
+            <h2 style="color: #0071e3; margin: 0 0 20px 0; font-size: 28px;">Prøve Fullført!</h2>
+            <p style="color: #333; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
+                ${meldingMedBreaks}
+            </p>
+            <button onclick="this.closest('div').parentElement.remove();"
+                style="
+                    padding: 15px 40px;
+                    background: #0071e3;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                "
+                onmouseover="this.style.background='#005bb5'"
+                onmouseout="this.style.background='#0071e3'">
+                Fortsett
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
 }
 
 // ==============================================
@@ -410,17 +526,17 @@ async function avsluttProve() {
     } else {
         const totalXP = getTotalCorrect();
         const mangler = 10 - (totalXP % 10);
-        melding += `\n(Du trenger ${mangler} riktige til for a fa neste kort)`;
+        melding += `\n(Du trenger ${mangler} riktige til for å få neste kort)`;
     }
 
     if (diamanterVunnetISesjon > 0) {
-        melding += `\nDu fikk ogsa ${diamanterVunnetISesjon} diamanter!`;
+        melding += `\nDu fikk også ${diamanterVunnetISesjon} diamanter!`;
     }
-    
-    alert(melding);
-    
+
+    visFerdigPopup(melding);
+
     for (let i = 0; i < kortVunnetISesjon; i++) {
-        await hentTilfeldigKort(); 
+        await hentTilfeldigKort();
     }
     
     document.getElementById('prove-omraade').style.display = 'none';
