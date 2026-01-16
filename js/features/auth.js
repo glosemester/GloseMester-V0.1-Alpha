@@ -33,10 +33,10 @@ const REDIRECT_URI = (() => {
     return "https://glosemester.no/";
 })();
 
-console.log("🔐 Feide config initialisert:", { 
-    clientId: FEIDE_CLIENT_ID, 
-    redirectUri: REDIRECT_URI 
-});
+// console.log("🔐 Feide config initialisert:", {
+//     clientId: FEIDE_CLIENT_ID,
+//     redirectUri: REDIRECT_URI
+// });
 
 // ============================================
 // POPUP-HÅNDTERING
@@ -134,7 +134,7 @@ export function loggInnMedFeide() {
     const scope = "openid userid-feide email userinfo-name groups-org groups-edu";
     const authUrl = `https://auth.dataporten.no/oauth/authorization?client_id=${FEIDE_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}`;
     
-    console.log("🚀 Starter Feide login...");
+    // console.log("🚀 Starter Feide login...");
     
     sessionStorage.setItem('feideLoginProcess', 'true');
     window.location.href = authUrl;
@@ -168,14 +168,14 @@ export async function sjekkFeideRetur() {
     }
 
     if (code && isFeideProcess) {
-        console.log("✅ Feide callback OK - behandler...");
+        // console.log("✅ Feide callback OK - behandler...");
         
         window.history.replaceState({}, document.title, "/");
         sessionStorage.removeItem('feideLoginProcess');
         visToast("Logger inn med Feide...", "info");
 
         try {
-            console.log("📡 Sender code til backend...");
+            // console.log("📡 Sender code til backend...");
             
             const response = await fetch('/.netlify/functions/feide-auth', {
                 method: 'POST',
@@ -183,7 +183,7 @@ export async function sjekkFeideRetur() {
                 body: JSON.stringify({ code: code, redirect_uri: REDIRECT_URI })
             });
 
-            console.log("📥 Backend response:", response.status);
+            // console.log("📥 Backend response:", response.status);
 
             // HÅNDTER FEIL
             if (!response.ok) {
@@ -206,14 +206,14 @@ export async function sjekkFeideRetur() {
             const firebaseToken = data.token;
             const feideUser = data.user;
 
-            console.log("👤 Feide user:", feideUser.name);
-            console.log("🔐 Logger inn i Firebase...");
+            // console.log("👤 Feide user:", feideUser.name);
+            // console.log("🔐 Logger inn i Firebase...");
 
             // LOGG INN MED FIREBASE TOKEN
             const result = await signInWithCustomToken(auth, firebaseToken);
             const user = result.user;
 
-            console.log("✅ Firebase login OK:", user.uid);
+            // console.log("✅ Firebase login OK:", user.uid);
 
             // OPPDATER FIRESTORE
             await oppdaterBrukerIFirestore(user, feideUser.name, "feide", feideUser.email);
@@ -307,7 +307,7 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
     const userDocRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userDocRef);
 
-    console.log("💾 Oppdaterer bruker:", user.uid);
+    // console.log("💾 Oppdaterer bruker:", user.uid);
 
     if (!userSnap.exists()) {
         await setDoc(userDocRef, {
@@ -318,9 +318,9 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
             opprettet: new Date(),
             abonnement: { status: "free", start_dato: new Date() }
         });
-        console.log("✅ Ny bruker opprettet");
+        // console.log("✅ Ny bruker opprettet");
     } else {
-        console.log("✅ Eksisterende bruker");
+        // console.log("✅ Eksisterende bruker");
     }
 }
 
@@ -330,12 +330,16 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
 
 export async function loggUt() {
     try {
-        console.log("👋 Logger ut...");
+        // console.log("👋 Logger ut...");
         await signOut(auth);
         window.currentUser = null;
-        window.location.reload(); 
-    } catch (error) { 
-        console.error("❌ Logout error:", error); 
+
+        // Tøm sessionStorage for å unngå rolle-lekkasje
+        sessionStorage.clear();
+
+        window.location.reload();
+    } catch (error) {
+        console.error("❌ Logout error:", error);
     }
 }
 
