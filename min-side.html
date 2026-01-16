@@ -212,6 +212,12 @@
 
     <script type="module">
         import { auth, db, doc, getDoc, onAuthStateChanged, signOut } from './js/features/firebase.js';
+        import { visCookieInnstillinger, slettMinData, eksporterMinData } from './js/features/gdpr.js';
+
+        // Eksporter GDPR-funksjoner til window-objektet
+        window.visCookieInnstillinger = visCookieInnstillinger;
+        window.slettMinData = slettMinData;
+        window.eksporterMinData = eksporterMinData;
 
         // Logg ut funksjon
         document.getElementById('logout-btn').addEventListener('click', async () => {
