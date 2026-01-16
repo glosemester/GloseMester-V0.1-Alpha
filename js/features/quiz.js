@@ -121,7 +121,7 @@ async function startProve(kode) {
     // 1. SJEKK SKYEN
     if (kode.length < 50 && !kode.includes('{')) {
         try {
-            visToast("Henter prove...", "info");
+            visToast("Henter prøve...", "info");
             const docRef = doc(db, "prover", kode);
             const docSnap = await getDoc(docRef);
 
@@ -131,9 +131,14 @@ async function startProve(kode) {
                 lagreElevProveLokalt({ id: kode, ...data });
                 kjorProveInit(data.ordliste, data.tittel, kode);
                 return;
+            } else {
+                visToast('Fant ikke prøven. Sjekk koden og prøv igjen.', 'error');
+                return;
             }
         } catch (e) {
             console.error("Feil mot skyen:", e);
+            visToast('Kunne ikke hente prøve. Sjekk internettforbindelsen.', 'error');
+            return;
         }
     }
 
@@ -142,13 +147,13 @@ async function startProve(kode) {
         const json = decodeURIComponent(atob(kode));
         const data = JSON.parse(json);
         const ordliste = data.ord || data.ordliste || data;
-        const tittel = data.tittel || "Offline Prove";
+        const tittel = data.tittel || "Offline Prøve";
         const offlineId = "offline_"+Date.now();
         aktivProveEier = null; // ✅ Offline-prøver har ingen eier
         lagreElevProveLokalt({ id: offlineId, tittel: tittel, ordliste: ordliste });
         kjorProveInit(ordliste, tittel, offlineId);
     } catch (e) {
-        visToast('Ugyldig kode.', 'error');
+        visToast('Ugyldig kode. Sjekk at du har kopiert hele koden.', 'error');
     }
 }
 
@@ -257,13 +262,15 @@ function visNesteSporsmaal() {
     const spmTekst = spraak === 'en' ? svarEngelsk : spmNorsk;
 
     const inputFelt = document.getElementById('quiz-input');
+    const svarKnapp = document.querySelector('button.btn-primary[onclick*="sjekkSvar"]');
 
     document.getElementById('quiz-spm').innerText = spmTekst;
     inputFelt.value = '';
 
-    // ✅ Lås opp input for neste svar
+    // ✅ Lås opp input OG knapp for neste svar
     besvarer = false;
     inputFelt.disabled = false;
+    if (svarKnapp) svarKnapp.disabled = false;
     inputFelt.focus();
 
     const progressElem = document.getElementById('quiz-progress');
@@ -314,6 +321,7 @@ function visRiktigPopup() {
 // ==============================================
 function visFeilPopup(fasit) {
     const popup = document.createElement('div');
+    popup.className = 'quiz-popup-overlay';
     popup.style.cssText = `
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -343,7 +351,7 @@ function visFeilPopup(fasit) {
             <p style="color: #0071e3; font-size: 22px; font-weight: bold; margin-bottom: 25px;">
                 ${fasit}
             </p>
-            <button onclick="this.closest('div').parentElement.remove();"
+            <button onclick="this.closest('.quiz-popup-overlay').remove();"
                 style="
                     padding: 12px 30px;
                     background: #0071e3;
@@ -357,31 +365,51 @@ function visFeilPopup(fasit) {
                 "
                 onmouseover="this.style.background='#005bb5'"
                 onmouseout="this.style.background='#0071e3'">
-                Neste spørsmål
+                Neste spørsmål (Esc)
             </button>
         </div>
     `;
 
     document.body.appendChild(popup);
 
+    // ✅ Escape-key support
+    const handleEscape = (e) => {
+        if (e.key === 'Escape' && popup.parentElement) {
+            popup.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+
     // Auto-lukk etter 3 sekunder
     setTimeout(() => {
-        if (popup.parentElement) popup.remove();
+        if (popup.parentElement) {
+            popup.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
     }, 3000);
 }
 
 function sjekkSvar() {
-    // ✅ Forhindre flere svar samtidig
-    if (besvarer) return;
+    // ✅ Forhindre flere svar samtidig - SETT FLAGG UMIDDELBART
+    if (besvarer) {
+        console.log("⚠️ Blokkert duplikat svar");
+        return;
+    }
+    besvarer = true; // LÅS FØRST!
 
     const inputFelt = document.getElementById('quiz-input');
+    const svarKnapp = document.querySelector('button.btn-primary[onclick*="sjekkSvar"]');
     const input = inputFelt.value.trim().toLowerCase();
 
-    if (!input) return; // Ikke send tom svar
+    if (!input) {
+        besvarer = false; // Lås opp hvis tomt svar
+        return;
+    }
 
-    // Lås input mens vi behandler
-    besvarer = true;
+    // Lås UI mens vi behandler
     inputFelt.disabled = true;
+    if (svarKnapp) svarKnapp.disabled = true;
 
     const ord = aktivProve[quizIndex];
     const spraak = window.proveSprak || 'no';
@@ -523,6 +551,7 @@ function genererAnonymtElevId() {
 // ==============================================
 function visFerdigPopup(melding) {
     const popup = document.createElement('div');
+    popup.className = 'quiz-popup-overlay';
     popup.style.cssText = `
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -551,7 +580,7 @@ function visFerdigPopup(melding) {
             <p style="color: #333; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
                 ${meldingMedBreaks}
             </p>
-            <button onclick="this.closest('div').parentElement.remove();"
+            <button onclick="this.closest('.quiz-popup-overlay').remove();"
                 style="
                     padding: 15px 40px;
                     background: #0071e3;
@@ -565,12 +594,21 @@ function visFerdigPopup(melding) {
                 "
                 onmouseover="this.style.background='#005bb5'"
                 onmouseout="this.style.background='#0071e3'">
-                Fortsett
+                Fortsett (Esc)
             </button>
         </div>
     `;
 
     document.body.appendChild(popup);
+
+    // ✅ Escape-key support
+    const handleEscape = (e) => {
+        if (e.key === 'Escape' && popup.parentElement) {
+            popup.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
 }
 
 // ==============================================
