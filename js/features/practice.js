@@ -251,22 +251,33 @@ export function sjekkOvingSvar(valgtOrd = null) {
     if (erRiktig) {
         window.riktigeSvar++;
         saveTotalCorrect(getTotalCorrect() + 1);
-        
+
         feedbackEl.style.color = 'green';
         feedbackEl.innerText = "✅ Riktig!";
-        spillLyd('riktig'); 
-        
-        oppdaterProgress(); 
-        
+        spillLyd('riktig');
+
+        oppdaterProgress();
+
         const scoreEl = document.getElementById('oving-score');
         if(scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
 
+        // ✅ DEAKTIVER KLIKK: Hindre at bruker kan klikke mens feedback vises
+        const altContainer = document.getElementById('oving-alternativer');
+        const inputContainer = document.getElementById('oving-input-container');
+        if (altContainer) altContainer.style.pointerEvents = 'none';
+        if (inputContainer) inputContainer.style.pointerEvents = 'none';
+
         sjekkOmGevinst();
-        
+
+        // ✅ RASKERE FEEDBACK: 1 sekund i stedet for 1.5
         setTimeout(() => {
+            // Reaktiver klikk
+            if (altContainer) altContainer.style.pointerEvents = 'auto';
+            if (inputContainer) inputContainer.style.pointerEvents = 'auto';
+
             window.ovingIndex++;
             visNesteSporsmaal();
-        }, 1500);
+        }, 1000);
 
     } else {
         spillLyd('feil');
