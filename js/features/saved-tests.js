@@ -3,13 +3,13 @@
    v0.7.4-BETA - Lagt til dupliseringsfunksjon
    ============================================ */
 
-import { 
-    db, 
-    collection, 
-    query, 
-    where, 
-    getDocs, 
-    deleteDoc, 
+import {
+    db,
+    collection,
+    query,
+    where,
+    getDocs,
+    deleteDoc,
     doc,
     orderBy,
     getDoc,
@@ -17,6 +17,8 @@ import {
     setDoc,
     serverTimestamp
 } from './firebase.js';
+
+import { escapeHtml } from '../ui/helpers.js';
 
 // ============================================
 // HOVEDFUNKSJON: Vis lagrede prøver
@@ -61,6 +63,8 @@ export async function visSavedTests() {
             const data = docSnap.data();
             const proveId = docSnap.id;
             const tittel = data.tittel || 'Uten tittel';
+            const tittelSafe = escapeHtml(tittel);
+            const tittelJS = tittel.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
             const antallOrd = data.ordliste ? data.ordliste.length : 0;
             const dato = data.opprettet_dato ? new Date(data.opprettet_dato.toDate()).toLocaleDateString('nb-NO') : 'Ukjent dato';
             const antallGjennomforinger = data.antall_gjennomforinger || 0;
@@ -68,7 +72,7 @@ export async function visSavedTests() {
             html += `
                 <div class="saved-test-card">
                     <div class="test-header">
-                        <h3>${tittel}</h3>
+                        <h3>${tittelSafe}</h3>
                         <span class="test-date">📅 ${dato}</span>
                     </div>
                     <div class="test-info">
@@ -86,10 +90,10 @@ export async function visSavedTests() {
                         <button class="btn-info" onclick="window.dupliserProve('${proveId}')">
                             📋 Dupliser
                         </button>
-                        <button class="btn-secondary" onclick="window.genererQRKode('${proveId}', '${tittel.replace(/'/g, "\\'")}')">
+                        <button class="btn-secondary" onclick="window.genererQRKode('${proveId}', '${tittelJS}')">
                             📱 QR-kode
                         </button>
-                        <button class="btn-success" onclick="window.visResultater('${proveId}', '${tittel.replace(/'/g, "\\'")}')">
+                        <button class="btn-success" onclick="window.visResultater('${proveId}', '${tittelJS}')">
                             📊 Resultater
                         </button>
                         <button class="btn-danger" onclick="window.slettProve('${proveId}')">

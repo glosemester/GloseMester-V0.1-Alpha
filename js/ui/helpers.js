@@ -93,10 +93,10 @@ export function lagConfetti() {
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.zIndex = '9999';
         confetti.style.pointerEvents = 'none';
-        
+
         const duration = Math.random() * 2 + 1;
         confetti.style.transition = `top ${duration}s linear, transform ${duration}s ease-in-out`;
-        
+
         document.body.appendChild(confetti);
 
         setTimeout(() => {
@@ -106,4 +106,19 @@ export function lagConfetti() {
 
         setTimeout(() => confetti.remove(), duration * 1000);
     }
+}
+
+/**
+ * Saniterer brukerinput for å forhindre XSS-angrep
+ * @param {string} unsafe - Usikker tekst fra bruker
+ * @returns {string} - Sanitert tekst trygg for innerHTML
+ */
+export function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
