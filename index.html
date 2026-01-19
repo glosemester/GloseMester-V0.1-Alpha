@@ -52,13 +52,6 @@
         .page.active { display: block !important; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .version-tag {
-            position: fixed; bottom: 10px; right: 15px; font-size: 11px;
-            color: #0071e3; z-index: 50; font-weight: 600; font-family: monospace;
-            cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.9);
-            padding: 5px 10px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
         /* Footer styling spesifikt for landingssiden */
         .landing-footer {
             margin-top: 60px;
@@ -109,11 +102,15 @@
         </div>
 
         <footer class="landing-footer">
+            <p style="margin: 0 0 5px 0; font-weight: 600;">v0.10.0-BETA</p>
+            <p style="margin: 0 0 10px 0; font-size: 13px; opacity: 0.9;">
+                ✨ Nytt 4-nivå system | 🖼️ Bildestøtte | 🎴 Justert kortbelønning | 🔒 Gudekort kun på Nivå 3-4
+            </p>
             <p style="margin: 0 0 10px 0;">&copy; 2025 GloseMester | Laget med ❤️ for norske lærere</p>
             <p style="margin: 0; font-size: 13px;">
-                <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> | 
-                <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a> | 
-                <a href="/personvern.html" style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> | 
+                <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> |
+                <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a> |
+                <a href="/personvern.html" style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> |
                 <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px; text-decoration: none;">Kontakt</a>
             </p>
         </footer>
@@ -708,20 +705,6 @@
 
     </div>
 </div>
-    
-    <div id="changelog-popup" class="popup-overlay" style="display:none;" onclick="this.style.display='none'">
-        <div class="popup-content" style="max-width: 500px;" onclick="event.stopPropagation()">
-            <h2>📋 v0.9.8-BETA</h2>
-            <p><strong>🎉 Feilrettinger & Forbedringer</strong><br>
-            ✅ Fikset problem med blank side<br>
-            ✅ Oppdatert navigasjon<br>
-            ✅ Lagt til Om Oss & Footer (kun på forside)<br>
-            </p>
-            <button class="btn-primary" onclick="document.getElementById('changelog-popup').style.display='none'" style="width:100%; margin-top:20px;">Lukk</button>
-        </div>
-    </div>
-
-    <div class="version-tag" onclick="document.getElementById('changelog-popup').style.display='flex'">v0.9.8-BETA</div>
 
     <script type="module" src="js/init.js"></script>
     <script type="module">
