@@ -1,10 +1,10 @@
 // ============================================
 // VOCABULARY.JS - GloseMester v0.10.0
 // Oppdatert: LK20-tilpasset (Nivå 1-4)
-// Nivå 1: Superenkle substantiv med bilder (Førskolenivå / 1. trinn) - 40 ord
+// Nivå 1 (Bilder): Superenkle substantiv med bilder (Førskolenivå / 1. trinn) - 40 ord
 // Nivå 2: Det nære (1.-4. trinn) - 50 ord
-// Nivå 3: Beskrivelser & Hverdag (5.-7. trinn) - 50 ord
-// Nivå 4: Gaming, Samfunn & Meninger (8.-10. trinn) - 50 ord
+// Nivå 3 (Middels): Beskrivelser & Hverdag (5.-7. trinn) - 50 ord
+// Nivå 4 (Vanskelig): Gaming, Samfunn & Meninger (8.-10. trinn) - 50 ord
 // ============================================
 
 window.vokabularData = {
