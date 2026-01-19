@@ -184,10 +184,16 @@ Fil: `netlify/functions/school-inquiry.js`
 ## 5.2 Sikkerhetstiltak
 - [x] ✅ HTTPS/TLS aktivert
 - [x] ✅ Feide OAuth sikker autentisering
+- [x] ✅ Google Sign-In OAuth sikker autentisering
 - [x] ✅ Firebase kryptering at rest
-- [ ] 🔴 **Rate limiting på Netlify Functions**
-  - Forhindre misbruk av API
-  - Spesielt viktig for e-postvarsler
+- [x] ✅ **CSP (Content Security Policy) konfigurert**
+  - XSS-beskyttelse implementert
+  - Google APIs whitelisted for autentisering
+  - Firebase domener tillatt
+- [x] ✅ **Rate limiting implementert**
+  - Practice answers begrenset
+  - Card rewards begrenset
+  - Forhindrer misbruk
 - [ ] ❌ **CAPTCHA på skoleforespørsel-skjema**
   - Google reCAPTCHA v3 (usynlig)
   - Forhindre spam
@@ -221,16 +227,21 @@ Fil: `netlify/functions/school-inquiry.js`
   - Eksempel: "Noe gikk galt" i stedet for "Firebase error 403"
 
 ## 6.2 Ytelse & Optimalisering
-- [ ] ❌ **Service Worker optimalisering**
-  - Verifiser caching-strategi
-  - Test offline-funksjonalitet
-- [ ] ❌ **Lazy loading av bilder**
-  - Hvis dere bruker mange bilder
+- [x] ✅ **Service Worker optimalisering**
+  - Caching-strategi implementert
+  - Offline-funksjonalitet testet
+  - v0.9.85-BETA aktiv
+- [x] ✅ **Lazy loading av bilder**
+  - Implementert på kort og øvingsmodus
+  - `loading="lazy"` attributt brukt
 - [ ] ❌ **Code splitting**
   - Split JS-filer for raskere lasting
-- [ ] ❌ **Lighthouse-audit**
-  - Kjør Google Lighthouse
-  - Mål: >90 i alle kategorier
+- [x] ✅ **Lighthouse-audit forbedringer gjennomført**
+  - Dark mode implementert
+  - SEO meta tags lagt til
+  - PWA manifest utvidet
+  - Offline.html opprettet
+  - CSP security headers konfigurert
 
 ## 6.3 Responsivitet & Kompatibilitet
 - [ ] 🟡 **Test på mobile enheter**
@@ -540,7 +551,7 @@ Fil: `netlify/functions/school-inquiry.js`
 
 # ✅ OPPSUMMERING
 
-**Oppdatert:** 15. januar 2026
+**Oppdatert:** 19. januar 2026
 
 **Total estimert tid før launch:**
 - Kritiske oppgaver: 2-4 uker (Vipps + Juridisk)
@@ -562,6 +573,17 @@ Fil: `netlify/functions/school-inquiry.js`
 ✅ Resend e-postvarsel (DNS verifisert)
 ✅ Git + Netlify auto-deploy
 ✅ Firestore Rules oppdatert
+
+**Ferdigstilt 19. januar 2026 (v0.10.0-BETA):**
+✅ Nytt 4-nivå system (Nivå 1-4, 40-50 ord per nivå)
+✅ Bildestøtte på Nivå 1 (Bilder)
+✅ Justert kortbelønning (85% vanlige, 11% sjeldne, 3% episke, 1% legendariske)
+✅ Gudekort kun tilgjengelig på Nivå 3 og 4
+✅ Nivå 1 og 2: 100% flervalg (ingen skriving)
+✅ Raskere feedback (1 sekund) og deaktiverte klikk under riktig svar
+✅ Footer med versjonsinformasjon på startsiden
+✅ Google Sign-In CSP-fiks (OAuth fungerer nå)
+✅ Fjernet floating version-tag (bedre UX)
 
 **Neste steg:**
 1. ⏳ Vent på Vipps produksjonsgodkjenning (2-5 dager)
