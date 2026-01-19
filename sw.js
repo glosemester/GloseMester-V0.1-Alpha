@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.9.85-BETA (Lighthouse-optimized)
-// Oppdatert: Dark mode, SEO (meta tags), PWA (offline.html, manifest), CSP security, heading hierarchy
-const APP_VERSION = 'v0.9.85-BETA';
-const CACHE_NAME = 'glosemester-v0.9.85-beta';
+// SERVICE WORKER - GloseMester v0.10.0-BETA (Production-ready)
+// Oppdatert: Nytt 4-nivå system, bildestøtte, justert kortbelønning, raskere feedback, juridiske dokumenter
+const APP_VERSION = 'v0.10.0-BETA';
+const CACHE_NAME = 'glosemester-v0.10.0-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
