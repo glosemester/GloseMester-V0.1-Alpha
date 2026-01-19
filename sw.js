@@ -6,6 +6,7 @@ const CACHE_NAME = 'glosemester-v0.9.84-beta';
 const ASSETS_TO_CACHE = [
   // Hovedfiler
   './index.html',
+  './offline.html',
   './manifest.json',
   
   // Design
@@ -123,11 +124,22 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, c));
           return res;
         })
-        .catch(() => caches.match(e.request) || caches.match('./index.html'))
+        .catch(async () => {
+          // Prøv cached versjon først
+          const cachedResponse = await caches.match(e.request);
+          if (cachedResponse) return cachedResponse;
+
+          // Hvis ikke cached, prøv index.html
+          const indexResponse = await caches.match('./index.html');
+          if (indexResponse) return indexResponse;
+
+          // Siste fallback: offline.html
+          return caches.match('./offline.html');
+        })
     );
     return;
   }
-  
+
   // 2. Bilder, JS, CSS, Lyd: Cache first (raskt), nettverk som fallback
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
