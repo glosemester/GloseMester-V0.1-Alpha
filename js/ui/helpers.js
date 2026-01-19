@@ -58,9 +58,14 @@ export function visToast(melding, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerText = melding;
-    
+
+    // ✅ Accessibility: Add ARIA attributes
+    toast.setAttribute('role', type === 'error' || type === 'warning' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
@@ -121,4 +126,22 @@ export function escapeHtml(unsafe) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+/**
+ * Debounce funksjon - forsinker funksjonskall til etter en viss tid
+ * @param {Function} func - Funksjonen som skal debounces
+ * @param {number} wait - Ventetid i millisekunder (default 300ms)
+ * @returns {Function} - Debounced funksjon
+ */
+export function debounce(func, wait = 300) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }

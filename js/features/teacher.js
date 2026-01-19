@@ -230,7 +230,25 @@ export async function lagreProve() {
     const tittelInput = document.getElementById('prove-tittel');
     const tittel = tittelInput?.value.trim();
 
-    if (!tittel) { visToast("Prøven må ha et navn!", "error"); return; }
+    // ✅ Robust input validation
+    if (!tittel) {
+        visToast("Prøven må ha et navn!", "error");
+        return;
+    }
+    if (tittel.length < 2) {
+        visToast("Tittel må være minst 2 tegn!", "error");
+        return;
+    }
+    if (tittel.length > 100) {
+        visToast("Tittel kan ikke være lengre enn 100 tegn!", "error");
+        return;
+    }
+    // Allow Norwegian characters, numbers, spaces, hyphens, underscores
+    if (!/^[a-zA-ZæøåÆØÅ0-9\s\-_]+$/.test(tittel)) {
+        visToast("Tittel inneholder ugyldige tegn!", "error");
+        return;
+    }
+
     if (midlertidigProveListe.length < 3) { visToast("Minst 3 ord må legges til.", "error"); return; }
 
     const user = auth.currentUser;

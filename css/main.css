@@ -16,6 +16,27 @@
     border-width: 0;
 }
 
+/* Skip link for keyboard navigation */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #0071e3;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    z-index: 10001;
+    border-radius: 0 0 4px 0;
+    font-weight: 600;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid #ff3b30;
+    outline-offset: 2px;
+}
+
 /* --- 1. POPUPS & MODALS (VIKTIGST - LIGGER FØRST) --- */
 .popup-overlay {
     display: none; /* Skjult som standard */

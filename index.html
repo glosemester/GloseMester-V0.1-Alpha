@@ -42,12 +42,16 @@
 </head>
 <body>
 
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
+
     <button id="lyd-toggle" class="icon-btn" 
             style="position:fixed; top:15px; right:15px; z-index:9999; font-size:1.5rem; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:50px; height:50px; cursor:pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" 
             aria-label="Skru av/på lyd">
         🔇
     </button>
 
+    <main id="main-content">
     <div id="landing-page" class="page active">
         <img src="header.png" alt="GloseMester" class="hero-image" style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
         <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 40px auto; font-size:18px;">
@@ -760,6 +764,7 @@
             </form>
         </div>
     </div>
+    </main>
 
 </body>
 </html>
