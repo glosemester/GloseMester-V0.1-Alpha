@@ -138,14 +138,14 @@ Fil: `netlify/functions/school-inquiry.js`
 
 ## 4.1 Dokumenter som MÅ være tilgjengelige
 - [x] ✅ Databehandleravtale (ferdig)
-- [x] ✅ Kjøpsvilkår/Salgsvilkår (ferdig)
-- [ ] 🔴 **Personvernerklæring**
-  - Må være tilgjengelig på /personvern.html
-  - Se mal i seksjon 7.1
-- [ ] 🔴 **Bruksvilkår**
+- [x] ✅ Kjøpsvilkår/Salgsvilkår (ferdig, oppdatert til v0.10.0)
+- [x] ✅ **Personvernerklæring** (ferdig, oppdatert til v0.10.0)
+  - Tilgjengelig på /personvern.html
+  - Inkluderer GDPR-compliance
+  - Oppdatert med siste sikkerhetstiltak
+- [x] ✅ **Bruksvilkår** (ferdig som kjøpsvilkår)
   - Generelle vilkår for bruk av GloseMester
-  - Må aksepteres ved registrering
-  - Se mal i seksjon 7.2
+  - Tilgjengelig på /vilkar.html
 - [ ] ❌ **Informasjonskapsler (Cookie Policy)**
   - Hvis du bruker cookies/analytics
 
@@ -486,9 +486,9 @@ Fil: `netlify/functions/school-inquiry.js`
    - ❌ Bekreftelser til kunder (Vipps-kvitteringer)
 
 3. **Juridiske dokumenter**
-   - ❌ Personvernerklæring publisert
-   - ❌ Bruksvilkår publisert
-   - ❌ Få advokat til å gjennomgå
+   - ✅ Personvernerklæring publisert (v0.10.0, 19. jan 2026)
+   - ✅ Bruksvilkår publisert (v0.10.0, 19. jan 2026)
+   - ⏳ Få advokat til å gjennomgå (anbefalt, men ikke kritisk for beta-test)
 
 4. **Firestore backup**
    - ❌ Automatiske backups aktivert
@@ -587,8 +587,8 @@ Fil: `netlify/functions/school-inquiry.js`
 
 **Neste steg:**
 1. ⏳ Vent på Vipps produksjonsgodkjenning (2-5 dager)
-2. 📄 Lag personvernerklæring (få advokat til å gjennomgå)
-3. 🔒 Sett opp Firestore backup
-4. 📊 Sett opp UptimeRobot
+2. 🔒 Sett opp Firestore backup (Firebase Console)
+3. 📊 Sett opp UptimeRobot (5 min setup)
+4. 📄 Få advokat til å gjennomgå juridiske dokumenter (valgfri for beta)
 5. 🧪 Beta-test med 1-2 skoler (2-4 uker)
 6. 🚀 Launch Februar 2026!
