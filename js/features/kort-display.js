@@ -92,25 +92,37 @@ export async function hentTilfeldigKort() {
         return;
     }
 
-    const unikeKategorier = [...new Set(cardsData.map(kort => kort.category))];
-    const valgtKategori = unikeKategorier[Math.floor(Math.random() * unikeKategorier.length)];
-    
+    // ✅ NIVÅBASERT KATEGORIFILTRERING: Gudekort kun på nivå 3 og 4
+    let tilgjengeligeKategorier = [...new Set(cardsData.map(kort => kort.category))];
+
+    // Hent gjeldende nivå fra global variabel (satt i practice.js eller quiz.js)
+    const aktivtNiva = window.gjeldendeNiva || 'niva1';
+
+    // Fjern guder-kategorien på lavere nivåer
+    if (aktivtNiva === 'niva1' || aktivtNiva === 'niva2') {
+        tilgjengeligeKategorier = tilgjengeligeKategorier.filter(kat => kat !== 'guder');
+    }
+
+    const valgtKategori = tilgjengeligeKategorier[Math.floor(Math.random() * tilgjengeligeKategorier.length)];
+
+    // ✅ JUSTERT RARITY: Vanlige kort kommer mye oftere
     const r = Math.random() * 100;
     let targetRarity = 'common';
-    if(r > 98) targetRarity = 'legendary';
-    else if(r > 85) targetRarity = 'epic';
-    else if(r > 60) targetRarity = 'rare';
-    
+    if(r > 99) targetRarity = 'legendary';      // 1% (ned fra 2%)
+    else if(r > 96) targetRarity = 'epic';      // 3% (ned fra 13%)
+    else if(r > 85) targetRarity = 'rare';      // 11% (ned fra 25%)
+    // common = 85% (opp fra 60%)
+
     const muligeKort = cardsData.filter(k => k.category === valgtKategori && k.rarity === targetRarity);
-    
-    const finalPool = muligeKort.length > 0 
-        ? muligeKort 
+
+    const finalPool = muligeKort.length > 0
+        ? muligeKort
         : cardsData.filter(k => k.category === valgtKategori);
 
     const vunnetKort = finalPool[Math.floor(Math.random() * finalPool.length)];
-    
+
     if(!vunnetKort) {
-        console.error("Kunne ikke finne kort."); 
+        console.error("Kunne ikke finne kort.");
         return;
     }
 

@@ -493,6 +493,15 @@ input, textarea, select {
     padding: 3rem;
 }
 
+/* ✅ BILDESTØTTE I ØVINGSMODUS (Nivå 1) */
+.oving-bilde {
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+}
+
 .loading-container .spinner {
     margin-bottom: 10px;
 }
