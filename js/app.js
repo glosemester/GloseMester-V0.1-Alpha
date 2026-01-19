@@ -8,6 +8,11 @@
    - HAMBURGER-MENY for mobil
    ============================================ */
 
+// VIKTIG: Disable console.log i production & setup error handling
+import { disableConsoleInProduction, setupGlobalErrorHandler } from './core/logger.js';
+disableConsoleInProduction();
+setupGlobalErrorHandler();
+
 // VIKTIG: Last vocabulary.js FØRST
 import './vocabulary.js'; 
 
