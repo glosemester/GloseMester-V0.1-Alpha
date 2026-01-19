@@ -198,6 +198,7 @@ function kjorProveInit(ordliste, tittel = "Prove", proveId = null) {
     proveStartTid = Date.now();
     besvarer = false; // ✅ Reset svar-lås
     window.proveSprak = 'no';
+    window.gjeldendeNiva = 'niva3'; // ✅ Quiz-modus gir tilgang til alle kort inkl. guder
 
     if(window.visSide) window.visSide('elev-dashboard');
 

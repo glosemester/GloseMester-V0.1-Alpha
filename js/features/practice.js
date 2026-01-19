@@ -41,6 +41,7 @@ async function ventPaVocabulary(maxTid = 5000) {
 
 export async function startOving(nivaValg) {
     gjeldendeNiva = nivaValg;
+    window.gjeldendeNiva = nivaValg; // ✅ Global variabel for kortbelønning
 
     const erKlar = await ventPaVocabulary();
     
@@ -135,22 +136,33 @@ function visNesteSporsmaal() {
     }
     
     gjeldendeOrd = window.ovingOrdliste[window.ovingIndex];
-    
-    const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e; 
+
+    const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e;
     document.getElementById('oving-spm').innerText = sporsmaalTekst;
-    
+
+    // ✅ BILDESTØTTE: Vis bilde hvis det finnes
+    const bildeContainer = document.getElementById('oving-bilde-container');
+    if (gjeldendeOrd.image && bildeContainer) {
+        bildeContainer.innerHTML = `<img src="${gjeldendeOrd.image}" class="oving-bilde" alt="${sporsmaalTekst}" loading="lazy">`;
+        bildeContainer.style.display = 'block';
+    } else if (bildeContainer) {
+        bildeContainer.innerHTML = '';
+        bildeContainer.style.display = 'none';
+    }
+
     const altLang = window.ovingRetning === 'no' ? 'en-US' : 'no-NO';
 
     let erFlervalg = false;
 
-    if (gjeldendeNiva === 'niva1') {
-        erFlervalg = true; 
-    } 
-    else if (gjeldendeNiva === 'niva3') {
-        erFlervalg = Math.random() < 0.2; 
-    } 
+    // ✅ OPPDATERT NIVÅLOGIKK (Nivå 1-4)
+    if (gjeldendeNiva === 'niva1' || gjeldendeNiva === 'niva2') {
+        erFlervalg = true; // Nivå 1 og 2: 100% flervalg
+    }
+    else if (gjeldendeNiva === 'niva4') {
+        erFlervalg = Math.random() < 0.2; // Nivå 4: 20% flervalg, 80% skriving
+    }
     else {
-        erFlervalg = Math.random() < 0.5; 
+        erFlervalg = Math.random() < 0.5; // Nivå 3: 50/50
     }
 
     if (erFlervalg) {
