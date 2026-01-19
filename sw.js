@@ -1,7 +1,7 @@
 // SERVICE WORKER - GloseMester v0.10.1-BETA (Production-ready)
-// Oppdatert: Fjernet mørk modus (kun lyst design), nytt 4-nivå system, bildestøtte, justert kortbelønning
+// Oppdatert: Tvunget lyst design (color-scheme), fjernet mørk modus, nytt 4-nivå system, bildestøtte
 const APP_VERSION = 'v0.10.1-BETA';
-const CACHE_NAME = 'glosemester-v0.10.1-beta';
+const CACHE_NAME = 'glosemester-v0.10.1-beta-light';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler

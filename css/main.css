@@ -69,6 +69,9 @@
 
 /* --- 2. GRUNNLEGGENDE DESIGN --- */
 :root {
+    /* Tvinger nettleseren til kun lyst design */
+    color-scheme: light only;
+
     --bg-color: #f5f5f7;
     --card-bg: #ffffff;
     --text-color: #1d1d1f;
