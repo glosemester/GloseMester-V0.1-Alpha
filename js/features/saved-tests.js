@@ -3,13 +3,13 @@
    v0.7.4-BETA - Lagt til dupliseringsfunksjon
    ============================================ */
 
-import { 
-    db, 
-    collection, 
-    query, 
-    where, 
-    getDocs, 
-    deleteDoc, 
+import {
+    db,
+    collection,
+    query,
+    where,
+    getDocs,
+    deleteDoc,
     doc,
     orderBy,
     getDoc,
@@ -17,6 +17,8 @@ import {
     setDoc,
     serverTimestamp
 } from './firebase.js';
+
+import { escapeHtml } from '../ui/helpers.js';
 
 // ============================================
 // HOVEDFUNKSJON: Vis lagrede prøver
@@ -61,6 +63,8 @@ export async function visSavedTests() {
             const data = docSnap.data();
             const proveId = docSnap.id;
             const tittel = data.tittel || 'Uten tittel';
+            const tittelSafe = escapeHtml(tittel);
+            const tittelJS = tittel.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
             const antallOrd = data.ordliste ? data.ordliste.length : 0;
             const dato = data.opprettet_dato ? new Date(data.opprettet_dato.toDate()).toLocaleDateString('nb-NO') : 'Ukjent dato';
             const antallGjennomforinger = data.antall_gjennomforinger || 0;
@@ -68,7 +72,7 @@ export async function visSavedTests() {
             html += `
                 <div class="saved-test-card">
                     <div class="test-header">
-                        <h3>${tittel}</h3>
+                        <h3>${tittelSafe}</h3>
                         <span class="test-date">📅 ${dato}</span>
                     </div>
                     <div class="test-info">
@@ -86,10 +90,10 @@ export async function visSavedTests() {
                         <button class="btn-info" onclick="window.dupliserProve('${proveId}')">
                             📋 Dupliser
                         </button>
-                        <button class="btn-secondary" onclick="window.genererQRKode('${proveId}', '${tittel.replace(/'/g, "\\'")}')">
+                        <button class="btn-secondary" onclick="window.genererQRKode('${proveId}', '${tittelJS}')">
                             📱 QR-kode
                         </button>
-                        <button class="btn-success" onclick="window.visResultater('${proveId}', '${tittel.replace(/'/g, "\\'")}')">
+                        <button class="btn-success" onclick="window.visResultater('${proveId}', '${tittelJS}')">
                             📊 Resultater
                         </button>
                         <button class="btn-danger" onclick="window.slettProve('${proveId}')">
@@ -132,6 +136,7 @@ window.redigerProve = async function(proveId) {
 
         const data = docSnap.data();
         const tittel = data.tittel || 'Uten tittel';
+        const tittelSafe = escapeHtml(tittel);
         redigeringOrdliste = [...(data.ordliste || [])]; // Kopier ordliste
 
         // Bygg modal HTML
@@ -140,14 +145,14 @@ window.redigerProve = async function(proveId) {
                 <div class="modal-content modal-large" onclick="event.stopPropagation()">
                     <button class="modal-close" onclick="lukkRedigerModal()">✖</button>
                     <h2>✏️ Rediger prøve</h2>
-                    
+
                     <!-- Tittel -->
                     <div class="form-group" style="margin-bottom: 25px;">
                         <label for="rediger-tittel" style="font-size: 16px; font-weight: 600; display: block; margin-bottom: 8px;"><strong>Tittel:</strong></label>
-                        <input 
-                            type="text" 
-                            id="rediger-tittel" 
-                            value="${tittel}" 
+                        <input
+                            type="text"
+                            id="rediger-tittel"
+                            value="${tittelSafe}" 
                             placeholder="Navn på prøven"
                             style="width: 100%; padding: 14px 16px; font-size: 17px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box;"
                         >
@@ -259,13 +264,13 @@ function oppdaterRedigerOrdliste() {
 
         li.innerHTML = `
             <span style="flex:1;">
-                <strong style="color:#0071e3;">${ord.s}</strong> 
-                <span style="color:#999; margin:0 10px;">→</span> 
-                <span style="color:#333;">${ord.e}</span>
-            </span> 
-            <button 
-                onclick="slettOrdIRediger(${index})" 
-                class="btn-danger btn-small" 
+                <strong style="color:#0071e3;">${escapeHtml(ord.s)}</strong>
+                <span style="color:#999; margin:0 10px;">→</span>
+                <span style="color:#333;">${escapeHtml(ord.e)}</span>
+            </span>
+            <button
+                onclick="slettOrdIRediger(${index})"
+                class="btn-danger btn-small"
                 title="Slett ord"
                 style="padding:5px 10px; font-size:12px;">
                 🗑️ Slett

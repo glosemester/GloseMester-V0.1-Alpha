@@ -58,9 +58,14 @@ export function visToast(melding, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerText = melding;
-    
+
+    // ✅ Accessibility: Add ARIA attributes
+    toast.setAttribute('role', type === 'error' || type === 'warning' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
@@ -93,10 +98,10 @@ export function lagConfetti() {
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         confetti.style.zIndex = '9999';
         confetti.style.pointerEvents = 'none';
-        
+
         const duration = Math.random() * 2 + 1;
         confetti.style.transition = `top ${duration}s linear, transform ${duration}s ease-in-out`;
-        
+
         document.body.appendChild(confetti);
 
         setTimeout(() => {
@@ -106,4 +111,37 @@ export function lagConfetti() {
 
         setTimeout(() => confetti.remove(), duration * 1000);
     }
+}
+
+/**
+ * Saniterer brukerinput for å forhindre XSS-angrep
+ * @param {string} unsafe - Usikker tekst fra bruker
+ * @returns {string} - Sanitert tekst trygg for innerHTML
+ */
+export function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/**
+ * Debounce funksjon - forsinker funksjonskall til etter en viss tid
+ * @param {Function} func - Funksjonen som skal debounces
+ * @param {number} wait - Ventetid i millisekunder (default 300ms)
+ * @returns {Function} - Debounced funksjon
+ */
+export function debounce(func, wait = 300) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }

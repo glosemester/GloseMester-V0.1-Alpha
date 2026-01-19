@@ -21,6 +21,7 @@ import {
 import { visAdminVerktoy } from './admin-verktoey.js';
 import { lastInnBrukere } from './brukeradmin.js';
 import { erAdmin as erAdminHelper, visAdminMenyHvisAdmin as visAdminMenyHelper } from '../core/auth-helpers.js';
+import { escapeHtml } from '../ui/helpers.js';
 
 // Eksponer til window
 window.lastInnBrukere = lastInnBrukere;
@@ -171,24 +172,26 @@ function visFilterteProver() {
     
     filtrert.forEach((prove) => {
         const tittel = prove.tittel || 'Uten tittel';
+        const tittelSafe = escapeHtml(tittel);
         const antallOrd = prove.ordliste ? prove.ordliste.length : 0;
-        const dato = prove.delt_dato 
+        const dato = prove.delt_dato
             ? new Date(prove.delt_dato.toDate()).toLocaleDateString('nb-NO')
-            : (prove.opprettet_dato 
+            : (prove.opprettet_dato
                 ? new Date(prove.opprettet_dato.toDate()).toLocaleDateString('nb-NO')
                 : 'Ukjent');
         const epost = prove.delt_av_epost || prove.opprettet_av_epost || 'Ukjent';
+        const epostSafe = escapeHtml(epost);
         const status = prove.status || 'pending';
         const synlig = prove.synlig_for_kunder ? 'Ja' : 'Nei';
-        
+
         // Metadata (kan være null)
-        const nivå = prove.nivå || '—';
-        const trinn = prove.trinn || '—';
-        const emne = prove.emne || '—';
-        const lk20 = prove.LK20_kompetansemål && prove.LK20_kompetansemål.length > 0 
-            ? prove.LK20_kompetansemål.join(', ') 
+        const nivå = escapeHtml(prove.nivå || '—');
+        const trinn = escapeHtml(prove.trinn || '—');
+        const emne = escapeHtml(prove.emne || '—');
+        const lk20 = prove.LK20_kompetansemål && prove.LK20_kompetansemål.length > 0
+            ? escapeHtml(prove.LK20_kompetansemål.join(', '))
             : '—';
-        
+
         // Status badge
         let statusBadge = '';
         if (status === 'pending' || !status) {
@@ -196,16 +199,16 @@ function visFilterteProver() {
         } else if (status === 'approved') {
             statusBadge = '<span class="badge badge-success">✅ Godkjent</span>';
         }
-        
+
         html += `
             <div class="glosebank-admin-card">
                 <div class="card-header">
-                    <h3>${tittel}</h3>
+                    <h3>${tittelSafe}</h3>
                     ${statusBadge}
                 </div>
                 <div class="card-info">
                     <p><strong>📚 Antall ord:</strong> ${antallOrd}</p>
-                    <p><strong>👤 Laget av:</strong> ${epost}</p>
+                    <p><strong>👤 Laget av:</strong> ${epostSafe}</p>
                     <p><strong>📅 Dato:</strong> ${dato}</p>
                     <p><strong>🎓 Nivå:</strong> ${nivå}</p>
                     <p><strong>📖 Trinn:</strong> ${trinn}</p>

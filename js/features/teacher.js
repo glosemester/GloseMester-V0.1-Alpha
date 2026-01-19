@@ -5,7 +5,7 @@
    ============================================ */
 
 import { visSide } from '../core/navigation.js';
-import { visToast, spillLyd } from '../ui/helpers.js';
+import { visToast, spillLyd, escapeHtml } from '../ui/helpers.js';
 import { auth, db, collection, addDoc, serverTimestamp, getDoc, doc, updateDoc } from './firebase.js';
 import { testSaveLimiter } from '../core/rate-limiter.js';
 
@@ -197,10 +197,10 @@ function oppdaterEditorListe() {
         li.style.cssText = `display:flex; justify-content:space-between; align-items:center; padding:12px 15px; background:#f9f9f9; border-radius:8px; margin-bottom:8px; border-left: 3px solid #0071e3;`;
         li.innerHTML = `
             <span style="flex:1;">
-                <strong style="color:#0071e3;">${ord.s}</strong> 
-                <span style="color:#999; margin:0 10px;">→</span> 
-                <span style="color:#333;">${ord.e}</span>
-            </span> 
+                <strong style="color:#0071e3;">${escapeHtml(ord.s)}</strong>
+                <span style="color:#999; margin:0 10px;">→</span>
+                <span style="color:#333;">${escapeHtml(ord.e)}</span>
+            </span>
             <button onclick="slettOrd(${index})" class="btn-danger btn-small">🗑️</button>
         `;
         listeEl.appendChild(li);
@@ -230,7 +230,25 @@ export async function lagreProve() {
     const tittelInput = document.getElementById('prove-tittel');
     const tittel = tittelInput?.value.trim();
 
-    if (!tittel) { visToast("Prøven må ha et navn!", "error"); return; }
+    // ✅ Robust input validation
+    if (!tittel) {
+        visToast("Prøven må ha et navn!", "error");
+        return;
+    }
+    if (tittel.length < 2) {
+        visToast("Tittel må være minst 2 tegn!", "error");
+        return;
+    }
+    if (tittel.length > 100) {
+        visToast("Tittel kan ikke være lengre enn 100 tegn!", "error");
+        return;
+    }
+    // Allow Norwegian characters, numbers, spaces, hyphens, underscores
+    if (!/^[a-zA-ZæøåÆØÅ0-9\s\-_]+$/.test(tittel)) {
+        visToast("Tittel inneholder ugyldige tegn!", "error");
+        return;
+    }
+
     if (midlertidigProveListe.length < 3) { visToast("Minst 3 ord må legges til.", "error"); return; }
 
     const user = auth.currentUser;

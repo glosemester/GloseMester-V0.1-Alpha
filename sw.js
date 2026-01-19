@@ -1,11 +1,12 @@
-// SERVICE WORKER - GloseMester v0.9.83-BETA (Profesjonell)
-// Oppdatert: XSS-sikkerhet, WCAG 2.1 accessibility, minnelekkasje-prevensjon
-const APP_VERSION = 'v0.9.83-BETA';
-const CACHE_NAME = 'glosemester-v0.9.83-beta';
+// SERVICE WORKER - GloseMester v0.9.85-BETA (Lighthouse-optimized)
+// Oppdatert: Dark mode, SEO (meta tags), PWA (offline.html, manifest), CSP security, heading hierarchy
+const APP_VERSION = 'v0.9.85-BETA';
+const CACHE_NAME = 'glosemester-v0.9.85-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
   './index.html',
+  './offline.html',
   './manifest.json',
   
   // Design
@@ -123,11 +124,22 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, c));
           return res;
         })
-        .catch(() => caches.match(e.request) || caches.match('./index.html'))
+        .catch(async () => {
+          // Prøv cached versjon først
+          const cachedResponse = await caches.match(e.request);
+          if (cachedResponse) return cachedResponse;
+
+          // Hvis ikke cached, prøv index.html
+          const indexResponse = await caches.match('./index.html');
+          if (indexResponse) return indexResponse;
+
+          // Siste fallback: offline.html
+          return caches.match('./offline.html');
+        })
     );
     return;
   }
-  
+
   // 2. Bilder, JS, CSS, Lyd: Cache first (raskt), nettverk som fallback
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))

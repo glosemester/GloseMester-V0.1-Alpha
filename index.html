@@ -3,10 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GloseMester</title>
-    
+
+    <!-- SEO Meta Tags -->
+    <title>GloseMester - Lær språk med kortsamling og gamification</title>
+    <meta name="description" content="GloseMester gjør glosepugging morsomt! Bygg din kortsamling, øv ord, ta prøver med lærere. Perfekt for elever og lærere. Prøv gratis nå!">
+    <meta name="keywords" content="gloser, språklæring, engelsk, norsk, quiz, prøve, skole, læring, gamification, kortsamling, utdanning">
+    <meta name="author" content="GloseMester">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://glosemester.no/">
+    <meta property="og:title" content="GloseMester - Lær språk med kortsamling">
+    <meta property="og:description" content="Lær gloser på en morsom måte! Bygg din samling, øv ord og ta prøver. Perfekt for elever og lærere.">
+    <meta property="og:image" content="https://glosemester.no/header.png">
+    <meta property="og:locale" content="nb_NO">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://glosemester.no/">
+    <meta property="twitter:title" content="GloseMester - Lær språk med kortsamling">
+    <meta property="twitter:description" content="Lær gloser på en morsom måte! Bygg din samling, øv ord og ta prøver.">
+    <meta property="twitter:image" content="https://glosemester.no/header.png">
+
+    <!-- PWA Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GloseMester">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
     
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/glosebank-admin.css">
@@ -42,26 +72,31 @@
 </head>
 <body>
 
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
+
     <button id="lyd-toggle" class="icon-btn" 
             style="position:fixed; top:15px; right:15px; z-index:9999; font-size:1.5rem; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:50px; height:50px; cursor:pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" 
             aria-label="Skru av/på lyd">
         🔇
     </button>
 
+    <main id="main-content">
     <div id="landing-page" class="page active">
         <img src="header.png" alt="GloseMester" class="hero-image" style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
+        <h1 class="visually-hidden">GloseMester - Lær språk med kortsamling</h1>
         <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 40px auto; font-size:18px;">
             Samle kort, bygg din samling og lær språk samtidig.
         </p>
         <div class="role-grid">
             <div class="role-card" onclick="velgRolle('oving')">
-                <span class="role-icon">💪</span><h3>Øv Selv</h3><p>Velg nivå og samle kort</p>
+                <span class="role-icon">💪</span><h2>Øv Selv</h2><p>Velg nivå og samle kort</p>
             </div>
             <div class="role-card" onclick="velgRolle('kode')">
-                <span class="role-icon">📝</span><h3>GlosePrøve</h3><p>Har du prøvekode?</p>
+                <span class="role-icon">📝</span><h2>GlosePrøve</h2><p>Har du prøvekode?</p>
             </div>
             <div class="role-card" onclick="velgRolle('laerer')">
-                <span class="role-icon">🍎</span><h3>Lærer</h3><p>Lag prøver</p>
+                <span class="role-icon">🍎</span><h2>Lærer</h2><p>Lag prøver</p>
             </div>
         </div>
 
@@ -142,7 +177,7 @@
             </div>
 
             <div id="elev-lagrede-prover-container" style="display:none; margin-top:30px;">
-                <h4 style="margin-bottom:10px; color:#333;">Dine prøver (Lagret i 7 dager)</h4>
+                <h3 style="margin-bottom:10px; color:#333;">Dine prøver (Lagret i 7 dager)</h3>
                 <div id="elev-lagrede-liste" style="display:grid; gap:10px;"></div>
             </div>
         </div>
@@ -155,7 +190,7 @@
             
             <div id="quiz-progress-target" style="margin: 20px 0;"></div>
             
-            <h1 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h1>
+            <h2 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h2>
             <label for="quiz-input" class="visually-hidden">Skriv ditt svar her</label>
             <input
                 type="text"
@@ -205,7 +240,7 @@
                 <span id="game-progress-text">Start jakten på nytt kort!</span>
             </div>
             
-            <h1 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h1>
+            <h2 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h2>
             
             <div style="text-align:center; margin-bottom:20px;">
                  <button class="btn-primary btn-small" onclick="lesOppOving()">🔊 Les opp</button>
@@ -760,6 +795,7 @@
             </form>
         </div>
     </div>
+    </main>
 
 </body>
 </html>
