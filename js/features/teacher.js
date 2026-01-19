@@ -5,7 +5,7 @@
    ============================================ */
 
 import { visSide } from '../core/navigation.js';
-import { visToast, spillLyd } from '../ui/helpers.js';
+import { visToast, spillLyd, escapeHtml } from '../ui/helpers.js';
 import { auth, db, collection, addDoc, serverTimestamp, getDoc, doc, updateDoc } from './firebase.js';
 import { testSaveLimiter } from '../core/rate-limiter.js';
 
@@ -197,10 +197,10 @@ function oppdaterEditorListe() {
         li.style.cssText = `display:flex; justify-content:space-between; align-items:center; padding:12px 15px; background:#f9f9f9; border-radius:8px; margin-bottom:8px; border-left: 3px solid #0071e3;`;
         li.innerHTML = `
             <span style="flex:1;">
-                <strong style="color:#0071e3;">${ord.s}</strong> 
-                <span style="color:#999; margin:0 10px;">→</span> 
-                <span style="color:#333;">${ord.e}</span>
-            </span> 
+                <strong style="color:#0071e3;">${escapeHtml(ord.s)}</strong>
+                <span style="color:#999; margin:0 10px;">→</span>
+                <span style="color:#333;">${escapeHtml(ord.e)}</span>
+            </span>
             <button onclick="slettOrd(${index})" class="btn-danger btn-small">🗑️</button>
         `;
         listeEl.appendChild(li);

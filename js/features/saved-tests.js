@@ -136,6 +136,7 @@ window.redigerProve = async function(proveId) {
 
         const data = docSnap.data();
         const tittel = data.tittel || 'Uten tittel';
+        const tittelSafe = escapeHtml(tittel);
         redigeringOrdliste = [...(data.ordliste || [])]; // Kopier ordliste
 
         // Bygg modal HTML
@@ -144,14 +145,14 @@ window.redigerProve = async function(proveId) {
                 <div class="modal-content modal-large" onclick="event.stopPropagation()">
                     <button class="modal-close" onclick="lukkRedigerModal()">✖</button>
                     <h2>✏️ Rediger prøve</h2>
-                    
+
                     <!-- Tittel -->
                     <div class="form-group" style="margin-bottom: 25px;">
                         <label for="rediger-tittel" style="font-size: 16px; font-weight: 600; display: block; margin-bottom: 8px;"><strong>Tittel:</strong></label>
-                        <input 
-                            type="text" 
-                            id="rediger-tittel" 
-                            value="${tittel}" 
+                        <input
+                            type="text"
+                            id="rediger-tittel"
+                            value="${tittelSafe}" 
                             placeholder="Navn på prøven"
                             style="width: 100%; padding: 14px 16px; font-size: 17px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; box-sizing: border-box;"
                         >
@@ -263,13 +264,13 @@ function oppdaterRedigerOrdliste() {
 
         li.innerHTML = `
             <span style="flex:1;">
-                <strong style="color:#0071e3;">${ord.s}</strong> 
-                <span style="color:#999; margin:0 10px;">→</span> 
-                <span style="color:#333;">${ord.e}</span>
-            </span> 
-            <button 
-                onclick="slettOrdIRediger(${index})" 
-                class="btn-danger btn-small" 
+                <strong style="color:#0071e3;">${escapeHtml(ord.s)}</strong>
+                <span style="color:#999; margin:0 10px;">→</span>
+                <span style="color:#333;">${escapeHtml(ord.e)}</span>
+            </span>
+            <button
+                onclick="slettOrdIRediger(${index})"
+                class="btn-danger btn-small"
                 title="Slett ord"
                 style="padding:5px 10px; font-size:12px;">
                 🗑️ Slett
