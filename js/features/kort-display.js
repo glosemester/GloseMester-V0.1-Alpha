@@ -254,7 +254,7 @@ function visGevinstPopup(kort, spillFanfare = true, config = null) {
     const imgPath = kort.image || kort.bilde;
 
     if (imgPath) {
-        imgContainer.innerHTML = `<img src="${imgPath}" style="width:100%; max-width:250px; border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,0.2);" alt="${kort.name}">`;
+        imgContainer.innerHTML = `<img src="${imgPath}" style="width:100%; max-width:250px; border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,0.2);" alt="${kort.name}" loading="lazy">`;
     } else {
         imgContainer.innerHTML = `<div style="font-size:80px;">${getEmoji(kort.category)}</div>`;
     }

@@ -597,12 +597,13 @@ async function lagreResultatTilFirebase() {
 
 function genererAnonymtElevId() {
     let elevId = localStorage.getItem('glosemester_elev_id');
-    
+
     if (!elevId) {
-        elevId = 'elev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        // Bruk crypto.randomUUID() for bedre sikkerhet (ikke forutsigbar)
+        elevId = 'elev_' + crypto.randomUUID();
         localStorage.setItem('glosemester_elev_id', elevId);
     }
-    
+
     return elevId;
 }
 

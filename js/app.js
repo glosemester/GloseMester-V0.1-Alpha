@@ -479,11 +479,37 @@ export function initApp() {
     document.addEventListener('click', (e) => {
         const navItems = document.getElementById('nav-items');
         const hamburgerBtn = document.getElementById('hamburger-btn');
-        
-        if (navItems && navItems.classList.contains('open') && 
-            !navItems.contains(e.target) && 
+
+        if (navItems && navItems.classList.contains('open') &&
+            !navItems.contains(e.target) &&
             !hamburgerBtn.contains(e.target)) {
             lukkHamburger();
+        }
+    });
+
+    // ✅ Setup offline/online detection
+    setupNetworkDetection();
+}
+
+/**
+ * Setup network detection (offline/online indicators)
+ */
+function setupNetworkDetection() {
+    // Dynamisk import av visToast
+    import('./ui/helpers.js').then(({ visToast }) => {
+        window.addEventListener('offline', () => {
+            visToast('⚠️ Du er offline. Noen funksjoner kan være begrenset.', 'warning');
+            console.warn('📡 Network: OFFLINE');
+        });
+
+        window.addEventListener('online', () => {
+            visToast('✅ Tilbake online!', 'success');
+            console.log('📡 Network: ONLINE');
+        });
+
+        // Log initial status
+        if (!navigator.onLine) {
+            console.warn('📡 App startet offline');
         }
     });
 }
