@@ -48,26 +48,26 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-export { 
-    auth, 
-    db, 
-    googleProvider, 
-    analytics,
-    signInWithPopup, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut, 
+export {
+    auth,
+    db,
+    googleProvider,
+    // analytics removed - not defined after removing Google Analytics
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
     onAuthStateChanged,
     signInWithCustomToken, // <--- EKSPORTERES HER
-    collection, 
-    addDoc, 
+    collection,
+    addDoc,
     setDoc,
-    getDoc, 
-    getDocs, 
-    doc, 
-    query, 
-    where, 
-    orderBy, 
+    getDoc,
+    getDocs,
+    doc,
+    query,
+    where,
+    orderBy,
     serverTimestamp,
     deleteDoc,
     updateDoc,
