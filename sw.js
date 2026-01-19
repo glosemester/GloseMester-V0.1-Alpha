@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.10.0-BETA (Production-ready)
-// Oppdatert: Nytt 4-nivå system, bildestøtte, justert kortbelønning, raskere feedback, juridiske dokumenter
-const APP_VERSION = 'v0.10.0-BETA';
-const CACHE_NAME = 'glosemester-v0.10.0-beta';
+// SERVICE WORKER - GloseMester v0.10.1-BETA (Production-ready)
+// Oppdatert: Fjernet mørk modus (kun lyst design), nytt 4-nivå system, bildestøtte, justert kortbelønning
+const APP_VERSION = 'v0.10.1-BETA';
+const CACHE_NAME = 'glosemester-v0.10.1-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
