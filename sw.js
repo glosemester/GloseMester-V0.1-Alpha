@@ -1,17 +1,21 @@
-// SERVICE WORKER - GloseMester v0.10.1-BETA (Production-ready)
-// Oppdatert: Tvunget lyst design (color-scheme), fjernet mørk modus, nytt 4-nivå system, bildestøtte
-const APP_VERSION = 'v0.10.1-BETA';
-const CACHE_NAME = 'glosemester-v0.10.1-beta-light';
+// SERVICE WORKER - GloseMester v0.10.2-BETA (Production-ready)
+// Oppdatert: CDN-filer hostet lokalt, tvunget lyst design, fjernet mørk modus, 4-nivå system
+const APP_VERSION = 'v0.10.2-BETA';
+const CACHE_NAME = 'glosemester-v0.10.2-beta';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
   './index.html',
   './offline.html',
   './manifest.json',
-  
+
   // Design
   './css/main.css',
   './css/glosebank-admin.css',
+
+  // Vendor Libraries (tidligere fra CDN - nå lokalt hostet)
+  './js/vendor/jsQR.js',
+  './js/vendor/xlsx.full.min.js',
 
   // App Logikk (Root)
   './js/app.js',
