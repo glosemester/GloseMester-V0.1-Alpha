@@ -707,19 +707,24 @@
     </div>
 </div>
 
+    <!-- Enkel fallback for å unngå "not defined" feil -->
+    <script>
+        // Tomme funksjoner som placeholder - app.js vil overskrive disse
+        window.velgRolle = function() {};
+        window.startOving = function() {};
+    </script>
+
     <script type="module" src="js/init.js"></script>
     <script type="module">
-        import './js/init.js';
-        import './js/app.js';
-        
-        // Ekstra sikkerhet: Sjekk at app.js lastes
-        window.addEventListener('load', function() {
-            if (typeof velgRolle !== 'function') {
-                console.warn('⚠️ App.js funksjoner mangler, laster fallback...');
-                import('./js/app.js').then(module => {
-                    console.log('✅ App.js lastet manuelt');
-                }).catch(err => console.error('❌ Kunne ikke laste App.js:', err));
-            }
+        // Ekstra sikkerhet: Dobbeltsjekk at app.js lastes
+        import('./js/app.js').then(() => {
+            console.log('✅ App.js lastet');
+        }).catch(err => {
+            console.error('❌ Kunne ikke laste app.js:', err);
+            // Prøv igjen etter 500ms
+            setTimeout(() => {
+                import('./js/app.js').catch(e => console.error('❌ Andre forsøk feilet:', e));
+            }, 500);
         });
     </script>
 
