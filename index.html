@@ -103,55 +103,108 @@
     </button>
 
     <main id="main-content">
-        <div id="landing-page" class="page active">
-            <img src="header.png" alt="GloseMester" class="hero-image"
-                style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
-            <h1 class="visually-hidden">GloseMester - Lær språk med kortsamling</h1>
-            <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 40px auto; font-size:18px;">
-                Samle kort, bygg din samling og lær språk samtidig.
-            </p>
-            <div class="role-grid">
-                <div id="role-oving" class="role-card">
-                    <span class="role-icon">💪</span>
+
+        <div id="landing-page" class="page active" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+
+            <!-- Background Blobs -->
+            <div class="blob-container">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="blob blob-3"></div>
+            </div>
+
+            <!-- Header / Navbar Mockup (Visual Only) -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 10px;">
+                <div
+                    style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; color: var(--primary-color);">
+                    🎓 GloseMester
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-color);">
+                    <!-- Placeholder links -->
+                </div>
+            </div>
+
+            <!-- Hero Section -->
+            <div style="text-align: center; margin-bottom: 50px;">
+                <h1>
+                    Lær språk på en <br>
+                    <span style="color: var(--secondary-color); -webkit-text-fill-color: var(--secondary-color);">morsom
+                        måte</span>
+                </h1>
+                <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 30px auto; font-size: 1.1rem;">
+                    Samle kort, bygg din samling og lær nye ord gjennom gamification.
+                    Perfekt for både klasserommet og hjemmeøving.
+                </p>
+
+                <!-- 3D Graphic Placeholder -->
+                <div class="hero-graphic">
+                    <div class="floating-item item-1">✏️</div>
+                    <div class="floating-item item-2">🌍</div>
+                    <div class="floating-item item-3">
+                        <img src="header.png" alt="Happy Student" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Cards (Redesigned) -->
+            <div class="role-grid" style="gap: 25px;">
+                <!-- Card 1: Øv Selv (Orange) -->
+                <div id="role-oving" class="card-colorful orange role-card" style="padding: 30px 20px;">
+                    <span class="card-icon-large">🧠</span>
                     <h2>Øv Selv</h2>
-                    <p>Mestre glosene dine!</p>
+                    <p>Bygg opp ditt ordforråd med morsomme øvelser!</p>
+                    <div
+                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold;">
+                        Start Øvelse →
+                    </div>
                 </div>
-                <div id="role-kode" class="role-card">
-                    <span class="role-icon">📝</span>
+
+                <!-- Card 2: GlosePrøve (Purple) -->
+                <div id="role-kode" class="card-colorful purple role-card" style="padding: 30px 20px;">
+                    <span class="card-icon-large">🏆</span>
                     <h2>GlosePrøve</h2>
-                    <p>Har du prøvekode?</p>
+                    <p>Har du en kode? Test kunnskapen din nå.</p>
+                    <div
+                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold;">
+                        Ta Prøve →
+                    </div>
                 </div>
-                <div id="role-laerer" class="role-card">
-                    <span class="role-icon">🍎</span>
+
+                <!-- Card 3: Lærer (Yellow) -->
+                <div id="role-laerer" class="card-colorful yellow role-card"
+                    style="padding: 30px 20px; grid-column: span 2;">
+                    <!-- Note: grid-column span 2 makes it wide on mobile if grid is 2 cols, handled by media query usually -->
+                    <span class="card-icon-large">🎓</span>
                     <h2>Lærer</h2>
-                    <p>Lag prøver</p>
+                    <p>Lag tilpassede prøver og følg elevenes fremgang.</p>
+                    <div
+                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold; color: black;">
+                        Lærer Login →
+                    </div>
                 </div>
             </div>
 
             <button id="pwa-install-btn" class="btn-primary"
-                style="display:none; margin: 30px auto; background-color: #2563EB; max-width: 300px;">
-                📲 Installer App på mobilen
+                style="display:none; margin: 40px auto; background-color: var(--primary-color); max-width: 300px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);">
+                📲 Installer App
             </button>
 
-            <div style="text-align:center; margin-top:40px; margin-bottom: 40px;">
-                <button id="btn-info-modal" class="btn-primary">ℹ️ For lærere & foreldre</button>
+            <div style="text-align:center; margin-top:60px; margin-bottom: 40px;">
+                <button id="btn-info-modal" class="btn-secondary"
+                    style="background: white; border: 1px solid #E2E8F0; box-shadow: var(--shadow);">
+                    ℹ️ For lærere & foreldre
+                </button>
             </div>
 
-            <footer class="landing-footer">
-                <p style="margin: 0 0 5px 0; font-weight: 600;">v0.10.2-BETA</p>
-                <p style="margin: 0 0 10px 0; font-size: 13px; opacity: 0.9;">
-                    📦 100% offline-støtte | ☀️ Kun lyst design | ✨ 4-nivå system
-                </p>
-                <p style="margin: 0 0 10px 0;">&copy; 2025 GloseMester | Laget med ❤️ for norske lærere</p>
-                <p style="margin: 0; font-size: 13px;">
-                    <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> |
-                    <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a>
-                    |
-                    <a href="/personvern.html"
-                        style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> |
-                    <a href="mailto:kontakt@glosemester.no"
-                        style="color: white; margin: 0 10px; text-decoration: none;">Kontakt</a>
-                </p>
+            <footer class="landing-footer"
+                style="background: transparent; color: var(--text-muted); padding: 20px; margin-top: 20px;">
+                <p style="margin: 0 0 5px 0; font-weight: 600;">GloseMester v0.10.2-BETA</p>
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    <a href="/om-oss.html" style="color: inherit; margin: 0 10px;">Om oss</a> •
+                    <a href="/personvern.html" style="color: inherit; margin: 0 10px;">Personvern</a> •
+                    <a href="mailto:kontakt@glosemester.no" style="color: inherit; margin: 0 10px;">Kontakt</a>
+                </div>
             </footer>
         </div>
 
