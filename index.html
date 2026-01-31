@@ -102,7 +102,18 @@
         🔇
     </button>
 
-    <main id="main-content">
+    <header class="main-header-fixed">
+        <div class="header-content">
+            <div class="header-logo">
+                <span>🎓</span> GloseMester
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <!-- Activity links or status could go here -->
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" style="padding-top: 80px;">
 
         <div id="landing-page" class="page active" style="max-width: 1000px; margin: 0 auto; width: 100%;">
 
@@ -113,27 +124,15 @@
                 <div class="blob blob-3"></div>
             </div>
 
-            <!-- Header / Navbar Mockup (Visual Only) -->
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 0 10px;">
-                <div
-                    style="font-family: var(--font-heading); font-weight: 800; font-size: 1.5rem; color: var(--primary-color);">
-                    🎓 GloseMester
-                </div>
-                <div style="display: flex; gap: 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-color);">
-                    <!-- Placeholder links -->
-                </div>
-            </div>
-
             <!-- Hero Section -->
-            <div class="hero-section" style="text-align: center; padding: 40px 20px;">
-                <h1 style="font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.1; margin-bottom: 20px;">
+            <div class="hero-section" style="text-align: center; padding: 20px 20px;">
+                <h1 style="font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1; margin-bottom: 10px;">
                     Lær språk på en <br>
                     <span style="color: var(--secondary-color); -webkit-text-fill-color: var(--secondary-color);">morsom
                         måte</span>
                 </h1>
                 <p
-                    style="color: var(--text-muted); max-width: 600px; margin: 0 auto 40px auto; font-size: 1.2rem; line-height: 1.6;">
+                    style="color: var(--text-muted); max-width: 600px; margin: 0 auto 20px auto; font-size: 1.1rem; line-height: 1.5;">
                     Samle kort, bygg din samling og lær nye ord gjennom gamification.
                     Perfekt for både klasserommet og hjemmeøving.
                 </p>
