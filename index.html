@@ -126,60 +126,58 @@
             </div>
 
             <!-- Hero Section -->
-            <div style="text-align: center; margin-bottom: 50px;">
-                <h1>
+            <div class="hero-section" style="text-align: center; padding: 40px 20px;">
+                <h1 style="font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.1; margin-bottom: 20px;">
                     Lær språk på en <br>
                     <span style="color: var(--secondary-color); -webkit-text-fill-color: var(--secondary-color);">morsom
                         måte</span>
                 </h1>
-                <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto 30px auto; font-size: 1.1rem;">
+                <p
+                    style="color: var(--text-muted); max-width: 600px; margin: 0 auto 40px auto; font-size: 1.2rem; line-height: 1.6;">
                     Samle kort, bygg din samling og lær nye ord gjennom gamification.
                     Perfekt for både klasserommet og hjemmeøving.
                 </p>
 
-                <!-- 3D Graphic Placeholder -->
                 <div class="hero-graphic">
                     <div class="floating-item item-1">✏️</div>
                     <div class="floating-item item-2">🌍</div>
-                    <div class="floating-item item-3">
+                    <div class="item-3">
                         <img src="header.png" alt="Happy Student" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                 </div>
             </div>
 
             <!-- Role Cards (Redesigned) -->
-            <div class="role-grid" style="gap: 25px;">
+            <div class="role-grid">
                 <!-- Card 1: Øv Selv (Orange) -->
-                <div id="role-oving" class="card-colorful orange role-card" style="padding: 30px 20px;">
+                <div id="role-oving" class="card-colorful orange role-card">
                     <span class="card-icon-large">🧠</span>
                     <h2>Øv Selv</h2>
                     <p>Bygg opp ditt ordforråd med morsomme øvelser!</p>
-                    <div
-                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold;">
+                    <div class="btn-primary"
+                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
                         Start Øvelse →
                     </div>
                 </div>
 
                 <!-- Card 2: GlosePrøve (Purple) -->
-                <div id="role-kode" class="card-colorful purple role-card" style="padding: 30px 20px;">
+                <div id="role-kode" class="card-colorful purple role-card">
                     <span class="card-icon-large">🏆</span>
                     <h2>GlosePrøve</h2>
                     <p>Har du en kode? Test kunnskapen din nå.</p>
-                    <div
-                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold;">
+                    <div class="btn-primary"
+                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
                         Ta Prøve →
                     </div>
                 </div>
 
                 <!-- Card 3: Lærer (Yellow) -->
-                <div id="role-laerer" class="card-colorful yellow role-card"
-                    style="padding: 30px 20px; grid-column: span 2;">
-                    <!-- Note: grid-column span 2 makes it wide on mobile if grid is 2 cols, handled by media query usually -->
+                <div id="role-laerer" class="card-colorful yellow role-card" style="grid-column: span 2;">
                     <span class="card-icon-large">🎓</span>
                     <h2>Lærer</h2>
-                    <p>Lag tilpassede prøver og følg elevenes fremgang.</p>
-                    <div
-                        style="margin-top: 20px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 0.9rem; font-weight: bold; color: black;">
+                    <p>Lag tilpassede prøver og følg elevenes fremgang over tid.</p>
+                    <div class="btn-primary"
+                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px; color: black;">
                         Lærer Login →
                     </div>
                 </div>
