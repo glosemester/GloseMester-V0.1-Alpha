@@ -249,100 +249,164 @@
 
         <div id="elev-dashboard" class="page">
             <div class="card-container" id="elev-start-skjerm">
-                <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                    <div
-                        style="display:flex; justify-content:space-between; font-size:12px; color:#666; margin-bottom:5px;">
+                <div class="credit-progress-container" style="margin-bottom: 30px;">
+                    <div class="credit-label">
                         <span>Mot neste kort:</span>
                         <span id="quiz-progress-text">0 / 10</span>
                     </div>
-                    <div id="elev-start-progress-target" style="min-height: 25px;"></div>
+                    <div class="yellow-track">
+                        <div class="yellow-fill" id="elev-start-progress-target-bar"></div>
+                    </div>
                 </div>
 
-                <h2>Klar for prøve?</h2>
-                <p style="margin-bottom:15px; color:#666;">Skriv koden fra læreren - du klarer dette!</p>
+                <!-- JOIN TEST CARD -->
+                <div class="join-game-card">
+                    <div style="font-size: 48px; margin-bottom: 10px;">🎮</div>
+                    <h2>Bli med i en prøve</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Skriv inn koden fra læreren din.</p>
 
-                <input type="text" id="prove-kode" placeholder="F.eks: ABC-123">
-                <div style="display:flex; gap:10px; justify-content:center; margin-top:10px;">
-                    <button id="btn-start-prove" class="btn-primary">Start Prøve</button>
-                    <button id="btn-start-qr" class="btn-primary">📷 Skann QR</button>
+                    <input type="text" id="pin-kode-input" placeholder="XXXXXX"
+                        style="width: 100%; font-size: 32px; text-align: center; font-weight: 800; letter-spacing: 5px; border: 2px solid var(--primary-color); border-radius: var(--border-radius-sm); height: 60px; margin-bottom: 20px;">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <button class="btn-primary" onclick="tryJoiningGame()"
+                            style="background: var(--success-green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">START
+                            SPILLET!</button>
+                        <button id="btn-start-qr" class="btn-primary">📷 Skann QR</button>
+                    </div>
                 </div>
 
-                <div id="elev-lagrede-prover-container" style="display:none; margin-top:30px;">
-                    <h3 style="margin-bottom:10px; color:#333;">Dine prøver (Lagret i 7 dager)</h3>
-                    <div id="elev-lagrede-liste" style="display:grid; gap:10px;"></div>
+                <div id="elev-lagrede-prover-container" style="display:none; margin-top:40px;">
+                    <h3 style="margin-bottom:15px; color: var(--text-color);">Dine nylige prøver</h3>
+                    <div id="elev-lagrede-liste" style="display:grid; gap:12px;"></div>
                 </div>
             </div>
 
-            <div id="prove-omraade" class="card-container" style="display:none;">
-                <div style="display:flex; justify-content:space-between;">
-                    <h3>Prøve</h3>
-                    <span id="quiz-progress">1/10</span>
+            <div id="prove-omraade" class="card-container"
+                style="display:none; max-width: 700px; margin: 20px auto; padding: 40px;">
+                <div class="quiz-header"
+                    style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 30px;">
+                    <h3 style="margin:0;">Gloseprøve</h3>
+                    <span id="quiz-progress" class="badge-rounded">1/10</span>
                 </div>
 
-                <div id="quiz-progress-target" style="margin: 20px 0;"></div>
+                <div id="quiz-progress-target" class="yellow-track" style="margin-bottom: 40px;">
+                    <!-- Bar will be filled by JS -->
+                </div>
 
-                <h2 id="quiz-spm" style="text-align:center; margin: 30px 0; font-size:32px;">...</h2>
-                <label for="quiz-input" class="visually-hidden">Skriv ditt svar her</label>
-                <input type="text" id="quiz-input" placeholder="Svar her..." aria-label="Skriv ditt svar på spørsmålet"
-                    aria-required="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                <button id="btn-quiz-svar" class="btn-primary" aria-label="Send inn svar">Svar</button>
-                <button id="btn-quiz-les-opp" class="btn-primary btn-small"
-                    aria-label="Les opp spørsmålet med talesyntese">🔊 Les opp</button>
+                <div class="quiz-question-container" style="text-align:center; padding: 20px 0;">
+                    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 10px;">Oversett til engelsk:
+                    </p>
+                    <h2 id="quiz-spm" style="font-size:3.5rem; margin: 0 0 40px 0; font-weight: 800;">...</h2>
+                </div>
+
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <input type="text" id="quiz-input" placeholder="Skriv svaret ditt her..."
+                        style="width: 100%; font-size: 1.5rem; padding: 20px; text-align: center; border: 2px solid rgba(124, 58, 237, 0.2); border-radius: 20px; margin-bottom: 20px;">
+
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
+                        <button id="btn-quiz-svar" class="btn-primary"
+                            style="height: 60px; font-size: 1.2rem;">SVAR</button>
+                        <button id="btn-quiz-les-opp" class="btn-primary"
+                            style="width: 60px; height: 60px; background: var(--bg-color); border: 2px solid var(--primary-color); color: var(--primary-color); box-shadow: none;">🔊</button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="oving-start" class="page">
             <div id="oving-valg" class="card-container">
-                <h2>Velg Nivå</h2>
-                <div class="credit-progress-container">
+                <h2 style="margin-bottom: 10px;">Øv Selv</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Velg et nivå for å starte jakten på nye kort!
+                </p>
+
+                <div class="credit-progress-container" style="margin-bottom: 40px;">
                     <div class="credit-label">
-                        <span>Du er snart i mål! (100 xp)</span>
+                        <span>XP denne økten:</span>
                         <span id="menu-credits-text">0 / 100</span>
                     </div>
                     <div class="yellow-track">
                         <div class="yellow-fill" id="menu-credits-bar"></div>
                     </div>
                 </div>
-                <div class="trinn-grid">
-                    <button id="btn-oving-niva1" class="trinn-btn">⭐ Nivå 1</button>
-                    <button id="btn-oving-niva2" class="trinn-btn">⭐⭐ Nivå 2</button>
-                    <button id="btn-oving-niva3" class="trinn-btn">⭐⭐⭐ Nivå 3</button>
-                    <button id="btn-oving-niva4" class="trinn-btn">⭐⭐⭐⭐ Nivå 4</button>
+
+                <div class="level-grid-modern">
+                    <div class="level-card-modern" onclick="window.startOving('trinn1')">
+                        <div class="level-icon">🌱</div>
+                        <div class="level-info">
+                            <h3>1. Trinn</h3>
+                            <p>Enkel start</p>
+                        </div>
+                    </div>
+                    <div class="level-card-modern" onclick="window.startOving('trinn2')">
+                        <div class="level-icon">🌿</div>
+                        <div class="level-info">
+                            <h3>2. Trinn</h3>
+                            <p>Lær mer</p>
+                        </div>
+                    </div>
+                    <div class="level-card-modern" onclick="window.startOving('trinn3')">
+                        <div class="level-icon">🌳</div>
+                        <div class="level-info">
+                            <h3>3. Trinn</h3>
+                            <p>Forsterk kunnskap</p>
+                        </div>
+                    </div>
+                    <div class="level-card-modern" onclick="window.startOving('trinn4')">
+                        <div class="level-icon">🦁</div>
+                        <div class="level-info">
+                            <h3>4. Trinn</h3>
+                            <p>Mester-nivå</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        </div>
 
         <div id="oving-omraade" class="page">
-            <div class="card-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span id="oving-score" style="font-weight:bold; color:var(--accent-blue);">0 riktige i dag</span>
-                    <button id="btn-oving-avslutt" class="btn-small btn-danger">Avslutt</button>
+            <div class="card-container" style="max-width: 700px; margin: 20px auto; padding: 40px;">
+                <div class="quiz-header"
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <span id="oving-score" style="font-weight:bold; color:var(--primary-color); font-size: 1.1rem;">💎 0
+                        riktige i dag</span>
+                    <button id="btn-oving-avslutt" class="btn-secondary"
+                        style="width: auto; padding: 10px 20px; height: auto; min-height: unset; border-radius: 99px;">Avslutt</button>
                 </div>
 
-                <div id="game-progress-target" style="margin-bottom: 20px;"></div>
-
-                <div style="text-align:center; font-size:13px; color:#888; margin-bottom:30px;">
-                    <span id="game-progress-text">Start jakten på nytt kort!</span>
+                <div class="credit-progress-container" style="margin-bottom: 30px; padding: 10px;">
+                    <div class="yellow-track" style="margin:0;">
+                        <div class="yellow-fill" id="game-progress-target-bar"></div>
+                    </div>
                 </div>
 
-                <!-- ✅ BILDESTØTTE for Nivå 1 -->
                 <div id="oving-bilde-container" style="display:none; text-align:center; margin-bottom:20px;"></div>
 
-                <h2 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h2>
-
-                <div style="text-align:center; margin-bottom:20px;">
-                    <button id="btn-oving-les-opp" class="btn-primary btn-small">🔊 Les opp</button>
+                <div class="quiz-question-container" style="text-align:center;">
+                    <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 5px;" id="game-progress-text">
+                        Start jakten på nytt kort!</p>
+                    <h2 id="oving-spm" style="font-size:3.5rem; margin: 20px 0 40px 0; font-weight: 800;">...</h2>
                 </div>
 
-                <div id="oving-alternativer"
-                    style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;"></div>
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <div id="oving-alternativer"
+                        style="display:none; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px;"></div>
 
-                <div id="oving-input-container">
-                    <input type="text" id="oving-svar" placeholder="Skriv svaret..." autocomplete="off">
-                    <button id="btn-oving-svar" class="btn-primary">Svar</button>
+                    <div id="oving-input-container">
+                        <input type="text" id="oving-svar" placeholder="Skriv svaret..."
+                            style="width: 100%; font-size: 1.5rem; padding: 20px; text-align: center; border: 2px solid rgba(124, 58, 237, 0.2); border-radius: 20px; margin-bottom: 20px;">
+
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
+                            <button id="btn-oving-svar" class="btn-primary"
+                                style="height: 60px; font-size: 1.2rem;">SVAR</button>
+                            <button id="btn-oving-les-opp" class="btn-primary"
+                                style="width: 60px; height: 60px; background: var(--bg-color); border: 2px solid var(--primary-color); color: var(--primary-color); box-shadow: none;">🔊</button>
+                        </div>
+                    </div>
                 </div>
 
-                <p id="oving-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;">
+                <p id="oving-feedback"
+                    style="text-align:center; font-weight:800; min-height:30px; margin-top:20px; font-size: 1.2rem; color: var(--success-green);">
                 </p>
             </div>
         </div>

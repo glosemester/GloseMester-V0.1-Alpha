@@ -652,63 +652,135 @@ h1 {
     margin-bottom: 1rem;
 }
 
-/* Background Blobs */
+/* GLOBAL BACKGROUND BLOBS (Moved to body level) */
 .blob-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     z-index: -1;
+    overflow: hidden;
     pointer-events: none;
+    background: var(--bg-color);
 }
 
 .blob {
     position: absolute;
     filter: blur(80px);
     opacity: 0.6;
-    border-radius: 50%;
-    animation: blobFloat 10s infinite alternate ease-in-out;
+    animation: blobFloat 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 .blob-1 {
-    top: -10%;
-    left: -10%;
-    width: 400px;
-    height: 400px;
-    background: #E9D5FF;
-    /* Light Purple */
+    width: 600px;
+    height: 600px;
+    background: var(--primary-color);
+    top: -200px;
+    right: -100px;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
 
 .blob-2 {
-    bottom: 10%;
-    right: -5%;
-    width: 300px;
-    height: 300px;
-    background: #FFEDD5;
-    /* Light Orange */
-    animation-delay: -2s;
+    width: 500px;
+    height: 500px;
+    background: var(--secondary-color);
+    bottom: -150px;
+    left: -100px;
+    animation-delay: -5s;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
 }
 
 .blob-3 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent-color);
     top: 40%;
-    left: 20%;
-    width: 250px;
-    height: 250px;
-    background: #FDE68A;
-    /* Light Yellow */
-    animation-delay: -5s;
-    opacity: 0.4;
+    left: 10%;
+    opacity: 0.3;
+    animation-delay: -10s;
+    border-radius: 30% 70% 70% 30% / 50% 30% 70% 50%;
 }
 
 @keyframes blobFloat {
     0% {
-        transform: translate(0, 0) scale(1);
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+
+    33% {
+        transform: translate(20px, 40px) rotate(5deg) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) rotate(-5deg) scale(0.95);
     }
 
     100% {
-        transform: translate(30px, 50px) scale(1.1);
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+}
+
+/* UNIFIED CARD BASE */
+.card-container,
+.bank-container,
+.stat-card,
+.level-card,
+.laerer-dashboard-modul {
+    background: white;
+    border-radius: var(--border-radius-card);
+    padding: 24px;
+    border: none;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+}
+
+.card-container:hover,
+.stat-card:hover,
+.laerer-dashboard-modul:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* TOUCH TARGETS & TABLET LAYOUTS */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+input,
+select,
+.role-card,
+.level-card {
+    min-height: 48px;
+    /* Standard touch target height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+}
+
+.role-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+}
+
+/* iPad / Tablet Portrait */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .role-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Small devices */
+@media (max-width: 600px) {
+    .role-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1511,6 +1583,255 @@ nav {
     align-items: center;
     justify-content: space-between;
     gap: 15px;
+}
+
+/* MODERN FLOATING NAV */
+.main-nav-floating {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 99px;
+    padding: 10px 24px;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-link-pill {
+    background: transparent;
+    border: none;
+    padding: 10px 24px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px;
+}
+
+.nav-link-pill:hover {
+    background: rgba(124, 58, 237, 0.05);
+    color: var(--primary-color);
+}
+
+.nav-link-pill.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.nav-link-pill.btn-purple-soft {
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--primary-color);
+}
+
+/* LÆRER DASHBOARD GRID */
+.laerer-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.laerer-dashboard-modul {
+    cursor: pointer;
+    text-align: center;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.laerer-dashboard-modul h2 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.laerer-dashboard-modul p {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* MODERN LEVEL GRID */
+.level-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.level-card-modern {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.level-card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+}
+
+.level-icon {
+    font-size: 2.5rem;
+    min-width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-color);
+    border-radius: 18px;
+}
+
+.level-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.level-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* JOIN GAME CARD */
+.join-game-card {
+    background: white;
+    padding: 40px;
+    border-radius: 32px;
+    box-shadow: 0 20px 50px rgba(124, 58, 237, 0.1);
+    border: 2px solid rgba(124, 58, 237, 0.05);
+    margin-bottom: 20px;
+}
+
+/* CREDIT PROGRESS BAR REDESIGN */
+.credit-progress-container {
+    background: rgba(124, 58, 237, 0.05);
+    padding: 15px 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.credit-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+.yellow-track {
+    height: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.yellow-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), #F59E0B);
+    border-radius: 6px;
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* UTILITY: BADGE ROUNDED */
+.badge-rounded {
+    background: var(--primary-color);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* APP CONTAINER CONSTRAINTS */
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 80px auto 0 auto;
+    /* Space for fixed nav */
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+/* TOUCH-FRIENDLY BUTTONS COLOR OVERRIDES */
+.btn-purple-soft {
+    background: rgba(124, 58, 237, 0.1) !important;
+    color: var(--primary-color) !important;
+}
+
+.btn-purple-soft:hover {
+    background: rgba(124, 58, 237, 0.2) !important;
+}
+
+@media (max-width: 650px) {
+    .main-nav-floating {
+        top: auto;
+        bottom: 20px;
+        padding: 5px 15px;
+    }
+
+    .logo {
+        display: none;
+        /* Hide logo on small mobile bottom nav */
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: space-around;
+        gap: 5px;
+    }
+
+    .nav-link-pill {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .laerer-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Hamburger knapp i pillen */
