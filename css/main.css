@@ -1781,6 +1781,118 @@ nav {
     margin-top: 40px;
 }
 
+/* --- FLASHY HERO TEXT --- */
+.flashy-hero-text {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    margin-bottom: 5px;
+    background: linear-gradient(to right, #667eea, #764ba2, #6B8DD6, #8E37D7);
+    background-size: 300% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 5s linear infinite;
+    letter-spacing: -1px;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+.gradient-text-animate {
+    background: linear-gradient(135deg, var(--secondary-color), #ff6b6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.hero-subtitle {
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 25px auto;
+    font-size: 1.0rem;
+    line-height: 1.5;
+}
+
+/* COMPACTED HERO GRAPHIC */
+.hero-graphic.compacted {
+    height: 180px;
+    /* Reduced from 250px */
+    max-width: 400px;
+    margin: 10px auto 30px auto;
+    /* Reduced margin */
+}
+
+.hero-graphic.compacted .item-3 {
+    width: 200px;
+    height: 200px;
+    border-width: 6px;
+}
+
+.hero-graphic.compacted .floating-item {
+    font-size: 2.5rem;
+    /* Smaller icons */
+}
+
+/* --- MOBILE OPTIMIZATIONS --- */
+@media (max-width: 480px) {
+    .main-header-fixed {
+        padding: 10px 15px;
+        /* Smaller header */
+    }
+
+    .main-header-fixed .header-logo {
+        font-size: 1.2rem;
+    }
+
+    .hero-section {
+        padding-top: 10px !important;
+        /* Bring content up */
+    }
+
+    .flashy-hero-text {
+        font-size: 2.2rem;
+        /* Ensure it fits */
+        margin-bottom: 2px;
+    }
+
+    .hero-graphic.compacted {
+        height: 140px;
+        /* Even smaller on mobile */
+        margin-bottom: 20px;
+    }
+
+    .hero-graphic.compacted .item-3 {
+        width: 160px;
+        height: 160px;
+    }
+
+    .card-colorful {
+        padding: 25px 20px !important;
+        margin-bottom: 15px;
+        /* Tighter card spacing */
+    }
+
+    .role-grid {
+        gap: 15px;
+        /* Reduced grid gap */
+    }
+
+    .landing-footer {
+        padding: 20px 15px;
+    }
+
+    .landing-footer a {
+        font-size: 0.95rem !important;
+        /* Larger touch targets */
+        display: inline-block;
+        padding: 5px;
+    }
+}
+
 .laerer-dashboard-modul {
     cursor: pointer;
     text-align: center;
