@@ -11,7 +11,7 @@ import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../c
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
 
 let gjeldendeOrd = null;
-let gjeldendeNiva = 'niva1'; 
+let gjeldendeNiva = 'niva1';
 
 function stokkArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -26,7 +26,7 @@ function stokkArray(array) {
  */
 async function ventPaVocabulary(maxTid = 5000) {
     const startTid = Date.now();
-    
+
     while (!window.vokabularData || Object.keys(window.vokabularData).length === 0) {
         if (Date.now() - startTid > maxTid) {
             console.error('❌ Timeout: Vocabulary ikke lastet etter', maxTid, 'ms');
@@ -34,7 +34,7 @@ async function ventPaVocabulary(maxTid = 5000) {
         }
         await new Promise(resolve => setTimeout(resolve, 50));
     }
-    
+
     // console.log('✅ Vocabulary klar:', Object.keys(window.vokabularData));
     return true;
 }
@@ -44,23 +44,23 @@ export async function startOving(nivaValg) {
     window.gjeldendeNiva = nivaValg; // ✅ Global variabel for kortbelønning
 
     const erKlar = await ventPaVocabulary();
-    
+
     if (!erKlar || !window.vokabularData || !window.vokabularData[nivaValg]) {
         console.error('❌ Kunne ikke laste ordliste for', nivaValg);
         alert("Kunne ikke laste ordliste. Prøv en hard refresh (Ctrl+F5).");
         return;
     }
-    
+
     // console.log('✅ Starter øving med nivå:', nivaValg, '- Antall ord:', window.vokabularData[nivaValg].length);
-    
+
     window.ovingOrdliste = stokkArray([...window.vokabularData[nivaValg]]);
     window.ovingIndex = 0;
     window.riktigeSvar = 0;
-    
+
     if (!window.ovingRetning || window.ovingRetning === 'no') {
-        window.ovingRetning = 'en'; 
+        window.ovingRetning = 'en';
     }
-    
+
     oppdaterSprakKnapper();
     visSide('oving-omraade');
     visNesteSporsmaal();
@@ -69,12 +69,12 @@ export async function startOving(nivaValg) {
 function oppdaterSprakKnapper() {
     const btnNo = document.getElementById('lang-no');
     const btnEn = document.getElementById('lang-en');
-    
-    if(btnNo && btnEn) {
+
+    if (btnNo && btnEn) {
         btnNo.classList.remove('active');
         btnEn.classList.remove('active');
         const aktivKnapp = document.getElementById(`lang-${window.ovingRetning}`);
-        if(aktivKnapp) aktivKnapp.classList.add('active');
+        if (aktivKnapp) aktivKnapp.classList.add('active');
     }
 }
 
@@ -92,12 +92,12 @@ function oppdaterProgress() {
     const antallRuter = 10;
 
     let ruterHTML = '';
-    
+
     for (let i = 0; i < antallRuter; i++) {
         const erFylt = i < antallFylte;
-        const farge = erFylt ? '#4CAF50' : '#e0e0e0'; 
+        const farge = erFylt ? '#4CAF50' : '#e0e0e0';
         const border = erFylt ? '1px solid #388E3C' : '1px solid #ccc';
-        
+
         ruterHTML += `
             <div style="
                 flex: 1; 
@@ -122,19 +122,19 @@ function oppdaterProgress() {
 }
 
 function visNesteSporsmaal() {
-    oppdaterProgress(); 
+    oppdaterProgress();
 
     const feedbackEl = document.getElementById('oving-feedback');
     const inputContainer = document.getElementById('oving-input-container');
     const altContainer = document.getElementById('oving-alternativer');
-    
+
     if (feedbackEl) feedbackEl.innerText = '';
-    
+
     if (window.ovingIndex >= window.ovingOrdliste.length) {
         window.ovingOrdliste = stokkArray(window.ovingOrdliste);
         window.ovingIndex = 0;
     }
-    
+
     gjeldendeOrd = window.ovingOrdliste[window.ovingIndex];
 
     const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e;
@@ -168,14 +168,14 @@ function visNesteSporsmaal() {
     if (erFlervalg) {
         // --- FLERVALG MED TYDELIGERE TEKST ---
         inputContainer.style.display = 'none';
-        altContainer.style.display = 'grid'; 
+        altContainer.style.display = 'grid';
         altContainer.innerHTML = '';
 
         let alternativer = [gjeldendeOrd];
         let forsok = 0;
-        
+
         const sjekkKey = window.ovingRetning === 'no' ? 'e' : 's';
-        
+
         while (alternativer.length < 4 && forsok < 50) {
             const tilfeldig = window.ovingOrdliste[Math.floor(Math.random() * window.ovingOrdliste.length)];
             if (!alternativer.some(a => a[sjekkKey] === tilfeldig[sjekkKey])) {
@@ -184,12 +184,12 @@ function visNesteSporsmaal() {
             forsok++;
         }
         alternativer = stokkArray(alternativer);
-        
+
         alternativer.forEach(alt => {
             const btn = document.createElement('button');
             btn.className = 'btn-secondary';
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
-            
+
             btn.style.display = 'flex';
             btn.style.justifyContent = 'space-between';
             btn.style.alignItems = 'center';
@@ -259,7 +259,7 @@ export function sjekkOvingSvar(valgtOrd = null) {
         oppdaterProgress();
 
         const scoreEl = document.getElementById('oving-score');
-        if(scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
+        if (scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
 
         // ✅ DEAKTIVER KLIKK: Hindre at bruker kan klikke mens feedback vises
         const altContainer = document.getElementById('oving-alternativer');
@@ -282,19 +282,20 @@ export function sjekkOvingSvar(valgtOrd = null) {
     } else {
         spillLyd('feil');
         vibrer(200);
-        
+
         document.getElementById('fasit-tekst').innerText = riktigSvarTekst;
         document.getElementById('feil-svar-popup').style.display = 'flex';
     }
 }
 
-window.lukkFeilPopup = function() {
+window.lukkFeilPopup = function () {
     document.getElementById('feil-svar-popup').style.display = 'none';
     window.ovingIndex++;
     visNesteSporsmaal();
 };
 
 function sjekkOmGevinst() {
+    // === 1. KORTPREMIE (Hver 10. riktig i sesjonen) ===
     if (window.riktigeSvar > 0 && window.riktigeSvar % 10 === 0) {
         // ✅ RATE LIMITING: Sjekk om bruker har mottatt for mange kort
         const cardCheck = cardLimiter.check('card_reward');
@@ -310,12 +311,30 @@ function sjekkOmGevinst() {
 
         setTimeout(() => hentTilfeldigKort(), 600);
     }
+
+    // === 2. DIAMANTPREMIE (Hver 100. totalt riktig) ===
+    // Matchet logikk fra quiz.js
+    const totalXP = getTotalCorrect();
+    const XP_PER_DIAMANT_BONUS = 100;
+    const DIAMANTER_PER_BONUS = 10;
+
+    if (totalXP > 0 && totalXP % XP_PER_DIAMANT_BONUS === 0) {
+        let credits = getCredits();
+        credits += DIAMANTER_PER_BONUS;
+        saveCredits(credits);
+
+        // Vis melding
+        setTimeout(() => {
+            visToast(`💎 BONUS! Du fikk ${DIAMANTER_PER_BONUS} diamanter!`, 'success');
+            spillLyd('vinn');
+        }, 1200); // Litt forsinkelse så det ikke kræsjer med kort-animasjon
+    }
 }
 
 export function avsluttOving(ferdig = false) {
     if (ferdig) { }
     const container = document.getElementById('game-progress-target');
-    if(container) container.innerHTML = ""; 
+    if (container) container.innerHTML = "";
     visSide('oving-start');
 }
 
@@ -329,7 +348,7 @@ export function lesOppOving(tekst = null, lang = null) {
 
 export function visOvingSamling() {
     visSide('oving-samling');
-    visSamling(); 
+    visSamling();
 }
 
 window.lesOppOving = lesOppOving;
