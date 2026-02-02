@@ -1,7 +1,7 @@
 // SERVICE WORKER - GloseMester v0.10.2-BETA (Production-ready)
 // Oppdatert: CDN-filer hostet lokalt, tvunget lyst design, fjernet mørk modus, 4-nivå system
-const APP_VERSION = 'v0.10.2-BETA';
-const CACHE_NAME = 'glosemester-v0.10.2-beta';
+const APP_VERSION = 'v0.10.3';
+const CACHE_NAME = 'glosemester-v0.10.3';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
@@ -22,7 +22,7 @@ const ASSETS_TO_CACHE = [
   './js/init.js',
   './js/vocabulary.js',
   './js/collection.js',
-  
+
   // VIKTIG: Databasen for kortene (Må med for offline-støtte)
   './js/data/cardsData.js',
 
@@ -80,7 +80,7 @@ self.addEventListener('activate', (e) => {
     // Sletter alt som ikke matcher det nye versjonsnavnet
     await Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null));
     await self.clients.claim();
-    
+
     // VARSLE ALLE KLIENTER OM NY VERSJON
     const clients = await self.clients.matchAll();
     clients.forEach(client => {
@@ -105,9 +105,9 @@ self.addEventListener('message', (e) => {
         version: APP_VERSION
       });
     } else {
-      e.source?.postMessage({ 
-        type: 'VERSION_INFO', 
-        version: APP_VERSION 
+      e.source?.postMessage({
+        type: 'VERSION_INFO',
+        version: APP_VERSION
       });
     }
   }
@@ -116,9 +116,9 @@ self.addEventListener('message', (e) => {
 // FETCH - Network first for HTML, Cache first for assets
 self.addEventListener('fetch', (e) => {
   if (!e.request.url.startsWith('http')) return;
-  
+
   const accept = e.request.headers.get('accept') || '';
-  
+
   // 1. HTML: Prøv nettverk først (alltid fersk), cache som fallback (offline)
   if (accept.includes('text/html')) {
     e.respondWith(

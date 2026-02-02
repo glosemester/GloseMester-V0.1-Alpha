@@ -8,16 +8,16 @@ import { sjekkFeideRetur } from './features/auth.js'; // <--- VIKTIG: Peker nå 
 // ============================================
 // GLOBAL STATE
 // ============================================
-window.APP_VERSION = "v0.9.8-BETA"; 
+window.APP_VERSION = "v0.10.3";
 
-window.brukerNavn = "Spiller"; 
-window.aktivRolle = ""; 
+window.brukerNavn = "Spiller";
+window.aktivRolle = "";
 window.aktivProve = [];
 window.gjeldendeSporsmaalIndex = 0;
 window.riktigeSvar = 0;
 window.ovingOrdliste = [];
 window.ovingIndex = 0;
-window.ovingRetning = 'no'; 
+window.ovingRetning = 'no';
 window.proveSprak = 'no';
 window.credits = 0;
 window.valgtSortering = 'nyeste';
@@ -48,36 +48,36 @@ function visVersjonstag() {
 // ============================================
 window.addEventListener('DOMContentLoaded', async () => {
     console.log(`🏁 Init.js: Klargjør ${window.APP_VERSION}...`);
-    
+
     // 1. Vis versjon
     visVersjonstag();
 
     // 2. Sjekk Feide-retur FØR vi gjør noe annet
     await sjekkFeideRetur();
-    
+
     // 3. Last brukerdata
     const aktivBruker = localStorage.getItem('aktiv_bruker');
-    if(aktivBruker) window.brukerNavn = aktivBruker;
-    
+    if (aktivBruker) window.brukerNavn = aktivBruker;
+
     // 4. Start hovedappen
     initApp();
 
     // 5. Sjekk for prøve-kode i URL
     const urlParams = new URLSearchParams(window.location.search);
     const proveKode = urlParams.get('quiz') || urlParams.get('prove');
-    
+
     if (proveKode) {
         console.log("🔗 Fant prøve-kode i URL:", proveKode);
         setTimeout(() => {
-            if(window.velgRolle) window.velgRolle('kode');
-            
+            if (window.velgRolle) window.velgRolle('kode');
+
             setTimeout(() => {
                 const input = document.getElementById('prove-kode');
-                if(input) input.value = proveKode;
-                
+                if (input) input.value = proveKode;
+
                 setTimeout(() => {
-                    if(window.startProve) window.startProve(proveKode);
-                }, 800); 
+                    if (window.startProve) window.startProve(proveKode);
+                }, 800);
             }, 600);
         }, 1200);
     }

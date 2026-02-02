@@ -429,7 +429,7 @@ window.aktiverKampanjekode = async function () {
    ============================================ */
 
 export function initApp() {
-    console.log('✅ GloseMester v0.9.8-BETA kjører...');
+    console.log('✅ GloseMester v0.10.3 kjører...');
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
