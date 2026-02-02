@@ -128,10 +128,10 @@
             </div>
 
             <!-- Hero Section -->
-            <div class="hero-section" style="text-align: center; padding: 20px 20px;">
+            <div class="hero-section" style="text-align: center; padding: 0 20px 10px 20px; margin-top: -20px;">
                 <!-- ✅ Logo erstatter tekst-header -->
                 <img src="header.png" alt="GloseMester"
-                    style="max-width: 90%; width: 350px; margin-bottom: 10px; display: inline-block;">
+                    style="max-width: 95%; width: 550px; margin-bottom: 5px; display: inline-block;">
 
                 <!-- Tekst fjernet etter ønske -->
                 <!-- 
@@ -146,230 +146,222 @@
                 </p> 
                 -->
 
-                <div class="hero-graphic compacted"
-                    style="background: transparent; box-shadow: none; border: none; min-height: 0; padding: 0;">
-                    <div class="floating-item item-1"
-                        style="position: static; display: inline-block; margin: 10px; animation: float 3s ease-in-out infinite;">
-                        ✏️</div>
-                    <div class="floating-item item-2"
-                        style="position: static; display: inline-block; margin: 10px; animation: float 4s ease-in-out infinite; animation-delay: 1s;">
-                        🌍</div>
-                </div>
-            </div>
+                <!-- Role Cards (Redesigned) -->
+                <div class="role-grid">
+                    <!-- Card 1: Øv Selv (Orange) -->
+                    <div id="role-oving" class="card-colorful orange role-card">
+                        <span class="card-icon-large">🧠</span>
+                        <h2>Øv Selv</h2>
+                        <p>Bygg opp ditt ordforråd med morsomme øvelser!</p>
+                        <div class="btn-primary"
+                            style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
+                            Start Øvelse →
+                        </div>
+                    </div>
 
-            <!-- Role Cards (Redesigned) -->
-            <div class="role-grid">
-                <!-- Card 1: Øv Selv (Orange) -->
-                <div id="role-oving" class="card-colorful orange role-card">
-                    <span class="card-icon-large">🧠</span>
-                    <h2>Øv Selv</h2>
-                    <p>Bygg opp ditt ordforråd med morsomme øvelser!</p>
-                    <div class="btn-primary"
-                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
-                        Start Øvelse →
+                    <!-- Card 2: GlosePrøve (Purple) -->
+                    <div id="role-kode" class="card-colorful purple role-card">
+                        <span class="card-icon-large">🏆</span>
+                        <h2>GlosePrøve</h2>
+                        <p>Har du en kode? Test kunnskapen din nå.</p>
+                        <div class="btn-primary"
+                            style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
+                            Ta Prøve →
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Lærer (Yellow) -->
+                    <div id="role-laerer" class="card-colorful yellow role-card" style="grid-column: span 2;">
+                        <span class="card-icon-large">🎓</span>
+                        <h2>Lærer</h2>
+                        <p>Lag tilpassede prøver og følg elevenes fremgang over tid.</p>
+                        <div class="btn-primary"
+                            style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px; color: black;">
+                            Lærer Login →
+                        </div>
                     </div>
                 </div>
 
-                <!-- Card 2: GlosePrøve (Purple) -->
-                <div id="role-kode" class="card-colorful purple role-card">
-                    <span class="card-icon-large">🏆</span>
-                    <h2>GlosePrøve</h2>
-                    <p>Har du en kode? Test kunnskapen din nå.</p>
-                    <div class="btn-primary"
-                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px;">
-                        Ta Prøve →
-                    </div>
-                </div>
-
-                <!-- Card 3: Lærer (Yellow) -->
-                <div id="role-laerer" class="card-colorful yellow role-card" style="grid-column: span 2;">
-                    <span class="card-icon-large">🎓</span>
-                    <h2>Lærer</h2>
-                    <p>Lag tilpassede prøver og følg elevenes fremgang over tid.</p>
-                    <div class="btn-primary"
-                        style="background: rgba(255,255,255,0.2); border: none; box-shadow: none; min-height: unset; padding: 10px 20px; color: black;">
-                        Lærer Login →
-                    </div>
-                </div>
-            </div>
-
-            <button id="pwa-install-btn" class="btn-primary"
-                style="display:none; margin: 40px auto; background-color: var(--primary-color); max-width: 300px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);">
-                📲 Installer App
-            </button>
-
-            <div style="text-align:center; margin-top:60px; margin-bottom: 40px;">
-                <button id="btn-info-modal" class="btn-secondary"
-                    style="background: white; border: 1px solid #E2E8F0; box-shadow: var(--shadow);">
-                    ℹ️ For lærere & foreldre
+                <button id="pwa-install-btn" class="btn-primary"
+                    style="display:none; margin: 40px auto; background-color: var(--primary-color); max-width: 300px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.5);">
+                    📲 Installer App
                 </button>
+
+                <div style="text-align:center; margin-top:60px; margin-bottom: 40px;">
+                    <button id="btn-info-modal" class="btn-secondary"
+                        style="background: white; border: 1px solid #E2E8F0; box-shadow: var(--shadow);">
+                        ℹ️ For lærere & foreldre
+                    </button>
+                </div>
+
+                <footer class="landing-footer"
+                    style="background: transparent; color: var(--text-muted); padding: 20px; margin-top: 20px;">
+                    <p style="margin: 0 0 5px 0; font-weight: 600;">GloseMester v0.10.2-BETA</p>
+                    <div style="font-size: 0.85rem; opacity: 0.8;">
+                        <a href="/om-oss.html" style="color: inherit; margin: 0 10px;">Om oss</a> •
+                        <a href="/personvern.html" style="color: inherit; margin: 0 10px;">Personvern</a> •
+                        <a href="mailto:kontakt@glosemester.no" style="color: inherit; margin: 0 10px;">Kontakt</a>
+                    </div>
+                </footer>
             </div>
 
-            <footer class="landing-footer"
-                style="background: transparent; color: var(--text-muted); padding: 20px; margin-top: 20px;">
-                <p style="margin: 0 0 5px 0; font-weight: 600;">GloseMester v0.10.2-BETA</p>
-                <div style="font-size: 0.85rem; opacity: 0.8;">
-                    <a href="/om-oss.html" style="color: inherit; margin: 0 10px;">Om oss</a> •
-                    <a href="/personvern.html" style="color: inherit; margin: 0 10px;">Personvern</a> •
-                    <a href="mailto:kontakt@glosemester.no" style="color: inherit; margin: 0 10px;">Kontakt</a>
+            <nav id="elev-meny" style="display:none;">
+                <button id="btn-elev-dashboard"><span class="nav-icon">🏠</span> Hjem</button>
+                <button id="btn-elev-samling"><span class="nav-icon">🗂️</span> Mine Kort</button>
+                <button id="btn-elev-galleri-nav"><span class="nav-icon">🏆</span> Galleri</button>
+                <button id="btn-elev-logout" class="btn-danger"><span class="nav-icon">🚪</span> Logg ut</button>
+            </nav>
+
+            <nav id="oving-meny" style="display:none;">
+                <button id="btn-oving-start"><span class="nav-icon">🧠</span> Øv</button>
+                <button id="btn-oving-samling"><span class="nav-icon">🗂️</span> Samling</button>
+                <button id="btn-oving-galleri-nav"><span class="nav-icon">🏆</span> Galleri</button>
+                <button id="btn-oving-logout" class="btn-danger"><span class="nav-icon">🚪</span> Avslutt</button>
+            </nav>
+
+            <nav id="laerer-meny" class="laerer-nav" style="display:none;">
+                <button id="hamburger-btn" class="hamburger-btn" aria-label="Meny">
+                    <span class="hamburger-icon">☰</span>
+                    <span class="hamburger-text">Meny</span>
+                </button>
+
+                <span id="user-info" class="user-info"></span>
+
+                <div class="nav-actions">
+                    <button id="btn-laerer-hjem" class="btn-primary nav-action-btn">🏠 Hjem</button>
                 </div>
-            </footer>
-        </div>
+            </nav>
 
-        <nav id="elev-meny" style="display:none;">
-            <button id="btn-elev-dashboard"><span class="nav-icon">🏠</span> Hjem</button>
-            <button id="btn-elev-samling"><span class="nav-icon">🗂️</span> Mine Kort</button>
-            <button id="btn-elev-galleri-nav"><span class="nav-icon">🏆</span> Galleri</button>
-            <button id="btn-elev-logout" class="btn-danger"><span class="nav-icon">🚪</span> Logg ut</button>
-        </nav>
-
-        <nav id="oving-meny" style="display:none;">
-            <button id="btn-oving-start"><span class="nav-icon">🧠</span> Øv</button>
-            <button id="btn-oving-samling"><span class="nav-icon">🗂️</span> Samling</button>
-            <button id="btn-oving-galleri-nav"><span class="nav-icon">🏆</span> Galleri</button>
-            <button id="btn-oving-logout" class="btn-danger"><span class="nav-icon">🚪</span> Avslutt</button>
-        </nav>
-
-        <nav id="laerer-meny" class="laerer-nav" style="display:none;">
-            <button id="hamburger-btn" class="hamburger-btn" aria-label="Meny">
-                <span class="hamburger-icon">☰</span>
-                <span class="hamburger-text">Meny</span>
-            </button>
-
-            <span id="user-info" class="user-info"></span>
-
-            <div class="nav-actions">
-                <button id="btn-laerer-hjem" class="btn-primary nav-action-btn">🏠 Hjem</button>
-            </div>
-        </nav>
-
-        <div id="nav-items" class="nav-items">
-            <button id="btn-laerer-dashboard" class="active">📊 Dashboard</button>
-            <button id="btn-lagrede-prover">📝 Lagrede Prøver</button>
-            <button id="btn-standardprover">📚 Standardprøver</button>
-            <button id="btn-glosebank-browse" style="display:none;">📚 GloseBank</button>
-            <button id="btn-admin-panel" style="display:none;">🔧 Admin</button>
-            <button id="btn-laerer-loggut" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">🚪 Logg
-                ut</button>
-        </div>
-
-        <div id="hamburger-overlay" class="hamburger-overlay" onclick="lukkHamburger()"></div>
-
-        <div id="elev-dashboard" class="page">
-            <div class="card-container" id="elev-start-skjerm">
-                <div class="credit-progress-container" style="margin-bottom: 30px;">
-                    <div class="credit-label">
-                        <span>Mot neste kort:</span>
-                        <span id="quiz-progress-text">0 / 10</span>
-                    </div>
-                    <div class="yellow-track">
-                        <div class="yellow-fill" id="elev-start-progress-target-bar"></div>
-                    </div>
-                </div>
-
-                <!-- JOIN TEST CARD -->
-                <div class="join-game-card">
-                    <div style="font-size: 48px; margin-bottom: 10px;">🎮</div>
-                    <h2>Bli med i en prøve</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 25px;">Skriv inn koden fra læreren din.</p>
-
-                    <input type="text" id="pin-kode-input" placeholder="XXXXXX"
-                        style="width: 100%; font-size: 32px; text-align: center; font-weight: 800; letter-spacing: 5px; border: 2px solid var(--primary-color); border-radius: var(--border-radius-sm); height: 60px; margin-bottom: 20px;">
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <button class="btn-primary" onclick="tryJoiningGame()"
-                            style="background: var(--success-green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">START
-                            SPILLET!</button>
-                        <button id="btn-start-qr" class="btn-primary">📷 Skann QR</button>
-                    </div>
-                </div>
-
-                <div id="elev-lagrede-prover-container" style="display:none; margin-top:40px;">
-                    <h3 style="margin-bottom:15px; color: var(--text-color);">Dine nylige prøver</h3>
-                    <div id="elev-lagrede-liste" style="display:grid; gap:12px;"></div>
-                </div>
+            <div id="nav-items" class="nav-items">
+                <button id="btn-laerer-dashboard" class="active">📊 Dashboard</button>
+                <button id="btn-lagrede-prover">📝 Lagrede Prøver</button>
+                <button id="btn-standardprover">📚 Standardprøver</button>
+                <button id="btn-glosebank-browse" style="display:none;">📚 GloseBank</button>
+                <button id="btn-admin-panel" style="display:none;">🔧 Admin</button>
+                <button id="btn-laerer-loggut" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">🚪
+                    Logg
+                    ut</button>
             </div>
 
-            <div id="prove-omraade" class="card-container"
-                style="display:none; max-width: 700px; margin: 20px auto; padding: 40px;">
-                <div class="quiz-header"
-                    style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 30px;">
-                    <h3 style="margin:0;">Gloseprøve</h3>
-                    <span id="quiz-progress" class="badge-rounded">1/10</span>
+            <div id="hamburger-overlay" class="hamburger-overlay" onclick="lukkHamburger()"></div>
+
+            <div id="elev-dashboard" class="page">
+                <div class="card-container" id="elev-start-skjerm">
+                    <div class="credit-progress-container" style="margin-bottom: 30px;">
+                        <div class="credit-label">
+                            <span>Mot neste kort:</span>
+                            <span id="quiz-progress-text">0 / 10</span>
+                        </div>
+                        <div class="yellow-track">
+                            <div class="yellow-fill" id="elev-start-progress-target-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- JOIN TEST CARD -->
+                    <div class="join-game-card">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🎮</div>
+                        <h2>Bli med i en prøve</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 25px;">Skriv inn koden fra læreren din.</p>
+
+                        <input type="text" id="pin-kode-input" placeholder="XXXXXX"
+                            style="width: 100%; font-size: 32px; text-align: center; font-weight: 800; letter-spacing: 5px; border: 2px solid var(--primary-color); border-radius: var(--border-radius-sm); height: 60px; margin-bottom: 20px;">
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <button class="btn-primary" onclick="tryJoiningGame()"
+                                style="background: var(--success-green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">START
+                                SPILLET!</button>
+                            <button id="btn-start-qr" class="btn-primary">📷 Skann QR</button>
+                        </div>
+                    </div>
+
+                    <div id="elev-lagrede-prover-container" style="display:none; margin-top:40px;">
+                        <h3 style="margin-bottom:15px; color: var(--text-color);">Dine nylige prøver</h3>
+                        <div id="elev-lagrede-liste" style="display:grid; gap:12px;"></div>
+                    </div>
                 </div>
 
-                <div id="quiz-progress-target" class="yellow-track" style="margin-bottom: 40px;">
-                    <!-- Bar will be filled by JS -->
-                </div>
+                <div id="prove-omraade" class="card-container"
+                    style="display:none; max-width: 700px; margin: 20px auto; padding: 40px;">
+                    <div class="quiz-header"
+                        style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 30px;">
+                        <h3 style="margin:0;">Gloseprøve</h3>
+                        <span id="quiz-progress" class="badge-rounded">1/10</span>
+                    </div>
 
-                <div class="quiz-question-container" style="text-align:center; padding: 20px 0;">
-                    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 10px;">Oversett til engelsk:
+                    <div id="quiz-progress-target" class="yellow-track" style="margin-bottom: 40px;">
+                        <!-- Bar will be filled by JS -->
+                    </div>
+
+                    <div class="quiz-question-container" style="text-align:center; padding: 20px 0;">
+                        <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 10px;">Oversett til
+                            engelsk:
+                        </p>
+                        <h2 id="quiz-spm" style="font-size:3.5rem; margin: 0 0 40px 0; font-weight: 800;">...</h2>
+                    </div>
+
+                    <div style="max-width: 500px; margin: 0 auto;">
+                        <input type="text" id="quiz-input" placeholder="Skriv svaret ditt her..."
+                            style="width: 100%; font-size: 1.5rem; padding: 20px; text-align: center; border: 2px solid rgba(124, 58, 237, 0.2); border-radius: 20px; margin-bottom: 20px;">
+
+                        <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
+                            <button id="btn-quiz-svar" class="btn-primary"
+                                style="height: 60px; font-size: 1.2rem;">SVAR</button>
+                            <button id="btn-quiz-les-opp" class="btn-primary"
+                                style="width: 60px; height: 60px; background: var(--bg-color); border: 2px solid var(--primary-color); color: var(--primary-color); box-shadow: none;">🔊</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="oving-start" class="page">
+                <div id="oving-valg" class="card-container">
+                    <h2 style="margin-bottom: 10px;">Øv Selv</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 30px;">Velg et nivå for å starte jakten på nye
+                        kort!
                     </p>
-                    <h2 id="quiz-spm" style="font-size:3.5rem; margin: 0 0 40px 0; font-weight: 800;">...</h2>
-                </div>
 
-                <div style="max-width: 500px; margin: 0 auto;">
-                    <input type="text" id="quiz-input" placeholder="Skriv svaret ditt her..."
-                        style="width: 100%; font-size: 1.5rem; padding: 20px; text-align: center; border: 2px solid rgba(124, 58, 237, 0.2); border-radius: 20px; margin-bottom: 20px;">
-
-                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px;">
-                        <button id="btn-quiz-svar" class="btn-primary"
-                            style="height: 60px; font-size: 1.2rem;">SVAR</button>
-                        <button id="btn-quiz-les-opp" class="btn-primary"
-                            style="width: 60px; height: 60px; background: var(--bg-color); border: 2px solid var(--primary-color); color: var(--primary-color); box-shadow: none;">🔊</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="oving-start" class="page">
-            <div id="oving-valg" class="card-container">
-                <h2 style="margin-bottom: 10px;">Øv Selv</h2>
-                <p style="color: var(--text-muted); margin-bottom: 30px;">Velg et nivå for å starte jakten på nye kort!
-                </p>
-
-                <div class="credit-progress-container" style="margin-bottom: 40px;">
-                    <div class="credit-label">
-                        <span>XP denne økten:</span>
-                        <span id="menu-credits-text">0 / 100</span>
-                    </div>
-                    <div class="yellow-track">
-                        <div class="yellow-fill" id="menu-credits-bar"></div>
-                    </div>
-                </div>
-
-                <div class="level-grid-modern">
-                    <div class="level-card-modern" onclick="window.startOving('niva1')">
-                        <div class="level-icon number">1</div>
-                        <div class="level-info">
-                            <h3>1. Trinn</h3>
-                            <p>Enkel start</p>
+                    <div class="credit-progress-container" style="margin-bottom: 40px;">
+                        <div class="credit-label">
+                            <span>XP denne økten:</span>
+                            <span id="menu-credits-text">0 / 100</span>
+                        </div>
+                        <div class="yellow-track">
+                            <div class="yellow-fill" id="menu-credits-bar"></div>
                         </div>
                     </div>
-                    <div class="level-card-modern" onclick="window.startOving('niva2')">
-                        <div class="level-icon number">2</div>
-                        <div class="level-info">
-                            <h3>2. Trinn</h3>
-                            <p>Lær mer</p>
+
+                    <div class="level-grid-modern">
+                        <div class="level-card-modern" onclick="window.startOving('niva1')">
+                            <div class="level-icon number">1</div>
+                            <div class="level-info">
+                                <h3>1. Trinn</h3>
+                                <p>Enkel start</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="level-card-modern" onclick="window.startOving('niva3')">
-                        <div class="level-icon number">3</div>
-                        <div class="level-info">
-                            <h3>3. Trinn</h3>
-                            <p>Forsterk kunnskap</p>
+                        <div class="level-card-modern" onclick="window.startOving('niva2')">
+                            <div class="level-icon number">2</div>
+                            <div class="level-info">
+                                <h3>2. Trinn</h3>
+                                <p>Lær mer</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="level-card-modern" onclick="window.startOving('niva4')">
-                        <div class="level-icon number">4</div>
-                        <div class="level-info">
-                            <h3>4. Trinn</h3>
-                            <p>Mester-nivå</p>
+                        <div class="level-card-modern" onclick="window.startOving('niva3')">
+                            <div class="level-icon number">3</div>
+                            <div class="level-info">
+                                <h3>3. Trinn</h3>
+                                <p>Forsterk kunnskap</p>
+                            </div>
+                        </div>
+                        <div class="level-card-modern" onclick="window.startOving('niva4')">
+                            <div class="level-icon number">4</div>
+                            <div class="level-info">
+                                <h3>4. Trinn</h3>
+                                <p>Mester-nivå</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <div id="oving-omraade" class="page">
