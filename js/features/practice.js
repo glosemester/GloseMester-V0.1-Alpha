@@ -1,7 +1,8 @@
 /* ============================================
-   PRACTICE.JS - Øve Modus v0.10.19 (MED RATE LIMITING)
-   Fix: Fet skrift og større font for bedre lesbarhet
-   Ny: Rate limiting for å forhindre misbruk
+   PRACTICE.JS - Øve Modus v2.0 (MED LEITNER + ADAPTIV LÆRING)
+   Ny: Leitner spaced repetition system (5 bokser)
+   Ny: Adaptiv vanskelighetsgrad basert på prestasjon
+   Ny: Visuell indikator for mestringsnivå
    ============================================ */
 
 import { hentTilfeldigKort, visSamling } from './kort-display.js';
@@ -9,6 +10,13 @@ import { visSide } from '../core/navigation.js';
 import { visToast, spillLyd, vibrer, lesOpp } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
+import {
+    LeitnerSystem,
+    AdaptiveDifficulty,
+    getUserProgress,
+    updateWordProgress,
+    recordDailyActivity
+} from './learningEngine.js';
 
 let gjeldendeOrd = null;
 let gjeldendeNiva = 'niva1';
@@ -130,15 +138,35 @@ function visNesteSporsmaal() {
 
     if (feedbackEl) feedbackEl.innerText = '';
 
-    if (window.ovingIndex >= window.ovingOrdliste.length) {
-        window.ovingOrdliste = stokkArray(window.ovingOrdliste);
-        window.ovingIndex = 0;
+    // ✅ LEITNER: Hent ord som skal øves basert på spaced repetition
+    const leitner = new LeitnerSystem();
+    const userProgress = getUserProgress();
+    const dueWords = leitner.getDueWords(window.vokabularData[gjeldendeNiva], userProgress);
+
+    if (dueWords.length === 0) {
+        visToast('🎉 Alle ord er mestret! Kom tilbake senere.', 'success');
+        visSide('hjem');
+        return;
     }
 
-    gjeldendeOrd = window.ovingOrdliste[window.ovingIndex];
+    // Prioriter ord i lavere bokser (trenger mer øving)
+    const sortedWords = dueWords.sort((a, b) => {
+        const wordIdA = leitner.getWordId(a);
+        const wordIdB = leitner.getWordId(b);
+        const boxA = userProgress[wordIdA]?.box || 1;
+        const boxB = userProgress[wordIdB]?.box || 1;
+        return boxA - boxB;
+    });
+
+    gjeldendeOrd = sortedWords[0];
 
     const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e;
     document.getElementById('oving-spm').innerText = sporsmaalTekst;
+
+    // ✅ VIS LEITNER BOX INDIKATOR
+    const wordId = leitner.getWordId(gjeldendeOrd);
+    const currentBox = userProgress[wordId]?.box || 1;
+    visLeitnerStatus(currentBox, leitner.getBoxName(currentBox));
 
     // ✅ BILDESTØTTE: Vis bilde hvis det finnes
     const bildeContainer = document.getElementById('oving-bilde-container');
@@ -152,18 +180,11 @@ function visNesteSporsmaal() {
 
     const altLang = window.ovingRetning === 'no' ? 'en-US' : 'no-NO';
 
-    let erFlervalg = false;
-
-    // ✅ OPPDATERT NIVÅLOGIKK (Nivå 1-4)
-    if (gjeldendeNiva === 'niva1' || gjeldendeNiva === 'niva2') {
-        erFlervalg = true; // Nivå 1 og 2: 100% flervalg
-    }
-    else if (gjeldendeNiva === 'niva4') {
-        erFlervalg = Math.random() < 0.2; // Nivå 4: 20% flervalg, 80% skriving
-    }
-    else {
-        erFlervalg = Math.random() < 0.5; // Nivå 3: 50/50
-    }
+    // ✅ ADAPTIV VANSKELIGHETSGRAD
+    const adaptive = new AdaptiveDifficulty();
+    const exerciseType = adaptive.getExerciseType(gjeldendeNiva);
+    const erFlervalg = (exerciseType === 'multiple-choice');
+    const distractorCount = adaptive.getDistractorCount();
 
     if (erFlervalg) {
         // --- FLERVALG MED TYDELIGERE TEKST ---
@@ -176,8 +197,11 @@ function visNesteSporsmaal() {
 
         const sjekkKey = window.ovingRetning === 'no' ? 'e' : 's';
 
-        while (alternativer.length < 4 && forsok < 50) {
-            const tilfeldig = window.ovingOrdliste[Math.floor(Math.random() * window.ovingOrdliste.length)];
+        // ✅ Adaptiv antall alternativer (2-5 distraktorer + riktig svar = 3-6 total)
+        const targetCount = distractorCount + 1;
+
+        while (alternativer.length < targetCount && forsok < 50) {
+            const tilfeldig = window.vokabularData[gjeldendeNiva][Math.floor(Math.random() * window.vokabularData[gjeldendeNiva].length)];
             if (!alternativer.some(a => a[sjekkKey] === tilfeldig[sjekkKey])) {
                 alternativer.push(tilfeldig);
             }
@@ -252,8 +276,26 @@ export function sjekkOvingSvar(valgtOrd = null) {
         window.riktigeSvar++;
         saveTotalCorrect(getTotalCorrect() + 1);
 
+        // ✅ LEITNER: Oppdater progress for dette ordet
+        const leitner = new LeitnerSystem();
+        const wordId = leitner.getWordId(gjeldendeOrd);
+        const currentProgress = getUserProgress()[wordId];
+        const currentBox = currentProgress?.box || 1;
+
+        const updatedProgress = updateWordProgress(wordId, true, currentBox);
+
+        // ✅ ADAPTIV: Registrer riktig svar
+        const adaptive = new AdaptiveDifficulty();
+        adaptive.recordAnswer(true);
+
+        // ✅ Vis Leitner-fremgang
+        if (updatedProgress.box > currentBox) {
+            feedbackEl.innerHTML = `✅ Riktig! <span style="color: var(--electric-blue); font-weight: bold;">Opp til ${leitner.getBoxName(updatedProgress.box)}!</span>`;
+        } else {
+            feedbackEl.innerText = "✅ Riktig!";
+        }
+
         feedbackEl.style.color = 'green';
-        feedbackEl.innerText = "✅ Riktig!";
         spillLyd('riktig');
 
         oppdaterProgress();
@@ -268,6 +310,7 @@ export function sjekkOvingSvar(valgtOrd = null) {
         if (inputContainer) inputContainer.style.pointerEvents = 'none';
 
         sjekkOmGevinst();
+        recordDailyActivity(); // Track activity for streak tracking
 
         // ✅ RASKERE FEEDBACK: 1 sekund i stedet for 1.5
         setTimeout(() => {
@@ -275,11 +318,22 @@ export function sjekkOvingSvar(valgtOrd = null) {
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
 
-            window.ovingIndex++;
             visNesteSporsmaal();
         }, 1000);
 
     } else {
+        // ✅ LEITNER: Registrer feil svar (flytt ned i bokser)
+        const leitner = new LeitnerSystem();
+        const wordId = leitner.getWordId(gjeldendeOrd);
+        const currentProgress = getUserProgress()[wordId];
+        const currentBox = currentProgress?.box || 1;
+
+        updateWordProgress(wordId, false, currentBox);
+
+        // ✅ ADAPTIV: Registrer feil svar
+        const adaptive = new AdaptiveDifficulty();
+        adaptive.recordAnswer(false);
+
         spillLyd('feil');
         vibrer(200);
 
@@ -290,7 +344,6 @@ export function sjekkOvingSvar(valgtOrd = null) {
 
 window.lukkFeilPopup = function () {
     document.getElementById('feil-svar-popup').style.display = 'none';
-    window.ovingIndex++;
     visNesteSporsmaal();
 };
 
@@ -352,3 +405,67 @@ export function visOvingSamling() {
 }
 
 window.lesOppOving = lesOppOving;
+
+// ============================================
+// LEITNER STATUS VISUALIZATION
+// ============================================
+
+/**
+ * Vis visuell indikator for Leitner-boksstatus
+ * @param {number} currentBox - Nåværende boks (1-5)
+ * @param {string} boxName - Display-navn for boksen
+ */
+function visLeitnerStatus(currentBox, boxName) {
+    // Finn eller opprett container
+    let statusContainer = document.getElementById('leitner-status-container');
+
+    if (!statusContainer) {
+        // Opprett container hvis den ikke finnes
+        const sporsmaalContainer = document.getElementById('oving-spm')?.parentElement;
+        if (!sporsmaalContainer) return;
+
+        statusContainer = document.createElement('div');
+        statusContainer.id = 'leitner-status-container';
+        statusContainer.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(124, 58, 237, 0.08);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.85rem;
+            color: #666;
+        `;
+
+        sporsmaalContainer.insertBefore(statusContainer, sporsmaalContainer.firstChild.nextSibling);
+    }
+
+    // Emoji og farge basert på boks
+    const boxEmojis = ['🌱', '🌿', '🌳', '⭐', '🏆'];
+    const boxColors = ['#ff6b6b', '#ffa726', '#ffca28', '#66bb6a', '#26a69a'];
+
+    const emoji = boxEmojis[currentBox - 1];
+    const color = boxColors[currentBox - 1];
+
+    // Vis bokser med fylling
+    let boxHTML = '<div style="display: flex; gap: 3px; margin-right: 8px;">';
+    for (let i = 1; i <= 5; i++) {
+        const filled = i <= currentBox;
+        boxHTML += `
+            <div style="
+                width: 12px;
+                height: 12px;
+                background: ${filled ? color : '#e0e0e0'};
+                border-radius: 2px;
+                transition: background 0.3s ease;
+            "></div>
+        `;
+    }
+    boxHTML += '</div>';
+
+    statusContainer.innerHTML = `
+        ${boxHTML}
+        <span style="font-weight: 600; color: ${color};">${emoji} ${boxName}</span>
+    `;
+}
