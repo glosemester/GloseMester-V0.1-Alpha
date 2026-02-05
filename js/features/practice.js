@@ -127,12 +127,12 @@ function visNesteSporsmaal() {
     // ✅ LEITNER: Hent ord som skal øves basert på spaced repetition
     const leitner = new LeitnerSystem();
     const userProgress = getUserProgress();
-    const dueWords = leitner.getDueWords(window.vokabularData[gjeldendeNiva], userProgress);
+    let dueWords = leitner.getDueWords(window.vokabularData[gjeldendeNiva], userProgress);
 
+    // Fallback: Hvis ingen ord er "due" (alle nylig øvd), bruk alle ord i nivået
+    // slik at brukeren kan fortsette å øve i samme økt
     if (dueWords.length === 0) {
-        visToast('🎉 Alle ord er mestret! Kom tilbake senere.', 'success');
-        visSide('hjem');
-        return;
+        dueWords = [...window.vokabularData[gjeldendeNiva]];
     }
 
     // Prioriter ord i lavere bokser (trenger mer øving)
