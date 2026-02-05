@@ -14,12 +14,12 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 ## 🚀 LANSERINGSSTATUS
 
 **Nåværende fase:** BETA-testing  
-**Prod-klar:** ~95% (venter på Vipps produksjon)  
+**Prod-klar:** ~95% (Stripe integrasjon ferdig)  
 **Launch ETA:** Februar 2026
 
 ✅ **Ferdig:**
 - Feide innlogging med lærer/elev-skille
-- Vipps betalingsintegrasjon (test)
+- Stripe betalingsintegrasjon
 - Firebase backend & Firestore
 - PWA med offline-støtte
 - Admin-panel & GloseBank (alle lærere kan dele)
@@ -28,7 +28,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - Juridiske dokumenter (klare for juridisk gjennomgang)
 
 🟡 **Pågående:**
-- Vipps produksjonsgodkjenning (søknad sendt 13. jan 2026)
+- Stripe konfigurasjon (test-modus)
 - Beta-testing med pilotskoler
 - Juridisk gjennomgang av personvernerklæring
 
@@ -52,7 +52,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ### ✅ Git + Netlify Auto-Deploy 🚀
 - **GitHub-kobling:** Netlify deployer automatisk ved `git push`
-- **Environment Variables:** Konfigurert for Vipps, Resend, Firebase
+- **Environment Variables:** Konfigurert for Stripe, Resend, Firebase
 - **Ingen mer manuell opplasting:** Sparer tid på hver endring
 
 ### ✅ Multi-bruker Progressbar 📊
@@ -76,11 +76,11 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
   - Steg 4: Sikker blokkering (default: elev hvis uklar)
 - **Elev-blokkering:** Vennlig popup med veiledning til prøvekoder
 - **Min Side forbedringer:** Viser korrekt navn og e-post fra Firestore
-- **Automatisk abonnement-oppdatering:** Vipps webhook aktiverer Premium umiddelbart
+- **Automatisk abonnement-oppdatering:** Stripe webhook aktiverer Premium umiddelbart
 
 ### ✅ Betalingsintegrasjon 💳
-- **Vipps ePay (Integrert betaling):** Produksjonsklar kode
-  - Dynamisk miljø-switching (test/prod)
+- **Stripe Checkout:** Produksjonsklar kode
+  - Sikker hosted checkout-side
   - Automatisk Premium-aktivering via webhook
   - Komplett ordre-tracking i Firestore
 - **Skolepakke-forespørsel:** Fullstendig skjema med Firestore-lagring
@@ -176,7 +176,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - ✅ Tilgang til 16 Standardprøver (LK20-alignert)
 - ✅ Avansert resultatstatistikk
 - ✅ Prioritert support (2 virkedager)
-- 💳 Betaling via **Vipps** (automatisk fornyelse)
+- 💳 Betaling via **Stripe** kortbetaling (automatisk fornyelse)
 
 **Skolepakke (5.000-10.000 kr/år):**
 - ✅ Alt i Premium
@@ -204,7 +204,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - Netlify Functions (serverless Node.js)
 - Firebase Admin SDK
 - Feide OIDC integrasjon
-- Vipps ePay API v2
+- Stripe Checkout API
 
 **Database:**
 - Cloud Firestore (NoSQL)
@@ -222,8 +222,8 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 glosemester/
 ├── index.html                    # Landingsside
 ├── min-side.html                 # Brukerprofilside med abo-info
-├── oppgrader.html                # Prisside med Vipps-integrasjon
-├── vilkar.html                   # Kjøpsvilkår (for Vipps)
+├── oppgrader.html                # Prisside med Stripe-integrasjon
+├── vilkar.html                   # Kjøpsvilkår
 ├── js/
 │   ├── app.js                    # Hovedapp-logikk
 │   ├── features/
@@ -235,8 +235,8 @@ glosemester/
 │       └── navigation.js         # SPA-navigasjon
 ├── netlify/functions/
 │   ├── feide-auth.js             # Feide OIDC token exchange
-│   ├── vipps-initiate.js         # Vipps betalingsinitiering
-│   ├── vipps-webhook.js          # Vipps callback (auto-aktivering)
+│   ├── stripe-checkout.js        # Stripe Checkout initiering
+│   ├── stripe-webhook.js         # Stripe webhook (auto-aktivering)
 │   └── school-inquiry.js         # Skolepakke-forespørsel
 ├── sw.js                         # Service Worker
 └── firestore.rules               # Sikkerhet & tilgangskontroll
@@ -258,9 +258,9 @@ glosemester/
 - Feide-data lagres kryptert i Firestore
 
 **Betalingssikkerhet:**
-- Vipps-integrasjon (PCI DSS-compliant)
-- Ingen lagring av betalingskort
-- Webhook-verifisering for ordre-bekreftelse
+- Stripe-integrasjon (PCI DSS Level 1)
+- Ingen lagring av betalingskort (Stripe håndterer alt)
+- Webhook signatur-verifisering for ordre-bekreftelse
 
 ---
 
@@ -270,10 +270,10 @@ Se fullstendig launch-sjekkliste: **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**
 
 ### Kritiske prioriteter (før launch):
 
-**1. Vipps produksjon** ⏱️ 2-5 dager
-- ✅ Søknad sendt (13. jan 2026)
-- ⏳ Venter på godkjenning
-- 🔧 Oppdater env vars ved godkjenning
+**1. Stripe konfigurasjon** ⏱️ 1 dag
+- ✅ Stripe integrasjon ferdig
+- ⏳ Konfigurer produkter og priser i Stripe Dashboard
+- 🔧 Sett opp webhook endpoint
 
 **2. Beta-testing** ⏱️ 2-4 uker
 - 🔍 Rekrutter 1-2 pilotskoler
@@ -314,7 +314,7 @@ Alle rettigheter forbeholdt.
 ## 🙏 Takk til
 
 - **Feide / Sikt:** For sikker autentisering i norsk utdanningssektor
-- **Vipps:** For enkel betalingsintegrasjon
+- **Stripe:** For sikker betalingsintegrasjon
 - **Firebase:** For robust backend-infrastruktur
 - **Netlify:** For serverless hosting og deployment
 - **Beta-testere:** (kommer snart)

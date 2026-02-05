@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: flytt oving-start og navigasjon ut av landing-page div\n\noving-start, navigasjonsmenyer og elev-dashboard var nestet inne i\nlanding-page. Når landing-page ble skjult forsvant alt innholdet.\nFjernet også redundant inline display:none i velgRolle.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

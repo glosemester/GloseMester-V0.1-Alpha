@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="no">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light only">
     <title>Oppgrader til Premium | GloseMester</title>
-    <meta name="description" content="Få ubegrenset tilgang til GloseMester med Premium eller Skolepakke. Fra 99 kr/måned.">
-    
+    <meta name="description"
+        content="Få ubegrenset tilgang til GloseMester med Premium eller Skolepakke. Fra 99 kr/måned.">
+
     <link rel="icon" type="image/png" href="icon.png">
-    
+
     <style>
         * {
             margin: 0;
@@ -26,7 +28,7 @@
         /* Header */
         .header {
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 20px 0;
             position: sticky;
             top: 0;
@@ -97,14 +99,14 @@
             background: white;
             border-radius: 16px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             position: relative;
         }
 
         .pricing-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .pricing-card.featured {
@@ -247,7 +249,7 @@
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .comparison-table table {
@@ -302,7 +304,7 @@
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .faq-item h3 {
@@ -333,7 +335,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             overflow-y: auto;
         }
@@ -426,7 +428,7 @@
             color: white;
             padding: 15px 25px;
             border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: none;
             z-index: 10000;
         }
@@ -445,6 +447,7 @@
                 transform: translateX(400px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -452,6 +455,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <header class="header">
@@ -468,7 +472,7 @@
 
     <section class="pricing-section">
         <div class="pricing-grid">
-            
+
             <div class="pricing-card">
                 <div class="plan-name">Gratis</div>
                 <div class="plan-price">
@@ -476,14 +480,14 @@
                     <span>/alltid</span>
                 </div>
                 <p class="plan-description">Perfekt for å teste GloseMester</p>
-                
+
                 <ul class="features-list">
                     <li>Opp til 3 prøver</li>
                     <li>QR-kode deling</li>
                     <li>Grunnleggende statistikk</li>
                     <li>Alle elev-funksjoner</li>
                 </ul>
-                
+
                 <a href="/" class="btn btn-secondary">Kom i gang gratis</a>
             </div>
 
@@ -494,7 +498,7 @@
                     <span>/måned</span>
                 </div>
                 <p class="plan-description">Fleksibel betaling for enkeltstående lærere</p>
-                
+
                 <ul class="features-list">
                     <li>Ubegrenset prøver</li>
                     <li>16 standardprøver (LK20)</li>
@@ -502,8 +506,8 @@
                     <li>Excel-eksport av resultater</li>
                     <li>Avansert statistikk</li>
                 </ul>
-                
-                <button class="btn btn-primary" onclick="startVippsBetaling('premium_monthly')">
+
+                <button class="btn btn-primary" onclick="startStripeBetaling('premium_monthly')">
                     Velg månedlig
                 </button>
             </div>
@@ -516,7 +520,7 @@
                 </div>
                 <span class="plan-savings">💰 Spar 388 kr per år!</span>
                 <p class="plan-description">Best verdi for lærere som bruker GloseMester regelmessig</p>
-                
+
                 <ul class="features-list">
                     <li>Ubegrenset prøver</li>
                     <li>16 standardprøver (LK20)</li>
@@ -525,8 +529,8 @@
                     <li>Avansert statistikk</li>
                     <li>Prioritert support</li>
                 </ul>
-                
-                <button class="btn btn-primary" onclick="startVippsBetaling('premium_yearly')">
+
+                <button class="btn btn-primary" onclick="startStripeBetaling('premium_yearly')">
                     Velg årlig (spar 388 kr)
                 </button>
             </div>
@@ -538,7 +542,7 @@
                     <span>/år</span>
                 </div>
                 <p class="plan-description">For hele skolen - alle lærere inkludert</p>
-                
+
                 <ul class="features-list">
                     <li>Alt i Premium</li>
                     <li>GloseBank - del prøver med kolleger</li>
@@ -547,11 +551,11 @@
                     <li>Dedikert support</li>
                     <li>Gratis onboarding</li>
                 </ul>
-                
+
                 <button class="btn btn-skolepakke" onclick="visSkolepakkeModal()">
                     Send forespørsel
                 </button>
-                
+
                 <p style="margin-top: 15px; font-size: 14px; color: #666; text-align: center;">
                     1-5 lærere: 5000 kr | 6-15 lærere: 7000 kr | 16+ lærere: 10000 kr
                 </p>
@@ -628,20 +632,23 @@
 
     <section class="faq-section">
         <h2>Ofte stilte spørsmål</h2>
-        
+
         <div class="faq-item">
             <h3>Hvordan betaler jeg?</h3>
-            <p>Premium-planer betales enkelt og sikkert med Vipps. Skolepakke betales med faktura (30 dagers betalingsfrist).</p>
+            <p>Premium-planer betales enkelt og sikkert med kort (via Stripe). Skolepakke betales med faktura (30 dagers
+                betalingsfrist).</p>
         </div>
 
         <div class="faq-item">
             <h3>Kan jeg kansellere når som helst?</h3>
-            <p>Ja! Premium-abonnement kan kanselleres når som helst. Du har tilgang til slutten av den betalte perioden.</p>
+            <p>Ja! Premium-abonnement kan kanselleres når som helst. Du har tilgang til slutten av den betalte perioden.
+            </p>
         </div>
 
         <div class="faq-item">
             <h3>Hva skjer med mine prøver hvis jeg avslutter Premium?</h3>
-            <p>Alle prøvene dine blir værende, men du kan kun ha 3 aktive prøver på gratis-planen. Du kan velge hvilke 3 som skal være aktive.</p>
+            <p>Alle prøvene dine blir værende, men du kan kun ha 3 aktive prøver på gratis-planen. Du kan velge hvilke 3
+                som skal være aktive.</p>
         </div>
 
         <div class="faq-item">
@@ -651,19 +658,21 @@
 
         <div class="faq-item">
             <h3>Hvordan fungerer Skolepakken?</h3>
-            <p>Skolepakken gir alle lærere på skolen ubegrenset tilgang. Vi sender faktura til skolen, og dere velger selv hvilke lærere som skal ha tilgang.</p>
+            <p>Skolepakken gir alle lærere på skolen ubegrenset tilgang. Vi sender faktura til skolen, og dere velger
+                selv hvilke lærere som skal ha tilgang.</p>
         </div>
 
         <div class="faq-item">
             <h3>Er det noen binding?</h3>
-            <p>Nei, ingen bindingstid. Premium er fleksibelt og kan kanselleres når som helst. Skolepakke betales årlig.</p>
+            <p>Nei, ingen bindingstid. Premium er fleksibelt og kan kanselleres når som helst. Skolepakke betales årlig.
+            </p>
         </div>
     </section>
 
     <footer class="footer">
         <p>&copy; 2026 GloseMester. Laget med ❤️ for norske lærere.</p>
         <p style="margin-top: 10px;">
-            <a href="/personvern.html" style="color: white; margin: 0 10px;">Personvern</a> | 
+            <a href="/personvern.html" style="color: white; margin: 0 10px;">Personvern</a> |
             <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px;">Kontakt</a>
         </p>
     </footer>
@@ -671,40 +680,40 @@
     <div id="skolepakke-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="lukkSkolepakkeModal()">×</button>
-            
+
             <h2 style="text-align: center; margin-bottom: 10px;">🏫 Skolepakke-forespørsel</h2>
             <p style="text-align: center; color: #666; margin-bottom: 30px;">
                 Vi kontakter dere innen 1-2 virkedager
             </p>
-            
+
             <form id="skolepakke-form" onsubmit="sendSkolepakkeForespørsel(event)">
                 <div class="form-group">
                     <label>Skolens navn *</label>
                     <input type="text" id="school-name" required placeholder="Eks: Levanger Ungdomsskole">
                 </div>
-                
+
                 <div class="form-group">
                     <label>Organisasjonsnummer *</label>
                     <input type="text" id="org-number" required placeholder="9 siffer" pattern="[0-9]{9}">
                 </div>
-                
+
                 <div class="form-group">
                     <label>Kontaktperson *</label>
                     <input type="text" id="contact-person" required placeholder="Fullt navn">
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>E-post *</label>
                         <input type="email" id="contact-email" required placeholder="navn@skole.no">
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Telefon *</label>
                         <input type="tel" id="contact-phone" required placeholder="8 siffer" pattern="[0-9]{8}">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Antall lærere *</label>
                     <select id="teacher-count" required>
@@ -714,12 +723,12 @@
                         <option value="16+">16+ lærere (10000 kr/år)</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Melding (valgfritt)</label>
                     <textarea id="school-message" placeholder="Har dere spørsmål eller spesielle behov?"></textarea>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary">
                     Send forespørsel
                 </button>
@@ -729,7 +738,7 @@
 
     <div id="toast" class="toast"></div>
 
-   <script type="module" src="js/features/firebase.js"></script>
+    <script type="module" src="js/features/firebase.js"></script>
     <script type="module" src="js/features/auth.js"></script>
     <script type="module" src="js/features/payment.js"></script>
 
@@ -743,7 +752,7 @@
         }
 
         // Lukk modal ved klikk utenfor
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('skolepakke-modal');
             if (event.target === modal) {
                 lukkSkolepakkeModal();
@@ -754,7 +763,7 @@
             const toast = document.getElementById('toast');
             toast.textContent = melding;
             toast.className = 'toast show' + (type === 'error' ? ' error' : '');
-            
+
             setTimeout(() => {
                 toast.className = 'toast';
             }, 3000);
@@ -762,7 +771,7 @@
 
         async function sendSkolepakkeForespørsel(event) {
             event.preventDefault();
-            
+
             const data = {
                 schoolName: document.getElementById('school-name').value.trim(),
                 orgNumber: document.getElementById('org-number').value.trim(),
@@ -799,4 +808,5 @@
     </script>
 
 </body>
+
 </html>
