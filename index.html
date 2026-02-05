@@ -140,7 +140,8 @@
                 <!-- Role Cards (Redesigned) -->
                 <div class="role-grid">
                     <!-- Card 1: Øv Selv (Orange) -->
-                    <div id="role-oving" class="card-colorful orange role-card">
+                    <div id="role-oving" class="card-colorful orange role-card"
+                        onclick="if(window.velgRolle) window.velgRolle('oving'); else console.error('velgRolle missing');">
                         <span class="card-icon-large">🧠</span>
                         <h2>Øv Selv</h2>
                         <p>Bygg opp ditt ordforråd med morsomme øvelser!</p>
@@ -190,6 +191,7 @@
                     </div>
                 </footer>
             </div>
+        </div>
 
             <nav id="elev-meny" style="display:none;">
                 <button id="btn-elev-dashboard"><span class="nav-icon">🏠</span> Hjem</button>
@@ -348,7 +350,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
         <div id="oving-omraade" class="page">
             <div class="card-container" style="max-width: 700px; margin: 20px auto; padding: 40px;">

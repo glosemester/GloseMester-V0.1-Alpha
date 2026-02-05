@@ -138,10 +138,7 @@ window.velgRolle = function (rolle) {
     spillLyd('klikk');
     sessionStorage.setItem('aktivRolle', rolle);
 
-    // KRITISK FIX: Skjul landing page ordentlig
-    const landingPage = document.getElementById('landing-page');
-    landingPage.classList.remove('active');
-    landingPage.style.display = 'none';
+    // visSide() håndterer å skjule landing-page via CSS (.page uten .active = display:none)
 
     document.getElementById('elev-meny').style.display = 'none';
     document.getElementById('oving-meny').style.display = 'none';
@@ -429,7 +426,7 @@ window.aktiverKampanjekode = async function () {
    ============================================ */
 
 export function initApp() {
-    console.log('✅ GloseMester v0.10.3 kjører...');
+    console.log('✅ GloseMester v0.10.4 kjører...');
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {

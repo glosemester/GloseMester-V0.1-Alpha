@@ -114,6 +114,8 @@
     /* Emerald 400 - For success states */
 
     --bg-color: #F5F3FF;
+    /* Fallback */
+    --bg-gradient: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
     /* Soft Lilac White - Bakgrunn */
     --card-bg: #FFFFFF;
     /* Hvite kort */
@@ -170,7 +172,7 @@
 
 body {
     font-family: var(--font-body);
-    background-color: var(--bg-color);
+    background: var(--bg-gradient, var(--bg-color));
     /* Legg til subtil mønster/tekstur om ønskelig her senere */
     color: var(--text-color);
     margin: 0;

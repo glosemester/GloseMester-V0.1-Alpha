@@ -93,40 +93,26 @@ export function settSprakRetning(retning) {
 }
 
 function oppdaterProgress() {
-    const container = document.getElementById('game-progress-target');
-    if (!container) return;
+    const progressBar = document.getElementById('game-progress-target-bar');
+    if (!progressBar) return;
 
-    const antallFylte = (window.riktigeSvar % 10 === 0 && window.riktigeSvar > 0) ? 10 : window.riktigeSvar % 10;
-    const antallRuter = 10;
+    // Calculate percentage based on 10 correct answers per round
+    // Using modulo 10 logic similar to existing code
+    const currentProgress = window.riktigeSvar % 10;
+    const isCompletedRound = (window.riktigeSvar > 0 && currentProgress === 0);
 
-    let ruterHTML = '';
+    // If we just hit 10/20/30 etc, show full bar before resetting
+    const percentage = isCompletedRound ? 100 : (currentProgress * 10);
 
-    for (let i = 0; i < antallRuter; i++) {
-        const erFylt = i < antallFylte;
-        const farge = erFylt ? '#4CAF50' : '#e0e0e0';
-        const border = erFylt ? '1px solid #388E3C' : '1px solid #ccc';
+    progressBar.style.width = `${percentage}%`;
 
-        ruterHTML += `
-            <div style="
-                flex: 1; 
-                height: 12px; 
-                background-color: ${farge}; 
-                border: ${border}; 
-                border-radius: 3px;
-                transition: background-color 0.3s ease;
-            "></div>
-        `;
+    // Update text if it exists
+    const progressText = document.getElementById('game-progress-text');
+    if (progressText) {
+        progressText.innerText = isCompletedRound ?
+            "Partybølge fullført! 🎉" :
+            `Mot nytt kort: ${currentProgress} / 10`;
     }
-
-    container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:#666; font-weight:bold;">
-            <span>MOT NYTT KORT:</span>
-            <span>${antallFylte} / 10</span>
-        </div>
-        <div style="display:flex; gap:4px; margin-bottom:15px;">
-            ${ruterHTML}
-        </div>
-    `;
 }
 
 function visNesteSporsmaal() {

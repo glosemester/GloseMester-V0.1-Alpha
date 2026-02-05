@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.10.2-BETA (Production-ready)
-// Oppdatert: CDN-filer hostet lokalt, tvunget lyst design, fjernet mørk modus, 4-nivå system
-const APP_VERSION = 'v0.10.3';
-const CACHE_NAME = 'glosemester-v0.10.3';
+// SERVICE WORKER - GloseMester v0.10.4 (Production-ready)
+// Oppdatert: Lagt til learningEngine, rate-limiter og logger for Leitner-system
+const APP_VERSION = 'v0.10.4';
+const CACHE_NAME = 'glosemester-v0.10.4';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
@@ -12,6 +12,8 @@ const ASSETS_TO_CACHE = [
   // Design
   './css/main.css',
   './css/glosebank-admin.css',
+  './css/glosebank-browse.css',
+  './css/standardprover.css',
 
   // Vendor Libraries (tidligere fra CDN - nå lokalt hostet)
   './js/vendor/jsQR.js',
@@ -22,6 +24,7 @@ const ASSETS_TO_CACHE = [
   './js/init.js',
   './js/vocabulary.js',
   './js/collection.js',
+  './js/export-import.js',
 
   // VIKTIG: Databasen for kortene (Må med for offline-støtte)
   './js/data/cardsData.js',
@@ -31,6 +34,9 @@ const ASSETS_TO_CACHE = [
   './js/core/storage.js',
   './js/core/credits.js',
   './js/core/analytics.js',
+  './js/core/logger.js',
+  './js/core/rate-limiter.js',
+  './js/core/auth-helpers.js',
 
   // Feature Modules
   './js/features/practice.js',
@@ -42,6 +48,15 @@ const ASSETS_TO_CACHE = [
   './js/features/firebase.js',
   './js/features/saved-tests.js',
   './js/features/glosebank-admin.js',
+  './js/features/glosebank-browse.js',
+  './js/features/standardprove.js',
+  './js/features/gdpr.js',
+  './js/features/teacher-analytics.js',
+  './js/features/gallery.js',
+  './js/features/learningEngine.js',
+  './js/features/feedback.js',
+  './js/features/progressDashboard.js',
+  './js/features/payment.js',
 
   // UI Helper
   './js/ui/helpers.js',
