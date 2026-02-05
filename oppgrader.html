@@ -453,6 +453,86 @@
                 opacity: 1;
             }
         }
+
+        /* Payment result modal */
+        .payment-result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+
+        .payment-result-modal.show {
+            display: flex;
+        }
+
+        .payment-result-content {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 450px;
+            margin: 20px;
+            animation: popIn 0.4s ease-out;
+        }
+
+        .payment-result-content.success {
+            border-top: 5px solid #27ae60;
+        }
+
+        .payment-result-content.error {
+            border-top: 5px solid #e74c3c;
+        }
+
+        .payment-result-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .payment-result-content h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .payment-result-content p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .payment-result-btn {
+            background: #0071e3;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .payment-result-btn:hover {
+            background: #005bb5;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -738,11 +818,68 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- Payment Result Modal -->
+    <div id="payment-result-modal" class="payment-result-modal">
+        <div id="payment-result-content" class="payment-result-content">
+            <div id="payment-result-icon" class="payment-result-icon"></div>
+            <h2 id="payment-result-title"></h2>
+            <p id="payment-result-message"></p>
+            <div class="payment-result-buttons">
+                <button id="payment-result-dashboard-btn" class="payment-result-btn" onclick="gaTilDashboard()"
+                    style="display:none; margin-right: 10px;">Gå til lærerdashbordet</button>
+                <button class="payment-result-btn" onclick="lukkBetalingsModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="js/features/firebase.js"></script>
     <script type="module" src="js/features/auth.js"></script>
     <script type="module" src="js/features/payment.js"></script>
 
     <script>
+        // Check payment status on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            if (status === 'success') {
+                visBetalingsResultat('success', '🎉', 'Du er nå Premium!', 'Takk for ditt kjøp! Din Premium-tilgang er aktivert. Du har nå ubegrenset tilgang til alle funksjoner i GloseMester.');
+            } else if (status === 'cancelled') {
+                visBetalingsResultat('error', '😔', 'Betaling avbrutt', 'Betalingen ble avbrutt. Du kan prøve igjen når du er klar.');
+            }
+        });
+
+        function visBetalingsResultat(type, icon, title, message) {
+            const modal = document.getElementById('payment-result-modal');
+            const content = document.getElementById('payment-result-content');
+            const iconEl = document.getElementById('payment-result-icon');
+            const titleEl = document.getElementById('payment-result-title');
+            const messageEl = document.getElementById('payment-result-message');
+
+            content.className = 'payment-result-content ' + type;
+            iconEl.textContent = icon;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.add('show');
+
+            // Show dashboard button only on success
+            const dashboardBtn = document.getElementById('payment-result-dashboard-btn');
+            if (dashboardBtn) {
+                dashboardBtn.style.display = type === 'success' ? 'inline-block' : 'none';
+            }
+
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        function lukkBetalingsModal() {
+            document.getElementById('payment-result-modal').classList.remove('show');
+        }
+
+        function gaTilDashboard() {
+            window.location.href = '/laerer.html';
+        }
+
         function visSkolepakkeModal() {
             document.getElementById('skolepakke-modal').style.display = 'flex';
         }
