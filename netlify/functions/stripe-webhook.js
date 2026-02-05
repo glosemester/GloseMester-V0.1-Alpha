@@ -95,6 +95,10 @@ async function handleCheckoutCompleted(session) {
     const userRef = db.collection('users').doc(userId);
 
     await userRef.update({
+        // Firestore rules check abonnement.type
+        'abonnement.type': 'premium',
+        'abonnement.expiresAt': admin.firestore.Timestamp.fromDate(expiryDate),
+        // Also keep subscription fields for compatibility
         'subscription.status': 'premium',
         'subscription.plan': plan || 'premium_monthly',
         'subscription.expiresAt': admin.firestore.Timestamp.fromDate(expiryDate),

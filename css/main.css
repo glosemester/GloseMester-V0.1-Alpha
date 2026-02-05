@@ -2738,3 +2738,83 @@ nav button:hover .nav-icon {
     font-size: 18px;
     color: #333;
 }
+
+/* ============================================
+   SIDEBAR NAV-ITEMS (Lærer Hamburger Menu)
+   ============================================ */
+#nav-items {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: #ffffff;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 3000;
+    flex-direction: column;
+    padding: 80px 0 20px 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+#nav-items.open {
+    display: flex;
+    transform: translateX(0);
+}
+
+#nav-items button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+#nav-items button:hover {
+    background: #f3f4f6;
+    color: var(--primary-color);
+}
+
+#nav-items button.active {
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, transparent 100%);
+    color: var(--primary-color);
+    border-left: 4px solid var(--primary-color);
+    font-weight: 600;
+}
+
+#nav-items button#btn-laerer-loggut {
+    margin-top: auto;
+    color: #dc2626;
+    border-top: 1px solid #e5e7eb;
+}
+
+#nav-items button#btn-laerer-loggut:hover {
+    background: #fef2f2;
+}
+
+/* Hamburger overlay */
+.hamburger-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2500;
+}
+
+.hamburger-overlay.open {
+    display: block;
+}
