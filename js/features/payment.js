@@ -1,8 +1,7 @@
 // js/features/payment.js
 // Stripe Payment Integration for GloseMester Premium
 
-// Import Firebase auth (assumes firebase.js is loaded first)
-// Firebase is available globally from firebase.js
+import { auth } from './firebase.js';
 
 /**
  * Start Stripe Checkout for Premium subscription
@@ -11,7 +10,7 @@
 window.startStripeBetaling = async function (plan) {
     try {
         // Check if user is logged in
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
 
         if (!user) {
             alert("Du må være logget inn for å kjøpe Premium.\n\nLogg inn først og prøv igjen.");
