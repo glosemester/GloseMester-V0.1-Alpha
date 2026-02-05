@@ -270,6 +270,18 @@ nav button.active {
     display: block;
 }
 
+@media (min-width: 768px) {
+    .page {
+        max-width: 800px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .page {
+        max-width: 960px;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -1581,17 +1593,6 @@ nav {
 }
 
 /* LEVEL GRID & ICONS (Numeric Style) */
-.level-grid-modern {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-@media (min-width: 900px) {
-    .level-grid-modern {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
 
 .level-card-modern {
     background: white;
@@ -1606,7 +1607,6 @@ nav {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1/1;
     position: relative;
     overflow: hidden;
 }
@@ -2167,9 +2167,21 @@ nav button:hover .nav-icon {
 /* MODERN LEVEL GRID */
 .level-grid-modern {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: 1fr;
     gap: 20px;
     width: 100%;
+}
+
+@media (min-width: 500px) {
+    .level-grid-modern {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .level-grid-modern {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .level-card-modern {
