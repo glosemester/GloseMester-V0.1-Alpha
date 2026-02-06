@@ -273,6 +273,96 @@ input, textarea, select {
 
 #ios-install-popup .popup-content { text-align: left; }
 
+/* ============================================
+   FAG-VELGER (LANDING HUB)
+   ============================================ */
+.fag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin: 40px auto;
+    max-width: 900px;
+}
+
+.fag-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 3px solid transparent;
+}
+
+.fag-card-active {
+    cursor: pointer;
+    border-color: var(--accent-blue);
+}
+
+.fag-card-active:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 113, 227, 0.2);
+    border-color: var(--accent-blue);
+}
+
+.fag-card-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ea 100%);
+}
+
+.fag-ikon {
+    font-size: 72px;
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.fag-card-active:hover .fag-ikon {
+    transform: scale(1.1);
+    transition: transform 0.3s;
+}
+
+.fag-card h2 {
+    font-size: 26px;
+    margin: 0 0 10px 0;
+    color: #1d1d1f;
+    font-weight: 700;
+}
+
+.fag-card p {
+    font-size: 15px;
+    color: #666;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.fag-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.fag-badge-active {
+    background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%);
+    color: white;
+}
+
+.fag-badge-soon {
+    background: #f5f5f7;
+    color: #999;
+    border: 2px solid #e0e0e0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 600px) {
     body { padding: 15px; padding-bottom: 80px; }

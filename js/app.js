@@ -136,12 +136,14 @@ window.gaTilbakeFraGalleri = function() {
 
 window.velgRolle = function(rolle) {
     spillLyd('klikk');
-    sessionStorage.setItem('aktivRolle', rolle); 
-    
-    // KRITISK FIX: Skjul landing page ordentlig
-    const landingPage = document.getElementById('landing-page');
-    landingPage.classList.remove('active');
-    landingPage.style.display = 'none';
+    sessionStorage.setItem('aktivRolle', rolle);
+
+    // KRITISK FIX: Skjul glosemester-start ordentlig
+    const glosemesterStart = document.getElementById('glosemester-start');
+    if (glosemesterStart) {
+        glosemesterStart.classList.remove('active');
+        glosemesterStart.style.display = 'none';
+    }
     
     document.getElementById('elev-meny').style.display = 'none';
     document.getElementById('oving-meny').style.display = 'none';
@@ -187,16 +189,51 @@ window.velgRolle = function(rolle) {
     }
 };
 
+/* ============================================
+   --- FAG-VELGER LOGIKK (MESTER SUITE) ---
+   ============================================ */
+
+/**
+ * Velger fag og navigerer til riktig start-side
+ * @param {string} fag - 'gloser', 'matte', eller 'norsk'
+ */
+window.velgFag = function(fag) {
+    spillLyd('klikk');
+    sessionStorage.setItem('aktivtFag', fag);
+
+    if (fag === 'gloser') {
+        visSide('glosemester-start');
+    } else if (fag === 'matte') {
+        alert('MatteMester kommer snart! 🚧');
+    } else if (fag === 'norsk') {
+        alert('NorskMester kommer snart! 🚧');
+    }
+};
+
+/**
+ * Går tilbake til fagvelger fra fagspesifikk startside
+ */
+window.tilbakeTilFagvelger = function() {
+    spillLyd('klikk');
+    sessionStorage.removeItem('aktivtFag');
+    sessionStorage.removeItem('aktivRolle');
+    visSide('fag-velger');
+};
+
+/**
+ * Tilbake til start (fra innlogget modus)
+ */
 window.tilbakeTilStart = function() {
     sessionStorage.removeItem('aktivRolle');
+    sessionStorage.removeItem('aktivtFag');
     document.getElementById('elev-meny').style.display = 'none';
     document.getElementById('oving-meny').style.display = 'none';
     document.getElementById('laerer-meny').style.display = 'none';
-    
+
     // Lukk hamburger-meny hvis åpen
     lukkHamburger();
-    
-    visSide('landing-page');
+
+    visSide('fag-velger');
 };
 
 /* ============================================

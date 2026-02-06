@@ -77,7 +77,79 @@
     </button>
 
     <main id="main-content">
-    <div id="landing-page" class="page active">
+    <!-- ========================================
+         FAG-VELGER (NY LANDING HUB)
+         ======================================== -->
+    <div id="fag-velger" class="page active">
+        <img src="header.png" alt="Mester Suite" class="hero-image" style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
+
+        <h1 style="text-align:center; font-size:32px; margin:0 0 10px 0; color:#1d1d1f;">
+            Hva skal vi øve i dag?
+        </h1>
+
+        <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 50px auto; font-size:18px;">
+            Velg fag og start læring med moro og gamification
+        </p>
+
+        <div class="fag-grid">
+            <!-- GloseMester - Aktiv -->
+            <div class="fag-card fag-card-active" onclick="velgFag('gloser')" data-fag="gloser">
+                <div class="fag-ikon">📚</div>
+                <h2>GloseMester</h2>
+                <p>Lær gloser og samle kort</p>
+                <span class="fag-badge fag-badge-active">Tilgjengelig</span>
+            </div>
+
+            <!-- MatteMester - Under utvikling -->
+            <div class="fag-card fag-card-disabled" data-fag="matte">
+                <div class="fag-ikon">➕</div>
+                <h2>MatteMester</h2>
+                <p>Mestre matematikk med moro</p>
+                <span class="fag-badge fag-badge-soon">Kommer snart 🚧</span>
+            </div>
+
+            <!-- NorskMester - Under utvikling -->
+            <div class="fag-card fag-card-disabled" data-fag="norsk">
+                <div class="fag-ikon">📖</div>
+                <h2>NorskMester</h2>
+                <p>Bli bedre i norsk</p>
+                <span class="fag-badge fag-badge-soon">Kommer snart 🚧</span>
+            </div>
+        </div>
+
+        <button id="pwa-install-btn" class="btn-primary" style="display:none; margin: 50px auto 20px auto; background-color: #2563EB; max-width: 300px;">
+            📲 Installer App på mobilen
+        </button>
+
+        <div style="text-align:center; margin-top:40px; margin-bottom: 40px;">
+            <button class="btn-primary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
+        </div>
+
+        <footer class="landing-footer">
+            <p style="margin: 0 0 5px 0; font-weight: 600;">v0.11.0-ALPHA</p>
+            <p style="margin: 0 0 10px 0; font-size: 13px; opacity: 0.9;">
+                🎓 Mester Suite | 📚 GloseMester | ➕ MatteMester (snart) | 📖 NorskMester (snart)
+            </p>
+            <p style="margin: 0 0 10px 0;">&copy; 2025 Mester Suite | Laget med ❤️ for norske lærere</p>
+            <p style="margin: 0; font-size: 13px;">
+                <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> |
+                <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a> |
+                <a href="/personvern.html" style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> |
+                <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px; text-decoration: none;">Kontakt</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- ========================================
+         GLOSEMESTER START (tidligere landing-page)
+         ======================================== -->
+    <div id="glosemester-start" class="page">
+        <div style="text-align:center; margin-bottom:30px;">
+            <button class="btn-secondary" onclick="tilbakeTilFagvelger()" style="margin-bottom:20px;">
+                ← Tilbake til fagvelger
+            </button>
+        </div>
+
         <img src="header.png" alt="GloseMester" class="hero-image" style="width:100%; max-width:800px; height:auto; margin:0 auto 20px auto; display:block;">
         <h1 class="visually-hidden">GloseMester - Lær språk med kortsamling</h1>
         <p style="text-align:center; color:#666; max-width:500px; margin: 0 auto 40px auto; font-size:18px;">
@@ -94,28 +166,6 @@
                 <span class="role-icon">🍎</span><h2>Lærer</h2><p>Lag prøver</p>
             </div>
         </div>
-
-        <button id="pwa-install-btn" class="btn-primary" style="display:none; margin: 30px auto; background-color: #2563EB; max-width: 300px;">
-            📲 Installer App på mobilen
-        </button>
-
-        <div style="text-align:center; margin-top:40px; margin-bottom: 40px;">
-            <button class="btn-primary" onclick="document.getElementById('info-modal').style.display='flex'">ℹ️ For lærere & foreldre</button>
-        </div>
-
-        <footer class="landing-footer">
-            <p style="margin: 0 0 5px 0; font-weight: 600;">v0.10.2-BETA</p>
-            <p style="margin: 0 0 10px 0; font-size: 13px; opacity: 0.9;">
-                📦 100% offline-støtte | ☀️ Kun lyst design | ✨ 4-nivå system
-            </p>
-            <p style="margin: 0 0 10px 0;">&copy; 2025 GloseMester | Laget med ❤️ for norske lærere</p>
-            <p style="margin: 0; font-size: 13px;">
-                <a href="/om-oss.html" style="color: white; margin: 0 10px; text-decoration: none;">Om oss</a> |
-                <a href="/oppgrader.html" style="color: white; margin: 0 10px; text-decoration: none;">Oppgrader</a> |
-                <a href="/personvern.html" style="color: white; margin: 0 10px; text-decoration: none;">Personvern</a> |
-                <a href="mailto:kontakt@glosemester.no" style="color: white; margin: 0 10px; text-decoration: none;">Kontakt</a>
-            </p>
-        </footer>
     </div>
 
     <nav id="elev-meny" style="display:none;">
@@ -711,8 +761,10 @@
     <!-- Enkel fallback for å unngå "not defined" feil -->
     <script>
         // Tomme funksjoner som placeholder - app.js vil overskrive disse
+        window.velgFag = function() {};
         window.velgRolle = function() {};
         window.startOving = function() {};
+        window.tilbakeTilFagvelger = function() {};
     </script>
 
     <script type="module" src="js/init.js"></script>
