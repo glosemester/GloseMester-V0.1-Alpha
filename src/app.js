@@ -94,8 +94,12 @@ function setupRoutes() {
         // Lazy load MatteMester module
         if (!window.MesterSuite.moduler.mattemester) {
             console.log('➕ Loading MatteMester module...');
-            // TODO: Implement MatteMester
-            showPlaceholder('MatteMester (Coming Soon)');
+            const { mattemester } = await import('./features/mattemester/index.js');
+            window.MesterSuite.moduler.mattemester = mattemester;
+            await mattemester.init();
+        } else {
+            // Module already loaded, just render
+            window.MesterSuite.moduler.mattemester.renderPracticeUI();
         }
     });
 
