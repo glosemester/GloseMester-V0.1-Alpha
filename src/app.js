@@ -77,8 +77,12 @@ function setupRoutes() {
         // Lazy load GloseMester module
         if (!window.MesterSuite.moduler.glosemester) {
             console.log('📚 Loading GloseMester module...');
-            // TODO: Import GloseMester when refactored
-            showPlaceholder('GloseMester (Being refactored)');
+            const { glosemester } = await import('./features/glosemester/index.js');
+            window.MesterSuite.moduler.glosemester = glosemester;
+            await glosemester.init();
+        } else {
+            // Module already loaded, just render
+            window.MesterSuite.moduler.glosemester.renderPracticeUI();
         }
     });
 
