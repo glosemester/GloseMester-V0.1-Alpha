@@ -61,7 +61,7 @@ export const logger = {
  */
 export function disableConsoleInProduction() {
     if (IS_PRODUCTION) {
-        const noop = () => {};
+        const noop = () => { };
         console.log = noop;
         console.info = noop;
         console.debug = noop;
@@ -90,6 +90,16 @@ export function setupGlobalErrorHandler() {
 
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
+        // FILTER: Ignorer feil fra browser extensions (spesielt Read Aloud / Oversettere)
+        const errorMsg = event.reason ? event.reason.toString() : '';
+        if (errorMsg.includes('Distributor') ||
+            errorMsg.includes('Request timeout') ||
+            errorMsg.includes('background-remote-executor') ||
+            errorMsg.includes('Receiving end does not exist')) {
+            // Dette er støy fra extensions, ikke app-feil. Ignorer.
+            return;
+        }
+
         console.error('❌ Unhandled promise rejection:', event.reason);
 
         // Show user-friendly message

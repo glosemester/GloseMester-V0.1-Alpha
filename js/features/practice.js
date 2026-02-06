@@ -1,7 +1,8 @@
 /* ============================================
-   PRACTICE.JS - Øve Modus v0.10.19 (MED RATE LIMITING)
-   Fix: Fet skrift og større font for bedre lesbarhet
-   Ny: Rate limiting for å forhindre misbruk
+   PRACTICE.JS - Øve Modus v2.0 (MED LEITNER + ADAPTIV LÆRING)
+   Ny: Leitner spaced repetition system (5 bokser)
+   Ny: Adaptiv vanskelighetsgrad basert på prestasjon
+   Ny: Visuell indikator for mestringsnivå
    ============================================ */
 
 import { hentTilfeldigKort, visSamling } from './kort-display.js';
@@ -9,9 +10,16 @@ import { visSide } from '../core/navigation.js';
 import { visToast, spillLyd, vibrer, lesOpp } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
+import {
+    LeitnerSystem,
+    AdaptiveDifficulty,
+    getUserProgress,
+    updateWordProgress,
+    recordDailyActivity
+} from './learningEngine.js';
 
 let gjeldendeOrd = null;
-let gjeldendeNiva = 'niva1'; 
+let gjeldendeNiva = 'niva1';
 
 function stokkArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -26,7 +34,7 @@ function stokkArray(array) {
  */
 async function ventPaVocabulary(maxTid = 5000) {
     const startTid = Date.now();
-    
+
     while (!window.vokabularData || Object.keys(window.vokabularData).length === 0) {
         if (Date.now() - startTid > maxTid) {
             console.error('❌ Timeout: Vocabulary ikke lastet etter', maxTid, 'ms');
@@ -34,7 +42,7 @@ async function ventPaVocabulary(maxTid = 5000) {
         }
         await new Promise(resolve => setTimeout(resolve, 50));
     }
-    
+
     // console.log('✅ Vocabulary klar:', Object.keys(window.vokabularData));
     return true;
 }
@@ -44,23 +52,23 @@ export async function startOving(nivaValg) {
     window.gjeldendeNiva = nivaValg; // ✅ Global variabel for kortbelønning
 
     const erKlar = await ventPaVocabulary();
-    
+
     if (!erKlar || !window.vokabularData || !window.vokabularData[nivaValg]) {
         console.error('❌ Kunne ikke laste ordliste for', nivaValg);
         alert("Kunne ikke laste ordliste. Prøv en hard refresh (Ctrl+F5).");
         return;
     }
-    
+
     // console.log('✅ Starter øving med nivå:', nivaValg, '- Antall ord:', window.vokabularData[nivaValg].length);
-    
+
     window.ovingOrdliste = stokkArray([...window.vokabularData[nivaValg]]);
     window.ovingIndex = 0;
     window.riktigeSvar = 0;
-    
+
     if (!window.ovingRetning || window.ovingRetning === 'no') {
-        window.ovingRetning = 'en'; 
+        window.ovingRetning = 'en';
     }
-    
+
     oppdaterSprakKnapper();
     visSide('oving-omraade');
     visNesteSporsmaal();
@@ -69,12 +77,12 @@ export async function startOving(nivaValg) {
 function oppdaterSprakKnapper() {
     const btnNo = document.getElementById('lang-no');
     const btnEn = document.getElementById('lang-en');
-    
-    if(btnNo && btnEn) {
+
+    if (btnNo && btnEn) {
         btnNo.classList.remove('active');
         btnEn.classList.remove('active');
         const aktivKnapp = document.getElementById(`lang-${window.ovingRetning}`);
-        if(aktivKnapp) aktivKnapp.classList.add('active');
+        if (aktivKnapp) aktivKnapp.classList.add('active');
     }
 }
 
@@ -85,60 +93,66 @@ export function settSprakRetning(retning) {
 }
 
 function oppdaterProgress() {
-    const container = document.getElementById('game-progress-target');
-    if (!container) return;
+    const progressBar = document.getElementById('game-progress-target-bar');
+    if (!progressBar) return;
 
-    const antallFylte = (window.riktigeSvar % 10 === 0 && window.riktigeSvar > 0) ? 10 : window.riktigeSvar % 10;
-    const antallRuter = 10;
+    // Calculate percentage based on 10 correct answers per round
+    // Using modulo 10 logic similar to existing code
+    const currentProgress = window.riktigeSvar % 10;
+    const isCompletedRound = (window.riktigeSvar > 0 && currentProgress === 0);
 
-    let ruterHTML = '';
-    
-    for (let i = 0; i < antallRuter; i++) {
-        const erFylt = i < antallFylte;
-        const farge = erFylt ? '#4CAF50' : '#e0e0e0'; 
-        const border = erFylt ? '1px solid #388E3C' : '1px solid #ccc';
-        
-        ruterHTML += `
-            <div style="
-                flex: 1; 
-                height: 12px; 
-                background-color: ${farge}; 
-                border: ${border}; 
-                border-radius: 3px;
-                transition: background-color 0.3s ease;
-            "></div>
-        `;
+    // If we just hit 10/20/30 etc, show full bar before resetting
+    const percentage = isCompletedRound ? 100 : (currentProgress * 10);
+
+    progressBar.style.width = `${percentage}%`;
+
+    // Update text if it exists
+    const progressText = document.getElementById('game-progress-text');
+    if (progressText) {
+        progressText.innerText = isCompletedRound ?
+            "Partybølge fullført! 🎉" :
+            `Mot nytt kort: ${currentProgress} / 10`;
     }
-
-    container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; color:#666; font-weight:bold;">
-            <span>MOT NYTT KORT:</span>
-            <span>${antallFylte} / 10</span>
-        </div>
-        <div style="display:flex; gap:4px; margin-bottom:15px;">
-            ${ruterHTML}
-        </div>
-    `;
 }
 
 function visNesteSporsmaal() {
-    oppdaterProgress(); 
+    oppdaterProgress();
 
     const feedbackEl = document.getElementById('oving-feedback');
     const inputContainer = document.getElementById('oving-input-container');
     const altContainer = document.getElementById('oving-alternativer');
-    
+
     if (feedbackEl) feedbackEl.innerText = '';
-    
-    if (window.ovingIndex >= window.ovingOrdliste.length) {
-        window.ovingOrdliste = stokkArray(window.ovingOrdliste);
-        window.ovingIndex = 0;
+
+    // ✅ LEITNER: Hent ord som skal øves basert på spaced repetition
+    const leitner = new LeitnerSystem();
+    const userProgress = getUserProgress();
+    let dueWords = leitner.getDueWords(window.vokabularData[gjeldendeNiva], userProgress);
+
+    // Fallback: Hvis ingen ord er "due" (alle nylig øvd), bruk alle ord i nivået
+    // slik at brukeren kan fortsette å øve i samme økt
+    if (dueWords.length === 0) {
+        dueWords = [...window.vokabularData[gjeldendeNiva]];
     }
-    
-    gjeldendeOrd = window.ovingOrdliste[window.ovingIndex];
+
+    // Prioriter ord i lavere bokser (trenger mer øving)
+    const sortedWords = dueWords.sort((a, b) => {
+        const wordIdA = leitner.getWordId(a);
+        const wordIdB = leitner.getWordId(b);
+        const boxA = userProgress[wordIdA]?.box || 1;
+        const boxB = userProgress[wordIdB]?.box || 1;
+        return boxA - boxB;
+    });
+
+    gjeldendeOrd = sortedWords[0];
 
     const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e;
     document.getElementById('oving-spm').innerText = sporsmaalTekst;
+
+    // ✅ VIS LEITNER BOX INDIKATOR
+    const wordId = leitner.getWordId(gjeldendeOrd);
+    const currentBox = userProgress[wordId]?.box || 1;
+    visLeitnerStatus(currentBox, leitner.getBoxName(currentBox));
 
     // ✅ BILDESTØTTE: Vis bilde hvis det finnes
     const bildeContainer = document.getElementById('oving-bilde-container');
@@ -152,44 +166,40 @@ function visNesteSporsmaal() {
 
     const altLang = window.ovingRetning === 'no' ? 'en-US' : 'no-NO';
 
-    let erFlervalg = false;
-
-    // ✅ OPPDATERT NIVÅLOGIKK (Nivå 1-4)
-    if (gjeldendeNiva === 'niva1' || gjeldendeNiva === 'niva2') {
-        erFlervalg = true; // Nivå 1 og 2: 100% flervalg
-    }
-    else if (gjeldendeNiva === 'niva4') {
-        erFlervalg = Math.random() < 0.2; // Nivå 4: 20% flervalg, 80% skriving
-    }
-    else {
-        erFlervalg = Math.random() < 0.5; // Nivå 3: 50/50
-    }
+    // ✅ ADAPTIV VANSKELIGHETSGRAD
+    const adaptive = new AdaptiveDifficulty();
+    const exerciseType = adaptive.getExerciseType(gjeldendeNiva);
+    const erFlervalg = (exerciseType === 'multiple-choice');
+    const distractorCount = adaptive.getDistractorCount();
 
     if (erFlervalg) {
         // --- FLERVALG MED TYDELIGERE TEKST ---
         inputContainer.style.display = 'none';
-        altContainer.style.display = 'grid'; 
+        altContainer.style.display = 'grid';
         altContainer.innerHTML = '';
 
         let alternativer = [gjeldendeOrd];
         let forsok = 0;
-        
+
         const sjekkKey = window.ovingRetning === 'no' ? 'e' : 's';
-        
-        while (alternativer.length < 4 && forsok < 50) {
-            const tilfeldig = window.ovingOrdliste[Math.floor(Math.random() * window.ovingOrdliste.length)];
+
+        // ✅ Adaptiv antall alternativer (2-5 distraktorer + riktig svar = 3-6 total)
+        const targetCount = distractorCount + 1;
+
+        while (alternativer.length < targetCount && forsok < 50) {
+            const tilfeldig = window.vokabularData[gjeldendeNiva][Math.floor(Math.random() * window.vokabularData[gjeldendeNiva].length)];
             if (!alternativer.some(a => a[sjekkKey] === tilfeldig[sjekkKey])) {
                 alternativer.push(tilfeldig);
             }
             forsok++;
         }
         alternativer = stokkArray(alternativer);
-        
+
         alternativer.forEach(alt => {
             const btn = document.createElement('button');
             btn.className = 'btn-secondary';
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
-            
+
             btn.style.display = 'flex';
             btn.style.justifyContent = 'space-between';
             btn.style.alignItems = 'center';
@@ -252,14 +262,32 @@ export function sjekkOvingSvar(valgtOrd = null) {
         window.riktigeSvar++;
         saveTotalCorrect(getTotalCorrect() + 1);
 
+        // ✅ LEITNER: Oppdater progress for dette ordet
+        const leitner = new LeitnerSystem();
+        const wordId = leitner.getWordId(gjeldendeOrd);
+        const currentProgress = getUserProgress()[wordId];
+        const currentBox = currentProgress?.box || 1;
+
+        const updatedProgress = updateWordProgress(wordId, true, currentBox);
+
+        // ✅ ADAPTIV: Registrer riktig svar
+        const adaptive = new AdaptiveDifficulty();
+        adaptive.recordAnswer(true);
+
+        // ✅ Vis Leitner-fremgang
+        if (updatedProgress.box > currentBox) {
+            feedbackEl.innerHTML = `✅ Riktig! <span style="color: var(--electric-blue); font-weight: bold;">Opp til ${leitner.getBoxName(updatedProgress.box)}!</span>`;
+        } else {
+            feedbackEl.innerText = "✅ Riktig!";
+        }
+
         feedbackEl.style.color = 'green';
-        feedbackEl.innerText = "✅ Riktig!";
         spillLyd('riktig');
 
         oppdaterProgress();
 
         const scoreEl = document.getElementById('oving-score');
-        if(scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
+        if (scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
 
         // ✅ DEAKTIVER KLIKK: Hindre at bruker kan klikke mens feedback vises
         const altContainer = document.getElementById('oving-alternativer');
@@ -268,6 +296,7 @@ export function sjekkOvingSvar(valgtOrd = null) {
         if (inputContainer) inputContainer.style.pointerEvents = 'none';
 
         sjekkOmGevinst();
+        recordDailyActivity(); // Track activity for streak tracking
 
         // ✅ RASKERE FEEDBACK: 1 sekund i stedet for 1.5
         setTimeout(() => {
@@ -275,26 +304,37 @@ export function sjekkOvingSvar(valgtOrd = null) {
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
 
-            window.ovingIndex++;
             visNesteSporsmaal();
         }, 1000);
 
     } else {
+        // ✅ LEITNER: Registrer feil svar (flytt ned i bokser)
+        const leitner = new LeitnerSystem();
+        const wordId = leitner.getWordId(gjeldendeOrd);
+        const currentProgress = getUserProgress()[wordId];
+        const currentBox = currentProgress?.box || 1;
+
+        updateWordProgress(wordId, false, currentBox);
+
+        // ✅ ADAPTIV: Registrer feil svar
+        const adaptive = new AdaptiveDifficulty();
+        adaptive.recordAnswer(false);
+
         spillLyd('feil');
         vibrer(200);
-        
+
         document.getElementById('fasit-tekst').innerText = riktigSvarTekst;
         document.getElementById('feil-svar-popup').style.display = 'flex';
     }
 }
 
-window.lukkFeilPopup = function() {
+window.lukkFeilPopup = function () {
     document.getElementById('feil-svar-popup').style.display = 'none';
-    window.ovingIndex++;
     visNesteSporsmaal();
 };
 
 function sjekkOmGevinst() {
+    // === 1. KORTPREMIE (Hver 10. riktig i sesjonen) ===
     if (window.riktigeSvar > 0 && window.riktigeSvar % 10 === 0) {
         // ✅ RATE LIMITING: Sjekk om bruker har mottatt for mange kort
         const cardCheck = cardLimiter.check('card_reward');
@@ -310,12 +350,30 @@ function sjekkOmGevinst() {
 
         setTimeout(() => hentTilfeldigKort(), 600);
     }
+
+    // === 2. DIAMANTPREMIE (Hver 100. totalt riktig) ===
+    // Matchet logikk fra quiz.js
+    const totalXP = getTotalCorrect();
+    const XP_PER_DIAMANT_BONUS = 100;
+    const DIAMANTER_PER_BONUS = 10;
+
+    if (totalXP > 0 && totalXP % XP_PER_DIAMANT_BONUS === 0) {
+        let credits = getCredits();
+        credits += DIAMANTER_PER_BONUS;
+        saveCredits(credits);
+
+        // Vis melding
+        setTimeout(() => {
+            visToast(`💎 BONUS! Du fikk ${DIAMANTER_PER_BONUS} diamanter!`, 'success');
+            spillLyd('vinn');
+        }, 1200); // Litt forsinkelse så det ikke kræsjer med kort-animasjon
+    }
 }
 
 export function avsluttOving(ferdig = false) {
     if (ferdig) { }
     const container = document.getElementById('game-progress-target');
-    if(container) container.innerHTML = ""; 
+    if (container) container.innerHTML = "";
     visSide('oving-start');
 }
 
@@ -329,7 +387,71 @@ export function lesOppOving(tekst = null, lang = null) {
 
 export function visOvingSamling() {
     visSide('oving-samling');
-    visSamling(); 
+    visSamling();
 }
 
 window.lesOppOving = lesOppOving;
+
+// ============================================
+// LEITNER STATUS VISUALIZATION
+// ============================================
+
+/**
+ * Vis visuell indikator for Leitner-boksstatus
+ * @param {number} currentBox - Nåværende boks (1-5)
+ * @param {string} boxName - Display-navn for boksen
+ */
+function visLeitnerStatus(currentBox, boxName) {
+    // Finn eller opprett container
+    let statusContainer = document.getElementById('leitner-status-container');
+
+    if (!statusContainer) {
+        // Opprett container hvis den ikke finnes
+        const sporsmaalContainer = document.getElementById('oving-spm')?.parentElement;
+        if (!sporsmaalContainer) return;
+
+        statusContainer = document.createElement('div');
+        statusContainer.id = 'leitner-status-container';
+        statusContainer.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(124, 58, 237, 0.08);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.85rem;
+            color: #666;
+        `;
+
+        sporsmaalContainer.insertBefore(statusContainer, sporsmaalContainer.firstChild.nextSibling);
+    }
+
+    // Emoji og farge basert på boks
+    const boxEmojis = ['🌱', '🌿', '🌳', '⭐', '🏆'];
+    const boxColors = ['#ff6b6b', '#ffa726', '#ffca28', '#66bb6a', '#26a69a'];
+
+    const emoji = boxEmojis[currentBox - 1];
+    const color = boxColors[currentBox - 1];
+
+    // Vis bokser med fylling
+    let boxHTML = '<div style="display: flex; gap: 3px; margin-right: 8px;">';
+    for (let i = 1; i <= 5; i++) {
+        const filled = i <= currentBox;
+        boxHTML += `
+            <div style="
+                width: 12px;
+                height: 12px;
+                background: ${filled ? color : '#e0e0e0'};
+                border-radius: 2px;
+                transition: background 0.3s ease;
+            "></div>
+        `;
+    }
+    boxHTML += '</div>';
+
+    statusContainer.innerHTML = `
+        ${boxHTML}
+        <span style="font-weight: 600; color: ${color};">${emoji} ${boxName}</span>
+    `;
+}
