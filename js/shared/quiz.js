@@ -35,7 +35,6 @@ const STORAGE = {
 let aktivProve = [];
 let aktivProveId = null;
 let aktivProveEier = null;
-let aktivProveType = 'gloser'; // ✅ NYTT: Multi-fag støtte (gloser, matte, norsk)
 let quizIndex = 0;
 let antallRiktige = 0;
 let kortVunnetISesjon = 0;
@@ -127,7 +126,6 @@ window.startLagretProve = function(id) {
     const prove = liste.find(p => p.id === id);
     if(prove) {
         aktivProveEier = prove.opprettet_av || null; // ✅ Sett eier hvis tilgjengelig
-        aktivProveType = prove.type || 'gloser'; // ✅ NYTT: Sett prøvetype
         kjorProveInit(prove.ordliste, prove.tittel, id);
     }
 };
@@ -157,7 +155,6 @@ async function startProve(kode) {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 aktivProveEier = data.opprettet_av || null; // ✅ NYTT: Lagre prøveeier
-                aktivProveType = data.type || 'gloser'; // ✅ NYTT: Lagre prøvetype
                 lagreElevProveLokalt({ id: kode, ...data });
                 kjorProveInit(data.ordliste, data.tittel, kode);
                 return;
@@ -180,8 +177,7 @@ async function startProve(kode) {
         const tittel = data.tittel || "Offline Prøve";
         const offlineId = "offline_"+Date.now();
         aktivProveEier = null; // ✅ Offline-prøver har ingen eier
-        aktivProveType = data.type || 'gloser'; // ✅ NYTT: Støtter multi-fag offline
-        lagreElevProveLokalt({ id: offlineId, tittel: tittel, ordliste: ordliste, type: aktivProveType });
+        lagreElevProveLokalt({ id: offlineId, tittel: tittel, ordliste: ordliste });
         kjorProveInit(ordliste, tittel, offlineId);
     } catch (e) {
         visToast('Ugyldig kode. Sjekk at du har kopiert hele koden.', 'error');
@@ -576,7 +572,6 @@ async function lagreResultatTilFirebase() {
         const resultatData = {
             prove_id: aktivProveId,
             prove_eier: aktivProveEier, // ✅ NYTT: Lagre hvem som eier prøven (for analytics)
-            prove_type: aktivProveType, // ✅ NYTT: Multi-fag støtte (gloser, matte, norsk)
             elev_id: elevId,
             tidspunkt: serverTimestamp(),
             opprettet: serverTimestamp(), // ✅ NYTT: For aktivitetsgraf

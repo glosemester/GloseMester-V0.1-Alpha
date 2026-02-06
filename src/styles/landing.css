@@ -1,0 +1,212 @@
+/* ============================================
+   LANDING PAGE STYLES
+   Mester Suite v2.0
+   ============================================ */
+
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+}
+
+.landing-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 60px;
+    animation: fadeInDown 0.6s ease;
+}
+
+.landing-header h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.landing-header p {
+    font-size: 20px;
+    opacity: 0.95;
+    margin: 0;
+}
+
+/* FAG GRID */
+.fag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+}
+
+/* FAG CARD */
+.fag-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease;
+}
+
+.fag-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #0071e3, #667eea);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.fag-card-active::before {
+    background: linear-gradient(90deg, #0071e3, #4A90E2);
+}
+
+.fag-card:hover::before {
+    transform: scaleX(1);
+}
+
+.fag-card-active:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 113, 227, 0.3);
+}
+
+.fag-card-disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.fag-card-disabled:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* FAG ICON */
+.fag-ikon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.fag-card h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin: 0 0 10px 0;
+}
+
+.fag-card p {
+    font-size: 16px;
+    color: #666;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+/* BADGES */
+.fag-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.fag-badge-active {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.fag-badge-soon {
+    background: #FFF3E0;
+    color: #F57C00;
+}
+
+/* FOOTER */
+.landing-footer {
+    text-align: center;
+    color: white;
+    margin-top: 60px;
+    padding: 20px;
+    opacity: 0.9;
+    font-size: 14px;
+    animation: fadeIn 1s ease;
+}
+
+/* ANIMATIONS */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .landing-header h1 {
+        font-size: 36px;
+    }
+
+    .landing-header p {
+        font-size: 18px;
+    }
+
+    .fag-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .fag-card {
+        padding: 30px 20px;
+    }
+
+    .fag-ikon {
+        font-size: 60px;
+    }
+
+    .fag-card h2 {
+        font-size: 24px;
+    }
+}

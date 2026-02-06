@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.10.4 (Production-ready)
-// Oppdatert: Lagt til learningEngine, rate-limiter og logger for Leitner-system
-const APP_VERSION = 'v0.10.4';
-const CACHE_NAME = 'glosemester-v0.10.4';
+// SERVICE WORKER - Mester Suite v0.11.0-ALPHA (Production-ready)
+// Oppdatert: Fagmodul-arkitektur, fagvelger, multi-fag støtte
+const APP_VERSION = 'v0.11.0-ALPHA';
+const CACHE_NAME = 'mester-suite-v0.11.0-alpha';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
@@ -15,18 +15,32 @@ const ASSETS_TO_CACHE = [
   './css/glosebank-browse.css',
   './css/standardprover.css',
 
-  // Vendor Libraries (tidligere fra CDN - nå lokalt hostet)
+  // Vendor Libraries (lokalt hostet)
   './js/vendor/jsQR.js',
   './js/vendor/xlsx.full.min.js',
 
   // App Logikk (Root)
   './js/app.js',
   './js/init.js',
-  './js/vocabulary.js',
   './js/collection.js',
-  './js/export-import.js',
 
-  // VIKTIG: Databasen for kortene (Må med for offline-støtte)
+  // ========================================
+  // FAGMODULER (NY STRUKTUR)
+  // ========================================
+
+  // GloseMester modul
+  './js/fag/glosemester/vocabulary.js',
+  './js/fag/glosemester/practice.js',
+  './js/fag/glosemester/kort-data.js',
+
+  // Delte moduler (på tvers av fag)
+  './js/shared/quiz.js',
+  './js/shared/kort-system.js',
+
+  // ========================================
+  // GAMLE FILER (beholdes for bakoverkompatibilitet)
+  // ========================================
+  './js/vocabulary.js',
   './js/data/cardsData.js',
 
   // Core Modules
@@ -35,10 +49,8 @@ const ASSETS_TO_CACHE = [
   './js/core/credits.js',
   './js/core/analytics.js',
   './js/core/logger.js',
-  './js/core/rate-limiter.js',
-  './js/core/auth-helpers.js',
 
-  // Feature Modules
+  // Feature Modules (eksisterende)
   './js/features/practice.js',
   './js/features/quiz.js',
   './js/features/teacher.js',
@@ -53,10 +65,6 @@ const ASSETS_TO_CACHE = [
   './js/features/gdpr.js',
   './js/features/teacher-analytics.js',
   './js/features/gallery.js',
-  './js/features/learningEngine.js',
-  './js/features/feedback.js',
-  './js/features/progressDashboard.js',
-  './js/features/payment.js',
 
   // UI Helper
   './js/ui/helpers.js',
@@ -95,7 +103,7 @@ self.addEventListener('activate', (e) => {
     // Sletter alt som ikke matcher det nye versjonsnavnet
     await Promise.all(keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null));
     await self.clients.claim();
-
+    
     // VARSLE ALLE KLIENTER OM NY VERSJON
     const clients = await self.clients.matchAll();
     clients.forEach(client => {
@@ -120,9 +128,9 @@ self.addEventListener('message', (e) => {
         version: APP_VERSION
       });
     } else {
-      e.source?.postMessage({
-        type: 'VERSION_INFO',
-        version: APP_VERSION
+      e.source?.postMessage({ 
+        type: 'VERSION_INFO', 
+        version: APP_VERSION 
       });
     }
   }
@@ -131,9 +139,9 @@ self.addEventListener('message', (e) => {
 // FETCH - Network first for HTML, Cache first for assets
 self.addEventListener('fetch', (e) => {
   if (!e.request.url.startsWith('http')) return;
-
+  
   const accept = e.request.headers.get('accept') || '';
-
+  
   // 1. HTML: Prøv nettverk først (alltid fersk), cache som fallback (offline)
   if (accept.includes('text/html')) {
     e.respondWith(

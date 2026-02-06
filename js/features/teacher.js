@@ -15,16 +15,17 @@ import { testSaveLimiter } from '../core/rate-limiter.js';
 
 export function initTeacherFeatures() {
     console.log("🎓 Lærer-modul lastet v0.9.8");
-    
+
     window.leggTilOrd = leggTilOrd;
     window.lagreProve = lagreProve;
     window.tomListe = tomListe;
     window.slettOrd = window.slettOrd || function(){};
     window.sjekkKampanjeKode = sjekkKampanjeKode;
-    window.visAbonnementInfo = visAbonnementInfo; 
-    
+    window.visAbonnementInfo = visAbonnementInfo;
+    window.velgProveFag = velgProveFag; // ✅ NYTT: Multi-fag støtte
+
     setTimeout(setupKeyboardShortcuts, 1000);
-    
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             await oppdaterTilgang(user);
@@ -159,25 +160,44 @@ async function sjekkAbonnement(user) {
 let midlertidigProveListe = [];
 
 export function leggTilOrd() {
-    const spmInput = document.getElementById('norsk-ord');
-    const svarInput = document.getElementById('engelsk-ord');
-    
-    if (!spmInput || !svarInput) return;
-    
-    const norsk = spmInput.value.trim();
-    const engelsk = svarInput.value.trim();
-    
-    if (!norsk || !engelsk) { 
-        visToast("Skriv både norsk og engelsk ord.", "error"); 
-        spmInput.focus();
-        return; 
+    // ✅ Les prøvetype for å velge riktige input-felt
+    const typeInput = document.getElementById('prove-type');
+    const proveType = typeInput ? typeInput.value : 'gloser';
+
+    let spmInput, svarInput, spm, svar;
+
+    if (proveType === 'gloser') {
+        spmInput = document.getElementById('norsk-ord');
+        svarInput = document.getElementById('engelsk-ord');
+    } else if (proveType === 'matte') {
+        spmInput = document.getElementById('matte-oppgave');
+        svarInput = document.getElementById('matte-svar');
+    } else if (proveType === 'norsk') {
+        spmInput = document.getElementById('norsk-sporsmal');
+        svarInput = document.getElementById('norsk-svar');
     }
-    
-    midlertidigProveListe.push({ s: norsk, e: engelsk });
+
+    if (!spmInput || !svarInput) return;
+
+    spm = spmInput.value.trim();
+    svar = svarInput.value.trim();
+
+    if (!spm || !svar) {
+        visToast(
+            proveType === 'gloser' ? "Skriv både norsk og engelsk ord." :
+            proveType === 'matte' ? "Skriv både oppgave og svar." :
+            "Skriv både spørsmål og svar.",
+            "error"
+        );
+        spmInput.focus();
+        return;
+    }
+
+    midlertidigProveListe.push({ s: spm, e: svar });
     oppdaterEditorListe();
-    
-    spmInput.value = ''; 
-    svarInput.value = ''; 
+
+    spmInput.value = '';
+    svarInput.value = '';
     spmInput.focus();
     spillLyd('klikk');
 }
@@ -277,21 +297,27 @@ export async function lagreProve() {
         const lagreBtn = document.querySelector('#lag-prove .btn-primary[onclick*="lagreProve"]');
         if(lagreBtn) { lagreBtn.innerText = "Lagrer..."; lagreBtn.disabled = true; }
 
+        // ✅ Les prøvetype fra hidden input (gloser, matte, norsk)
+        const typeInput = document.getElementById('prove-type');
+        const proveType = typeInput ? typeInput.value : 'gloser';
+
         const docRef = await addDoc(collection(db, "prover"), {
             tittel: tittel,
             ordliste: midlertidigProveListe,
+            type: proveType, // ✅ OPPDATERT: Multi-fag støtte (gloser, matte, norsk)
             opprettet_av: user.uid,
             opprettet_av_epost: user.email,
             opprettet_dato: serverTimestamp(),
             antall_gjennomforinger: 0,
             aktiv: true
         });
-        
+
         // Backup til GloseBank - ALLE lærere kan dele prøver
         try {
             await addDoc(collection(db, "glosebank"), {
                 tittel: tittel,
                 ordliste: midlertidigProveListe,
+                type: proveType, // ✅ OPPDATERT: Multi-fag støtte
                 delt_av: user.uid,
                 delt_av_epost: user.email,
                 delt_dato: serverTimestamp(),
@@ -301,8 +327,8 @@ export async function lagreProve() {
                 nedlastninger: 0
             });
             console.log("✅ Backup til GloseBank OK");
-        } catch(e) { 
-            console.warn("⚠️ GloseBank backup failed:", e); 
+        } catch(e) {
+            console.warn("⚠️ GloseBank backup failed:", e);
         }
 
         await inkrementerProveAntall(user);
@@ -346,16 +372,82 @@ export function visAbonnementInfo() {
 }
 
 function setupKeyboardShortcuts() {
-    const spm = document.getElementById('norsk-ord');
-    const svar = document.getElementById('engelsk-ord');
-    if(spm && svar) {
-        const enter = (e) => { 
-            if(e.key==='Enter') { 
-                e.preventDefault(); 
-                leggTilOrd(); 
-            } 
-        };
-        spm.addEventListener('keydown', enter);
-        svar.addEventListener('keydown', enter);
+    // ✅ OPPDATERT: Legg til keyboard shortcuts for alle fagtyper
+    const enterHandler = (e) => {
+        if(e.key==='Enter') {
+            e.preventDefault();
+            leggTilOrd();
+        }
+    };
+
+    // Gloser
+    const norskOrd = document.getElementById('norsk-ord');
+    const engelskOrd = document.getElementById('engelsk-ord');
+    if(norskOrd && engelskOrd) {
+        norskOrd.addEventListener('keydown', enterHandler);
+        engelskOrd.addEventListener('keydown', enterHandler);
     }
+
+    // Matte
+    const matteOppgave = document.getElementById('matte-oppgave');
+    const matteSvar = document.getElementById('matte-svar');
+    if(matteOppgave && matteSvar) {
+        matteOppgave.addEventListener('keydown', enterHandler);
+        matteSvar.addEventListener('keydown', enterHandler);
+    }
+
+    // Norsk
+    const norskSporsmal = document.getElementById('norsk-sporsmal');
+    const norskSvar = document.getElementById('norsk-svar');
+    if(norskSporsmal && norskSvar) {
+        norskSporsmal.addEventListener('keydown', enterHandler);
+        norskSvar.addEventListener('keydown', enterHandler);
+    }
+}
+
+// ==============================================
+// MULTI-FAG STØTTE - FAG-VELGER
+// ==============================================
+
+export function velgProveFag(fag) {
+    // Validering: Kun gloser er tilgjengelig foreløpig
+    if (fag !== 'gloser') {
+        visToast(`${fag === 'matte' ? 'MatteMester' : 'NorskMester'} kommer snart! 🚧`, 'info');
+        return;
+    }
+
+    // Oppdater hidden input
+    const typeInput = document.getElementById('prove-type');
+    if (typeInput) typeInput.value = fag;
+
+    // Oppdater aktiv tab
+    document.querySelectorAll('.fag-tab').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.borderBottom = '3px solid transparent';
+        tab.style.color = '#666';
+    });
+
+    const aktivTab = document.getElementById(`fag-tab-${fag}`);
+    if (aktivTab) {
+        aktivTab.classList.add('active');
+        aktivTab.style.borderBottom = fag === 'gloser' ? '3px solid #0071e3' :
+                                       fag === 'matte' ? '3px solid #f39c12' :
+                                       '3px solid #e74c3c';
+        aktivTab.style.color = '#1d1d1f';
+    }
+
+    // Skjul alle input-bokser
+    document.getElementById('prove-input-gloser').style.display = 'none';
+    document.getElementById('prove-input-matte').style.display = 'none';
+    document.getElementById('prove-input-norsk').style.display = 'none';
+
+    // Vis riktig input-boks
+    const inputBox = document.getElementById(`prove-input-${fag}`);
+    if (inputBox) inputBox.style.display = 'block';
+
+    // Tøm midlertidig liste ved fag-bytte (for sikkerhetsskyld)
+    midlertidigProveListe = [];
+    oppdaterEditorListe();
+
+    spillLyd('klikk');
 }
