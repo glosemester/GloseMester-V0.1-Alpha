@@ -280,18 +280,20 @@ export async function lagreProve() {
         const docRef = await addDoc(collection(db, "prover"), {
             tittel: tittel,
             ordliste: midlertidigProveListe,
+            type: 'gloser', // ✅ NYTT: Multi-fag støtte (gloser, matte, norsk)
             opprettet_av: user.uid,
             opprettet_av_epost: user.email,
             opprettet_dato: serverTimestamp(),
             antall_gjennomforinger: 0,
             aktiv: true
         });
-        
+
         // Backup til GloseBank - ALLE lærere kan dele prøver
         try {
             await addDoc(collection(db, "glosebank"), {
                 tittel: tittel,
                 ordliste: midlertidigProveListe,
+                type: 'gloser', // ✅ NYTT: Multi-fag støtte
                 delt_av: user.uid,
                 delt_av_epost: user.email,
                 delt_dato: serverTimestamp(),
