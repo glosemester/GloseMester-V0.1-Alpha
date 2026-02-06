@@ -71,49 +71,23 @@ function setupRoutes() {
 
     // ==================== GLOSEMESTER ====================
     router.register(ROUTES.GLOSEMESTER, async () => {
-        window.MesterSuite.aktivtFag = 'gloser';
-        sessionStorage.setItem('aktivtFag', 'gloser');
-
-        // Lazy load GloseMester module
-        if (!window.MesterSuite.moduler.glosemester) {
-            console.log('📚 Loading GloseMester module...');
-            const { glosemester } = await import('./features/glosemester/index.js');
-            window.MesterSuite.moduler.glosemester = glosemester;
-            await glosemester.init();
-        } else {
-            // Module already loaded, just render
-            window.MesterSuite.moduler.glosemester.renderPracticeUI();
-        }
+        // Show fag-start (Øv Selv / Prøve / Lærer)
+        await import('./pages/fag-start.js');
+        window.FagStart.render('gloser');
     });
 
     // ==================== MATTEMESTER ====================
     router.register(ROUTES.MATTEMESTER, async () => {
-        window.MesterSuite.aktivtFag = 'matte';
-        sessionStorage.setItem('aktivtFag', 'matte');
-
-        // Lazy load MatteMester module
-        if (!window.MesterSuite.moduler.mattemester) {
-            console.log('➕ Loading MatteMester module...');
-            const { mattemester } = await import('./features/mattemester/index.js');
-            window.MesterSuite.moduler.mattemester = mattemester;
-            await mattemester.init();
-        } else {
-            // Module already loaded, just render
-            window.MesterSuite.moduler.mattemester.renderPracticeUI();
-        }
+        // Show fag-start (Øv Selv / Prøve / Lærer)
+        await import('./pages/fag-start.js');
+        window.FagStart.render('matte');
     });
 
     // ==================== NORSKMESTER ====================
     router.register(ROUTES.NORSKMESTER, async () => {
-        window.MesterSuite.aktivtFag = 'norsk';
-        sessionStorage.setItem('aktivtFag', 'norsk');
-
-        // Lazy load NorskMester module
-        if (!window.MesterSuite.moduler.norskmester) {
-            console.log('📖 Loading NorskMester module...');
-            // TODO: Implement NorskMester
-            showPlaceholder('NorskMester (Coming Soon)');
-        }
+        // Show fag-start (Øv Selv / Prøve / Lærer)
+        await import('./pages/fag-start.js');
+        window.FagStart.render('norsk');
     });
 
     // ==================== TEACHER DASHBOARD ====================

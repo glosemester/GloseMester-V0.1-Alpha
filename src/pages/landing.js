@@ -33,12 +33,12 @@ export class Landing {
                         <span class="fag-badge fag-badge-active">Tilgjengelig</span>
                     </div>
 
-                    <!-- MatteMester - Aktiv -->
-                    <div class="fag-card fag-card-active" data-fag="matte">
+                    <!-- MatteMester - Aktiv nå! -->
+                    <div class="fag-card" data-fag="matte">
                         <div class="fag-ikon">➕</div>
                         <h2>MatteMester</h2>
-                        <p>Tren matematikk og vinn kort</p>
-                        <span class="fag-badge fag-badge-active">Tilgjengelig</span>
+                        <p>Tren matematikk og vinn romkort</p>
+                        <span class="fag-badge fag-badge-new" style="background: #10b981; color: white;">NY! 🎉</span>
                     </div>
 
                     <!-- NorskMester - Kommer snart -->
