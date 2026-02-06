@@ -1,56 +1,94 @@
-// SERVICE WORKER - Mester Suite v0.11.0-ALPHA (Production-ready)
-// Oppdatert: Fagmodul-arkitektur, fagvelger, multi-fag støtte
-const APP_VERSION = 'v0.11.0-ALPHA';
-const CACHE_NAME = 'mester-suite-v0.11.0-alpha';
+// SERVICE WORKER - Mester Suite v2.0.0-ALPHA
+// Oppdatert: Full v2.0 refactoring, MatteMester, fag-start mellomledd
+const APP_VERSION = 'v2.0.0-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.0.0-alpha';
 
 const ASSETS_TO_CACHE = [
-  // Hovedfiler
+  // ========================================
+  // V2.0 ENTRY POINTS
+  // ========================================
   './index.html',
+  './index-v2.html',
   './offline.html',
   './manifest.json',
 
-  // Design
+  // ========================================
+  // DESIGN & CSS
+  // ========================================
   './css/main.css',
+  './css/kort.css',
+  './css/popups.css',
   './css/glosebank-admin.css',
   './css/glosebank-browse.css',
   './css/standardprover.css',
+  './src/styles/landing.css',
 
-  // Vendor Libraries (lokalt hostet)
-  './js/vendor/jsQR.js',
-  './js/vendor/xlsx.full.min.js',
+  // ========================================
+  // V2.0 CORE MODULES
+  // ========================================
+  './src/app.js',
+  './src/core/auth/firebase-config.js',
+  './src/core/navigation/router.js',
 
-  // App Logikk (Root)
+  // Kort-system v2.0
+  './src/core/kort/kort-system.js',
+  './src/core/kort/kort-data.js',
+  './src/core/kort/kort-reward.js',
+  './src/core/kort/kort-display.js',
+
+  // ========================================
+  // V2.0 PAGES
+  // ========================================
+  './src/pages/landing.js',
+  './src/pages/fag-start.js',
+
+  // ========================================
+  // V2.0 FAGMODULER
+  // ========================================
+
+  // GloseMester v2.0
+  './src/features/glosemester/index.js',
+  './src/features/glosemester/glosemester.js',
+  './src/features/glosemester/vocabulary-data.js',
+
+  // MatteMester v2.0
+  './src/features/mattemester/index.js',
+  './src/features/mattemester/mattemester.js',
+  './src/features/mattemester/oppgave-generator.js',
+
+  // Base modul
+  './src/features/base-modul.js',
+
+  // ========================================
+  // V1.0 COMPATIBILITY (gamle index.html)
+  // ========================================
   './js/app.js',
   './js/init.js',
   './js/collection.js',
+  './js/vocabulary.js',
 
-  // ========================================
-  // FAGMODULER (NY STRUKTUR)
-  // ========================================
+  // Vendor Libraries
+  './js/vendor/jsQR.js',
+  './js/vendor/xlsx.full.min.js',
 
-  // GloseMester modul
+  // Old fagmoduler
   './js/fag/glosemester/vocabulary.js',
   './js/fag/glosemester/practice.js',
   './js/fag/glosemester/kort-data.js',
 
-  // Delte moduler (på tvers av fag)
+  // Old shared
   './js/shared/quiz.js',
   './js/shared/kort-system.js',
-
-  // ========================================
-  // GAMLE FILER (beholdes for bakoverkompatibilitet)
-  // ========================================
-  './js/vocabulary.js',
   './js/data/cardsData.js',
 
-  // Core Modules
+  // Old core
   './js/core/navigation.js',
   './js/core/storage.js',
   './js/core/credits.js',
   './js/core/analytics.js',
   './js/core/logger.js',
 
-  // Feature Modules (eksisterende)
+  // Old features
   './js/features/practice.js',
   './js/features/quiz.js',
   './js/features/teacher.js',
@@ -69,7 +107,9 @@ const ASSETS_TO_CACHE = [
   // UI Helper
   './js/ui/helpers.js',
 
-  // Lydeffekter (Slik at lyden virker uten nett)
+  // ========================================
+  // SOUNDS
+  // ========================================
   './sounds/pop.mp3',
   './sounds/correct.mp3',
   './sounds/wrong.mp3',
