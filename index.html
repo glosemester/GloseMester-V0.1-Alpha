@@ -418,13 +418,55 @@
     <div id="lag-prove" class="page">
         <div class="card-container">
             <h2>Lag Ny Prøve</h2>
+
+            <!-- FAG-FANER (Multi-fag støtte) -->
+            <div class="fag-tabs" style="display:flex; gap:0; border-bottom:2px solid #e0e0e0; margin-bottom:25px; flex-wrap:wrap;">
+                <button id="fag-tab-gloser" class="fag-tab active" onclick="velgProveFag('gloser')"
+                    style="padding:15px 25px; background:white; border:none; border-bottom:3px solid #0071e3; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.3s;">
+                    📚 Gloser
+                </button>
+                <button id="fag-tab-matte" class="fag-tab" onclick="velgProveFag('matte')"
+                    style="padding:15px 25px; background:white; border:none; border-bottom:3px solid transparent; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.3s; color:#666;">
+                    ➕ Matte <span style="font-size:11px; background:#f39c12; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;">Snart</span>
+                </button>
+                <button id="fag-tab-norsk" class="fag-tab" onclick="velgProveFag('norsk')"
+                    style="padding:15px 25px; background:white; border:none; border-bottom:3px solid transparent; font-weight:600; font-size:15px; cursor:pointer; transition:all 0.3s; color:#666;">
+                    📖 Norsk <span style="font-size:11px; background:#f39c12; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;">Snart</span>
+                </button>
+            </div>
+
             <input type="text" id="prove-tittel" placeholder="Tittel på prøven (f.eks. Familie)">
-            
-            <div style="background:#F0F9FF; padding:15px; border-radius:12px; margin:15px 0;">
+            <input type="hidden" id="prove-type" value="gloser">
+
+            <!-- GLOSER: Norsk/Engelsk -->
+            <div id="prove-input-gloser" style="background:#F0F9FF; padding:15px; border-radius:12px; margin:15px 0;">
                 <h3 style="margin:0 0 10px 0; font-size:15px;">➕ Legg til ord</h3>
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
                     <input type="text" id="norsk-ord" placeholder="Norsk ord" style="flex:1; margin:0;">
                     <input type="text" id="engelsk-ord" placeholder="English word" style="flex:1; margin:0;">
+                    <button class="btn-primary" onclick="leggTilOrd()" style="width:auto; padding:12px 20px; margin:0;">➕</button>
+                </div>
+            </div>
+
+            <!-- MATTE: Oppgave/Svar (Hidden by default) -->
+            <div id="prove-input-matte" style="background:#E3F2FD; padding:15px; border-radius:12px; margin:15px 0; display:none;">
+                <h3 style="margin:0 0 10px 0; font-size:15px;">➕ Legg til oppgave</h3>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="matte-oppgave" placeholder="Oppgave (f.eks. 12 × 5)" style="flex:1; margin:0;">
+                    <input type="text" id="matte-svar" placeholder="Svar (f.eks. 60)" style="flex:1; margin:0;">
+                    <button class="btn-primary" onclick="leggTilOrd()" style="width:auto; padding:12px 20px; margin:0;">➕</button>
+                </div>
+                <p style="margin:10px 0 0 0; font-size:12px; color:#666;">
+                    💡 Tips: Bruk × for ganging, ÷ for divisjon
+                </p>
+            </div>
+
+            <!-- NORSK: Spørsmål/Svar (Hidden by default) -->
+            <div id="prove-input-norsk" style="background:#FFF3E0; padding:15px; border-radius:12px; margin:15px 0; display:none;">
+                <h3 style="margin:0 0 10px 0; font-size:15px;">➕ Legg til spørsmål</h3>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" id="norsk-sporsmal" placeholder="Spørsmål (f.eks. Hva er et verb?)" style="flex:1; margin:0;">
+                    <input type="text" id="norsk-svar" placeholder="Svar (f.eks. Handlingsord)" style="flex:1; margin:0;">
                     <button class="btn-primary" onclick="leggTilOrd()" style="width:auto; padding:12px 20px; margin:0;">➕</button>
                 </div>
             </div>
