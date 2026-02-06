@@ -1,7 +1,7 @@
 {
-  "name": "glosemester",
-  "version": "0.10.2",
-  "description": "GloseMester PWA",
+  "name": "mester-suite",
+  "version": "0.11.0",
+  "description": "Mester Suite - Multifaglig læringsplattform (GloseMester, MatteMester, NorskMester)",
   "dependencies": {
     "axios": "^1.6.0",
     "firebase-admin": "^11.11.1",

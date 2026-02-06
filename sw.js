@@ -1,7 +1,7 @@
-// SERVICE WORKER - GloseMester v0.10.2-BETA (Production-ready)
-// Oppdatert: CDN-filer hostet lokalt, tvunget lyst design, fjernet mørk modus, 4-nivå system
-const APP_VERSION = 'v0.10.2-BETA';
-const CACHE_NAME = 'glosemester-v0.10.2-beta';
+// SERVICE WORKER - Mester Suite v0.11.0-ALPHA (Production-ready)
+// Oppdatert: Fagmodul-arkitektur, fagvelger, multi-fag støtte
+const APP_VERSION = 'v0.11.0-ALPHA';
+const CACHE_NAME = 'mester-suite-v0.11.0-alpha';
 
 const ASSETS_TO_CACHE = [
   // Hovedfiler
@@ -12,18 +12,35 @@ const ASSETS_TO_CACHE = [
   // Design
   './css/main.css',
   './css/glosebank-admin.css',
+  './css/glosebank-browse.css',
+  './css/standardprover.css',
 
-  // Vendor Libraries (tidligere fra CDN - nå lokalt hostet)
+  // Vendor Libraries (lokalt hostet)
   './js/vendor/jsQR.js',
   './js/vendor/xlsx.full.min.js',
 
   // App Logikk (Root)
   './js/app.js',
   './js/init.js',
-  './js/vocabulary.js',
   './js/collection.js',
-  
-  // VIKTIG: Databasen for kortene (Må med for offline-støtte)
+
+  // ========================================
+  // FAGMODULER (NY STRUKTUR)
+  // ========================================
+
+  // GloseMester modul
+  './js/fag/glosemester/vocabulary.js',
+  './js/fag/glosemester/practice.js',
+  './js/fag/glosemester/kort-data.js',
+
+  // Delte moduler (på tvers av fag)
+  './js/shared/quiz.js',
+  './js/shared/kort-system.js',
+
+  // ========================================
+  // GAMLE FILER (beholdes for bakoverkompatibilitet)
+  // ========================================
+  './js/vocabulary.js',
   './js/data/cardsData.js',
 
   // Core Modules
@@ -31,8 +48,9 @@ const ASSETS_TO_CACHE = [
   './js/core/storage.js',
   './js/core/credits.js',
   './js/core/analytics.js',
+  './js/core/logger.js',
 
-  // Feature Modules
+  // Feature Modules (eksisterende)
   './js/features/practice.js',
   './js/features/quiz.js',
   './js/features/teacher.js',
@@ -42,6 +60,11 @@ const ASSETS_TO_CACHE = [
   './js/features/firebase.js',
   './js/features/saved-tests.js',
   './js/features/glosebank-admin.js',
+  './js/features/glosebank-browse.js',
+  './js/features/standardprove.js',
+  './js/features/gdpr.js',
+  './js/features/teacher-analytics.js',
+  './js/features/gallery.js',
 
   // UI Helper
   './js/ui/helpers.js',
