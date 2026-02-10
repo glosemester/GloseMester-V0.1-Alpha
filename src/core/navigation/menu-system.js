@@ -301,7 +301,7 @@ export class MenuSystem {
         `;
 
         nav.innerHTML = `
-            <button class="hamburger-btn" id="hamburger-btn">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Åpne meny" aria-expanded="false">
                 <span class="hamburger-icon">☰</span>
                 <span class="hamburger-text">Meny</span>
             </button>
@@ -430,6 +430,12 @@ export class MenuSystem {
         setTimeout(() => {
             this.overlayElement.style.opacity = '1';
         }, 10);
+
+        // Update aria-expanded for accessibility
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        if (hamburgerBtn) {
+            hamburgerBtn.setAttribute('aria-expanded', 'true');
+        }
     }
 
     /**
@@ -442,6 +448,12 @@ export class MenuSystem {
         setTimeout(() => {
             this.overlayElement.style.display = 'none';
         }, 300);
+
+        // Update aria-expanded for accessibility
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        if (hamburgerBtn) {
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+        }
     }
 
     /**

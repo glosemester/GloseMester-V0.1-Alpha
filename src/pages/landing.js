@@ -4,6 +4,7 @@
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
+import { visToast } from '../core/utils/feedback.js';
 
 /**
  * Landing page - Fagvelger
@@ -153,8 +154,8 @@ export class Landing {
             norsk: 'NorskMester'
         };
 
-        // Simple alert for now - can be replaced with toast
-        alert(`${fagNames[fag]} kommer snart! 🚧\n\nVi jobber hardt med å ferdigstille dette faget.`);
+        // Show toast notification for coming soon features
+        visToast(`${fagNames[fag]} kommer snart! 🚧 Vi jobber hardt med å ferdigstille dette faget.`, 'info');
     }
 }
 
