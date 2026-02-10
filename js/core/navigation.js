@@ -62,30 +62,50 @@ function oppdaterMenyer(sideId) {
     const elevMeny = document.getElementById('elev-meny');
     const ovingMeny = document.getElementById('oving-meny');
     const laererMeny = document.getElementById('laerer-meny');
+    const matteOvingMeny = document.getElementById('matte-oving-meny');
+    const norskOvingMeny = document.getElementById('norsk-oving-meny');
 
     // Skjul alle først
     if(elevMeny) elevMeny.style.display = 'none';
     if(ovingMeny) ovingMeny.style.display = 'none';
     if(laererMeny) laererMeny.style.display = 'none';
+    if(matteOvingMeny) matteOvingMeny.style.display = 'none';
+    if(norskOvingMeny) norskOvingMeny.style.display = 'none';
 
-    // Spesialhåndtering for galleri - vis meny basert på rolle
+    // Spesialhåndtering for galleri - vis meny basert på rolle og fag
     if (sideId === 'galleri-visning') {
         const rolle = sessionStorage.getItem('aktivRolle');
+        const fag = sessionStorage.getItem('aktivtFag');
         if (rolle === 'oving') {
-            if(ovingMeny) ovingMeny.style.display = 'flex';
+            if (fag === 'matte' && matteOvingMeny) matteOvingMeny.style.display = 'flex';
+            else if (fag === 'norsk' && norskOvingMeny) norskOvingMeny.style.display = 'flex';
+            else if(ovingMeny) ovingMeny.style.display = 'flex';
         } else if (rolle === 'kode') {
             if(elevMeny) elevMeny.style.display = 'flex';
         }
         return;
     }
 
-    // Vis riktig meny for andre sider
+    // GloseMester øving
     if (['elev-dashboard', 'elev-samling'].includes(sideId)) {
         if(elevMeny) elevMeny.style.display = 'flex';
-    } 
-    else if (['oving-start', 'oving-omraade', 'oving-samling'].includes(sideId)) {
-        if(ovingMeny) ovingMeny.style.display = 'flex';
     }
+    else if (['oving-start', 'oving-omraade', 'oving-samling'].includes(sideId)) {
+        // Sjekk aktivt fag for å vise riktig meny
+        const fag = sessionStorage.getItem('aktivtFag');
+        if (fag === 'matte' && matteOvingMeny) matteOvingMeny.style.display = 'flex';
+        else if (fag === 'norsk' && norskOvingMeny) norskOvingMeny.style.display = 'flex';
+        else if(ovingMeny) ovingMeny.style.display = 'flex';
+    }
+    // MatteMester øving
+    else if (['matte-oving-start', 'matte-nivaa-velger', 'matte-oving-omraade', 'matte-resultat'].includes(sideId)) {
+        if(matteOvingMeny) matteOvingMeny.style.display = 'flex';
+    }
+    // NorskMester øving
+    else if (['norsk-oving-start', 'norsk-oving-omraade'].includes(sideId)) {
+        if(norskOvingMeny) norskOvingMeny.style.display = 'flex';
+    }
+    // Lærer (delt for alle fag)
     else if (['laerer-dashboard', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse'].includes(sideId)) {
         if(laererMeny) laererMeny.style.display = 'flex';
     }

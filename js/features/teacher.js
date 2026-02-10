@@ -410,12 +410,6 @@ function setupKeyboardShortcuts() {
 // ==============================================
 
 export function velgProveFag(fag) {
-    // Validering: Kun gloser er tilgjengelig foreløpig
-    if (fag !== 'gloser') {
-        visToast(`${fag === 'matte' ? 'MatteMester' : 'NorskMester'} kommer snart! 🚧`, 'info');
-        return;
-    }
-
     // Oppdater hidden input
     const typeInput = document.getElementById('prove-type');
     if (typeInput) typeInput.value = fag;
