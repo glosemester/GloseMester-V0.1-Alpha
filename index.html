@@ -39,7 +39,14 @@
     <link rel="icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     
+    <!-- Fonts: Playwize Design System -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/kort.css">
+    <link rel="stylesheet" href="css/popups.css">
     <link rel="stylesheet" href="css/glosebank-admin.css">
     <link rel="stylesheet" href="css/glosebank-browse.css">
     <link rel="stylesheet" href="css/standardprover.css">
@@ -53,6 +60,7 @@
         .page { display: none; }
         .page.active { display: block !important; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         /* Footer styling spesifikt for landingssiden */
         .landing-footer {
@@ -100,20 +108,20 @@
                 <span class="fag-badge fag-badge-active">Tilgjengelig</span>
             </div>
 
-            <!-- MatteMester - Tilgjengelig nå! -->
-            <div class="fag-card" data-fag="matte">
+            <!-- MatteMester - Aktiv -->
+            <div class="fag-card fag-card-active" onclick="velgFag('matte')" data-fag="matte">
                 <div class="fag-ikon">➕</div>
                 <h2>MatteMester</h2>
                 <p>Mestre matematikk med moro</p>
-                <span class="fag-badge fag-badge-new" style="background: #10b981; color: white;">NY! 🎉</span>
+                <span class="fag-badge fag-badge-active">Tilgjengelig</span>
             </div>
 
-            <!-- NorskMester - Under utvikling -->
-            <div class="fag-card fag-card-disabled" data-fag="norsk">
+            <!-- NorskMester - Aktiv -->
+            <div class="fag-card fag-card-active" onclick="velgFag('norsk')" data-fag="norsk">
                 <div class="fag-ikon">📖</div>
                 <h2>NorskMester</h2>
                 <p>Bli bedre i norsk</p>
-                <span class="fag-badge fag-badge-soon">Kommer snart 🚧</span>
+                <span class="fag-badge fag-badge-active">Tilgjengelig</span>
             </div>
         </div>
 
@@ -126,9 +134,9 @@
         </div>
 
         <footer class="landing-footer">
-            <p style="margin: 0 0 5px 0; font-weight: 600;">v0.11.0-ALPHA</p>
+            <p style="margin: 0 0 5px 0; font-weight: 600;">v0.12.0-ALPHA</p>
             <p style="margin: 0 0 10px 0; font-size: 13px; opacity: 0.9;">
-                🎓 Mester Suite | 📚 GloseMester | ➕ MatteMester (NY!) | 📖 NorskMester (snart)
+                🎓 Mester Suite | 📚 GloseMester | ➕ MatteMester | 📖 NorskMester
             </p>
             <p style="margin: 0 0 10px 0;">&copy; 2025 Mester Suite | Laget med ❤️ for norske lærere</p>
             <p style="margin: 0; font-size: 13px;">
@@ -168,6 +176,216 @@
         </div>
     </div>
 
+    <!-- ========================================
+         MATTEMESTER START
+         ======================================== -->
+    <div id="mattemester-start" class="page">
+        <div style="text-align:center; margin-bottom:30px;">
+            <button class="btn-secondary" onclick="tilbakeTilFagvelger()" style="margin-bottom:20px;">
+                ← Tilbake til fagvelger
+            </button>
+        </div>
+
+        <div style="text-align:center; margin-bottom:30px;">
+            <div style="font-size:64px; margin-bottom:10px;">➕</div>
+            <h1 style="font-size:32px; margin:0 0 10px 0; color:#667eea;">MatteMester</h1>
+            <p style="color:#666; max-width:500px; margin: 0 auto; font-size:18px;">
+                Øv på matematikk, samle kort og ha det gøy!
+            </p>
+        </div>
+        <div class="role-grid">
+            <div class="role-card" onclick="velgMatteRolle('oving')">
+                <span class="role-icon">💪</span><h2>Øv Selv</h2><p>Pluss, minus, gange og dele</p>
+            </div>
+            <div class="role-card" onclick="velgMatteRolle('kode')">
+                <span class="role-icon">📝</span><h2>MattePrøve</h2><p>Har du prøvekode?</p>
+            </div>
+            <div class="role-card" onclick="velgMatteRolle('laerer')">
+                <span class="role-icon">🍎</span><h2>Lærer</h2><p>Lag matteprøver</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NORSKMESTER START
+         ======================================== -->
+    <div id="norskmester-start" class="page">
+        <div style="text-align:center; margin-bottom:30px;">
+            <button class="btn-secondary" onclick="tilbakeTilFagvelger()" style="margin-bottom:20px;">
+                ← Tilbake til fagvelger
+            </button>
+        </div>
+
+        <div style="text-align:center; margin-bottom:30px;">
+            <div style="font-size:64px; margin-bottom:10px;">📖</div>
+            <h1 style="font-size:32px; margin:0 0 10px 0; color:#e74c3c;">NorskMester</h1>
+            <p style="color:#666; max-width:500px; margin: 0 auto; font-size:18px;">
+                Bli bedre i norsk, samle kort og ha det gøy!
+            </p>
+        </div>
+        <div class="role-grid">
+            <div class="role-card" onclick="velgNorskRolle('oving')">
+                <span class="role-icon">💪</span><h2>Øv Selv</h2><p>Ordklasser, rettskriving og mer</p>
+            </div>
+            <div class="role-card" onclick="velgNorskRolle('kode')">
+                <span class="role-icon">📝</span><h2>NorskPrøve</h2><p>Har du prøvekode?</p>
+            </div>
+            <div class="role-card" onclick="velgNorskRolle('laerer')">
+                <span class="role-icon">🍎</span><h2>Lærer</h2><p>Lag norskprøver</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         MATTEMESTER ØVING - Operasjonsvelger
+         ======================================== -->
+    <div id="matte-oving-start" class="page">
+        <div id="matte-oving-valg" class="card-container">
+            <h2>➕ MatteMester - Velg Regneart</h2>
+            <div class="credit-progress-container">
+                <div class="credit-label">
+                    <span>Mot neste bonuspoeng (100 xp)</span>
+                    <span id="matte-menu-credits-text">0 / 100</span>
+                </div>
+                <div class="yellow-track">
+                    <div class="yellow-fill" id="matte-menu-credits-bar"></div>
+                </div>
+            </div>
+            <div id="matte-operasjon-liste" class="trinn-grid" style="grid-template-columns: 1fr 1fr;">
+                <!-- Fylles dynamisk av matte-practice.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MATTEMESTER - Nivåvelger for valgt operasjon -->
+    <div id="matte-nivaa-velger" class="page">
+        <div class="card-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 id="matte-nivaa-header">Velg nivå</h2>
+                <button class="btn-small btn-secondary" onclick="visMatteOperasjoner()">← Tilbake</button>
+            </div>
+            <div id="matte-nivaa-liste" class="trinn-grid" style="grid-template-columns: 1fr;">
+                <!-- Fylles dynamisk -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MATTEMESTER - Øvingsområde (quiz) -->
+    <div id="matte-oving-omraade" class="page">
+        <div class="card-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span id="matte-score" style="font-weight:bold; color:#667eea;">0 riktige i dag</span>
+                <button class="btn-small btn-danger" onclick="avsluttMatteOving()">Avslutt</button>
+            </div>
+
+            <div id="matte-kort-progress" style="margin-bottom:15px;"></div>
+            <div id="matte-xp-progress" style="margin-bottom:20px;"></div>
+
+            <h2 id="matte-spm" style="text-align:center; font-size:36px; margin:20px 0 30px 0;">...</h2>
+
+            <div id="matte-answer-display" style="text-align:center; font-size:48px; font-weight:bold; color:#667eea; margin-bottom:20px; padding:15px; background:#f0f4ff; border-radius:12px;">
+                <span id="matte-answer-text">0</span>
+                <span style="animation: blink 1s infinite; color:#999;">|</span>
+            </div>
+
+            <div id="matte-feedback" class="feedback" style="min-height:24px; margin-bottom:15px;"></div>
+
+            <!-- Talltastatur -->
+            <div style="max-width:320px; margin:0 auto;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <button class="btn-secondary" onclick="handleMatteInput('1')" style="padding:15px; font-size:20px; font-weight:700;">1</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('2')" style="padding:15px; font-size:20px; font-weight:700;">2</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('3')" style="padding:15px; font-size:20px; font-weight:700;">3</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <button class="btn-secondary" onclick="handleMatteInput('4')" style="padding:15px; font-size:20px; font-weight:700;">4</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('5')" style="padding:15px; font-size:20px; font-weight:700;">5</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('6')" style="padding:15px; font-size:20px; font-weight:700;">6</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <button class="btn-secondary" onclick="handleMatteInput('7')" style="padding:15px; font-size:20px; font-weight:700;">7</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('8')" style="padding:15px; font-size:20px; font-weight:700;">8</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('9')" style="padding:15px; font-size:20px; font-weight:700;">9</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+                    <button class="btn-secondary" onclick="handleMatteInput('.')" style="padding:15px; font-size:20px; font-weight:700;">.</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('0')" style="padding:15px; font-size:20px; font-weight:700;">0</button>
+                    <button class="btn-secondary" onclick="handleMatteInput('backspace')" style="padding:15px; font-size:20px;">⌫</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <button class="btn-secondary" onclick="handleMatteInput('clear')" style="padding:15px; color:#dc2626;">Slett</button>
+                    <button class="btn-primary" onclick="handleMatteInput('check')" style="padding:15px; background:#667eea;">Sjekk ✓</button>
+                </div>
+            </div>
+
+            <div style="margin-top:15px;">
+                <span id="matte-progress" style="font-size:13px; color:#888;">0 / 10</span>
+                <div style="width:100%; background:#eee; border-radius:10px; height:6px; margin-top:5px;">
+                    <div id="matte-progress-fill" style="width:0%; height:100%; background:#667eea; border-radius:10px; transition:width 0.3s;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MATTEMESTER - Resultat -->
+    <div id="matte-resultat" class="page">
+        <div class="card-container">
+            <div id="matte-resultat-innhold"></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-primary" onclick="matteProvIgjen()" style="flex:1; background:#667eea;">Prøv igjen</button>
+                <button class="btn-secondary" onclick="visMatteOperasjoner()" style="flex:1;">Velg ny regneart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         NORSKMESTER ØVING - Nivåvelger
+         ======================================== -->
+    <div id="norsk-oving-start" class="page">
+        <div id="norsk-oving-valg" class="card-container">
+            <h2>📖 NorskMester - Velg Nivå</h2>
+            <div class="credit-progress-container">
+                <div class="credit-label">
+                    <span>Mot neste bonuspoeng (100 xp)</span>
+                    <span id="norsk-menu-credits-text">0 / 100</span>
+                </div>
+                <div class="yellow-track">
+                    <div class="yellow-fill" id="norsk-menu-credits-bar"></div>
+                </div>
+            </div>
+            <div class="trinn-grid">
+                <button class="trinn-btn" onclick="startNorskOving('niva1')">📝 Ordklasser & Bøyning</button>
+                <button class="trinn-btn" onclick="startNorskOving('niva2')">✍️ Rettskriving</button>
+                <button class="trinn-btn" onclick="startNorskOving('niva3')">🧠 Synonymer & Ordforståelse</button>
+                <button class="trinn-btn" onclick="startNorskOving('niva4')">🇳🇴 Bokmål ↔ Nynorsk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NORSKMESTER - Øvingsområde -->
+    <div id="norsk-oving-omraade" class="page">
+        <div class="card-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span id="norsk-score" style="font-weight:bold; color:#e74c3c;">0 riktige i dag</span>
+                <button class="btn-small btn-danger" onclick="avsluttNorskOving()">Avslutt</button>
+            </div>
+
+            <div id="norsk-kort-progress" style="margin-bottom:15px;"></div>
+            <div id="norsk-xp-progress" style="margin-bottom:20px;"></div>
+
+            <h2 id="norsk-spm" style="text-align:center; font-size:28px; margin:20px 0 30px 0;">...</h2>
+
+            <div id="norsk-alternativer" style="display:none; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;"></div>
+
+            <div id="norsk-input-container" style="display:none;">
+                <input type="text" id="norsk-svar-input" placeholder="Skriv svaret..." autocomplete="off">
+                <button class="btn-primary" onclick="sjekkNorskSvar()">Svar</button>
+            </div>
+
+            <p id="norsk-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;"></p>
+        </div>
+    </div>
+
     <nav id="elev-meny" style="display:none;">
         <button id="btn-elev-dashboard" onclick="visSide('elev-dashboard')">Hjem</button>
         <button id="btn-elev-samling" onclick="visSide('elev-samling'); visSamling()">Mine Kort</button>
@@ -179,6 +397,20 @@
         <button id="btn-oving-start" onclick="visSide('oving-start')">Øv</button>
         <button id="btn-oving-samling" onclick="visOvingSamling()">Samling</button>
         <button id="btn-oving-galleri" onclick="visGalleriSide()">🏆 Galleri</button>
+        <button class="btn-danger" onclick="tilbakeTilStart()">Avslutt</button>
+    </nav>
+
+    <nav id="matte-oving-meny" style="display:none;">
+        <button onclick="visMatteOperasjoner()">Øv</button>
+        <button onclick="visOvingSamling()">Samling</button>
+        <button onclick="visGalleriSide()">🏆 Galleri</button>
+        <button class="btn-danger" onclick="tilbakeTilStart()">Avslutt</button>
+    </nav>
+
+    <nav id="norsk-oving-meny" style="display:none;">
+        <button onclick="visSide('norsk-oving-start')">Øv</button>
+        <button onclick="visOvingSamling()">Samling</button>
+        <button onclick="visGalleriSide()">🏆 Galleri</button>
         <button class="btn-danger" onclick="tilbakeTilStart()">Avslutt</button>
     </nav>
 
