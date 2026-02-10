@@ -1,11 +1,11 @@
 /* ============================================
-   NORSK-PRACTICE.JS - NorskMester Øving v1.0
-   Norskfaglige øvelser med flervalg og skriving
+   NORSK-PRACTICE.JS - NorskMester Øving v2.0
+   Norskfaglige øvelser med diktat, flervalg og skriving
    Bruker samme kort/XP-system som GloseMester
    ============================================ */
 
 import { visSide } from '../core/navigation.js';
-import { visToast, spillLyd, vibrer } from '../ui/helpers.js';
+import { visToast, spillLyd, vibrer, lesOpp } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
 import { hentTilfeldigKort } from './kort-display.js';
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
@@ -24,14 +24,19 @@ let norskState = {
 };
 
 // ============================================
-// NIVÅ-KONFIG
+// NIVÅ-KONFIG (6 nivåer)
+// type: 'diktat' = les opp, skriv
+// type: 'flervalg' = velg riktig svar
+// type: 'skriving' = les spørsmål, skriv svar
 // ============================================
 
 const NORSK_NIVÅER = {
-    niva1: { name: 'Ordklasser & Bøyning', emoji: '📝', description: '1.-4. trinn' },
-    niva2: { name: 'Rettskriving', emoji: '✍️', description: '3.-6. trinn' },
-    niva3: { name: 'Synonymer & Ordforståelse', emoji: '🧠', description: '5.-8. trinn' },
-    niva4: { name: 'Bokmål ↔ Nynorsk', emoji: '🇳🇴', description: '6.-10. trinn' }
+    niva1: { name: 'Høyfrekvente ord - Enkel', emoji: '🔊', description: '1.-2. trinn', type: 'diktat' },
+    niva2: { name: 'Høyfrekvente ord - Medium', emoji: '🔊', description: '3.-4. trinn', type: 'diktat' },
+    niva3: { name: 'Ordklasser & Bøyning', emoji: '📝', description: '3.-5. trinn', type: 'flervalg' },
+    niva4: { name: 'Rettskriving', emoji: '✍️', description: '4.-7. trinn', type: 'skriving' },
+    niva5: { name: 'Synonymer & Ordforståelse', emoji: '🧠', description: '5.-8. trinn', type: 'flervalg' },
+    niva6: { name: 'Bokmål ↔ Nynorsk', emoji: '🇳🇴', description: '6.-10. trinn', type: 'skriving' }
 };
 
 // ============================================
@@ -56,6 +61,20 @@ async function ventPaNorskData(maxTid = 5000) {
         await new Promise(resolve => setTimeout(resolve, 50));
     }
     return true;
+}
+
+/**
+ * Les opp et norsk ord med talesyntese
+ */
+function lesOppNorskOrd(tekst) {
+    if (typeof lesOpp === 'function') {
+        lesOpp(tekst, 'no-NO');
+    } else if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(tekst);
+        utterance.lang = 'no-NO';
+        utterance.rate = 0.8; // Litt saktere for diktat
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
 // ============================================
@@ -93,7 +112,6 @@ function visNorskSpørsmål() {
     oppdaterNorskProgress();
 
     if (norskState.index >= norskState.ordliste.length) {
-        // Stokk om og start på nytt (uendelig øving)
         norskState.ordliste = stokkArray([...norskState.ordliste]);
         norskState.index = 0;
     }
@@ -104,19 +122,54 @@ function visNorskSpørsmål() {
     if (feedbackEl) feedbackEl.innerText = '';
 
     const spmEl = document.getElementById('norsk-spm');
-    if (spmEl) spmEl.innerText = norskState.currentWord.s;
-
     const scoreEl = document.getElementById('norsk-score');
     if (scoreEl) scoreEl.innerText = `${norskState.riktigeSvar} riktige i dag`;
 
-    // Bestem type: flervalg for niva1/niva3, skriving for niva2/niva4
-    const erFlervalg = (norskState.currentLevel === 'niva1' || norskState.currentLevel === 'niva3');
-
     const inputContainer = document.getElementById('norsk-input-container');
     const altContainer = document.getElementById('norsk-alternativer');
+    const diktatContainer = document.getElementById('norsk-diktat-container');
 
-    if (erFlervalg) {
-        if (inputContainer) inputContainer.style.display = 'none';
+    // Skjul alle først
+    if (inputContainer) inputContainer.style.display = 'none';
+    if (altContainer) altContainer.style.display = 'none';
+    if (diktatContainer) diktatContainer.style.display = 'none';
+
+    // Bestem oppgavetype basert på nivå-config
+    const nivaConfig = NORSK_NIVÅER[norskState.currentLevel];
+    const oppgaveType = nivaConfig ? nivaConfig.type : 'skriving';
+
+    if (oppgaveType === 'diktat') {
+        // ===== DIKTAT-MODUS =====
+        // Vis "Lytt og skriv" i stedet for selve ordet
+        if (spmEl) spmEl.innerHTML = '🔊 <span style="color:#e74c3c;">Lytt og skriv ordet!</span>';
+
+        if (diktatContainer) {
+            diktatContainer.style.display = 'block';
+
+            // Auto-les opp ordet etter en kort pause
+            setTimeout(() => lesOppNorskOrd(norskState.currentWord.s), 400);
+
+            // Setup "Les opp igjen"-knapp
+            const lesOppBtn = document.getElementById('norsk-les-opp-btn');
+            if (lesOppBtn) {
+                lesOppBtn.onclick = () => lesOppNorskOrd(norskState.currentWord.s);
+            }
+
+            // Setup input
+            const diktatInput = document.getElementById('norsk-diktat-input');
+            if (diktatInput) {
+                diktatInput.value = '';
+                diktatInput.focus();
+                diktatInput.onkeydown = (e) => {
+                    if (e.key === 'Enter') sjekkNorskSvar();
+                };
+            }
+        }
+
+    } else if (oppgaveType === 'flervalg') {
+        // ===== FLERVALG-MODUS =====
+        if (spmEl) spmEl.innerText = norskState.currentWord.s;
+
         if (altContainer) {
             altContainer.style.display = 'grid';
             altContainer.innerHTML = '';
@@ -143,8 +196,11 @@ function visNorskSpørsmål() {
                 altContainer.appendChild(btn);
             });
         }
+
     } else {
-        if (altContainer) altContainer.style.display = 'none';
+        // ===== SKRIVING-MODUS =====
+        if (spmEl) spmEl.innerText = norskState.currentWord.s;
+
         if (inputContainer) {
             inputContainer.style.display = 'flex';
             const inputFelt = document.getElementById('norsk-svar-input');
@@ -160,10 +216,9 @@ function visNorskSpørsmål() {
 }
 
 /**
- * Sjekk norsk-svar
+ * Sjekk norsk-svar (fungerer for alle 3 moduser)
  */
 export function sjekkNorskSvar(valgtOrd = null) {
-    // Rate limiting
     const rateCheck = practiceLimiter.check('practice_answer');
     if (!rateCheck.allowed) {
         const minutter = Math.ceil(rateCheck.remainingMs / 60000);
@@ -175,9 +230,19 @@ export function sjekkNorskSvar(valgtOrd = null) {
     let erRiktig = false;
     const riktigSvar = norskState.currentWord.e;
 
+    const nivaConfig = NORSK_NIVÅER[norskState.currentLevel];
+    const oppgaveType = nivaConfig ? nivaConfig.type : 'skriving';
+
     if (valgtOrd) {
+        // Flervalg
         erRiktig = (valgtOrd.e === norskState.currentWord.e);
+    } else if (oppgaveType === 'diktat') {
+        // Diktat - hent fra diktat-input
+        const input = document.getElementById('norsk-diktat-input');
+        const brukerSvar = input?.value.trim().toLowerCase();
+        erRiktig = (brukerSvar === riktigSvar.toLowerCase());
     } else {
+        // Skriving - hent fra vanlig input
         const input = document.getElementById('norsk-svar-input');
         const brukerSvar = input?.value.trim().toLowerCase();
         erRiktig = (brukerSvar === riktigSvar.toLowerCase());
@@ -186,8 +251,10 @@ export function sjekkNorskSvar(valgtOrd = null) {
     // Deaktiver klikk midlertidig
     const altContainer = document.getElementById('norsk-alternativer');
     const inputContainer = document.getElementById('norsk-input-container');
+    const diktatContainer = document.getElementById('norsk-diktat-container');
     if (altContainer) altContainer.style.pointerEvents = 'none';
     if (inputContainer) inputContainer.style.pointerEvents = 'none';
+    if (diktatContainer) diktatContainer.style.pointerEvents = 'none';
 
     if (erRiktig) {
         norskState.riktigeSvar++;
@@ -222,6 +289,7 @@ export function sjekkNorskSvar(valgtOrd = null) {
         setTimeout(() => {
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
+            if (diktatContainer) diktatContainer.style.pointerEvents = 'auto';
             norskState.index++;
             visNorskSpørsmål();
         }, 1000);
@@ -230,21 +298,19 @@ export function sjekkNorskSvar(valgtOrd = null) {
         spillLyd('feil');
         vibrer(200);
 
-        // Vis riktig svar i feil-popup
         const fasitEl = document.getElementById('fasit-tekst');
         if (fasitEl) fasitEl.innerText = riktigSvar;
         const popup = document.getElementById('feil-svar-popup');
         if (popup) popup.style.display = 'flex';
 
-        // Lagre gammel lukk-funksjon og overskriv for å gå til neste
         const originalLukkFn = window.lukkFeilPopup;
         window.lukkFeilPopup = function() {
             popup.style.display = 'none';
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
+            if (diktatContainer) diktatContainer.style.pointerEvents = 'auto';
             norskState.index++;
             visNorskSpørsmål();
-            // Gjenopprett original
             window.lukkFeilPopup = originalLukkFn;
         };
     }
@@ -254,7 +320,6 @@ export function sjekkNorskSvar(valgtOrd = null) {
  * Oppdater norsk progress
  */
 function oppdaterNorskProgress() {
-    // Kort progress (10-box)
     const kortProgress = document.getElementById('norsk-kort-progress');
     if (kortProgress) {
         const filled = norskState.sessionCorrect % 10;
@@ -272,7 +337,6 @@ function oppdaterNorskProgress() {
         `;
     }
 
-    // XP progress
     const xpProgress = document.getElementById('norsk-xp-progress');
     if (xpProgress) {
         const totalXP = getTotalCorrect();
@@ -312,4 +376,4 @@ window.startNorskOving = startNorskOving;
 window.sjekkNorskSvar = sjekkNorskSvar;
 window.avsluttNorskOving = avsluttNorskOving;
 
-console.log('📖 NorskMester practice module loaded');
+console.log('📖 NorskMester practice module v2.0 loaded (med diktat-modus)');
