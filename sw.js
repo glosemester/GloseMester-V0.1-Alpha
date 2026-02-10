@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.0.1-ALPHA
-// Oppdatert: Credits/XP system, rate limiting, daily correct counter
-const APP_VERSION = 'v2.0.1-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.0.1-alpha';
+// SERVICE WORKER - Mester Suite v2.0.2-ALPHA
+// Oppdatert: MenuSystem, Teacher Module, Credits/XP, Rate Limiting
+const APP_VERSION = 'v2.0.2-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.0.2-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -42,11 +42,17 @@ const ASSETS_TO_CACHE = [
   './src/core/utils/storage.js',
   './src/core/utils/rate-limiter.js',
 
+  // Navigation
+  './src/core/navigation/menu-system.js',
+
   // ========================================
   // V2.0 PAGES
   // ========================================
   './src/pages/landing.js',
   './src/pages/fag-start.js',
+
+  // Teacher
+  './src/features/teacher/teacher-module.js',
 
   // ========================================
   // V2.0 FAGMODULER
