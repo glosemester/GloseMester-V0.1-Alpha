@@ -28,6 +28,7 @@ export class GloseMester extends FagModul {
         this.direction = 'en'; // 'en' = Norwegian->English, 'no' = English->Norwegian
         this.correctAnswers = 0;
         this.totalQuestions = 0;
+        this.sessionCorrect = 0; // Correct answers in current continuous session (for kort rewards)
     }
 
     // ==================== REQUIRED METHODS ====================
@@ -289,6 +290,9 @@ export class GloseMester extends FagModul {
                 </header>
 
                 <div class="quiz-content">
+                    <!-- 10-box progress tracker -->
+                    <div id="kort-progress" class="kort-progress-container"></div>
+
                     <div class="question-container">
                         <div id="question-word" class="question-word"></div>
                         <div id="word-image" class="word-image"></div>
@@ -378,6 +382,7 @@ export class GloseMester extends FagModul {
         if (input) {
             input.value = '';
             input.focus();
+            input.disabled = false; // Re-enable input
         }
 
         const feedback = document.getElementById('feedback');
@@ -386,14 +391,14 @@ export class GloseMester extends FagModul {
             feedback.className = 'feedback';
         }
 
-        // Update progress
+        // Update progress (including kort progress tracker)
         this.updateProgress();
     }
 
     /**
      * Handle check answer button click
      */
-    handleCheckAnswer() {
+    async handleCheckAnswer() {
         const input = document.getElementById('answer-input');
         if (!input || !input.value.trim()) return;
 
@@ -406,14 +411,27 @@ export class GloseMester extends FagModul {
             feedback.className = `feedback ${result.isCorrect ? 'correct' : 'incorrect'}`;
         }
 
-        // Update stats
-        this.updateProgress();
+        // If correct, increment session correct and check for kort reward
+        if (result.isCorrect) {
+            this.sessionCorrect++;
 
-        // Move to next question after delay
-        setTimeout(() => {
-            this.currentIndex++;
-            this.showNextQuestion();
-        }, result.isCorrect ? 800 : 2000);
+            // Update stats
+            this.updateProgress();
+
+            // Check for kort reward every 10 correct answers
+            if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
+                await this.handleKortReward();
+            }
+
+            // Move to next question after delay
+            setTimeout(() => {
+                this.currentIndex++;
+                this.showNextQuestion();
+            }, 800);
+        } else {
+            // Wrong answer - show error popup instead of just feedback
+            this.showWrongAnswerPopup(result.correctAnswer);
+        }
     }
 
     /**
@@ -435,6 +453,135 @@ export class GloseMester extends FagModul {
             const percent = (this.currentIndex / this.currentWords.length) * 100;
             progressFill.style.width = `${percent}%`;
         }
+
+        // Update 10-box kort progress
+        this.updateKortProgress();
+    }
+
+    /**
+     * Update 10-box kort progress tracker
+     */
+    updateKortProgress() {
+        const container = document.getElementById('kort-progress');
+        if (!container) return;
+
+        const filledBoxes = (this.sessionCorrect % 10 === 0 && this.sessionCorrect > 0) ? 10 : this.sessionCorrect % 10;
+        const totalBoxes = 10;
+
+        let boxesHTML = '';
+        for (let i = 0; i < totalBoxes; i++) {
+            const isFilled = i < filledBoxes;
+            boxesHTML += `
+                <div class="progress-box ${isFilled ? 'filled' : ''}"
+                     style="flex: 1; height: 12px; background: ${isFilled ? 'var(--sunny-yellow, #FBBF24)' : 'rgba(255,255,255,0.3)'};
+                            border-radius: 6px; transition: all 0.3s ease;
+                            ${isFilled ? 'box-shadow: 0 0 12px var(--sunny-yellow, #FBBF24);' : ''}">
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: var(--radius-md, 20px);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-dark, #1F2937);">
+                    <span>🎁 MOT NYTT KORT:</span>
+                    <span>${filledBoxes} / 10</span>
+                </div>
+                <div class="progress-boxes" style="display: flex; gap: 6px;">
+                    ${boxesHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Handle kort reward (every 10 correct answers)
+     */
+    async handleKortReward() {
+        console.log('🎁 10 correct answers! Checking for kort reward...');
+
+        try {
+            const kort = await kortSystem.getRandomKort('gloser', this.currentLevel);
+
+            if (kort) {
+                // Show kort reward popup
+                this.showKortPopup(kort);
+            }
+        } catch (error) {
+            console.error('Error getting kort reward:', error);
+        }
+    }
+
+    /**
+     * Show kort reward popup
+     */
+    showKortPopup(kort) {
+        const popup = document.createElement('div');
+        popup.className = 'kort-popup-overlay';
+        popup.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.3s;';
+
+        popup.innerHTML = `
+            <div class="kort-popup playful-card" style="background: white; border-radius: var(--radius-xl, 50px); padding: 40px; max-width: 400px; text-align: center; animation: bounceIn 0.5s;">
+                <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px; color: var(--primary-purple, #7C3AED);">Du vant et kort!</h2>
+                <div class="kort-preview" style="margin: 20px 0;">
+                    <img src="${kort.image}" alt="${kort.name}" style="width: 200px; height: 280px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-lg);" />
+                </div>
+                <p style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">${kort.name}</p>
+                <p style="color: var(--text-gray); margin-bottom: 30px;">${kort.description || ''}</p>
+                <button class="btn btn-primary" onclick="this.closest('.kort-popup-overlay').remove()" style="width: 100%;">
+                    🚀 Fortsett øving
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes bounceIn {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * Show wrong answer popup
+     */
+    showWrongAnswerPopup(correctAnswer) {
+        const popup = document.createElement('div');
+        popup.className = 'wrong-answer-overlay';
+        popup.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+
+        popup.innerHTML = `
+            <div class="wrong-answer-popup playful-card" style="background: white; border-radius: var(--radius-lg, 30px); padding: 30px; max-width: 350px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                <h3 style="margin-bottom: 20px; color: var(--text-dark);">Feil svar</h3>
+                <p style="margin-bottom: 10px; color: var(--text-gray);">Riktig svar er:</p>
+                <p style="font-size: 24px; font-weight: 700; color: var(--primary-purple, #7C3AED); margin-bottom: 30px;">${correctAnswer}</p>
+                <button class="btn btn-primary" onclick="this.closest('.wrong-answer-overlay').remove(); window.glosemester.continueAfterWrong();" style="width: 100%;">
+                    Fortsett
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+    }
+
+    /**
+     * Continue to next question after wrong answer
+     */
+    continueAfterWrong() {
+        this.currentIndex++;
+        this.showNextQuestion();
     }
 
     /**

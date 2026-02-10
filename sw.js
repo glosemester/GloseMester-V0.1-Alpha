@@ -15,6 +15,7 @@ const ASSETS_TO_CACHE = [
   // ========================================
   // DESIGN & CSS
   // ========================================
+  './src/styles/redesign.css',
   './css/main.css',
   './css/kort.css',
   './css/popups.css',
