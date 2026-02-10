@@ -429,4 +429,3 @@ export class OppgaveGenerator {
 export default OppgaveGenerator;
 
 console.log('🔢 MatteMester oppgave-generator loaded');
-console.log(`✅ Available levels: ${OppgaveGenerator.getAvailableLevels().join(', ')}`);

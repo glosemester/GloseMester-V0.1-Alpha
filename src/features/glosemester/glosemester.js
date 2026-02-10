@@ -14,6 +14,8 @@ import {
 } from './vocabulary-data.js';
 import { kortSystem } from '../../core/kort/kort-system.js';
 import { visToast, vibrer, lesOpp } from '../../core/utils/feedback.js';
+import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits } from '../../core/utils/storage.js';
+import { practiceLimiter, cardLimiter } from '../../core/utils/rate-limiter.js';
 
 /**
  * GloseMester - Norwegian-English vocabulary learning module
@@ -30,6 +32,7 @@ export class GloseMester extends FagModul {
         this.correctAnswers = 0;
         this.totalQuestions = 0;
         this.sessionCorrect = 0; // Correct answers in current continuous session (for kort rewards)
+        this.dailyCorrect = 0; // Correct answers today (for "X riktige i dag" counter)
     }
 
     // ==================== REQUIRED METHODS ====================
@@ -277,7 +280,7 @@ export class GloseMester extends FagModul {
                         <h2>${metadata.name}</h2>
                         <div class="quiz-stats">
                             <span id="quiz-progress">0 / ${this.currentWords.length}</span>
-                            <span id="quiz-score">Riktige: 0</span>
+                            <span id="daily-correct" style="font-weight: bold; color: var(--accent-blue);">0 riktige i dag</span>
                         </div>
                     </div>
                     <div class="direction-toggle">
@@ -291,6 +294,9 @@ export class GloseMester extends FagModul {
                 </header>
 
                 <div class="quiz-content">
+                    <!-- Credits/XP Progress Bar -->
+                    <div id="credits-progress" class="credit-progress-container" style="margin-bottom: 20px;"></div>
+
                     <!-- 10-box progress tracker -->
                     <div id="kort-progress" class="kort-progress-container"></div>
 
@@ -494,6 +500,17 @@ export class GloseMester extends FagModul {
      * @param {Object} selectedWord - The selected word object
      */
     async handleMultipleChoiceAnswer(selectedWord) {
+        // ✅ RATE LIMITING: Check if user is answering too fast
+        const rateCheck = practiceLimiter.check('practice_answer');
+        if (!rateCheck.allowed) {
+            const minutter = Math.ceil(rateCheck.remainingMs / 60000);
+            visToast(
+                `⏰ Du må ta en pause! Vent ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} før du kan fortsette.`,
+                'warning'
+            );
+            return;
+        }
+
         const correctWord = this.currentWords[this.currentIndex];
         const isCorrect = selectedWord.s === correctWord.s;
 
@@ -505,6 +522,11 @@ export class GloseMester extends FagModul {
             this.sessionCorrect++;
             this.correctAnswers++;
             this.totalQuestions++;
+            this.dailyCorrect++;
+
+            // ✅ Save XP to storage
+            const currentXP = getTotalCorrect('gloser');
+            saveTotalCorrect(currentXP + 1, 'gloser');
 
             // Show success feedback
             const feedback = document.getElementById('feedback');
@@ -515,6 +537,12 @@ export class GloseMester extends FagModul {
 
             // Update progress
             this.updateProgress();
+
+            // ✅ Check for diamond bonus every 100 XP
+            const newXP = getTotalCorrect('gloser');
+            if (newXP > 0 && newXP % 100 === 0) {
+                this.awardDiamondBonus();
+            }
 
             // Check for kort reward
             if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
@@ -544,6 +572,17 @@ export class GloseMester extends FagModul {
         const input = document.getElementById('answer-input');
         if (!input || !input.value.trim()) return;
 
+        // ✅ RATE LIMITING: Check if user is answering too fast
+        const rateCheck = practiceLimiter.check('practice_answer');
+        if (!rateCheck.allowed) {
+            const minutter = Math.ceil(rateCheck.remainingMs / 60000);
+            visToast(
+                `⏰ Du må ta en pause! Vent ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} før du kan fortsette.`,
+                'warning'
+            );
+            return;
+        }
+
         const result = this.checkAnswer(input.value);
 
         // Show feedback
@@ -556,9 +595,20 @@ export class GloseMester extends FagModul {
         // If correct, increment session correct and check for kort reward
         if (result.isCorrect) {
             this.sessionCorrect++;
+            this.dailyCorrect++;
+
+            // ✅ Save XP to storage
+            const currentXP = getTotalCorrect('gloser');
+            saveTotalCorrect(currentXP + 1, 'gloser');
 
             // Update stats
             this.updateProgress();
+
+            // ✅ Check for diamond bonus every 100 XP
+            const newXP = getTotalCorrect('gloser');
+            if (newXP > 0 && newXP % 100 === 0) {
+                this.awardDiamondBonus();
+            }
 
             // Check for kort reward every 10 correct answers
             if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
@@ -586,9 +636,10 @@ export class GloseMester extends FagModul {
             progressText.textContent = `${this.currentIndex} / ${this.currentWords.length}`;
         }
 
-        const scoreText = document.getElementById('quiz-score');
-        if (scoreText) {
-            scoreText.textContent = `Riktige: ${this.correctAnswers}`;
+        // Update daily correct counter
+        const dailyCorrectEl = document.getElementById('daily-correct');
+        if (dailyCorrectEl) {
+            dailyCorrectEl.textContent = `${this.dailyCorrect} riktige i dag`;
         }
 
         const progressFill = document.getElementById('progress-fill');
@@ -599,6 +650,9 @@ export class GloseMester extends FagModul {
 
         // Update 10-box kort progress
         this.updateKortProgress();
+
+        // Update credits/XP progress
+        this.updateCreditsProgress();
     }
 
     /**
@@ -637,10 +691,45 @@ export class GloseMester extends FagModul {
     }
 
     /**
+     * Update Credits/XP progress bar (yellow bar for diamond bonus)
+     */
+    updateCreditsProgress() {
+        const container = document.getElementById('credits-progress');
+        if (!container) return;
+
+        const totalXP = getTotalCorrect('gloser');
+        const currentProgress = totalXP % 100;
+        const percentage = currentProgress;
+
+        container.innerHTML = `
+            <div style="padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: var(--radius-md, 20px);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 600; color: var(--text-dark, #1F2937);">
+                    <span>💎 Mot neste bonuspoeng (100 xp)</span>
+                    <span>${currentProgress} / 100</span>
+                </div>
+                <div class="yellow-track" style="width: 100%; background: rgba(229, 229, 234, 0.6); border-radius: 10px; height: 10px; overflow: hidden;">
+                    <div class="yellow-fill" style="height: 100%; background: linear-gradient(90deg, #FBBF24, #F59E0B); width: ${percentage}%; transition: width 0.4s ease;"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
      * Handle kort reward (every 10 correct answers)
      */
     async handleKortReward() {
         console.log('🎁 10 correct answers! Checking for kort reward...');
+
+        // ✅ RATE LIMITING: Check if user has received too many cards
+        const cardCheck = cardLimiter.check('card_reward');
+        if (!cardCheck.allowed) {
+            const minutter = Math.ceil(cardCheck.remainingMs / 60000);
+            visToast(
+                `🃏 Du har mottatt nok kort for nå! Kom tilbake om ${minutter} ${minutter === 1 ? 'minutt' : 'minutter'} for flere.`,
+                'info'
+            );
+            return;
+        }
 
         try {
             const kort = await kortSystem.getRandomKort('gloser', this.currentLevel);
@@ -652,6 +741,23 @@ export class GloseMester extends FagModul {
         } catch (error) {
             console.error('Error getting kort reward:', error);
         }
+    }
+
+    /**
+     * Award diamond bonus (every 100 XP)
+     */
+    awardDiamondBonus() {
+        const DIAMANTER_PER_BONUS = 10;
+        let credits = getCredits('gloser');
+        credits += DIAMANTER_PER_BONUS;
+        saveCredits(credits, 'gloser');
+
+        // Show toast message
+        setTimeout(() => {
+            visToast(`💎 BONUS! Du fikk ${DIAMANTER_PER_BONUS} diamanter!`, 'success');
+        }, 1000);
+
+        console.log(`💎 Awarded ${DIAMANTER_PER_BONUS} diamonds! Total: ${credits}`);
     }
 
     /**

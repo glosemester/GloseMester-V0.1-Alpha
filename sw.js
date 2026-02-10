@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.0.0-ALPHA
-// Oppdatert: Full v2.0 refactoring, MatteMester, fag-start mellomledd
-const APP_VERSION = 'v2.0.0-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.0.0-alpha';
+// SERVICE WORKER - Mester Suite v2.0.1-ALPHA
+// Oppdatert: Credits/XP system, rate limiting, daily correct counter
+const APP_VERSION = 'v2.0.1-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.0.1-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -39,6 +39,8 @@ const ASSETS_TO_CACHE = [
 
   // Utilities
   './src/core/utils/feedback.js',
+  './src/core/utils/storage.js',
+  './src/core/utils/rate-limiter.js',
 
   // ========================================
   // V2.0 PAGES
