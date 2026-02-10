@@ -5,6 +5,7 @@
 
 import { router, ROUTES, isProtectedRoute } from './core/navigation/router.js';
 import { auth, onAuthStateChanged } from './core/auth/firebase-config.js';
+import './core/utils/feedback.js'; // Load feedback utilities globally
 
 /**
  * Global app state

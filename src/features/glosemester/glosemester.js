@@ -13,6 +13,7 @@ import {
     getAvailableLevels
 } from './vocabulary-data.js';
 import { kortSystem } from '../../core/kort/kort-system.js';
+import { visToast, vibrer, lesOpp } from '../../core/utils/feedback.js';
 
 /**
  * GloseMester - Norwegian-English vocabulary learning module
@@ -28,6 +29,7 @@ export class GloseMester extends FagModul {
         this.direction = 'en'; // 'en' = Norwegian->English, 'no' = English->Norwegian
         this.correctAnswers = 0;
         this.totalQuestions = 0;
+        this.sessionCorrect = 0; // Correct answers in current continuous session (for kort rewards)
     }
 
     // ==================== REQUIRED METHODS ====================
@@ -289,12 +291,16 @@ export class GloseMester extends FagModul {
                 </header>
 
                 <div class="quiz-content">
+                    <!-- 10-box progress tracker -->
+                    <div id="kort-progress" class="kort-progress-container"></div>
+
                     <div class="question-container">
                         <div id="question-word" class="question-word"></div>
                         <div id="word-image" class="word-image"></div>
                     </div>
 
-                    <div class="answer-container">
+                    <!-- Skriving modus -->
+                    <div class="answer-container" id="answer-input-container">
                         <input
                             type="text"
                             id="answer-input"
@@ -307,6 +313,11 @@ export class GloseMester extends FagModul {
                         <button class="btn-primary btn-check" id="check-answer">
                             Sjekk svar
                         </button>
+                    </div>
+
+                    <!-- Flervalg modus -->
+                    <div class="answer-alternatives" id="answer-alternatives" style="display: none;">
+                        <!-- Will be populated dynamically -->
                     </div>
 
                     <div id="feedback" class="feedback"></div>
@@ -373,27 +384,163 @@ export class GloseMester extends FagModul {
             }
         }
 
-        // Clear input and feedback
-        const input = document.getElementById('answer-input');
-        if (input) {
-            input.value = '';
-            input.focus();
+        // Determine if this should be multiple choice or typing
+        const isMultipleChoice = this.shouldBeMultipleChoice();
+
+        const inputContainer = document.getElementById('answer-input-container');
+        const alternativesContainer = document.getElementById('answer-alternatives');
+
+        if (isMultipleChoice) {
+            // Show multiple choice
+            inputContainer.style.display = 'none';
+            alternativesContainer.style.display = 'grid';
+            this.renderMultipleChoice(word);
+        } else {
+            // Show typing input
+            inputContainer.style.display = 'flex';
+            alternativesContainer.style.display = 'none';
+
+            const input = document.getElementById('answer-input');
+            if (input) {
+                input.value = '';
+                input.focus();
+                input.disabled = false;
+            }
         }
 
+        // Clear feedback
         const feedback = document.getElementById('feedback');
         if (feedback) {
             feedback.textContent = '';
             feedback.className = 'feedback';
         }
 
-        // Update progress
+        // Update progress (including kort progress tracker)
         this.updateProgress();
+    }
+
+    /**
+     * Determine if question should be multiple choice based on level
+     * @returns {boolean}
+     */
+    shouldBeMultipleChoice() {
+        // niva1 and niva2: 100% multiple choice
+        if (this.currentLevel === 'niva1' || this.currentLevel === 'niva2') {
+            return true;
+        }
+        // niva4: 20% multiple choice, 80% typing
+        else if (this.currentLevel === 'niva4') {
+            return Math.random() < 0.2;
+        }
+        // niva3: 50/50
+        else {
+            return Math.random() < 0.5;
+        }
+    }
+
+    /**
+     * Render multiple choice alternatives
+     * @param {Object} correctWord - The correct word object
+     */
+    renderMultipleChoice(correctWord) {
+        const container = document.getElementById('answer-alternatives');
+        if (!container) return;
+
+        // Generate alternatives (including correct answer)
+        let alternatives = [correctWord];
+        const checkKey = this.direction === 'en' ? 'e' : 's';
+
+        // Add 3 random wrong answers
+        let attempts = 0;
+        while (alternatives.length < 4 && attempts < 50) {
+            const randomWord = this.currentWords[Math.floor(Math.random() * this.currentWords.length)];
+            if (!alternatives.some(alt => alt[checkKey] === randomWord[checkKey])) {
+                alternatives.push(randomWord);
+            }
+            attempts++;
+        }
+
+        // Shuffle alternatives
+        alternatives = this.shuffleArray(alternatives);
+
+        // Render buttons
+        container.innerHTML = '';
+        container.style.cssText = 'display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px;';
+
+        alternatives.forEach(alt => {
+            const answerText = this.direction === 'en' ? alt.e : alt.s;
+            const lang = this.direction === 'en' ? 'en-US' : 'no-NO';
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary alternative-btn';
+            btn.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600;';
+
+            btn.innerHTML = `
+                <span style="pointer-events: none;">${answerText}</span>
+                <div class="speaker-btn-inline"
+                     onclick="event.stopPropagation(); window.MesterUtils.lesOpp('${answerText.replace(/'/g, "\\'")}', '${lang}')"
+                     style="font-size: 20px; cursor: pointer; padding: 6px 10px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    🔊
+                </div>
+            `;
+
+            this.addEventListener(btn, 'click', () => this.handleMultipleChoiceAnswer(alt));
+            container.appendChild(btn);
+        });
+    }
+
+    /**
+     * Handle multiple choice answer selection
+     * @param {Object} selectedWord - The selected word object
+     */
+    async handleMultipleChoiceAnswer(selectedWord) {
+        const correctWord = this.currentWords[this.currentIndex];
+        const isCorrect = selectedWord.s === correctWord.s;
+
+        // Disable all buttons
+        const buttons = document.querySelectorAll('.alternative-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (isCorrect) {
+            this.sessionCorrect++;
+            this.correctAnswers++;
+            this.totalQuestions++;
+
+            // Show success feedback
+            const feedback = document.getElementById('feedback');
+            if (feedback) {
+                feedback.textContent = '✅ Riktig!';
+                feedback.className = 'feedback correct';
+            }
+
+            // Update progress
+            this.updateProgress();
+
+            // Check for kort reward
+            if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
+                await this.handleKortReward();
+            }
+
+            // Move to next question
+            setTimeout(() => {
+                this.currentIndex++;
+                this.showNextQuestion();
+            }, 800);
+        } else {
+            this.totalQuestions++;
+
+            // Wrong answer - vibrate and show popup
+            vibrer(200);
+
+            const correctAnswer = this.direction === 'en' ? correctWord.e : correctWord.s;
+            this.showWrongAnswerPopup(correctAnswer);
+        }
     }
 
     /**
      * Handle check answer button click
      */
-    handleCheckAnswer() {
+    async handleCheckAnswer() {
         const input = document.getElementById('answer-input');
         if (!input || !input.value.trim()) return;
 
@@ -406,14 +553,28 @@ export class GloseMester extends FagModul {
             feedback.className = `feedback ${result.isCorrect ? 'correct' : 'incorrect'}`;
         }
 
-        // Update stats
-        this.updateProgress();
+        // If correct, increment session correct and check for kort reward
+        if (result.isCorrect) {
+            this.sessionCorrect++;
 
-        // Move to next question after delay
-        setTimeout(() => {
-            this.currentIndex++;
-            this.showNextQuestion();
-        }, result.isCorrect ? 800 : 2000);
+            // Update stats
+            this.updateProgress();
+
+            // Check for kort reward every 10 correct answers
+            if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
+                await this.handleKortReward();
+            }
+
+            // Move to next question after delay
+            setTimeout(() => {
+                this.currentIndex++;
+                this.showNextQuestion();
+            }, 800);
+        } else {
+            // Wrong answer - vibrate and show error popup
+            vibrer(200);
+            this.showWrongAnswerPopup(result.correctAnswer);
+        }
     }
 
     /**
@@ -435,6 +596,135 @@ export class GloseMester extends FagModul {
             const percent = (this.currentIndex / this.currentWords.length) * 100;
             progressFill.style.width = `${percent}%`;
         }
+
+        // Update 10-box kort progress
+        this.updateKortProgress();
+    }
+
+    /**
+     * Update 10-box kort progress tracker
+     */
+    updateKortProgress() {
+        const container = document.getElementById('kort-progress');
+        if (!container) return;
+
+        const filledBoxes = (this.sessionCorrect % 10 === 0 && this.sessionCorrect > 0) ? 10 : this.sessionCorrect % 10;
+        const totalBoxes = 10;
+
+        let boxesHTML = '';
+        for (let i = 0; i < totalBoxes; i++) {
+            const isFilled = i < filledBoxes;
+            boxesHTML += `
+                <div class="progress-box ${isFilled ? 'filled' : ''}"
+                     style="flex: 1; height: 12px; background: ${isFilled ? 'var(--sunny-yellow, #FBBF24)' : 'rgba(255,255,255,0.3)'};
+                            border-radius: 6px; transition: all 0.3s ease;
+                            ${isFilled ? 'box-shadow: 0 0 12px var(--sunny-yellow, #FBBF24);' : ''}">
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: var(--radius-md, 20px);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-dark, #1F2937);">
+                    <span>🎁 MOT NYTT KORT:</span>
+                    <span>${filledBoxes} / 10</span>
+                </div>
+                <div class="progress-boxes" style="display: flex; gap: 6px;">
+                    ${boxesHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Handle kort reward (every 10 correct answers)
+     */
+    async handleKortReward() {
+        console.log('🎁 10 correct answers! Checking for kort reward...');
+
+        try {
+            const kort = await kortSystem.getRandomKort('gloser', this.currentLevel);
+
+            if (kort) {
+                // Show kort reward popup
+                this.showKortPopup(kort);
+            }
+        } catch (error) {
+            console.error('Error getting kort reward:', error);
+        }
+    }
+
+    /**
+     * Show kort reward popup
+     */
+    showKortPopup(kort) {
+        const popup = document.createElement('div');
+        popup.className = 'kort-popup-overlay';
+        popup.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.3s;';
+
+        popup.innerHTML = `
+            <div class="kort-popup playful-card" style="background: white; border-radius: var(--radius-xl, 50px); padding: 40px; max-width: 400px; text-align: center; animation: bounceIn 0.5s;">
+                <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px; color: var(--primary-purple, #7C3AED);">Du vant et kort!</h2>
+                <div class="kort-preview" style="margin: 20px 0;">
+                    <img src="${kort.image}" alt="${kort.name}" style="width: 200px; height: 280px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-lg);" />
+                </div>
+                <p style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">${kort.name}</p>
+                <p style="color: var(--text-gray); margin-bottom: 30px;">${kort.description || ''}</p>
+                <button class="btn btn-primary" onclick="this.closest('.kort-popup-overlay').remove()" style="width: 100%;">
+                    🚀 Fortsett øving
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes bounceIn {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.05); }
+                70% { transform: scale(0.9); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * Show wrong answer popup
+     */
+    showWrongAnswerPopup(correctAnswer) {
+        const popup = document.createElement('div');
+        popup.className = 'wrong-answer-overlay';
+        popup.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+
+        popup.innerHTML = `
+            <div class="wrong-answer-popup playful-card" style="background: white; border-radius: var(--radius-lg, 30px); padding: 30px; max-width: 350px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                <h3 style="margin-bottom: 20px; color: var(--text-dark);">Feil svar</h3>
+                <p style="margin-bottom: 10px; color: var(--text-gray);">Riktig svar er:</p>
+                <p style="font-size: 24px; font-weight: 700; color: var(--primary-purple, #7C3AED); margin-bottom: 30px;">${correctAnswer}</p>
+                <button class="btn btn-primary" onclick="this.closest('.wrong-answer-overlay').remove(); window.glosemester.continueAfterWrong();" style="width: 100%;">
+                    Fortsett
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+    }
+
+    /**
+     * Continue to next question after wrong answer
+     */
+    continueAfterWrong() {
+        this.currentIndex++;
+        this.showNextQuestion();
     }
 
     /**

@@ -25,81 +25,80 @@ export class FagStart {
         const fagConfig = this.getFagConfig(fagType);
 
         container.innerHTML = `
-            <div class="fag-start-page">
+            <div class="fag-start-page blob-bg" style="min-height: 100vh; padding: 20px;">
                 <!-- Header -->
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <button class="btn-secondary" onclick="window.router.back()" style="position: absolute; left: 20px; top: 20px;">
-                        ← Tilbake til fagvelger
+                <div style="text-align: center; margin-bottom: 30px; position: relative;">
+                    <button class="btn btn-secondary" onclick="window.router.back()" style="position: absolute; left: 0; top: 0;">
+                        ← Tilbake
                     </button>
                 </div>
 
-                <!-- Banner -->
-                <div class="fag-banner" style="background: ${fagConfig.gradient}; border-radius: 16px; padding: 40px; text-align: center; color: white; margin-bottom: 40px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
-                    <div style="font-size: 64px; margin-bottom: 15px;">${fagConfig.emoji}</div>
-                    <h1 style="font-size: 42px; margin: 0 0 10px 0; font-weight: 700;">${fagConfig.name}</h1>
-                    <p style="font-size: 18px; margin: 0; opacity: 0.95;">${fagConfig.description}</p>
+                <!-- Hero Banner -->
+                <div class="hero-section" style="background: ${fagConfig.gradient}; border-radius: var(--radius-xl, 50px); margin-bottom: 50px;">
+                    <div class="icon-large">${fagConfig.emoji}</div>
+                    <h1>${fagConfig.name}</h1>
+                    <p>${fagConfig.description}</p>
                 </div>
 
-                <!-- Role Cards -->
-                <div class="role-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1000px; margin: 0 auto; padding: 0 20px;">
+                <!-- Role Cards Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
                     <!-- Øv Selv -->
-                    <div class="role-card" data-role="elev" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; position: relative;">
-                        <div style="font-size: 64px; text-align: center; margin-bottom: 15px;">💪</div>
-                        <h2 style="font-size: 24px; margin: 0 0 10px 0; text-align: center; color: #0071e3;">Øv Selv</h2>
-                        <p style="color: #666; text-align: center; margin-bottom: 20px;">Velg nivå og samle kort</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
-                            <li style="padding: 8px 0; color: #666;">✅ Ingen pålogging nødvendig</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Alle nivåer tilgjengelig</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Samle kort ved god score</li>
+                    <div class="playful-card purple" data-role="elev" style="text-align: center;">
+                        <span class="doodle doodle-star">✨</span>
+                        <div class="icon-large">🧠</div>
+                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">Øv Selv</h2>
+                        <p style="margin-bottom: 24px; opacity: 0.95;">Velg nivå og samle kort</p>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Alle nivåer tilgjengelig</li>
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Samle kort ved god score</li>
                         </ul>
-                        <button class="btn-primary" onclick="window.fagStart.startOvSelv('${fagType}')" style="width: 100%; background: #0071e3;">
-                            Start øving
+                        <button class="btn btn-primary" onclick="window.fagStart.startOvSelv('${fagType}')" style="width: 100%;">
+                            🚀 Start øving
                         </button>
                     </div>
 
-                    <!-- GlosePrøve -->
-                    <div class="role-card" data-role="prove" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 64px; text-align: center; margin-bottom: 15px;">📝</div>
-                        <h2 style="font-size: 24px; margin: 0 0 10px 0; text-align: center; color: #0071e3;">${fagConfig.proveNavn}</h2>
-                        <p style="color: #666; text-align: center; margin-bottom: 20px;">Har du prøvekode?</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
-                            <li style="padding: 8px 0; color: #666;">✅ Ingen pålogging nødvendig</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Få prøvekode fra lærer</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Resultat sendes til lærer</li>
+                    <!-- Prøve -->
+                    <div class="playful-card orange" data-role="prove" style="text-align: center;">
+                        <span class="doodle doodle-star">⭐</span>
+                        <div class="icon-large">📝</div>
+                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">${fagConfig.proveNavn}</h2>
+                        <p style="margin-bottom: 24px; opacity: 0.95;">Har du prøvekode?</p>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Få prøvekode fra lærer</li>
+                            <li style="padding: 10px 0; opacity: 0.95;">✅ Resultat sendes til lærer</li>
                         </ul>
-                        <button class="btn-primary" onclick="window.fagStart.startProve('${fagType}')" style="width: 100%; background: #10b981;">
-                            Ta prøve
+                        <button class="btn btn-orange" onclick="window.fagStart.startProve('${fagType}')" style="width: 100%;">
+                            🎯 Ta prøve
                         </button>
                     </div>
 
                     <!-- Lærer -->
-                    <div class="role-card" data-role="larer" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 64px; text-align: center; margin-bottom: 15px;">🍎</div>
-                        <h2 style="font-size: 24px; margin: 0 0 10px 0; text-align: center; color: #0071e3;">Lærer</h2>
-                        <p style="color: #666; text-align: center; margin-bottom: 20px;">Lag prøver og følg elever</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
-                            <li style="padding: 8px 0; color: #666;">✅ Lag egne prøver</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Se elevresultater</li>
-                            <li style="padding: 8px 0; color: #666;">✅ Del med QR-kode</li>
+                    <div class="playful-card yellow" data-role="larer" style="text-align: center;">
+                        <span class="doodle doodle-star">🌟</span>
+                        <div class="icon-large">🎓</div>
+                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">Lærer</h2>
+                        <p style="margin-bottom: 24px;">Lag prøver og følg elever</p>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                            <li style="padding: 10px 0;">✅ Lag egne prøver</li>
+                            <li style="padding: 10px 0;">✅ Se elevresultater</li>
+                            <li style="padding: 10px 0;">✅ Del med QR-kode</li>
                         </ul>
-                        <button class="btn-primary" onclick="window.fagStart.startLarer('${fagType}')" style="width: 100%; background: #f59e0b;">
-                            Logg inn
+                        <button class="btn btn-yellow" onclick="window.fagStart.startLarer('${fagType}')" style="width: 100%;">
+                            👩‍🏫 Logg inn
                         </button>
                     </div>
                 </div>
 
-                <footer class="landing-footer" style="text-align: center; margin-top: 60px; padding: 20px; color: #666; font-size: 14px;">
-                    <p>&copy; 2026 Mester Suite. Laget med ❤️ for norske elever og lærere.</p>
+                <!-- Wave Divider -->
+                <div class="wave-divider" style="margin-top: 60px;"></div>
+
+                <footer style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
+                    <p style="font-size: 14px;">&copy; 2026 Mester Suite. Laget med ❤️ for norske elever og lærere.</p>
                 </footer>
             </div>
-
-            <style>
-                .role-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
-                }
-            </style>
         `;
 
         // Store current fag

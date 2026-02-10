@@ -15,6 +15,7 @@ const ASSETS_TO_CACHE = [
   // ========================================
   // DESIGN & CSS
   // ========================================
+  './src/styles/redesign.css',
   './css/main.css',
   './css/kort.css',
   './css/popups.css',
@@ -35,6 +36,9 @@ const ASSETS_TO_CACHE = [
   './src/core/kort/kort-data.js',
   './src/core/kort/kort-reward.js',
   './src/core/kort/kort-display.js',
+
+  // Utilities
+  './src/core/utils/feedback.js',
 
   // ========================================
   // V2.0 PAGES
