@@ -558,7 +558,7 @@ input, textarea, select {
 .btn-warning:disabled { background: #bbb; cursor: not-allowed; opacity: 0.5; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #333; }
 .form-group input[type="text"] { width: 100%; padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; transition: border-color 0.3s ease; }
-.form-group input[type="text"]:focus { outline: none; border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
+.form-group input[type="text"]:focus { outline: 2px solid #0071e3; outline-offset: 2px; border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
 .btn-info {
     background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; border: none; padding: 10px 20px;
     border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);

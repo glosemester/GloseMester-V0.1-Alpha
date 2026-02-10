@@ -28,6 +28,7 @@ export class MatteMester extends FagModul {
         this.currentIndex = 0;
         this.correctAnswers = 0;
         this.totalQuestions = 0;
+        this.keydownHandler = null; // Store keyboard handler for cleanup
         this.currentAnswer = '';
         this.sessionCorrect = 0; // Correct answers in current continuous session (for kort rewards)
         this.dailyCorrect = 0; // Correct answers today (for "X riktige i dag" counter)
@@ -352,7 +353,7 @@ export class MatteMester extends FagModul {
         const container = document.getElementById('app');
         if (!container) return;
 
-        const config = OPPGAVE_CONFIG[this.currentLevel];
+        const config = OPPGAVE_CONFIG[this.currentOperation];
 
         container.innerHTML = `
             <div class="mattemester-quiz">
@@ -426,7 +427,12 @@ export class MatteMester extends FagModul {
         });
 
         // Physical keyboard support
-        this.addEventListener(document, 'keydown', (e) => {
+        // Remove old listener before adding new one to prevent accumulation
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+        }
+
+        this.keydownHandler = (e) => {
             if (e.key >= '0' && e.key <= '9') {
                 this.handleKeyboardInput(e.key);
             } else if (e.key === '.') {
@@ -438,7 +444,9 @@ export class MatteMester extends FagModul {
             } else if (e.key === 'Escape') {
                 this.handleKeyboardInput('clear');
             }
-        });
+        };
+
+        this.addEventListener(document, 'keydown', this.keydownHandler);
     }
 
     /**
@@ -816,7 +824,7 @@ export class MatteMester extends FagModul {
 
         if (practiceAgainBtn) {
             this.addEventListener(practiceAgainBtn, 'click', () => {
-                this.startPractice(summary.category);
+                this.startPractice(summary.operasjon, summary.nivå);
             });
         }
 
@@ -857,6 +865,17 @@ export class MatteMester extends FagModul {
         };
 
         return names[type] || type;
+    }
+
+    /**
+     * Override cleanup() to remove document-level event listeners
+     */
+    cleanup() {
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+            this.keydownHandler = null;
+        }
+        super.cleanup();
     }
 }
 
