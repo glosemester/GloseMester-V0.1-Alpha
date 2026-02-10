@@ -37,6 +37,9 @@ const ASSETS_TO_CACHE = [
   './src/core/kort/kort-reward.js',
   './src/core/kort/kort-display.js',
 
+  // Utilities
+  './src/core/utils/feedback.js',
+
   // ========================================
   // V2.0 PAGES
   // ========================================

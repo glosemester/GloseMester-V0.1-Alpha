@@ -13,6 +13,7 @@ import {
     getAvailableLevels
 } from './vocabulary-data.js';
 import { kortSystem } from '../../core/kort/kort-system.js';
+import { visToast, vibrer, lesOpp } from '../../core/utils/feedback.js';
 
 /**
  * GloseMester - Norwegian-English vocabulary learning module
@@ -298,7 +299,8 @@ export class GloseMester extends FagModul {
                         <div id="word-image" class="word-image"></div>
                     </div>
 
-                    <div class="answer-container">
+                    <!-- Skriving modus -->
+                    <div class="answer-container" id="answer-input-container">
                         <input
                             type="text"
                             id="answer-input"
@@ -311,6 +313,11 @@ export class GloseMester extends FagModul {
                         <button class="btn-primary btn-check" id="check-answer">
                             Sjekk svar
                         </button>
+                    </div>
+
+                    <!-- Flervalg modus -->
+                    <div class="answer-alternatives" id="answer-alternatives" style="display: none;">
+                        <!-- Will be populated dynamically -->
                     </div>
 
                     <div id="feedback" class="feedback"></div>
@@ -377,14 +384,31 @@ export class GloseMester extends FagModul {
             }
         }
 
-        // Clear input and feedback
-        const input = document.getElementById('answer-input');
-        if (input) {
-            input.value = '';
-            input.focus();
-            input.disabled = false; // Re-enable input
+        // Determine if this should be multiple choice or typing
+        const isMultipleChoice = this.shouldBeMultipleChoice();
+
+        const inputContainer = document.getElementById('answer-input-container');
+        const alternativesContainer = document.getElementById('answer-alternatives');
+
+        if (isMultipleChoice) {
+            // Show multiple choice
+            inputContainer.style.display = 'none';
+            alternativesContainer.style.display = 'grid';
+            this.renderMultipleChoice(word);
+        } else {
+            // Show typing input
+            inputContainer.style.display = 'flex';
+            alternativesContainer.style.display = 'none';
+
+            const input = document.getElementById('answer-input');
+            if (input) {
+                input.value = '';
+                input.focus();
+                input.disabled = false;
+            }
         }
 
+        // Clear feedback
         const feedback = document.getElementById('feedback');
         if (feedback) {
             feedback.textContent = '';
@@ -393,6 +417,124 @@ export class GloseMester extends FagModul {
 
         // Update progress (including kort progress tracker)
         this.updateProgress();
+    }
+
+    /**
+     * Determine if question should be multiple choice based on level
+     * @returns {boolean}
+     */
+    shouldBeMultipleChoice() {
+        // niva1 and niva2: 100% multiple choice
+        if (this.currentLevel === 'niva1' || this.currentLevel === 'niva2') {
+            return true;
+        }
+        // niva4: 20% multiple choice, 80% typing
+        else if (this.currentLevel === 'niva4') {
+            return Math.random() < 0.2;
+        }
+        // niva3: 50/50
+        else {
+            return Math.random() < 0.5;
+        }
+    }
+
+    /**
+     * Render multiple choice alternatives
+     * @param {Object} correctWord - The correct word object
+     */
+    renderMultipleChoice(correctWord) {
+        const container = document.getElementById('answer-alternatives');
+        if (!container) return;
+
+        // Generate alternatives (including correct answer)
+        let alternatives = [correctWord];
+        const checkKey = this.direction === 'en' ? 'e' : 's';
+
+        // Add 3 random wrong answers
+        let attempts = 0;
+        while (alternatives.length < 4 && attempts < 50) {
+            const randomWord = this.currentWords[Math.floor(Math.random() * this.currentWords.length)];
+            if (!alternatives.some(alt => alt[checkKey] === randomWord[checkKey])) {
+                alternatives.push(randomWord);
+            }
+            attempts++;
+        }
+
+        // Shuffle alternatives
+        alternatives = this.shuffleArray(alternatives);
+
+        // Render buttons
+        container.innerHTML = '';
+        container.style.cssText = 'display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px;';
+
+        alternatives.forEach(alt => {
+            const answerText = this.direction === 'en' ? alt.e : alt.s;
+            const lang = this.direction === 'en' ? 'en-US' : 'no-NO';
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary alternative-btn';
+            btn.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600;';
+
+            btn.innerHTML = `
+                <span style="pointer-events: none;">${answerText}</span>
+                <div class="speaker-btn-inline"
+                     onclick="event.stopPropagation(); window.MesterUtils.lesOpp('${answerText.replace(/'/g, "\\'")}', '${lang}')"
+                     style="font-size: 20px; cursor: pointer; padding: 6px 10px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    🔊
+                </div>
+            `;
+
+            this.addEventListener(btn, 'click', () => this.handleMultipleChoiceAnswer(alt));
+            container.appendChild(btn);
+        });
+    }
+
+    /**
+     * Handle multiple choice answer selection
+     * @param {Object} selectedWord - The selected word object
+     */
+    async handleMultipleChoiceAnswer(selectedWord) {
+        const correctWord = this.currentWords[this.currentIndex];
+        const isCorrect = selectedWord.s === correctWord.s;
+
+        // Disable all buttons
+        const buttons = document.querySelectorAll('.alternative-btn');
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (isCorrect) {
+            this.sessionCorrect++;
+            this.correctAnswers++;
+            this.totalQuestions++;
+
+            // Show success feedback
+            const feedback = document.getElementById('feedback');
+            if (feedback) {
+                feedback.textContent = '✅ Riktig!';
+                feedback.className = 'feedback correct';
+            }
+
+            // Update progress
+            this.updateProgress();
+
+            // Check for kort reward
+            if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
+                await this.handleKortReward();
+            }
+
+            // Move to next question
+            setTimeout(() => {
+                this.currentIndex++;
+                this.showNextQuestion();
+            }, 800);
+        } else {
+            this.totalQuestions++;
+
+            // Wrong answer - vibrate and show popup
+            vibrer(200);
+
+            const correctAnswer = this.direction === 'en' ? correctWord.e : correctWord.s;
+            this.showWrongAnswerPopup(correctAnswer);
+        }
     }
 
     /**
@@ -429,7 +571,8 @@ export class GloseMester extends FagModul {
                 this.showNextQuestion();
             }, 800);
         } else {
-            // Wrong answer - show error popup instead of just feedback
+            // Wrong answer - vibrate and show error popup
+            vibrer(200);
             this.showWrongAnswerPopup(result.correctAnswer);
         }
     }
