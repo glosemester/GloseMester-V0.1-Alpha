@@ -68,6 +68,30 @@ export class Landing {
                     </div>
                 </div>
 
+                <!-- PWA Install Button -->
+                <div style="text-align: center; margin: 40px auto 20px; max-width: 400px; padding: 0 20px;">
+                    <button
+                        id="pwa-install-btn"
+                        class="btn btn-primary"
+                        style="
+                            display: none;
+                            width: 100%;
+                            padding: 16px 32px;
+                            font-size: 18px;
+                            font-weight: 600;
+                            background: linear-gradient(135deg, var(--primary-purple), var(--vibrant-orange));
+                            color: white;
+                            border: none;
+                            border-radius: var(--radius-xl);
+                            cursor: pointer;
+                            box-shadow: var(--shadow-lg);
+                            transition: all 0.3s;
+                        "
+                    >
+                        📲 Installer App
+                    </button>
+                </div>
+
                 <!-- Wave Divider -->
                 <div class="wave-divider"></div>
 

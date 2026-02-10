@@ -6,6 +6,8 @@
 import { router, ROUTES, isProtectedRoute } from './core/navigation/router.js';
 import { auth, onAuthStateChanged } from './core/auth/firebase-config.js';
 import './core/utils/feedback.js'; // Load feedback utilities globally
+import { pwaInstaller } from './core/pwa/installer.js';
+import { createIOSPopup } from './core/pwa/ios-popup.js';
 
 /**
  * Global app state
@@ -37,6 +39,9 @@ async function initApp() {
 
     // Setup auth listener
     onAuthStateChanged(auth, handleAuthChange);
+
+    // Initialize PWA
+    initPWA();
 
     // Mark as initialized
     window.MesterSuite.initialized = true;
@@ -197,6 +202,54 @@ function getPageTitle(path) {
     };
 
     return titles[path] || 'Mester Suite';
+}
+
+/**
+ * Initialize PWA (Progressive Web App) functionality
+ */
+function initPWA() {
+    console.log('📲 Initializing PWA...');
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('✅ Service Worker registered:', registration.scope);
+
+                // Check for updates
+                registration.onupdatefound = () => {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                        newWorker.onstatechange = () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('🔄 New version available - reload to update');
+                                // Optional: Show update notification
+                            }
+                        };
+                    }
+                };
+            })
+            .catch(error => {
+                console.warn('❌ Service Worker registration failed:', error);
+            });
+
+        // Listen for Service Worker messages
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'NEW_VERSION') {
+                console.log('🔄 New version detected:', event.data.version);
+            }
+        });
+    } else {
+        console.warn('⚠️ Service Workers not supported in this browser');
+    }
+
+    // Add iOS popup to DOM
+    document.body.appendChild(createIOSPopup());
+
+    // Initialize PWA installer (handles install button)
+    pwaInstaller.init();
+
+    console.log('✅ PWA initialized');
 }
 
 /**
