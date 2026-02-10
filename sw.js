@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.0.2-ALPHA
-// Oppdatert: MenuSystem, Teacher Module, Credits/XP, Rate Limiting
-const APP_VERSION = 'v2.0.2-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.0.2-alpha';
+// SERVICE WORKER - Mester Suite v2.0.3-ALPHA
+// Oppdatert: PWA Install Button, MenuSystem, Teacher Module, Credits/XP, Rate Limiting
+const APP_VERSION = 'v2.0.3-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.0.3-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -44,6 +44,10 @@ const ASSETS_TO_CACHE = [
 
   // Navigation
   './src/core/navigation/menu-system.js',
+
+  // PWA
+  './src/core/pwa/installer.js',
+  './src/core/pwa/ios-popup.js',
 
   // ========================================
   // V2.0 PAGES

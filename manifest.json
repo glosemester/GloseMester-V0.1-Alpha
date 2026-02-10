@@ -1,11 +1,11 @@
-﻿{
-  "name": "GloseMester Alpha",
-  "short_name": "GloseMester",
-  "description": "Lær språk med kortsamling - gamification møter glosepugging. Bygg din samling, øv ord og ta prøver med lærere.",
-  "start_url": "index.html",
+{
+  "name": "Mester Suite - Lær med Gamification",
+  "short_name": "Mester Suite",
+  "description": "GloseMester, MatteMester og NorskMester - Lær språk og matte med kortsamling og gamification. Øv, ta prøver og samle kort!",
+  "start_url": "./index-v2.html",
   "display": "standalone",
-  "background_color": "#f5f5f7",
-  "theme_color": "#667eea",
+  "background_color": "#F5F3FF",
+  "theme_color": "#7C3AED",
   "orientation": "portrait",
   "categories": ["education", "games", "entertainment"],
   "lang": "no",
@@ -26,24 +26,24 @@
   ],
   "shortcuts": [
     {
-      "name": "Øv Selv",
-      "short_name": "Øv",
-      "description": "Start øving med egne ordlister",
-      "url": "/?mode=practice",
+      "name": "GloseMester",
+      "short_name": "Gloser",
+      "description": "Øv engelske gloser og samle kort",
+      "url": "./?fag=gloser",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Ta Prøve",
-      "short_name": "Prøve",
-      "description": "Start en prøve med prøvekode",
-      "url": "/?mode=test",
+      "name": "MatteMester",
+      "short_name": "Matte",
+      "description": "Tren matematikk og vinn romkort",
+      "url": "./?fag=matte",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     },
     {
-      "name": "Min Samling",
-      "short_name": "Samling",
-      "description": "Se dine samlede kort",
-      "url": "/?mode=collection",
+      "name": "Lærerportal",
+      "short_name": "Lærer",
+      "description": "Lag prøver og se resultater",
+      "url": "./?mode=teacher",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     }
   ],
