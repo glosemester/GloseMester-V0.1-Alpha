@@ -309,7 +309,7 @@ window.visProveDetaljerAdmin = async function(proveId) {
         
         let ordlisteHTML = '<table class="ordliste-tabell"><tr><th>Norsk</th><th>Engelsk</th></tr>';
         ordliste.forEach(ord => {
-            ordlisteHTML += `<tr><td>${ord.s}</td><td>${ord.e}</td></tr>`;
+            ordlisteHTML += `<tr><td>${escapeHtml(ord.s || '')}</td><td>${escapeHtml(ord.e || '')}</td></tr>`;
         });
         ordlisteHTML += '</table>';
         
@@ -317,7 +317,7 @@ window.visProveDetaljerAdmin = async function(proveId) {
             <div class="modal-overlay">
                 <div class="modal-content modal-large">
                     <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
-                    <h2>${data.tittel || 'Uten tittel'}</h2>
+                    <h2>${escapeHtml(data.tittel || 'Uten tittel')}</h2>
                     
                     <div class="prove-detaljer">
                         <p><strong>📚 Antall ord:</strong> ${ordliste.length}</p>

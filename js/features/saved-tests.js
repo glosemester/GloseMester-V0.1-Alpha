@@ -853,7 +853,24 @@ window.lastNedQRKode = async function(proveId, tittel) {
 };
 
 window.skrivUtQRKode = function() {
+    const modal = document.querySelector('.modal-overlay');
+    if (!modal) { window.print(); return; }
+
+    // Skjul alt annet, vis kun QR-innhold for utskrift
+    const printStyle = document.createElement('style');
+    printStyle.id = 'qr-print-style';
+    printStyle.textContent = `
+        @media print {
+            body > *:not(.modal-overlay) { display: none !important; }
+            .modal-overlay { position: static !important; background: white !important; }
+            .modal-content { box-shadow: none !important; max-width: 100% !important; }
+            .modal-close, .qr-actions { display: none !important; }
+        }
+    `;
+    document.head.appendChild(printStyle);
     window.print();
+    // Fjern print-stilen etter utskrift
+    setTimeout(() => printStyle.remove(), 1000);
 };
 
 // ============================================
@@ -970,12 +987,31 @@ window.eksporterTilExcel = async function(proveId, tittel) {
 // SLETT PRØVE
 // ============================================
 window.slettProve = async function(proveId) {
-    const bekreft = confirm("⚠️ Er du sikker på at du vil slette denne prøven?\n\nDette kan ikke angres!");
+    const bekreft = confirm("⚠️ Er du sikker på at du vil slette denne prøven og alle tilhørende resultater?\n\nDette kan ikke angres!");
     if (!bekreft) return;
 
     try {
+        // Slett tilhørende resultater først
+        try {
+            const resultaterQuery = query(
+                collection(db, "resultater"),
+                where("prove_id", "==", proveId)
+            );
+            const resultaterSnapshot = await getDocs(resultaterQuery);
+            const slettPromises = [];
+            resultaterSnapshot.forEach((docSnap) => {
+                slettPromises.push(deleteDoc(docSnap.ref));
+            });
+            if (slettPromises.length > 0) {
+                await Promise.all(slettPromises);
+            }
+        } catch (e) {
+            console.warn("Kunne ikke slette resultater:", e.message);
+        }
+
+        // Slett selve prøven
         await deleteDoc(doc(db, "prover", proveId));
-        alert("✅ Prøven er slettet!");
+        alert("✅ Prøven og tilhørende resultater er slettet!");
         visSavedTests();
     } catch (error) {
         console.error("Feil ved sletting:", error);

@@ -430,8 +430,15 @@ export function godtaPersonvern() {
     document.getElementById('personvern-popup').style.display = 'none'; 
 }
 
-export function avvisPersonvern() { 
-    alert("Du må godta for å bruke tjenesten."); 
+export async function avvisPersonvern() {
+    alert("Du må godta personvernerklæringen for å bruke tjenesten.\n\nDu blir nå logget ut.");
+    try {
+        await auth.signOut();
+    } catch (e) { /* ignorerer feil */ }
+    document.getElementById('personvern-popup').style.display = 'none';
+    window.currentUser = null;
+    sessionStorage.clear();
+    window.location.href = '/';
 }
 
 // ============================================
