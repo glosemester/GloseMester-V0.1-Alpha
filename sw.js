@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.2.0-ALPHA
-// Oppdatert: Lærer-diktat med stemmeopptak, Firebase Storage
-const APP_VERSION = 'v2.2.0-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.2.0-alpha';
+// SERVICE WORKER - Mester Suite v2.2.1-ALPHA
+// Oppdatert: Fikset iOS PWA-oppdatering, versjonsjekk
+const APP_VERSION = 'v2.2.1-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.2.1-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -144,7 +144,8 @@ const ASSETS_TO_CACHE = [
 // INSTALL - Cache assets
 self.addEventListener('install', (e) => {
   console.log(`[SW] Installerer ${APP_VERSION}`);
-  self.skipWaiting(); // Aktiver umiddelbart
+  // VIKTIG: Ikke skipWaiting() her — la klienten bestemme via SKIP_WAITING melding
+  // Dette gir klienten tid til å vise "Oppdater nå"-popup
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
     await Promise.all(ASSETS_TO_CACHE.map(async url => {
