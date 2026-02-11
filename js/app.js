@@ -418,6 +418,74 @@ window.updateHamburgerUserInfo = updateHamburgerUserInfo;
    --- AUTO-UPDATE SYSTEM ---
    ============================================ */
 
+// Klientversjon — MÅ matche sw.js APP_VERSION for å unngå popup
+const KLIENT_VERSJON = 'v2.2.1-ALPHA';
+
+/**
+ * Sjekk om SW-versjonen er nyere enn klientversjonen
+ * Brukes som fallback for iOS der onupdatefound ikke alltid trigges
+ */
+function sjekkVersjon() {
+    if (!navigator.serviceWorker.controller) return;
+
+    const mc = new MessageChannel();
+    mc.port1.onmessage = (event) => {
+        if (event.data?.type === 'VERSION_INFO') {
+            const swVersjon = event.data.version;
+            if (swVersjon && swVersjon !== KLIENT_VERSJON) {
+                console.log(`[Update] SW=${swVersjon}, Klient=${KLIENT_VERSJON} — oppdatering tilgjengelig`);
+                visUpdateVarsling();
+            }
+        }
+    };
+    navigator.serviceWorker.controller.postMessage(
+        { type: 'GET_VERSION' },
+        [mc.port2]
+    );
+}
+
+/**
+ * Manuell oppdateringssjekk (klikk på versjon i footer)
+ */
+window.sjekkForOppdatering = async function() {
+    const statusEl = document.getElementById('sw-versjon-status');
+    if (statusEl) statusEl.textContent = 'Sjekker for oppdatering...';
+
+    try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+            await reg.update();
+            // Vent litt og sjekk versjon
+            setTimeout(() => {
+                sjekkVersjon();
+                if (statusEl) statusEl.textContent = `Klient: ${KLIENT_VERSJON} | Trykk for å sjekke`;
+            }, 2000);
+        }
+    } catch (err) {
+        if (statusEl) statusEl.textContent = 'Kunne ikke sjekke — prøv å laste siden på nytt';
+    }
+};
+
+// Vis SW-versjon i footer ved oppstart
+function oppdaterFooterVersjon() {
+    const statusEl = document.getElementById('sw-versjon-status');
+    if (!statusEl) return;
+
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        const mc = new MessageChannel();
+        mc.port1.onmessage = (event) => {
+            if (event.data?.type === 'VERSION_INFO') {
+                statusEl.textContent = `SW: ${event.data.version} | Trykk for å sjekke`;
+            }
+        };
+        navigator.serviceWorker.controller.postMessage(
+            { type: 'GET_VERSION' }, [mc.port2]
+        );
+    } else {
+        statusEl.textContent = 'Trykk for å sjekke oppdatering';
+    }
+}
+
 function visUpdateVarsling() {
     if(document.getElementById('update-popup')) return;
     
@@ -435,7 +503,7 @@ function visUpdateVarsling() {
         <p style="margin:0 0 15px 0; font-size:13px; color:#666;">
             En oppdatering er lastet ned. Oppdater for å få siste nytt.
         </p>
-        <button onclick="window.location.reload()" class="btn-primary" style="width:100%; margin-bottom:10px;">
+        <button onclick="aktiverOppdatering()" class="btn-primary" style="width:100%; margin-bottom:10px;">
             Oppdater nå
         </button>
         <button onclick="this.parentElement.remove()" class="btn-secondary" style="width:100%; font-size:12px;">
@@ -446,6 +514,22 @@ function visUpdateVarsling() {
     document.body.appendChild(popup);
     spillLyd('fanfare');
 }
+
+/**
+ * Aktiver oppdatering: Send SKIP_WAITING til ventende SW, reload
+ */
+window.aktiverOppdatering = async function() {
+    try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg && reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+    } catch (e) {
+        console.warn('Kunne ikke sende SKIP_WAITING:', e);
+    }
+    // Reload uansett (for iOS der waiting kanskje ikke finnes)
+    setTimeout(() => window.location.reload(), 300);
+};
 
 // CSS animasjon for update popup
 const styleSheet = document.createElement("style");
@@ -593,20 +677,51 @@ export function initApp() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
             console.log('SW Registrert');
+
+            // Sjekk for oppdatering med en gang
+            reg.update().catch(() => {});
+
             reg.onupdatefound = () => {
                 const newWorker = reg.installing;
+                if (!newWorker) return;
                 newWorker.onstatechange = () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        visUpdateVarsling();
+                    if (newWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                            // Ny SW klar — vis oppdaterings-popup
+                            visUpdateVarsling();
+                        }
+                    }
+                    if (newWorker.state === 'activated') {
+                        // iOS fallback: activated uten at installed ble fanget
+                        sjekkVersjon();
                     }
                 };
             };
+
+            // Periodisk sjekk (hvert 30. minutt)
+            setInterval(() => {
+                reg.update().catch(() => {});
+            }, 30 * 60 * 1000);
+
+            // Sjekk når appen kommer tilbake i fokus (viktig for iOS)
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    reg.update().catch(() => {});
+                    sjekkVersjon();
+                }
+            });
+
         }).catch(err => console.warn('SW Feil:', err));
-        
+
         navigator.serviceWorker.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'NEW_VERSION') {
                 visUpdateVarsling();
             }
+        });
+
+        // Lytt etter controllerchange (ny SW tok over)
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            sjekkVersjon();
         });
     }
 
@@ -651,6 +766,9 @@ export function initApp() {
 
     // ✅ Setup offline/online detection
     setupNetworkDetection();
+
+    // Vis SW-versjon i footer etter kort forsinkelse
+    setTimeout(oppdaterFooterVersjon, 1500);
 }
 
 /**
