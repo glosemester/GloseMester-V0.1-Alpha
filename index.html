@@ -384,9 +384,9 @@
                     🔊
                 </button>
                 <p style="font-size:14px; color:#666; margin-bottom:15px;">Trykk for å høre ordet igjen</p>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="norsk-diktat-input" placeholder="Skriv det du hører..." autocomplete="off" style="flex:1;">
-                    <button class="btn-primary" onclick="sjekkNorskSvar()">Svar</button>
+                <div style="display:flex; gap:10px; align-items:stretch;">
+                    <input type="text" id="norsk-diktat-input" placeholder="Skriv det du hører..." autocomplete="off" style="flex:1; padding:14px 16px; font-size:18px; border:2px solid #ddd; border-radius:10px; min-height:50px;">
+                    <button class="btn-primary" onclick="sjekkNorskSvar()" style="padding:14px 24px; font-size:16px; white-space:nowrap;">Svar</button>
                 </div>
             </div>
 
@@ -395,8 +395,10 @@
 
             <!-- Skriving-modus -->
             <div id="norsk-input-container" style="display:none;">
-                <input type="text" id="norsk-svar-input" placeholder="Skriv svaret..." autocomplete="off">
-                <button class="btn-primary" onclick="sjekkNorskSvar()">Svar</button>
+                <div style="display:flex; gap:10px; align-items:stretch;">
+                    <input type="text" id="norsk-svar-input" placeholder="Skriv svaret..." autocomplete="off" style="flex:1; padding:14px 16px; font-size:18px; border:2px solid #ddd; border-radius:10px; min-height:50px;">
+                    <button class="btn-primary" onclick="sjekkNorskSvar()" style="padding:14px 24px; font-size:16px; white-space:nowrap;">Svar</button>
+                </div>
             </div>
 
             <p id="norsk-feedback" style="text-align:center; font-weight:bold; min-height:24px; margin-top:10px;"></p>
