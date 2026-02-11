@@ -117,18 +117,25 @@
         🔇
     </button>
 
-    <main id="main-content">
-        <!-- ========================================
-         FAG-VELGER (NY LANDING HUB)
-         ======================================== -->
-        <div id="fag-velger" class="page active">
+    <!-- Global Header -->
+    <header id="global-header">
+        <div class="header-content">
             <div class="logo-branding brand-laeremester">
                 <div class="logo-icon">🎓<div class="logo-star">⭐</div>
                 </div>
                 <h1 class="logo-text">LæreMester</h1>
             </div>
+        </div>
+    </header>
 
-            <h1 style="text-align:center; font-size:32px; margin:0 0 10px 0; color:#1d1d1f;">
+    <main id="main-content">
+        <!-- ========================================
+         FAG-VELGER (NY LANDING HUB)
+         ======================================== -->
+        <div id="fag-velger" class="page active">
+            <!-- Branding moved to header -->
+
+            <h1 style="text-align:center; font-size:32px; margin:40px 0 10px 0; color:#1d1d1f;">
                 Hva skal vi øve i dag?
             </h1>
 
@@ -139,24 +146,33 @@
             <div class="fag-grid">
                 <!-- GloseMester - Aktiv -->
                 <div class="fag-card fag-card-active" onclick="velgFag('gloser')" data-fag="gloser">
-                    <div class="fag-ikon">📚</div>
-                    <h2>GloseMester</h2>
+                    <div class="logo-branding brand-glosemester small-brand">
+                        <div class="logo-icon">📚<div class="logo-star">⭐</div>
+                        </div>
+                        <h2 class="logo-text">GloseMester</h2>
+                    </div>
                     <p>Lær gloser og samle kort</p>
                     <span class="fag-badge fag-badge-active">Tilgjengelig</span>
                 </div>
 
                 <!-- MatteMester - Aktiv -->
                 <div class="fag-card fag-card-active" onclick="velgFag('matte')" data-fag="matte">
-                    <div class="fag-ikon">➕</div>
-                    <h2>MatteMester</h2>
+                    <div class="logo-branding brand-mattemester small-brand">
+                        <div class="logo-icon">➕<div class="logo-star">⭐</div>
+                        </div>
+                        <h2 class="logo-text">MatteMester</h2>
+                    </div>
                     <p>Mestre matematikk med moro</p>
                     <span class="fag-badge fag-badge-active">Tilgjengelig</span>
                 </div>
 
                 <!-- NorskMester - Aktiv -->
                 <div class="fag-card fag-card-active" onclick="velgFag('norsk')" data-fag="norsk">
-                    <div class="fag-ikon">📖</div>
-                    <h2>NorskMester</h2>
+                    <div class="logo-branding brand-norskmester small-brand">
+                        <div class="logo-icon">📖<div class="logo-star">⭐</div>
+                        </div>
+                        <h2 class="logo-text">NorskMester</h2>
+                    </div>
                     <p>Bli bedre i norsk</p>
                     <span class="fag-badge fag-badge-active">Tilgjengelig</span>
                 </div>
