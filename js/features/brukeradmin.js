@@ -19,7 +19,7 @@ export async function lastInnBrukere() {
     
     try {
         const user = window.currentUser;
-        if (!erAdmin(user)) { container.innerHTML = '<p class="error">⛔ Kun admin.</p>'; return; }
+        if (!await erAdmin(user)) { container.innerHTML = '<p class="error">⛔ Kun admin.</p>'; return; }
         
         const q = query(collection(db, "users"));
         const snapshot = await getDocs(q);

@@ -57,8 +57,10 @@ function tick() {
             
             // Sjekk om det er en URL eller ren kode
             let quizKode = code.data;
-            if(quizKode.includes("quiz=")) {
-                quizKode = quizKode.split("quiz=")[1];
+            if(quizKode.includes("prove=")) {
+                quizKode = quizKode.split("prove=")[1].split("&")[0];
+            } else if(quizKode.includes("quiz=")) {
+                quizKode = quizKode.split("quiz=")[1].split("&")[0];
             }
             
             // Fyll inn i feltet og start

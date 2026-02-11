@@ -81,17 +81,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const status = urlParams.get('status');
 
     if (status === 'success') {
-        // Show success message
-        setTimeout(() => {
-            alert('🎉 Takk for ditt kjøp!\n\nDin Premium-tilgang er nå aktivert. Du kan nå bruke alle funksjoner i GloseMester.');
-            // Clean URL
+        // Verifiser at betaling faktisk gikk gjennom ved å sjekke Firestore
+        setTimeout(async () => {
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    const { db } = await import('./firebase.js');
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    const data = userDoc.data();
+                    if (data?.subscription?.status === 'premium') {
+                        alert('🎉 Takk for ditt kjøp!\n\nDin Premium-tilgang er nå aktivert. Du kan nå bruke alle funksjoner i GloseMester.');
+                    } else {
+                        alert('⏳ Betaling mottas...\n\nDet kan ta noen sekunder. Oppdater siden om litt for å se Premium-tilgangen din.');
+                    }
+                } else {
+                    alert('🎉 Takk for ditt kjøp!\n\nLogg inn for å aktivere Premium-tilgangen din.');
+                }
+            } catch (e) {
+                alert('🎉 Takk for ditt kjøp!\n\nDet kan ta noen sekunder å aktivere. Oppdater siden om litt.');
+            }
             window.history.replaceState({}, document.title, window.location.pathname);
-        }, 500);
+        }, 1500);
     } else if (status === 'cancelled') {
-        // Show cancelled message
         setTimeout(() => {
             alert('Betalingen ble avbrutt.\n\nDu kan prøve igjen når du er klar.');
-            // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }, 500);
     }

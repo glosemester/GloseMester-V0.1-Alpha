@@ -177,29 +177,44 @@ async function hentAktivitetGraf(userId, dager) {
             timestamp: d.data().opprettet?.toMillis ? d.data().opprettet.toMillis() : 0
         }));
 
-        // ✅ FIX: Bruk norsk tidssone (UTC+1/UTC+2) for å bestemme hvilken dag det er
-        const norwegianTimeOffset = 1 * 60 * 60 * 1000; // CET = UTC+1 (vinterstid)
-        const now = Date.now();
+        // Bruk Intl for korrekt norsk tidssone (håndterer sommer/vintertid automatisk)
+        const now = new Date();
+
+        // Hjelpefunksjon: finn midnatt i norsk tidssone for en gitt dato
+        function getNorwegianMidnight(date) {
+            // Formater datoen i norsk tidssone for å få riktig dag
+            const norskDato = new Intl.DateTimeFormat('sv-SE', {
+                timeZone: 'Europe/Oslo',
+                year: 'numeric', month: '2-digit', day: '2-digit'
+            }).format(date);
+            // Parse YYYY-MM-DD og lag midnatt i norsk tid
+            const [y, m, d] = norskDato.split('-').map(Number);
+            // Beregn UTC-tidspunkt for midnatt i Oslo
+            const midnattLocal = new Date(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}T00:00:00+01:00`);
+            // Juster for faktisk offset (sommer/vinter)
+            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Oslo', hour: 'numeric', hour12: false });
+            const testDate = new Date(midnattLocal);
+            const osloHour = parseInt(formatter.format(testDate));
+            if (osloHour !== 0) {
+                midnattLocal.setTime(midnattLocal.getTime() - osloHour * 60 * 60 * 1000);
+            }
+            return midnattLocal.getTime();
+        }
 
         // Bygg daglig statistikk
         for (let i = dager - 1; i >= 0; i--) {
-            // Beregn midnatt norsk tid for denne dagen
-            const dateInNorway = new Date(now + norwegianTimeOffset);
-            dateInNorway.setHours(0, 0, 0, 0); // Midnatt i dag (norsk tid)
-            const midnattNorskTid = dateInNorway.getTime() - norwegianTimeOffset; // Konverter tilbake til UTC
-
-            const startOfDay = midnattNorskTid - (i * 24 * 60 * 60 * 1000);
+            const dag = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            const startOfDay = getNorwegianMidnight(dag);
             const endOfDay = startOfDay + (24 * 60 * 60 * 1000);
 
-            // Tell resultater for denne dagen
             const dagenResultater = alleResultater.filter(r =>
                 r.timestamp >= startOfDay && r.timestamp < endOfDay
             );
 
-            // Bruk norsk datoformat for visning
-            const dagNavn = new Date(startOfDay + norwegianTimeOffset).toLocaleDateString('no-NO', {
-                weekday: 'short'
-            });
+            const dagNavn = new Intl.DateTimeFormat('no-NO', {
+                weekday: 'short',
+                timeZone: 'Europe/Oslo'
+            }).format(dag);
 
             resultat.push({
                 dato: dagNavn,
@@ -212,19 +227,14 @@ async function hentAktivitetGraf(userId, dager) {
 
     } catch (error) {
         console.error('Feil ved henting av aktivitetsdata:', error);
-        // Returner tom data hvis feil
-        const norwegianTimeOffset = 1 * 60 * 60 * 1000;
-        const now = Date.now();
+        const now = new Date();
         for (let i = dager - 1; i >= 0; i--) {
-            const dateInNorway = new Date(now + norwegianTimeOffset);
-            dateInNorway.setHours(0, 0, 0, 0);
-            const midnattNorskTid = dateInNorway.getTime() - norwegianTimeOffset;
-            const startOfDay = midnattNorskTid - (i * 24 * 60 * 60 * 1000);
-
-            const dagNavn = new Date(startOfDay + norwegianTimeOffset).toLocaleDateString('no-NO', {
-                weekday: 'short'
-            });
-            resultat.push({ dato: dagNavn, antall: 0, timestamp: startOfDay });
+            const dag = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+            const dagNavn = new Intl.DateTimeFormat('no-NO', {
+                weekday: 'short',
+                timeZone: 'Europe/Oslo'
+            }).format(dag);
+            resultat.push({ dato: dagNavn, antall: 0, timestamp: dag.getTime() });
         }
         return resultat;
     }

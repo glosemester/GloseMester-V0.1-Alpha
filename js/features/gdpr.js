@@ -281,26 +281,92 @@ export async function slettMinData() {
         await Promise.all(deletionPromises);
         console.log(`✅ ${deletionPromises.length} prøver slettet`);
 
-        // 3. Slett resultater (hvis de er koblet til bruker)
+        // 3. Slett resultater (sjekk både prove_eier og elev_id)
         try {
-            const resultaterQuery = query(
+            // 3a. Resultater der brukeren er prøve-eier (lærer)
+            const eierQuery = query(
+                collection(db, "resultater"),
+                where("prove_eier", "==", user.uid)
+            );
+            const eierSnapshot = await getDocs(eierQuery);
+
+            // 3b. Resultater der brukeren er elev (anonymt ID)
+            const elevQuery = query(
+                collection(db, "resultater"),
+                where("elev_id", "==", user.uid)
+            );
+            const elevSnapshot = await getDocs(elevQuery);
+
+            // 3c. Legacy: resultater med bruker_id
+            const brukerQuery = query(
                 collection(db, "resultater"),
                 where("bruker_id", "==", user.uid)
             );
-            const resultaterSnapshot = await getDocs(resultaterQuery);
+            const brukerSnapshot = await getDocs(brukerQuery);
 
             const resultaterPromises = [];
-            resultaterSnapshot.forEach((docSnapshot) => {
-                resultaterPromises.push(deleteDoc(docSnapshot.ref));
-            });
+            eierSnapshot.forEach((docSnapshot) => resultaterPromises.push(deleteDoc(docSnapshot.ref)));
+            elevSnapshot.forEach((docSnapshot) => resultaterPromises.push(deleteDoc(docSnapshot.ref)));
+            brukerSnapshot.forEach((docSnapshot) => resultaterPromises.push(deleteDoc(docSnapshot.ref)));
 
             await Promise.all(resultaterPromises);
             console.log(`✅ ${resultaterPromises.length} resultater slettet`);
         } catch (e) {
-            console.warn('⚠️ Kunne ikke slette resultater (kanskje ikke eksisterer):', e.message);
+            console.warn('⚠️ Kunne ikke slette resultater:', e.message);
         }
 
-        // 4. Rens localStorage
+        // 4. Slett diktat-sett fra Firestore og Storage
+        try {
+            const diktatQuery = query(
+                collection(db, "diktat_sett"),
+                where("laerer_id", "==", user.uid)
+            );
+            const diktatSnapshot = await getDocs(diktatQuery);
+
+            const diktatPromises = [];
+            diktatSnapshot.forEach((docSnapshot) => {
+                diktatPromises.push(deleteDoc(docSnapshot.ref));
+            });
+            await Promise.all(diktatPromises);
+
+            // Slett lydfiler fra Storage
+            try {
+                const { storage } = await import('./firebase.js');
+                const { ref, listAll, deleteObject } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+                const diktatRef = ref(storage, `diktat/${user.uid}`);
+                const fileList = await listAll(diktatRef);
+                await Promise.all(fileList.items.map(item => deleteObject(item)));
+                // Slett undermapper
+                for (const prefix of fileList.prefixes) {
+                    const subList = await listAll(prefix);
+                    await Promise.all(subList.items.map(item => deleteObject(item)));
+                }
+            } catch (storageErr) {
+                console.warn('⚠️ Kunne ikke slette Storage-filer:', storageErr.message);
+            }
+
+            console.log(`✅ ${diktatPromises.length} diktat-sett slettet`);
+        } catch (e) {
+            console.warn('⚠️ Kunne ikke slette diktat-sett:', e.message);
+        }
+
+        // 5. Slett GloseBank-oppføringer
+        try {
+            const glosebankQuery = query(
+                collection(db, "glosebank"),
+                where("opprettet_av", "==", user.uid)
+            );
+            const glosebankSnapshot = await getDocs(glosebankQuery);
+
+            const gbPromises = [];
+            glosebankSnapshot.forEach((docSnapshot) => gbPromises.push(deleteDoc(docSnapshot.ref)));
+            await Promise.all(gbPromises);
+            console.log(`✅ ${gbPromises.length} GloseBank-oppføringer slettet`);
+        } catch (e) {
+            console.warn('⚠️ Kunne ikke slette GloseBank-data:', e.message);
+        }
+
+        // 6. Rens localStorage
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -311,10 +377,10 @@ export async function slettMinData() {
         keysToRemove.forEach(key => localStorage.removeItem(key));
         console.log(`✅ ${keysToRemove.length} localStorage items slettet`);
 
-        // 5. Rens sessionStorage
+        // 7. Rens sessionStorage
         sessionStorage.clear();
 
-        // 6. Slett Firebase Auth bruker (må være sist)
+        // 8. Slett Firebase Auth bruker (må være sist)
         await user.delete();
         console.log('✅ Firebase Auth bruker slettet');
 
@@ -384,7 +450,41 @@ export async function eksporterMinData() {
             opprettet_dato: doc.data().opprettet_dato?.toDate?.()?.toISOString() || null
         }));
 
-        // 3. Hent localStorage data
+        // 3. Hent resultater (som prøve-eier)
+        let resultater = [];
+        try {
+            const resultaterQuery = query(
+                collection(db, "resultater"),
+                where("prove_eier", "==", user.uid)
+            );
+            const resultaterSnapshot = await getDocs(resultaterQuery);
+            resultater = resultaterSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                opprettet: doc.data().opprettet?.toDate?.()?.toISOString() || null
+            }));
+        } catch (e) {
+            console.warn('Kunne ikke hente resultater for eksport:', e.message);
+        }
+
+        // 4. Hent diktat-sett
+        let diktatSett = [];
+        try {
+            const diktatQuery = query(
+                collection(db, "diktat_sett"),
+                where("laerer_id", "==", user.uid)
+            );
+            const diktatSnapshot = await getDocs(diktatQuery);
+            diktatSett = diktatSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                opprettet_dato: doc.data().opprettet_dato?.toDate?.()?.toISOString() || null
+            }));
+        } catch (e) {
+            console.warn('Kunne ikke hente diktat-sett for eksport:', e.message);
+        }
+
+        // 5. Hent localStorage data
         const localStorageData = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -415,9 +515,13 @@ export async function eksporterMinData() {
                 proverOpprettet: brukerData?.proverOpprettet || 0
             },
             prover: prover,
+            resultater: resultater,
+            diktat_sett: diktatSett,
             statistikk: {
                 totalt_prover: prover.length,
-                totalt_ord: prover.reduce((sum, p) => sum + (p.ordliste?.length || 0), 0)
+                totalt_ord: prover.reduce((sum, p) => sum + (p.ordliste?.length || 0), 0),
+                totalt_resultater: resultater.length,
+                totalt_diktat: diktatSett.length
             },
             lokal_lagring: localStorageData
         };

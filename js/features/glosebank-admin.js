@@ -86,7 +86,7 @@ export async function lastInnGlosebankProver() {
     
     try {
         const user = window.currentUser;
-        if (!erAdmin(user)) {
+        if (!await erAdmin(user)) {
             container.innerHTML = '<p class="error">❌ Kun admin har tilgang</p>';
             return;
         }
