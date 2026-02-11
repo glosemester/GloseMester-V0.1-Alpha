@@ -448,6 +448,7 @@
         <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover'); lukkHamburger()">📝 Lagrede Prøver</button>
         <button id="btn-standardprover" onclick="visSide('standardprover'); lukkHamburger()">📚 Standardprøver</button>
         <button id="btn-glosebank-browse" onclick="visSide('glosebank-browse'); lukkHamburger()" style="display:none;">📚 GloseBank</button>
+        <button id="btn-diktat-recorder" onclick="visSide('diktat-recorder'); lukkHamburger()">🎤 Diktat-opptak</button>
         <button id="btn-admin-panel" onclick="visSide('admin-panel'); lukkHamburger()" style="display:none;">🔧 Admin</button>
         <button onclick="loggUt()" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">🚪 Logg ut</button>
     </div>
@@ -644,6 +645,11 @@
                     <h3 style="margin:0; font-size:18px;">Mine Prøver</h3>
                     <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Se og administrer</p>
                 </div>
+                <div class="bank-container" style="text-align:center; cursor:pointer;" onclick="visSide('diktat-recorder'); lastMineDiktatSett()">
+                    <div style="font-size:48px; margin-bottom:10px;">🎤</div>
+                    <h3 style="margin:0; font-size:18px;">Diktat-opptak</h3>
+                    <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Les inn med din stemme</p>
+                </div>
             </div>
 
             <div id="abonnement-info" style="background:#F0F9FF; padding:20px; border-radius:12px; border:2px solid #BAE6FD; margin-bottom:20px;"></div>
@@ -819,6 +825,106 @@
                 <h3>🛠️ Admin-verktøy</h3>
                 <p style="color:#666; margin-bottom:20px;">Systeminnstillinger og administrative verktøy.</p>
                 <div id="admin-verktoy-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== DIKTAT-OPPTAK (Lærer) ===================== -->
+    <div id="diktat-recorder" class="page">
+        <div class="card-container">
+            <h2>🎤 Diktat-opptak</h2>
+            <p style="color:#666; margin-bottom:20px;">Les inn ord med din egen stemme. Elevene hører deg i stedet for robot.</p>
+
+            <!-- Steg 1: Velg kilde -->
+            <div id="diktat-steg-kilde">
+                <h3>Velg ordliste</h3>
+                <div class="diktat-kilde-valg" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                    <button class="btn-primary" onclick="velgDiktatKilde('niva1')">📗 Høyfrekvente ord – Enkel (1.-2. trinn)</button>
+                    <button class="btn-primary" onclick="velgDiktatKilde('niva2')">📘 Høyfrekvente ord – Medium (3.-4. trinn)</button>
+                    <button class="btn-primary" onclick="velgDiktatKilde('niva4')">📙 Rettskriving (5.-7. trinn)</button>
+                    <button class="btn-primary" onclick="velgDiktatKilde('egendefinert')" style="background:#7c3aed;">✏️ Egne ord (skriv inn)</button>
+                </div>
+
+                <!-- Egendefinert ordliste input -->
+                <div id="diktat-egne-ord" style="display:none; margin-bottom:15px;">
+                    <label style="font-weight:600;">Skriv inn ordene (ett per linje):</label>
+                    <textarea id="diktat-egne-ord-input" rows="6" placeholder="huset&#10;skolen&#10;venner&#10;..." style="width:100%; padding:10px; border:2px solid #ddd; border-radius:10px; font-size:16px; margin-top:8px;"></textarea>
+                    <button class="btn-primary" onclick="bekreftEgneOrd()" style="margin-top:10px;">✅ Bruk disse ordene</button>
+                </div>
+
+                <!-- Import fra fil -->
+                <div style="margin-top:15px; padding-top:15px; border-top:1px solid #eee;">
+                    <button class="btn-secondary" onclick="importerDiktat()" style="width:100%;">📥 Importer diktat-fil (.json)</button>
+                    <input type="file" id="diktat-import-input" accept=".json" style="display:none;" onchange="handleDiktatImport(event)">
+                </div>
+            </div>
+
+            <!-- Steg 2: Opptak ord for ord -->
+            <div id="diktat-steg-opptak" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 id="diktat-opptak-tittel">Opptak</h3>
+                    <span id="diktat-progress" style="color:#666; font-size:14px;">0 / 0</span>
+                </div>
+
+                <div id="diktat-ord-display" style="text-align:center; padding:30px; background:#f8f9fa; border-radius:15px; margin-bottom:20px;">
+                    <p style="font-size:14px; color:#888; margin-bottom:5px;">Les opp dette ordet:</p>
+                    <p id="diktat-aktivt-ord" style="font-size:42px; font-weight:700; color:#1a1a2e;"></p>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
+                    <button id="btn-start-opptak" class="btn-primary" onclick="startOpptak()" style="background:#dc2626; font-size:18px; padding:15px 30px;">
+                        🎙️ Ta opp
+                    </button>
+                    <button id="btn-stopp-opptak" class="btn-primary" onclick="stoppOpptak()" style="background:#666; font-size:18px; padding:15px 30px; display:none;">
+                        ⏹️ Stopp
+                    </button>
+                </div>
+
+                <!-- Forhåndslytt -->
+                <div id="diktat-preview" style="display:none; text-align:center; margin-bottom:20px;">
+                    <button class="btn-secondary" onclick="lyttPaOpptak()" style="margin-right:10px;">▶️ Lytt</button>
+                    <button class="btn-secondary" onclick="startOpptak()" style="margin-right:10px;">🔄 Ta opp på nytt</button>
+                    <button class="btn-primary" onclick="nesteOrd()">✅ Neste ord →</button>
+                </div>
+
+                <!-- Opptaksstatus -->
+                <div id="diktat-recording-indicator" style="display:none; text-align:center; margin-bottom:15px;">
+                    <span style="color:#dc2626; font-weight:600; animation: blink 1s infinite;">● Tar opp...</span>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-secondary" onclick="avbrytOpptak()" style="flex:1;">← Avbryt</button>
+                    <button id="btn-fullfør-diktat" class="btn-primary" onclick="fullforDiktat()" style="flex:1; display:none;">💾 Lagre diktat</button>
+                </div>
+            </div>
+
+            <!-- Steg 3: Lagret / Deling -->
+            <div id="diktat-steg-ferdig" style="display:none;">
+                <div style="text-align:center; padding:30px;">
+                    <p style="font-size:48px;">🎉</p>
+                    <h3>Diktat lagret!</h3>
+                    <p id="diktat-ferdig-info" style="color:#666; margin:10px 0;"></p>
+                    <p style="color:#888; font-size:13px;" id="diktat-utloper-info"></p>
+                </div>
+
+                <div id="diktat-delingskode" style="text-align:center; padding:20px; background:#f0f9ff; border-radius:12px; margin-bottom:20px;">
+                    <p style="font-size:14px; color:#666;">Delingskode:</p>
+                    <p id="diktat-kode" style="font-size:28px; font-weight:700; letter-spacing:3px; color:#1a1a2e;"></p>
+                    <button class="btn-secondary" onclick="kopierDiktatKode()" style="margin-top:10px;">📋 Kopier kode</button>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-secondary" onclick="eksporterDiktat()" style="flex:1;">📥 Last ned (.json)</button>
+                    <button class="btn-primary" onclick="visSide('diktat-recorder'); nullstillDiktat()" style="flex:1;">🎤 Nytt opptak</button>
+                </div>
+            </div>
+
+            <!-- Mine diktat-sett (liste) -->
+            <div id="diktat-mine-sett" style="margin-top:30px; padding-top:20px; border-top:2px solid #eee;">
+                <h3>Mine diktat-sett</h3>
+                <div id="diktat-sett-liste" style="margin-top:10px;">
+                    <p style="color:#999; font-style:italic;">Laster...</p>
+                </div>
             </div>
         </div>
     </div>

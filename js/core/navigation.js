@@ -49,6 +49,12 @@ export function visSide(sideId) {
                     setTimeout(() => window.lastInnStandardprover(), 50);
                 }
                 break;
+
+            case 'diktat-recorder':
+                if (typeof window.lastMineDiktatSett === 'function') {
+                    setTimeout(() => window.lastMineDiktatSett(), 50);
+                }
+                break;
         }
     } else {
         console.warn(`Fant ikke siden med ID: ${sideId}`);
@@ -106,7 +112,7 @@ function oppdaterMenyer(sideId) {
         if(norskOvingMeny) norskOvingMeny.style.display = 'flex';
     }
     // Lærer (delt for alle fag)
-    else if (['laerer-dashboard', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse'].includes(sideId)) {
+    else if (['laerer-dashboard', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
         if(laererMeny) laererMeny.style.display = 'flex';
     }
 }

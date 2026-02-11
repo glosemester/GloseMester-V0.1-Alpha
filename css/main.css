@@ -735,6 +735,27 @@ input, textarea, select {
     .laerer-nav button { padding: 6px 8px; font-size: 12px; }
 }
 
+/* --- DIKTAT-OPPTAK --- */
+#diktat-recorder .btn-primary {
+    transition: all 0.2s ease;
+}
+#diktat-recorder #btn-stopp-opptak {
+    background: #dc2626;
+    animation: pulse-red 1.5s infinite;
+}
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+}
+#diktat-recorder .diktat-kilde-valg .btn-primary {
+    text-align: left;
+    font-size: 15px;
+}
+@media (max-width: 400px) {
+    #diktat-recorder #diktat-aktivt-ord { font-size: 32px; }
+    #diktat-recorder .btn-primary { font-size: 15px; padding: 12px 20px; }
+}
+
 /* --- FEIDE INFO TEKST --- */
 .login-info-text {
     color: #666;
