@@ -113,15 +113,61 @@ function oppdaterProgress() {
             `Mot nytt kort: ${currentProgress} / 10`;
     }
 
-    // ✅ Oppdater Streak Teller
+    // ✅ Oppdater Streak Teller med bump-animasjon
     const streakEl = document.getElementById('streak-counter');
     if (streakEl) {
         streakEl.innerHTML = `🔥 ${window.currentStreak || 0}`;
-        // Legg til animasjon ved endring?
-        streakEl.classList.remove('pulse');
+        streakEl.classList.remove('streak-bump');
         void streakEl.offsetWidth; // trigger reflow
-        streakEl.classList.add('pulse');
+        streakEl.classList.add('streak-bump');
     }
+}
+
+// ✅ Flytende poeng-animasjon (+1 som svever oppover med glow)
+function visFlytendPoeng(erRiktig) {
+    const scoreEl = document.getElementById('oving-score');
+    if (!scoreEl) return;
+
+    const floater = document.createElement('span');
+    floater.className = 'score-float' + (erRiktig ? '' : ' wrong');
+    floater.textContent = erRiktig ? '+1' : '✗';
+
+    // Posisjonering relativt til score-elementet
+    scoreEl.style.position = 'relative';
+    floater.style.left = '50%';
+    floater.style.top = '0';
+    floater.style.transform = 'translateX(-50%)';
+    scoreEl.appendChild(floater);
+
+    // Fjern etter animasjon
+    setTimeout(() => floater.remove(), 1300);
+}
+
+// ✅ Flash-effekt på navigasjonsbaren (grønn/rød glow)
+function flashNavBar(erRiktig) {
+    // Finn den synlige menybaren
+    const menyIds = ['oving-meny', 'matte-oving-meny', 'norsk-oving-meny'];
+    let aktivMeny = null;
+    for (const id of menyIds) {
+        const el = document.getElementById(id);
+        if (el && el.style.display !== 'none') {
+            aktivMeny = el;
+            break;
+        }
+    }
+    if (!aktivMeny) return;
+
+    const flashClass = erRiktig ? 'nav-flash-green' : 'nav-flash-red';
+    const varighet = erRiktig ? 1500 : 1000;
+
+    // Fjern gamle flash-klasser
+    aktivMeny.classList.remove('nav-flash-green', 'nav-flash-red');
+    void aktivMeny.offsetWidth; // trigger reflow for re-animasjon
+    aktivMeny.classList.add(flashClass);
+
+    setTimeout(() => {
+        aktivMeny.classList.remove(flashClass);
+    }, varighet);
 }
 
 function visNesteSporsmaal() {
@@ -301,11 +347,14 @@ export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
         if (clickedBtn) {
             clickedBtn.classList.add('correct');
         } else {
-            // Hvis skriving, vis grønn border eller lignende (opsjon)
             const input = document.getElementById('oving-svar');
             if (input) input.style.borderColor = '#4CAF50';
         }
         oppdaterProgress(); // Oppdater streak teller UI
+
+        // ✅ NY: Flytende poeng-animasjon og nav bar flash
+        visFlytendPoeng(true);
+        flashNavBar(true);
 
         // ✅ DEAKTIVER KLIKK: Hindre at bruker kan klikke mens feedback vises
         const altContainer = document.getElementById('oving-alternativer');
@@ -344,6 +393,10 @@ export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
 
         window.currentStreak = 0; // Nullstill streak
         oppdaterProgress(); // Oppdater streak teller UI
+
+        // ✅ NY: Flytende feil-animasjon og nav bar flash
+        visFlytendPoeng(false);
+        flashNavBar(false);
 
         // ✅ Visuell feedback på knappen
         if (clickedBtn) {
