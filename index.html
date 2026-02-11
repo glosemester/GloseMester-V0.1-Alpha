@@ -651,15 +651,18 @@
         </div>
 
         <div id="oving-omraade" class="page">
-            <div class="card-container">
+            <div class="game-container">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span id="oving-score" style="font-weight:bold; color:var(--accent-blue);">0 riktige i dag</span>
+                    <span id="oving-score" style="font-weight:bold; color:var(--accent-blue);">0 poeng</span>
+                    <div class="streak-counter" id="streak-counter" style="font-size: 0.9rem;">🔥 0</div>
                     <button class="btn-small btn-danger" onclick="avsluttOving()">Avslutt</button>
                 </div>
 
-                <div id="game-progress-target" style="margin-bottom: 20px;"></div>
+                <div class="game-progress-container">
+                    <div id="game-progress-fill" class="game-progress-fill"></div>
+                </div>
 
-                <div style="text-align:center; font-size:13px; color:#888; margin-bottom:30px;">
+                <div style="text-align:center; font-size:13px; color:#888; margin-top: 5px; margin-bottom:30px;">
                     <span id="game-progress-text">Start jakten på nytt kort!</span>
                 </div>
 
