@@ -221,7 +221,7 @@ function visNorskSpørsmål() {
         if (spmEl) spmEl.innerText = norskState.currentWord.s;
 
         if (inputContainer) {
-            inputContainer.style.display = 'flex';
+            inputContainer.style.display = 'block';
             const inputFelt = document.getElementById('norsk-svar-input');
             if (inputFelt) {
                 inputFelt.value = '';
