@@ -84,8 +84,11 @@ import {
 import {
     startNorskOving,
     sjekkNorskSvar,
-    avsluttNorskOving
+    avsluttNorskOving,
+    startLaererDiktat
 } from './features/norsk-practice.js';
+
+import { initDiktatRecorder } from './features/diktat-recorder.js';
 
 // --- GLOBALE FUNKSJONER ---
 
@@ -134,6 +137,7 @@ window.matteProvIgjen = matteProvIgjen;
 window.startNorskOving = startNorskOving;
 window.sjekkNorskSvar = sjekkNorskSvar;
 window.avsluttNorskOving = avsluttNorskOving;
+window.startLaererDiktat = startLaererDiktat;
 
 // Galleri
 window.visGalleriSide = function() {
@@ -628,6 +632,9 @@ export function initApp() {
     
     if(typeof initTeacherFeatures === 'function') {
         initTeacherFeatures();
+    }
+    if(typeof initDiktatRecorder === 'function') {
+        initDiktatRecorder();
     }
     
     // Lukk hamburger-meny når man klikker på en side (unntatt knappen selv)

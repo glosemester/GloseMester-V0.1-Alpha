@@ -1,6 +1,6 @@
 /* ============================================
-   FIREBASE.JS - Konfigurasjon og Exports v1.3
-   OPPDATERT: Inkluderer signInWithCustomToken for Feide
+   FIREBASE.JS - Konfigurasjon og Exports v1.4
+   OPPDATERT: Firebase Storage for diktat-opptak
    VIKTIG: Analytics fjernet for skolegodkjenning (GDPR/privacy)
    ============================================ */
 
@@ -31,6 +31,14 @@ import {
     updateDoc,
     increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject,
+    listAll
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBVrXniqVZz5t1TdS6jDSf7uS6m-6appUU",
@@ -46,13 +54,14 @@ const app = initializeApp(firebaseConfig);
 // Analytics fjernet for bedre privacy og skolegodkjenning
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 export {
     auth,
     db,
+    storage,
     googleProvider,
-    // analytics removed - not defined after removing Google Analytics
     signInWithPopup,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -71,5 +80,11 @@ export {
     serverTimestamp,
     deleteDoc,
     updateDoc,
-    increment
+    increment,
+    // Storage
+    storageRef,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject,
+    listAll
 };

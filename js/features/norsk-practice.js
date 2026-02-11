@@ -1,7 +1,8 @@
 /* ============================================
-   NORSK-PRACTICE.JS - NorskMester Øving v2.0
+   NORSK-PRACTICE.JS - NorskMester Øving v2.1
    Norskfaglige øvelser med diktat, flervalg og skriving
    Bruker samme kort/XP-system som GloseMester
+   Støtter lærer-diktat (lyd fra Firebase Storage)
    ============================================ */
 
 import { visSide } from '../core/navigation.js';
@@ -20,7 +21,8 @@ let norskState = {
     currentWord: null,
     index: 0,
     riktigeSvar: 0,
-    sessionCorrect: 0
+    sessionCorrect: 0,
+    laererDiktat: null  // {lydUrler: {0: url, 1: url}, tittel, ordliste}
 };
 
 // ============================================
@@ -64,15 +66,31 @@ async function ventPaNorskData(maxTid = 5000) {
 }
 
 /**
- * Les opp et norsk ord med talesyntese
+ * Les opp et norsk ord — lærer-lyd først, fallback til robot
  */
 function lesOppNorskOrd(tekst) {
+    // Sjekk om vi har lærer-lyd for dette ordet
+    if (norskState.laererDiktat && norskState.laererDiktat.lydUrler) {
+        const lydUrl = norskState.laererDiktat.lydUrler[norskState.index];
+        if (lydUrl) {
+            const audio = new Audio(lydUrl);
+            audio.play().catch(err => {
+                console.warn('Kunne ikke spille lærer-lyd, bruker robot:', err);
+                spillRobotStemme(tekst);
+            });
+            return;
+        }
+    }
+    spillRobotStemme(tekst);
+}
+
+function spillRobotStemme(tekst) {
     if (typeof lesOpp === 'function') {
         lesOpp(tekst, 'no-NO');
     } else if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(tekst);
         utterance.lang = 'no-NO';
-        utterance.rate = 0.8; // Litt saktere for diktat
+        utterance.rate = 0.8;
         window.speechSynthesis.speak(utterance);
     }
 }
@@ -136,7 +154,8 @@ function visNorskSpørsmål() {
 
     // Bestem oppgavetype basert på nivå-config
     const nivaConfig = NORSK_NIVÅER[norskState.currentLevel];
-    const oppgaveType = nivaConfig ? nivaConfig.type : 'skriving';
+    // Lærer-diktat bruker alltid diktat-modus
+    const oppgaveType = norskState.laererDiktat ? 'diktat' : (nivaConfig ? nivaConfig.type : 'skriving');
 
     if (oppgaveType === 'diktat') {
         // ===== DIKTAT-MODUS =====
@@ -371,9 +390,45 @@ export function visNorskSamling() {
     if (typeof window.visSamling === 'function') window.visSamling();
 }
 
+/**
+ * Start lærer-diktat fra delingskode
+ * Henter lyd fra Firebase Storage og kjører diktat med lærerens stemme
+ */
+export async function startLaererDiktat(delingskode) {
+    try {
+        // Importer dynamisk for å unngå sirkulær avhengighet
+        const { hentDiktatForElev } = await import('./diktat-recorder.js');
+        const diktatData = await hentDiktatForElev(delingskode);
+
+        if (!diktatData) {
+            visToast('Fant ikke diktat, eller det har utløpt', 'error');
+            return;
+        }
+
+        // Sett opp state med lærer-lyd
+        norskState.laererDiktat = diktatData;
+        norskState.currentLevel = 'laerer-diktat';
+        norskState.ordliste = diktatData.ordliste.map(ord => ({
+            s: ord, e: ord, kategori: 'diktat', diktat: true
+        }));
+        norskState.index = 0;
+        norskState.riktigeSvar = 0;
+        norskState.sessionCorrect = 0;
+
+        visSide('norsk-oving-omraade');
+        visToast(`🎤 Diktat fra ${diktatData.laererEpost || 'lærer'}`, 'success');
+        visNorskSpørsmål();
+
+    } catch (err) {
+        console.error('Feil ved lasting av lærer-diktat:', err);
+        visToast('Kunne ikke starte diktat', 'error');
+    }
+}
+
 // Eksponer til window
 window.startNorskOving = startNorskOving;
 window.sjekkNorskSvar = sjekkNorskSvar;
 window.avsluttNorskOving = avsluttNorskOving;
+window.startLaererDiktat = startLaererDiktat;
 
-console.log('📖 NorskMester practice module v2.0 loaded (med diktat-modus)');
+console.log('📖 NorskMester practice module v2.1 loaded (med lærer-diktat)');

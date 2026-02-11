@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.1.0-ALPHA
-// Oppdatert: MatteMester, NorskMester (diktat), mobilfiks
-const APP_VERSION = 'v2.1.0-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.1.0-alpha';
+// SERVICE WORKER - Mester Suite v2.2.0-ALPHA
+// Oppdatert: Lærer-diktat med stemmeopptak, Firebase Storage
+const APP_VERSION = 'v2.2.0-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.2.0-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -113,6 +113,7 @@ const ASSETS_TO_CACHE = [
   './js/features/practice.js',
   './js/features/matte-practice.js',
   './js/features/norsk-practice.js',
+  './js/features/diktat-recorder.js',
   './js/features/quiz.js',
   './js/features/teacher.js',
   './js/features/kort-display.js',
