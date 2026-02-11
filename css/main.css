@@ -141,13 +141,22 @@ body {
     z-index: 1000;
     width: 100%;
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     padding: 10px 0;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
+}
+
+/* iPhone safe-area for bottom nav bars */
+#oving-meny,
+#matte-oving-meny,
+#norsk-oving-meny,
+#elev-meny {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 #global-header .header-content {
@@ -2267,10 +2276,21 @@ select {
 }
 
 @keyframes streakBump {
-    0% { transform: scale(1); }
-    30% { transform: scale(1.5); }
-    60% { transform: scale(0.9); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.5);
+    }
+
+    60% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* 4c. Floating Score Popup (+1 animation) */
@@ -2296,10 +2316,12 @@ select {
         opacity: 1;
         transform: translateY(0) scale(0.5);
     }
+
     20% {
         opacity: 1;
         transform: translateY(-10px) scale(1.3);
     }
+
     100% {
         opacity: 0;
         transform: translateY(-80px) scale(0.8);
@@ -2334,10 +2356,12 @@ select {
         background-color: rgba(76, 175, 80, 0.4);
         box-shadow: 0 0 30px rgba(76, 175, 80, 0.7), 0 -4px 20px rgba(76, 175, 80, 0.5);
     }
+
     50% {
         background-color: rgba(76, 175, 80, 0.2);
         box-shadow: 0 0 15px rgba(76, 175, 80, 0.4), 0 -4px 10px rgba(76, 175, 80, 0.2);
     }
+
     100% {
         background-color: transparent;
         box-shadow: none;
@@ -2349,10 +2373,12 @@ select {
         background-color: rgba(255, 82, 82, 0.35);
         box-shadow: 0 0 25px rgba(255, 82, 82, 0.6), 0 -4px 15px rgba(255, 82, 82, 0.4);
     }
+
     60% {
         background-color: rgba(255, 82, 82, 0.15);
         box-shadow: 0 0 10px rgba(255, 82, 82, 0.3);
     }
+
     100% {
         background-color: transparent;
         box-shadow: none;
