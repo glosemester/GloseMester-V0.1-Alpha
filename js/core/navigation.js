@@ -16,9 +16,9 @@ export function visSide(sideId) {
     if (valgtSide) {
         valgtSide.classList.add('active');
         window.scrollTo(0, 0);
-        
+
         // Auto-load data for spesifikke sider
-        switch(sideId) {
+        switch (sideId) {
             case 'laerer-dashboard':
                 // ✅ NY: Last dashboard-statistikk automatisk
                 if (typeof window.initDashboard === 'function') {
@@ -72,11 +72,11 @@ function oppdaterMenyer(sideId) {
     const norskOvingMeny = document.getElementById('norsk-oving-meny');
 
     // Skjul alle først
-    if(elevMeny) elevMeny.style.display = 'none';
-    if(ovingMeny) ovingMeny.style.display = 'none';
-    if(laererMeny) laererMeny.style.display = 'none';
-    if(matteOvingMeny) matteOvingMeny.style.display = 'none';
-    if(norskOvingMeny) norskOvingMeny.style.display = 'none';
+    if (elevMeny) elevMeny.style.display = 'none';
+    if (ovingMeny) ovingMeny.style.display = 'none';
+    if (laererMeny) laererMeny.style.display = 'none';
+    if (matteOvingMeny) matteOvingMeny.style.display = 'none';
+    if (norskOvingMeny) norskOvingMeny.style.display = 'none';
 
     // Spesialhåndtering for galleri - vis meny basert på rolle og fag
     if (sideId === 'galleri-visning') {
@@ -85,43 +85,43 @@ function oppdaterMenyer(sideId) {
         if (rolle === 'oving') {
             if (fag === 'matte' && matteOvingMeny) matteOvingMeny.style.display = 'flex';
             else if (fag === 'norsk' && norskOvingMeny) norskOvingMeny.style.display = 'flex';
-            else if(ovingMeny) ovingMeny.style.display = 'flex';
+            else if (ovingMeny) ovingMeny.style.display = 'flex';
         } else if (rolle === 'kode') {
-            if(elevMeny) elevMeny.style.display = 'flex';
+            if (elevMeny) elevMeny.style.display = 'flex';
         }
         return;
     }
 
     // GloseMester øving
     if (['elev-dashboard', 'elev-samling'].includes(sideId)) {
-        if(elevMeny) elevMeny.style.display = 'flex';
+        if (elevMeny) elevMeny.style.display = 'flex';
     }
     else if (['oving-start', 'oving-omraade', 'oving-samling'].includes(sideId)) {
         // Sjekk aktivt fag for å vise riktig meny
         const fag = sessionStorage.getItem('aktivtFag');
         if (fag === 'matte' && matteOvingMeny) matteOvingMeny.style.display = 'flex';
         else if (fag === 'norsk' && norskOvingMeny) norskOvingMeny.style.display = 'flex';
-        else if(ovingMeny) ovingMeny.style.display = 'flex';
+        else if (ovingMeny) ovingMeny.style.display = 'flex';
     }
     // MatteMester øving
     else if (['matte-oving-start', 'matte-nivaa-velger', 'matte-oving-omraade', 'matte-resultat'].includes(sideId)) {
-        if(matteOvingMeny) matteOvingMeny.style.display = 'flex';
+        if (matteOvingMeny) matteOvingMeny.style.display = 'flex';
     }
     // NorskMester øving
     else if (['norsk-oving-start', 'norsk-oving-omraade'].includes(sideId)) {
-        if(norskOvingMeny) norskOvingMeny.style.display = 'flex';
+        if (norskOvingMeny) norskOvingMeny.style.display = 'flex';
     }
     // Lærer (delt for alle fag)
-    else if (['laerer-dashboard', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
-        if(laererMeny) laererMeny.style.display = 'flex';
+    else if (['laerer-dashboard', 'lag-prove', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
+        if (laererMeny) laererMeny.style.display = 'flex';
     }
 }
 
 export function initNavigation() {
     console.log("✅ Navigasjon lastet med auto-load for: lagrede prøver, Admin-panel, GloseBank Browse, Standardprøver.");
-    
+
     // Håndter tilbake-knapp i nettleser
-    window.onpopstate = function(event) {
+    window.onpopstate = function (event) {
         if (event.state && event.state.sideId) {
             visSide(event.state.sideId);
         } else {
