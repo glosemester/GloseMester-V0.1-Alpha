@@ -9,6 +9,8 @@ import { erAdmin as erAdminHelper } from '../core/auth-helpers.js';
 
 // ✅ FJERNET HARDKODET ADMIN_UID
 let alleBrukere = [];
+let gjeldendeSide = 1;
+const BRUKERE_PER_SIDE = 25;
 
 async function erAdmin(user) { return await erAdminHelper(); }
 
@@ -56,10 +58,25 @@ function visStatistikk() {
 
 function visBrukerliste(brukere) {
     const div = document.getElementById('brukeradmin-liste');
-    let html = `<table style="width:100%; border-collapse:collapse; background:white;">
+
+    const totalSider = Math.max(1, Math.ceil(brukere.length / BRUKERE_PER_SIDE));
+    if (gjeldendeSide > totalSider) gjeldendeSide = totalSider;
+    const start = (gjeldendeSide - 1) * BRUKERE_PER_SIDE;
+    const sideBrukere = brukere.slice(start, start + BRUKERE_PER_SIDE);
+
+    let html = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <span style="font-size:0.9em; color:#666;">Viser ${start+1}–${Math.min(start+BRUKERE_PER_SIDE, brukere.length)} av ${brukere.length} brukere</span>
+        <div style="display:flex; gap:6px; align-items:center;">
+            <button onclick="window.brukeradminSide(-1)" style="padding:6px 12px; border:1px solid #ccc; border-radius:6px; background:white; cursor:pointer;" ${gjeldendeSide<=1?'disabled':''}>◀ Forrige</button>
+            <span style="font-size:0.9em;">Side ${gjeldendeSide} / ${totalSider}</span>
+            <button onclick="window.brukeradminSide(1)" style="padding:6px 12px; border:1px solid #ccc; border-radius:6px; background:white; cursor:pointer;" ${gjeldendeSide>=totalSider?'disabled':''}>Neste ▶</button>
+        </div>
+    </div>`;
+
+    html += `<table style="width:100%; border-collapse:collapse; background:white;">
         <tr style="background:#f5f5f5; text-align:left;"><th style="padding:10px;">Bruker</th><th style="padding:10px;">Kilde</th><th style="padding:10px;">Abonnement</th><th style="padding:10px;">Utløper</th></tr>`;
-    
-    brukere.forEach(u => {
+
+    sideBrukere.forEach(u => {
         // --- FEIDE NULL FIX ---
         // Sjekker om e-post mangler eller er strengen "null"
         let visning = "";
@@ -108,6 +125,11 @@ function visBrukerliste(brukere) {
 
 function dato(t) { return t ? new Date(t.toDate()).toLocaleDateString() : 'Ubegrenset'; }
 function farge(t) { return t.includes('premium') ? '#d4edda' : (t==='skolepakke' ? '#fff3cd' : '#fff'); }
+
+window.brukeradminSide = function(retning) {
+    gjeldendeSide += retning;
+    visBrukerliste(alleBrukere);
+};
 
 window.endreAbonnement = async function(uid, type) {
     if(!confirm("Endre abonnement?")) { lastInnBrukere(); return; }

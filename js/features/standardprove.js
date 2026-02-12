@@ -66,7 +66,6 @@ export async function lastInnStandardprover() {
           <option value="alle">Alle nivå</option>
           <option value="barneskole">Barneskole</option>
           <option value="ungdomsskole">Ungdomsskole</option>
-          <option value="videregaende">Videregående</option>
         </select>
       </div>
 
@@ -194,13 +193,6 @@ function visStandardProver(prover) {
     });
   }
 
-  // Videregående
-  if (gruppert.videregaende && gruppert.videregaende.length > 0) {
-    html += '<h3 class="nivaa-header">┏━ VIDEREGÅENDE ━┓</h3>';
-    gruppert.videregaende.forEach(prove => {
-      html += lagProveKort(prove);
-    });
-  }
 
   listeEl.innerHTML = html;
 }

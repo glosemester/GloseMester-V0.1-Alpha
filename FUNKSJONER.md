@@ -653,4 +653,83 @@ GloseMester-V0.1-Alpha/
 
 ---
 
-*Dokumentet er generert 2026-02-11. Oppdater ved større endringer.*
+---
+
+## 9. PLAN: Standardprøver for Matte og Norsk
+
+### Bakgrunn
+Standardprøver finnes i dag kun for **Engelsk** (GloseMester). For å dekke alle tre fag i Mester Suite trengs tilsvarende for **MatteMester** og **NorskMester**.
+
+### Fase 1 — Datamodell (Firestore)
+Utvid `standardprover`-collection med et `fag`-felt:
+- `fag: "engelsk"` — eksisterende prøver (ordliste med `s`/`e`-par)
+- `fag: "matte"` — nye matteprøver
+- `fag: "norsk"` — nye norskprøver
+
+**Matteprøve-struktur:**
+```
+{
+  fag: "matte",
+  tittel: "Gangetabellen 1-10",
+  nivaa: "barneskole",
+  trinn: "3. trinn",
+  emne: "multiplikasjon",
+  oppgaver: [
+    { sporsmal: "7 × 8", svar: "56", type: "regnestykke" },
+    { sporsmal: "Hva er halvparten av 120?", svar: "60", type: "tekstoppgave" }
+  ]
+}
+```
+
+**Norskprøve-struktur:**
+```
+{
+  fag: "norsk",
+  tittel: "Rettskriving – dobbel konsonant",
+  nivaa: "barneskole",
+  trinn: "5. trinn",
+  emne: "rettskriving",
+  oppgaver: [
+    { sporsmal: "Fyll inn riktig: ka__e (katt/kate)", svar: "katte", type: "fyll_inn" },
+    { sporsmal: "Er 'solen' hankjønn, hunkjønn eller intetkjønn?", svar: "hankjønn", type: "flervalgssporsmal", alternativer: ["hankjønn","hunkjønn","intetkjønn"] }
+  ]
+}
+```
+
+### Fase 2 — UI-endringer i `standardprove.js`
+1. Legg til **fag-filter** (fane eller dropdown): Engelsk | Matte | Norsk
+2. `lagProveKort()` — vis forskjellig korttype basert på `fag`
+3. `visPreview()` — tilpass forhåndsvisning for matte/norsk-oppgaver
+
+### Fase 3 — Quiz-motor per fag
+- **Matte**: Vis regnestykke → input-felt for svar → sjekk numerisk likhet
+- **Norsk**: Støtt oppgavetypene `fyll_inn`, `flervalgssporsmal`, `diktat` (gjenbruk diktat-motor)
+- **Engelsk**: Eksisterende ordliste-quiz (uendret)
+
+Disse kan implementeres som egne rendere i `quiz.js` som velges basert på `prove.fag`.
+
+### Fase 4 — Innholdsproduksjon
+Lag 8-10 standardprøver per fag, fordelt på nivå:
+
+| Fag | Barneskole | Ungdomsskole | Totalt |
+|-----|-----------|-------------|--------|
+| Matte | 5 (gangetabell, addisjon, brøk, geometri, måleenheter) | 5 (algebra, prosent, likninger, statistikk, funksjoner) | 10 |
+| Norsk | 5 (rettskriving, ordklasser, les/forstå, grammatikk, diktat) | 5 (sjanger, nynorsk, argumentasjon, grammatikk, tekstanalyse) | 10 |
+
+### Fase 5 — Kopiering og resultat
+- `kopierProve()` må lagre `fag`-felt i `prover`-collection
+- Resultat-visning må tilpasses for ulike oppgavetyper
+- XP-beregning beholdes uendret (riktig svar = XP)
+
+### Estimert arbeid
+- Fase 1-2: Datamodell + UI-filter
+- Fase 3: Quiz-motor utvidelse (størst jobb)
+- Fase 4: Innholdsproduksjon (kan gjøres parallelt)
+- Fase 5: Tilpasninger
+
+### Prioritet
+Start med **Fase 1+2** (legge til fag-filter og datamodell) slik at eksisterende engelskprøver får `fag: "engelsk"`, deretter **Fase 3** for matteprøver (enklere oppgavetype), og til slutt norskprøver.
+
+---
+
+*Dokumentet er oppdatert 2026-02-12. Oppdater ved større endringer.*

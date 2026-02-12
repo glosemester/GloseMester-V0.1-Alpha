@@ -379,7 +379,6 @@ window.redigerProveMetadata = async function(proveId) {
                                 <option value="">Ikke satt</option>
                                 <option value="barneskole" ${data.nivå === 'barneskole' ? 'selected' : ''}>Barneskole</option>
                                 <option value="ungdomsskole" ${data.nivå === 'ungdomsskole' ? 'selected' : ''}>Ungdomsskole</option>
-                                <option value="vgs" ${data.nivå === 'vgs' ? 'selected' : ''}>VGS</option>
                             </select>
                         </label>
                         

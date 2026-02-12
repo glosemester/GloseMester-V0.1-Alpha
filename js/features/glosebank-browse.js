@@ -53,14 +53,13 @@ export async function lastInnGlosebankSok() {
       <div class="glosebank-header"><h1>📚 GloseBank</h1><p class="undertekst">Delte prøver fra lærere - kvalitetssikret</p></div>
       
       <div class="glosebank-sok">
-        <input type="text" id="glosebank-sok-input" placeholder="🔍 Søk i prøver..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;">
+        <input type="text" id="glosebank-sok-input" placeholder="🔍 Søk på tittel, emne eller ord..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;">
         
         <div class="filter-container" style="display:flex; gap:10px; flex-wrap:wrap;">
            <select id="filter-nivaa" class="filter-select">
                 <option value="">Alle nivå</option>
                 <option value="barneskole">Barneskole</option>
                 <option value="ungdomsskole">Ungdomsskole</option>
-                <option value="videregaende">Videregående</option>
            </select>
         </div>
       </div>
@@ -147,13 +146,24 @@ async function lastInnProver() {
 }
 
 function filtrerProver() {
-  const sok = document.getElementById('glosebank-sok-input').value.toLowerCase();
+  const sok = document.getElementById('glosebank-sok-input').value.toLowerCase().trim();
   const nivaa = document.getElementById('filter-nivaa').value;
 
   filtrerteProver = alleProver.filter(p => {
-      const tittelMatch = p.tittel.toLowerCase().includes(sok);
+      // Søk i tittel, emne og ordliste-innhold
+      let sokMatch = !sok;
+      if (sok) {
+          const tittelMatch = (p.tittel || '').toLowerCase().includes(sok);
+          const emneMatch = (p.emne || '').toLowerCase().includes(sok);
+          const nivaaTextMatch = (p.nivaa || '').toLowerCase().includes(sok);
+          const ordMatch = Array.isArray(p.ordliste) && p.ordliste.some(ord =>
+              (ord.s || '').toLowerCase().includes(sok) ||
+              (ord.e || '').toLowerCase().includes(sok)
+          );
+          sokMatch = tittelMatch || emneMatch || nivaaTextMatch || ordMatch;
+      }
       const nivaaMatch = !nivaa || (p.nivaa && p.nivaa === nivaa);
-      return tittelMatch && nivaaMatch;
+      return sokMatch && nivaaMatch;
   });
   visProver();
 }
@@ -178,6 +188,7 @@ function visProver() {
             <h3 style="margin:0 0 5px 0; font-size:16px;">${p.tittel}</h3>
             
             <div style="font-size:12px; color:#666; margin-bottom:15px; flex-grow:1;">
+                ${p.emne ? `<div>📖 ${p.emne}</div>` : ''}
                 <div>📚 ${antallOrd} ord</div>
                 <div>🎓 ${nivaaTekst}</div>
                 <div>🔥 ${p.nedlastninger || 0} nedlastninger</div>
