@@ -111,7 +111,6 @@ export async function kreverAdmin(callback, feilmelding = 'Denne funksjonen krev
     const isAdmin = await erAdmin();
 
     if (!isAdmin) {
-        console.warn('⛔ Admin-tilgang påkrevd');
         alert(feilmelding);
         return false;
     }

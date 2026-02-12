@@ -43,9 +43,8 @@ export function lagreBrukerKort(kort) {
     setSamling(samling);
     
     // Fiks for undefined-feilen: Sjekk både name og navn
-    const kortNavn = kort.name || kort.navn || "Ukjent kort";
-    console.log(`Kort lagret sikkert: ${kortNavn}`);
 }
+
 
 // --- DIAMANTER (CREDITS) ---
 
@@ -100,7 +99,6 @@ export function lagreElevProveLokalt(proveData) {
     
     // Lagre tilbake
     localStorage.setItem(getUserKey(ELEV_PROVER_KEY), JSON.stringify(prover));
-    console.log(`Prove lagret lokalt: ${proveData.tittel}`);
 }
 
 /**
@@ -121,7 +119,6 @@ export function hentElevProverLokalt() {
         // Lagre tilbake den rensede listen
         if (aktiveProver.length !== prover.length) {
             localStorage.setItem(getUserKey(ELEV_PROVER_KEY), JSON.stringify(aktiveProver));
-            console.log(`Fjernet ${prover.length - aktiveProver.length} utlopte prover`);
         }
         
         return aktiveProver;

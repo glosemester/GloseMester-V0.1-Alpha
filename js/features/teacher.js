@@ -14,8 +14,6 @@ import { testSaveLimiter } from '../core/rate-limiter.js';
 // ==============================================
 
 export function initTeacherFeatures() {
-    console.log("🎓 Lærer-modul lastet v0.9.8");
-
     window.leggTilOrd = leggTilOrd;
     window.lagreProve = lagreProve;
     window.tomListe = tomListe;
@@ -326,9 +324,8 @@ export async function lagreProve() {
                 original_prove_id: docRef.id,
                 nedlastninger: 0
             });
-            console.log("✅ Backup til GloseBank OK");
         } catch(e) {
-            console.warn("⚠️ GloseBank backup failed:", e);
+            console.warn("GloseBank backup failed:", e);
         }
 
         await inkrementerProveAntall(user);

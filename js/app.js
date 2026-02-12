@@ -201,7 +201,6 @@ window.velgRolle = function(rolle) {
     else if (rolle === 'laerer') {
         // SJEKK: Er bruker allerede innlogget?
         if (window.currentUser) {
-            console.log("✅ Allerede innlogget, går direkte til dashboard");
             document.getElementById('laerer-meny').style.display = 'flex';
             visSide('laerer-dashboard');
             
@@ -433,7 +432,6 @@ function sjekkVersjon() {
         if (event.data?.type === 'VERSION_INFO') {
             const swVersjon = event.data.version;
             if (swVersjon && swVersjon !== KLIENT_VERSJON) {
-                console.log(`[Update] SW=${swVersjon}, Klient=${KLIENT_VERSJON} — oppdatering tilgjengelig`);
                 visUpdateVarsling();
             }
         }
@@ -672,11 +670,8 @@ window.aktiverKampanjekode = async function() {
    ============================================ */
 
 export function initApp() {
-    console.log('✅ Mester Suite v2.3.0-ALPHA kjører...');
-    
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log('SW Registrert');
 
             // Sjekk for oppdatering med en gang
             reg.update().catch(() => {});
@@ -737,12 +732,10 @@ export function initApp() {
     if (hamburgerBtn) {
         // VIKTIG: Bruk addEventListener, ikke onclick i HTML
         hamburgerBtn.addEventListener('click', toggleHamburger);
-        console.log('✅ Hamburger-knapp event listener lagt til');
     }
-    
+
     if (hamburgerOverlay) {
         hamburgerOverlay.addEventListener('click', lukkHamburger);
-        console.log('✅ Hamburger-overlay event listener lagt til');
     }
     
     if(typeof initTeacherFeatures === 'function') {

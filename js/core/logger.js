@@ -112,7 +112,6 @@ export function setupGlobalErrorHandler() {
         event.preventDefault();
     });
 
-    logger.info('✅ Global error handler aktivert');
 }
 
 /**

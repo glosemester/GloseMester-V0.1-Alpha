@@ -25,8 +25,6 @@ window.startStripeBetaling = async function (plan) {
             btn.textContent = 'Laster...';
         });
 
-        console.log(`Starting Stripe checkout for plan: ${plan}, user: ${user.uid}`);
-
         // Call Netlify function to create Stripe Checkout Session
         const response = await fetch('/.netlify/functions/stripe-checkout', {
             method: 'POST',
@@ -46,8 +44,6 @@ window.startStripeBetaling = async function (plan) {
         }
 
         const { url, orderId } = await response.json();
-
-        console.log(`Redirecting to Stripe Checkout, orderId: ${orderId}`);
 
         // Redirect to Stripe Checkout
         window.location.href = url;

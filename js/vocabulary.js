@@ -128,4 +128,3 @@ window.vokabularData = {
     ]
 };
 
-console.log('📚 vocabulary.js lastet - Oppdatert med LK20-tilpassede ordlister (Nivå 1-4, 40-50 ord per nivå)');

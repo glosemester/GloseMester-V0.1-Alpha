@@ -26,7 +26,7 @@ import { escapeHtml } from '../ui/helpers.js';
 export async function visSavedTests() {
     const container = document.getElementById('prover-liste');
     if (!container) {
-        console.error("❌ Container 'prover-liste' ikke funnet!");
+        console.error("Container 'prover-liste' ikke funnet");
         return;
     }
 
@@ -106,7 +106,6 @@ export async function visSavedTests() {
         html += '</div>';
 
         container.innerHTML = html;
-        console.log(`✅ Lastet ${querySnapshot.size} prøver`);
 
     } catch (error) {
         console.error("Feil ved lasting av prøver:", error);
@@ -878,8 +877,6 @@ window.skrivUtQRKode = function() {
 // ============================================
 window.eksporterTilExcel = async function(proveId, tittel) {
     try {
-        console.log('📥 Starter Excel-eksport for:', tittel);
-        
         if (typeof XLSX === 'undefined') {
             alert('❌ Excel-biblioteket er ikke lastet. Last siden på nytt og prøv igjen.');
             return;
@@ -974,7 +971,6 @@ window.eksporterTilExcel = async function(proveId, tittel) {
         
         XLSX.writeFile(wb, filnavn);
         
-        console.log('✅ Excel-fil generert:', filnavn);
         alert(`✅ Excel-fil lastet ned!\n\nFilnavn: ${filnavn}\nAntall elever: ${resultater.length}`);
         
     } catch (error) {
@@ -1036,8 +1032,6 @@ export function oppdaterProveliste() {
  */
 window.dupliserProve = async function(proveId) {
     try {
-        console.log('📋 Dupliserer prøve:', proveId);
-        
         // 1. Hent original prøve fra Firestore
         const docRef = doc(db, "prover", proveId);
         const docSnap = await getDoc(docRef);
@@ -1140,8 +1134,6 @@ window.bekreftDuplikat = async function(originalProveId) {
             submitBtn.textContent = '⏳ Oppretter kopi...';
         }
         
-        console.log('🔄 Oppretter kopi:', nyTittel);
-        
         // 1. Hent original prøve
         const docRef = doc(db, "prover", originalProveId);
         const docSnap = await getDoc(docRef);
@@ -1178,8 +1170,6 @@ window.bekreftDuplikat = async function(originalProveId) {
         // 4. Lagre kopi til Firestore
         const nyttDocRef = doc(db, "prover", nyttProveId);
         await setDoc(nyttDocRef, kopiData);
-        
-        console.log('✅ Kopi opprettet med ID:', nyttProveId);
         
         // 5. Lukk modal
         lukkDupliserModal();

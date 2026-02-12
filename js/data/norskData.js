@@ -189,11 +189,3 @@ if (typeof window !== 'undefined') {
     window.norskVokabular = norskVokabular;
 }
 
-console.log('📖 NorskMester data lastet:', {
-    niva1: norskVokabular.niva1.length,
-    niva2: norskVokabular.niva2.length,
-    niva3: norskVokabular.niva3.length,
-    niva4: norskVokabular.niva4.length,
-    niva5: norskVokabular.niva5.length,
-    niva6: norskVokabular.niva6.length
-});

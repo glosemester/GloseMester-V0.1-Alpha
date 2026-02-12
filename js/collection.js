@@ -5,8 +5,6 @@
 
 import { cardsData } from './data/cardsData.js';
 
-console.log(`📚 Laster kortdatabase... Fant ${cardsData.length} kort.`);
-
 // Gammel kompatibilitet: Noen eldre funksjoner sjekker kanskje window.kortSamling
 // Vi lager en "jukse-versjon" som grupperer dataene slik gamle script forventer det.
 window.kortSamling = {

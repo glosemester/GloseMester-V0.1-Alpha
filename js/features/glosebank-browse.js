@@ -1,7 +1,6 @@
 /**
  * GloseBank Browse v0.9.0
  * Tilgang: Kun Skolepakke og Admin
- * OPPDATERT: Bruker felles_prover collection + debug logging
  */
 
 import { auth, db, collection, query, where, orderBy, getDocs, getDoc, doc, addDoc, updateDoc, increment, serverTimestamp } from './firebase.js';
@@ -11,9 +10,6 @@ let alleProver = [], filtrerteProver = [];
 export async function lastInnGlosebankSok() {
   const mainContent = document.getElementById('glosebank-browse');
   const currentUser = auth.currentUser;
-
-  console.log("🔍 GloseBank: Starter lasting...");
-  console.log("👤 Current user:", currentUser?.uid, currentUser?.email);
 
   if (!mainContent) return;
 
@@ -25,8 +21,6 @@ export async function lastInnGlosebankSok() {
 
   // 2. SJEKK TILGANG (Kun Skolepakke!)
   const harTilgang = await sjekkSkoleTilgang(currentUser);
-
-  console.log("🔐 GloseBank tilgangssjekk:", harTilgang);
 
   if (!harTilgang) {
     mainContent.innerHTML = `
@@ -82,64 +76,43 @@ export async function lastInnGlosebankSok() {
 // --- HJELPEFUNKSJONER ---
 
 async function sjekkSkoleTilgang(user) {
-    console.log("🔍 Sjekker GloseBank tilgang for:", user.uid);
-    
     try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists()) {
-            console.log("❌ Bruker finnes ikke i Firestore");
-            return false;
-        }
-        
+        if (!snap.exists()) return false;
+
         const data = snap.data();
-        console.log("👤 Brukerdata:", data);
-        
         const abo = data.abonnement || {};
-        console.log("📦 Abonnement:", abo);
-        
-        // Sjekk strengt på Skolepakke / School / Admin
+
         if (abo.status === 'active' || abo.type === 'skolepakke' || abo.status === 'school') {
             const exp = abo.utloper?.toDate();
             if (!exp || Date.now() < exp.getTime()) {
-                console.log("✅ Har skolepakke-tilgang");
                 return true;
             }
         }
-        
-        console.log("❌ Ingen skolepakke-tilgang funnet");
-        console.log("Abonnement data:", data.abonnement);
+
         return false;
-    } catch (e) { 
-        console.error("❌ Feil ved tilgangssjekk:", e);
-        return false; 
+    } catch (e) {
+        console.error("Feil ved tilgangssjekk:", e);
+        return false;
     }
 }
 
 async function lastInnProver() {
-  console.log("🔍 Starter lastInnProver()");
-  
   try {
-    console.log("📡 Kjører Firestore query på 'glosebank'...");
-    
     const q = query(
         collection(db, 'glosebank'),
         where('synlig_for_kunder', '==', true),
         orderBy('nedlastninger', 'desc')
     );
-    
+
     const snap = await getDocs(q);
-    console.log("✅ Query OK - Antall prøver:", snap.size);
-    
-    alleProver = snap.docs.map(d => {
-        const data = d.data();
-        console.log("📄 Prøve funnet:", d.id, data);
-        return { id: d.id, ...data };
-    });
+
+    alleProver = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     
     filtrerteProver = [...alleProver];
     visProver();
   } catch (e) { 
-      console.error("❌ GloseBank fetch error:", e);
+      console.error("GloseBank fetch error:", e);
       const el = document.getElementById('glosebank-resultater');
       if(el) el.innerHTML = '<p>Kunne ikke laste prøver: ' + e.message + '</p>'; 
   }

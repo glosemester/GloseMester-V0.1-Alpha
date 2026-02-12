@@ -27,8 +27,6 @@ export async function lastDashboardData() {
     }
 
     try {
-        console.log('📊 Laster dashboard-data for lærer:', user.uid);
-
         // 1. Hent alle lærerens prøver
         const proverQuery = query(
             collection(db, "prover"),
@@ -41,8 +39,6 @@ export async function lastDashboardData() {
             id: doc.id,
             ...doc.data()
         }));
-
-        console.log(`✅ Funnet ${prover.length} prøver`);
 
         // 2. Hent statistikk for hver prøve (parallelt for ytelse)
         const statsPromises = prover.map(prove => hentProveStatistikk(prove.id));
@@ -70,7 +66,6 @@ export async function lastDashboardData() {
             sistOppdatert: new Date().toISOString()
         };
 
-        console.log('✅ Dashboard-data lastet:', dashboard);
         return dashboard;
 
     } catch (error) {
@@ -439,8 +434,6 @@ export function eksporterTilCSV(data) {
  * Initialiserer og viser dashboard
  */
 export async function initDashboard() {
-    console.log('🚀 Initialiserer lærer-dashboard...');
-
     const container = document.getElementById('dashboard-stats');
     if (!container) {
         console.warn('Dashboard-container ikke funnet i DOM');

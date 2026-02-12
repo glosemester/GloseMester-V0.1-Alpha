@@ -453,10 +453,7 @@ function visFeilPopup(fasit) {
 
 function sjekkSvar() {
     // ✅ Forhindre flere svar samtidig - SETT FLAGG UMIDDELBART
-    if (besvarer) {
-        console.log("⚠️ Blokkert duplikat svar");
-        return;
-    }
+    if (besvarer) return;
     besvarer = true; // LÅS FØRST!
 
     const inputFelt = document.getElementById('quiz-input');
@@ -558,10 +555,7 @@ function lesOppProve() {
 // ==============================================
 
 async function lagreResultatTilFirebase() {
-    if (!aktivProveId || aktivProveId.startsWith('offline_')) {
-        console.log("Offline-prove, lagrer ikke resultat");
-        return;
-    }
+    if (!aktivProveId || aktivProveId.startsWith('offline_')) return;
 
     try {
         const varighetSekunder = Math.round((Date.now() - proveStartTid) / 1000);

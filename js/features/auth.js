@@ -150,15 +150,6 @@ export async function sjekkFeideRetur() {
     const error = urlParams.get('error');
     const isFeideProcess = sessionStorage.getItem('feideLoginProcess');
 
-    // DEBUG
-    if (code || error || isFeideProcess) {
-        console.log("🔍 Feide callback:", {
-            harCode: !!code,
-            harError: !!error,
-            errorType: error
-        });
-    }
-
     // FEIDE-FEIL
     if (error) {
         console.error("❌ Feide error:", error);
@@ -191,7 +182,6 @@ export async function sjekkFeideRetur() {
                 
                 // 🎒 ELEV BLOKKERT
                 if (response.status === 403 && errorData.error === 'student_blocked') {
-                    console.log("🎓 Elev blokkert - viser popup");
                     visElevPopup();
                     return;
                 }
@@ -348,7 +338,6 @@ export async function loggUt() {
 // ============================================
 
 function handterVellykketInnlogging(user) {
-    console.log("🎉 Login OK:", user.uid);
     document.querySelectorAll('.popup-overlay').forEach(p => p.style.display = 'none');
     visToast(`Velkommen!`, "success");
     oppdaterUIForInnloggetBruker(user);
@@ -363,8 +352,7 @@ function handterVellykketInnlogging(user) {
 
 function oppdaterUIForInnloggetBruker(user) {
     window.currentUser = user;
-    console.log("✅ window.currentUser:", user.email);
-    
+
     const infoSpan = document.getElementById('user-info');
     if(infoSpan) infoSpan.innerText = user.email;
     oppdaterProveliste();
@@ -398,8 +386,6 @@ async function sjekkOgOppdaterAdminTilgang(user) {
             return;
         }
 
-        console.log("👑 Admin detektert");
-
         // Sørg for at admin har skolepakke-tilgang
         if (userData.abonnement?.type !== 'skolepakke') {
             await updateDoc(userDocRef, {
@@ -407,14 +393,12 @@ async function sjekkOgOppdaterAdminTilgang(user) {
                 'abonnement.status': 'active',
                 'abonnement.kampanjekode': 'ADMIN'
             });
-            console.log("✅ Admin skolepakke aktivert");
         }
 
         setTimeout(() => {
             const glosebankBtn = document.getElementById('btn-glosebank-browse');
             if (glosebankBtn) {
                 glosebankBtn.style.display = 'inline-block';
-                console.log("✅ GloseBank aktivert");
             }
         }, 200);
     } catch (error) {
@@ -462,18 +446,16 @@ window.auth = auth;
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        console.log("🔒 Bruker autentisert:", user.uid);
         window.currentUser = user;
         const aktivRolle = sessionStorage.getItem('aktivRolle');
-        
+
         const landingPageEl = document.getElementById('landing-page');
         const erPåLandingPage = landingPageEl ? landingPageEl.classList.contains('active') : false;
-        
+
         if (aktivRolle === 'laerer' && !erPåLandingPage) {
             oppdaterUIForInnloggetBruker(user);
         }
     } else {
-        console.log("👤 Ingen bruker");
         window.currentUser = null;
     }
 });

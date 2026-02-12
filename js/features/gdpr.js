@@ -110,7 +110,6 @@ function godtaCookies(acceptAll) {
         }
     }
 
-    console.log('✅ Cookie consent saved:', consent);
 }
 
 /**
@@ -259,12 +258,9 @@ export async function slettMinData() {
     document.body.appendChild(loadingDiv);
 
     try {
-        console.log('🗑️ Starter sletting av brukerdata for:', user.uid);
-
         // 1. Slett bruker-dokument i Firestore
         const userDocRef = doc(db, "users", user.uid);
         await deleteDoc(userDocRef);
-        console.log('✅ Bruker-dokument slettet');
 
         // 2. Slett alle prøver opprettet av brukeren
         const proverQuery = query(
@@ -279,7 +275,6 @@ export async function slettMinData() {
         });
 
         await Promise.all(deletionPromises);
-        console.log(`✅ ${deletionPromises.length} prøver slettet`);
 
         // 3. Slett resultater (sjekk både prove_eier og elev_id)
         try {
@@ -310,7 +305,6 @@ export async function slettMinData() {
             brukerSnapshot.forEach((docSnapshot) => resultaterPromises.push(deleteDoc(docSnapshot.ref)));
 
             await Promise.all(resultaterPromises);
-            console.log(`✅ ${resultaterPromises.length} resultater slettet`);
         } catch (e) {
             console.warn('⚠️ Kunne ikke slette resultater:', e.message);
         }
@@ -345,7 +339,6 @@ export async function slettMinData() {
                 console.warn('⚠️ Kunne ikke slette Storage-filer:', storageErr.message);
             }
 
-            console.log(`✅ ${diktatPromises.length} diktat-sett slettet`);
         } catch (e) {
             console.warn('⚠️ Kunne ikke slette diktat-sett:', e.message);
         }
@@ -361,7 +354,6 @@ export async function slettMinData() {
             const gbPromises = [];
             glosebankSnapshot.forEach((docSnapshot) => gbPromises.push(deleteDoc(docSnapshot.ref)));
             await Promise.all(gbPromises);
-            console.log(`✅ ${gbPromises.length} GloseBank-oppføringer slettet`);
         } catch (e) {
             console.warn('⚠️ Kunne ikke slette GloseBank-data:', e.message);
         }
@@ -375,14 +367,12 @@ export async function slettMinData() {
             }
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        console.log(`✅ ${keysToRemove.length} localStorage items slettet`);
 
         // 7. Rens sessionStorage
         sessionStorage.clear();
 
         // 8. Slett Firebase Auth bruker (må være sist)
         await user.delete();
-        console.log('✅ Firebase Auth bruker slettet');
 
         loadingDiv.remove();
 
@@ -543,13 +533,8 @@ export async function eksporterMinData() {
 
         visToast("✅ Data eksportert! Filen er lastet ned.", "success");
 
-        console.log('✅ Dataeksport fullført:', {
-            prover: prover.length,
-            storrelse: (blob.size / 1024).toFixed(2) + ' KB'
-        });
-
     } catch (error) {
-        console.error("❌ Feil ved eksport:", error);
+        console.error("Feil ved eksport:", error);
         visToast("❌ Kunne ikke eksportere data. Prøv igjen senere.", "error");
     }
 }
@@ -562,9 +547,6 @@ export async function eksporterMinData() {
  * Initialiserer GDPR-funksjoner når siden lastes
  */
 export function initGDPR() {
-    console.log('🛡️ GDPR-modul lastet');
-
-    // Vis cookie-banner hvis nødvendig
     visCookieBanner();
 
     // Eksponer funksjoner globalt for HTML onclick

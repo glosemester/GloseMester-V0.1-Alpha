@@ -46,28 +46,19 @@ export async function erAdmin(user) {
 export async function visAdminMenyHvisAdmin(user) {
     const isAdmin = await erAdmin(user);
 
-    if (!isAdmin) {
-        console.log('❌ Ikke admin-bruker');
-        return;
-    }
-
-    console.log('✅ Admin-bruker detektert:', user?.email);
+    if (!isAdmin) return;
 
     // Vis admin-knappen (oppdatert ID)
     setTimeout(() => {
         const adminBtn = document.getElementById('btn-admin-panel');
         if (adminBtn) {
             adminBtn.style.display = 'inline-block';
-            console.log('✅ Admin-knapp aktivert');
-        } else {
-            console.warn('⚠️ Admin-knapp ikke funnet i HTML');
         }
-        
+
         // Vis også GloseBank-knappen
         const glosebankBtn = document.getElementById('btn-glosebank-browse');
         if (glosebankBtn) {
             glosebankBtn.style.display = 'inline-block';
-            console.log('✅ GloseBank-knapp aktivert');
         }
     }, 150);
 }
@@ -90,8 +81,6 @@ export async function lastInnGlosebankProver() {
             container.innerHTML = '<p class="error">❌ Kun admin har tilgang</p>';
             return;
         }
-        
-        console.log('🔍 Henter prøver fra glosebank...');
         
         // Bruker glosebank collection (uten sorting - gjøres i JS)
         const q = query(collection(db, "glosebank"));
@@ -120,8 +109,6 @@ export async function lastInnGlosebankProver() {
             if (!dateB) return -1;
             return dateB.toMillis() - dateA.toMillis();
         });
-        
-        console.log(`✅ Lastet ${allProver.length} GloseBank-prøver`);
         
         // Vis prøver basert på filter
         visFilterteProver();
@@ -252,8 +239,6 @@ window.godkjennProve = async function(proveId) {
     }
     
     try {
-        console.log('✅ Godkjenner prøve:', proveId);
-        
         // Bruker glosebank collection
         await updateDoc(doc(db, "glosebank", proveId), {
             status: 'approved',
@@ -516,8 +501,6 @@ window.slettFraGlosebank = async function(proveId) {
 // FANE-HÅNDTERING
 // ============================================
 window.visFane = function(faneNavn) {
-    console.log('🔄 Bytter til fane:', faneNavn);
-    
     // Skjul alle faner
     document.querySelectorAll('.admin-fane').forEach(fane => {
         fane.style.display = 'none';
@@ -565,6 +548,5 @@ window.visFane = function(faneNavn) {
 // INITIALISER ADMIN-PANEL
 // ============================================
 export function initAdminPanel() {
-    console.log('🔧 Initialiserer admin-panel...');
     setTimeout(() => window.visFane('glosebank'), 100);
 }
