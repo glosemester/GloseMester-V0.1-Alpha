@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.2.1-ALPHA
-// Oppdatert: Fikset iOS PWA-oppdatering, versjonsjekk
-const APP_VERSION = 'v2.2.1-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.2.1-alpha';
+// SERVICE WORKER - Mester Suite v2.3.0-ALPHA
+// Oppdatert: Ryddet cache, fjernet lydfiler, offline-forbedring
+const APP_VERSION = 'v2.3.0-ALPHA';
+const CACHE_NAME = 'mester-suite-v2.3.0-alpha';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -131,14 +131,9 @@ const ASSETS_TO_CACHE = [
   // UI Helper
   './js/ui/helpers.js',
 
-  // ========================================
-  // SOUNDS
-  // ========================================
-  './sounds/pop.mp3',
-  './sounds/correct.mp3',
-  './sounds/wrong.mp3',
-  './sounds/win.mp3',
-  './sounds/fanfare.mp3'
+  // UI Helpers & Admin
+  './js/features/brukeradmin.js',
+  './js/features/payment.js'
 ];
 
 // INSTALL - Cache assets

@@ -8,7 +8,7 @@ import { sjekkFeideRetur } from './features/auth.js'; // <--- VIKTIG: Peker nå 
 // ============================================
 // GLOBAL STATE
 // ============================================
-window.APP_VERSION = "v2.2.1-ALPHA";
+window.APP_VERSION = "v2.3.0-ALPHA";
 
 window.brukerNavn = "Spiller";
 window.aktivRolle = "";

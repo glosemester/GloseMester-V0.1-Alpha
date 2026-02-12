@@ -419,7 +419,7 @@ window.updateHamburgerUserInfo = updateHamburgerUserInfo;
    ============================================ */
 
 // Klientversjon — MÅ matche sw.js APP_VERSION for å unngå popup
-const KLIENT_VERSJON = 'v2.2.1-ALPHA';
+const KLIENT_VERSJON = 'v2.3.0-ALPHA';
 
 /**
  * Sjekk om SW-versjonen er nyere enn klientversjonen
@@ -672,7 +672,7 @@ window.aktiverKampanjekode = async function() {
    ============================================ */
 
 export function initApp() {
-    console.log('✅ Mester Suite v2.2.1-ALPHA kjører...');
+    console.log('✅ Mester Suite v2.3.0-ALPHA kjører...');
     
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(reg => {
@@ -775,21 +775,36 @@ export function initApp() {
  * Setup network detection (offline/online indicators)
  */
 function setupNetworkDetection() {
-    // Dynamisk import av visToast
-    import('./ui/helpers.js').then(({ visToast }) => {
-        window.addEventListener('offline', () => {
-            visToast('⚠️ Du er offline. Noen funksjoner kan være begrenset.', 'warning');
-            console.warn('📡 Network: OFFLINE');
-        });
+    function visOfflineBanner() {
+        if (document.getElementById('offline-banner')) return;
+        const banner = document.createElement('div');
+        banner.id = 'offline-banner';
+        banner.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 20000;
+            background: #ff9800; color: white; text-align: center;
+            padding: 8px 16px; font-size: 14px; font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        banner.textContent = '⚠️ Du er offline — noen funksjoner er begrenset';
+        document.body.appendChild(banner);
+        document.body.style.paddingTop = (parseInt(getComputedStyle(document.body).paddingTop) + 36) + 'px';
+    }
 
-        window.addEventListener('online', () => {
-            visToast('✅ Tilbake online!', 'success');
-            console.log('📡 Network: ONLINE');
-        });
-
-        // Log initial status
-        if (!navigator.onLine) {
-            console.warn('📡 App startet offline');
+    function skjulOfflineBanner() {
+        const banner = document.getElementById('offline-banner');
+        if (banner) {
+            document.body.style.paddingTop = '';
+            banner.remove();
         }
-    });
+        import('./ui/helpers.js').then(({ visToast }) => {
+            visToast('✅ Tilbake online!', 'success');
+        });
+    }
+
+    window.addEventListener('offline', visOfflineBanner);
+    window.addEventListener('online', skjulOfflineBanner);
+
+    if (!navigator.onLine) {
+        visOfflineBanner();
+    }
 }

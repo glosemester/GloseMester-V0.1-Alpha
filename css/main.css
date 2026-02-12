@@ -175,6 +175,10 @@ input, textarea, select {
 .role-card {
     background: white; padding: 25px 15px; border-radius: 18px;
     box-shadow: var(--shadow); cursor: pointer; text-align: center;
+    transition: transform 0.2s;
+}
+.role-card:active {
+    transform: scale(0.95);
 }
 .trinn-grid { display: grid; gap: 10px; margin-top: 20px; }
 .trinn-btn {
@@ -310,6 +314,11 @@ input, textarea, select {
     transform: translateY(-8px);
     box-shadow: 0 12px 30px rgba(0, 113, 227, 0.2);
     border-color: var(--accent-blue);
+}
+
+.fag-card-active:active {
+    transform: scale(0.97);
+    transition: transform 0.1s;
 }
 
 .fag-card-disabled {
@@ -484,6 +493,12 @@ input, textarea, select {
 .empty-state { text-align: center; padding: 3rem 2rem; background: #f8f9fa; border-radius: 12px; margin: 2rem 0; }
 .empty-state p { font-size: 1.1rem; color: #666; margin: 0.5rem 0; }
 .loading { text-align: center; font-size: 1.2rem; color: #667eea; padding: 2rem; }
+
+/* Responsive table wrapper for admin panels */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -15px; padding: 0 15px; }
+
+/* Disabled button style */
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* --- LOADING SPINNER --- */
 .spinner {
