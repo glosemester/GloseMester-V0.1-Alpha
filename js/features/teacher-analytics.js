@@ -187,18 +187,16 @@ async function hentAktivitetGraf(userId, dager) {
                 timeZone: 'Europe/Oslo',
                 year: 'numeric', month: '2-digit', day: '2-digit'
             }).format(date);
-            // Parse YYYY-MM-DD og lag midnatt i norsk tid
+            // Parse YYYY-MM-DD
             const [y, m, d] = norskDato.split('-').map(Number);
-            // Beregn UTC-tidspunkt for midnatt i Oslo
-            const midnattLocal = new Date(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}T00:00:00+01:00`);
-            // Juster for faktisk offset (sommer/vinter)
+            // Start med UTC midnatt, deretter juster for Oslo-offset
+            const utcMidnight = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+            // Finn faktisk Oslo-time ved UTC midnatt for å beregne offset
             const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Oslo', hour: 'numeric', hour12: false });
-            const testDate = new Date(midnattLocal);
-            const osloHour = parseInt(formatter.format(testDate));
-            if (osloHour !== 0) {
-                midnattLocal.setTime(midnattLocal.getTime() - osloHour * 60 * 60 * 1000);
-            }
-            return midnattLocal.getTime();
+            const osloHour = parseInt(formatter.format(utcMidnight));
+            // Juster slik at klokken er 00:00 i Oslo (ikke UTC)
+            utcMidnight.setTime(utcMidnight.getTime() - osloHour * 60 * 60 * 1000);
+            return utcMidnight.getTime();
         }
 
         // Bygg daglig statistikk
