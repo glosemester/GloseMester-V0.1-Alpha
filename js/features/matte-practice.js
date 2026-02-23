@@ -479,4 +479,3 @@ window.sjekkMatteSvar = sjekkMatteSvar;
 window.avsluttMatteOving = avsluttMatteOving;
 window.matteProvIgjen = matteProvIgjen;
 
-console.log('➕ MatteMester practice module loaded');

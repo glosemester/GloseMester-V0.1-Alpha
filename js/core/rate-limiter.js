@@ -224,7 +224,7 @@ export function logRateLimitStatus() {
 
     checks.forEach(({ name, limiter, action }) => {
         const stats = limiter.getStats(action);
-        console.log(`${name}: ${stats.remaining}/${stats.maxAttempts} igjen`);
+        // Stats available via getStats()
     });
 
     console.groupEnd();

@@ -8,9 +8,6 @@ export function trackEvent(category, action, label) {
             'event_category': category,
             'event_label': label
         });
-        console.log(`📊 Analytics: ${category} > ${action} > ${label}`);
-    } else {
-        // console.log('⚠️ Analytics ikke aktiv (Dev mode)');
     }
 }
 

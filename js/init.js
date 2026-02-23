@@ -8,7 +8,7 @@ import { sjekkFeideRetur } from './features/auth.js'; // <--- VIKTIG: Peker nå 
 // ============================================
 // GLOBAL STATE
 // ============================================
-window.APP_VERSION = "v0.10.4";
+window.APP_VERSION = "v2.3.0-ALPHA";
 
 window.brukerNavn = "Spiller";
 window.aktivRolle = "";
@@ -47,8 +47,6 @@ function visVersjonstag() {
 // APP INITIALISERING
 // ============================================
 window.addEventListener('DOMContentLoaded', async () => {
-    console.log(`🏁 Init.js: Klargjør ${window.APP_VERSION}...`);
-
     // 1. Vis versjon
     visVersjonstag();
 
@@ -67,7 +65,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const proveKode = urlParams.get('quiz') || urlParams.get('prove');
 
     if (proveKode) {
-        console.log("🔗 Fant prøve-kode i URL:", proveKode);
         setTimeout(() => {
             if (window.velgRolle) window.velgRolle('kode');
 

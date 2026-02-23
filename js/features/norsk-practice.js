@@ -431,4 +431,3 @@ window.sjekkNorskSvar = sjekkNorskSvar;
 window.avsluttNorskOving = avsluttNorskOving;
 window.startLaererDiktat = startLaererDiktat;
 
-console.log('📖 NorskMester practice module v2.1 loaded (med lærer-diktat)');

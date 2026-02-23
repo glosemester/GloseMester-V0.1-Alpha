@@ -26,7 +26,7 @@ import { escapeHtml } from '../ui/helpers.js';
 export async function visSavedTests() {
     const container = document.getElementById('prover-liste');
     if (!container) {
-        console.error("❌ Container 'prover-liste' ikke funnet!");
+        console.error("Container 'prover-liste' ikke funnet");
         return;
     }
 
@@ -106,7 +106,6 @@ export async function visSavedTests() {
         html += '</div>';
 
         container.innerHTML = html;
-        console.log(`✅ Lastet ${querySnapshot.size} prøver`);
 
     } catch (error) {
         console.error("Feil ved lasting av prøver:", error);
@@ -853,7 +852,24 @@ window.lastNedQRKode = async function(proveId, tittel) {
 };
 
 window.skrivUtQRKode = function() {
+    const modal = document.querySelector('.modal-overlay');
+    if (!modal) { window.print(); return; }
+
+    // Skjul alt annet, vis kun QR-innhold for utskrift
+    const printStyle = document.createElement('style');
+    printStyle.id = 'qr-print-style';
+    printStyle.textContent = `
+        @media print {
+            body > *:not(.modal-overlay) { display: none !important; }
+            .modal-overlay { position: static !important; background: white !important; }
+            .modal-content { box-shadow: none !important; max-width: 100% !important; }
+            .modal-close, .qr-actions { display: none !important; }
+        }
+    `;
+    document.head.appendChild(printStyle);
     window.print();
+    // Fjern print-stilen etter utskrift
+    setTimeout(() => printStyle.remove(), 1000);
 };
 
 // ============================================
@@ -861,8 +877,6 @@ window.skrivUtQRKode = function() {
 // ============================================
 window.eksporterTilExcel = async function(proveId, tittel) {
     try {
-        console.log('📥 Starter Excel-eksport for:', tittel);
-        
         if (typeof XLSX === 'undefined') {
             alert('❌ Excel-biblioteket er ikke lastet. Last siden på nytt og prøv igjen.');
             return;
@@ -957,7 +971,6 @@ window.eksporterTilExcel = async function(proveId, tittel) {
         
         XLSX.writeFile(wb, filnavn);
         
-        console.log('✅ Excel-fil generert:', filnavn);
         alert(`✅ Excel-fil lastet ned!\n\nFilnavn: ${filnavn}\nAntall elever: ${resultater.length}`);
         
     } catch (error) {
@@ -970,12 +983,31 @@ window.eksporterTilExcel = async function(proveId, tittel) {
 // SLETT PRØVE
 // ============================================
 window.slettProve = async function(proveId) {
-    const bekreft = confirm("⚠️ Er du sikker på at du vil slette denne prøven?\n\nDette kan ikke angres!");
+    const bekreft = confirm("⚠️ Er du sikker på at du vil slette denne prøven og alle tilhørende resultater?\n\nDette kan ikke angres!");
     if (!bekreft) return;
 
     try {
+        // Slett tilhørende resultater først
+        try {
+            const resultaterQuery = query(
+                collection(db, "resultater"),
+                where("prove_id", "==", proveId)
+            );
+            const resultaterSnapshot = await getDocs(resultaterQuery);
+            const slettPromises = [];
+            resultaterSnapshot.forEach((docSnap) => {
+                slettPromises.push(deleteDoc(docSnap.ref));
+            });
+            if (slettPromises.length > 0) {
+                await Promise.all(slettPromises);
+            }
+        } catch (e) {
+            console.warn("Kunne ikke slette resultater:", e.message);
+        }
+
+        // Slett selve prøven
         await deleteDoc(doc(db, "prover", proveId));
-        alert("✅ Prøven er slettet!");
+        alert("✅ Prøven og tilhørende resultater er slettet!");
         visSavedTests();
     } catch (error) {
         console.error("Feil ved sletting:", error);
@@ -1000,8 +1032,6 @@ export function oppdaterProveliste() {
  */
 window.dupliserProve = async function(proveId) {
     try {
-        console.log('📋 Dupliserer prøve:', proveId);
-        
         // 1. Hent original prøve fra Firestore
         const docRef = doc(db, "prover", proveId);
         const docSnap = await getDoc(docRef);
@@ -1104,8 +1134,6 @@ window.bekreftDuplikat = async function(originalProveId) {
             submitBtn.textContent = '⏳ Oppretter kopi...';
         }
         
-        console.log('🔄 Oppretter kopi:', nyTittel);
-        
         // 1. Hent original prøve
         const docRef = doc(db, "prover", originalProveId);
         const docSnap = await getDoc(docRef);
@@ -1142,8 +1170,6 @@ window.bekreftDuplikat = async function(originalProveId) {
         // 4. Lagre kopi til Firestore
         const nyttDocRef = doc(db, "prover", nyttProveId);
         await setDoc(nyttDocRef, kopiData);
-        
-        console.log('✅ Kopi opprettet med ID:', nyttProveId);
         
         // 5. Lukk modal
         lukkDupliserModal();

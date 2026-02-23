@@ -1,7 +1,7 @@
 # Mester Suite — Komplett Funksjonsoversikt & Lanseringsplan
 
-> **Sist oppdatert:** 2026-02-11
-> **Gjeldende versjon:** v2.2.1-ALPHA
+> **Sist oppdatert:** 2026-02-13
+> **Gjeldende versjon:** v2.3.0-ALPHA
 > **Formål:** Gi utviklere full oversikt over alt som finnes i appen, hva som fungerer, hva som mangler, og hva som må fikses før lansering.
 
 ---
@@ -264,7 +264,7 @@ GloseMester-V0.1-Alpha/
 | XP/kort-belønninger | Per riktig svar + bonusdiamanter | Fungerer |
 
 **Mangler:**
-- QR-URL bruker `?prove=` men skanner parser `?quiz=` — **MISMATCH**
+- ~~QR-URL bruker `?prove=` men skanner parser `?quiz=`~~ — **FIKSET** (scanner håndterer begge parametre)
 - Ingen visuell skanneindikator (ramme/linje) i QR-scanneren
 
 ### 4.5 Lærerdashboard
@@ -291,9 +291,9 @@ GloseMester-V0.1-Alpha/
 
 **Mangler:**
 - `sjekkKampanjeKode()` er bare en placeholder (`alert()`)
-- `slettProve()` sletter ikke tilhørende resultater i Firestore
+- ~~`slettProve()` sletter ikke tilhørende resultater i Firestore~~ — **FIKSET**
 - `skrivUtQRKode()` bruker `window.print()` som skriver ut hele siden
-- Tidssone hardkodet til UTC+1 — sommertid (UTC+2) ikke håndtert
+- ~~Tidssone hardkodet til UTC+1~~ — **FIKSET** (bruker nå `Intl.DateTimeFormat` + `Date.UTC`)
 - CSV eksporterer kun topp 5 prøver, ikke alle
 - Gjennomsnitt-beregning er uvektet (snitt av snitt)
 
@@ -335,7 +335,7 @@ GloseMester-V0.1-Alpha/
 
 **Mangler:**
 - Galleri har ingen filtrering eller søk
-- Gallery.js er debug-versjon med massiv console.log
+- ~~Gallery.js er debug-versjon med massiv console.log~~ — **FIKSET** (all debug-logging fjernet)
 - Ingen image error handling (fallback ved manglende bilde)
 
 ### 4.8 Læringsmotor (Leitner)
@@ -404,9 +404,9 @@ GloseMester-V0.1-Alpha/
 | Personvernerklæring | Komplett GDPR-dokument | Fungerer |
 
 **Mangler / KRITISK:**
-- `slettMinData()` søker etter `bruker_id` men quiz.js bruker `elev_id` — **resultater slettes IKKE**
-- `slettMinData()` sletter IKKE diktat-sett fra Firebase Storage
-- `slettMinData()` sletter IKKE GloseBank-entries
+- ~~`slettMinData()` søker etter `bruker_id` men quiz.js bruker `elev_id`~~ — **FIKSET** (søker nå `prove_eier`, `elev_id` og `bruker_id`)
+- ~~`slettMinData()` sletter IKKE diktat-sett fra Firebase Storage~~ — **FIKSET** (sletter nå diktat-sett + Storage-filer)
+- ~~`slettMinData()` sletter IKKE GloseBank-entries~~ — **FIKSET** (sletter nå GloseBank-oppføringer)
 - `eksporterMinData()` henter IKKE resultater — kun profil og prøver
 - Analytics-kode er død kode (gtag sjekkes men er fjernet)
 
@@ -424,9 +424,9 @@ GloseMester-V0.1-Alpha/
 | Bruker: Last ned | Kopier prøve til eget bibliotek | Fungerer |
 
 **Mangler:**
-- `erAdmin()` mangler `await` i glosebank-admin.js — **admin-sjekk er alltid true!**
-- Søk kun på tittel — ikke på emne, nivå eller ordinnhold
-- Massiv debug-logging i browse-modulen
+- ~~`erAdmin()` mangler `await` i glosebank-admin.js~~ — **FIKSET** (`async/await` korrekt)
+- ~~Søk kun på tittel~~ — **FIKSET** (søker nå på tittel, emne, nivå og ordinnhold)
+- ~~Massiv debug-logging i browse-modulen~~ — **FIKSET** (all debug-logging fjernet)
 - `alert()` ved nedlasting i stedet for toast
 
 ### 4.13 Standardprøver
@@ -458,8 +458,8 @@ GloseMester-V0.1-Alpha/
 | GloseBank-moderering | Godkjenn/rediger/skjul/slett | Fungerer |
 | Standardprøve-verktøy | Fyll database med prøver | Fungerer |
 
-**Mangler / KRITISK:**
-- `erAdmin()` mangler `await` i brukeradmin.js — **alle innloggede får tilgang!**
+**Mangler:**
+- ~~`erAdmin()` mangler `await` i brukeradmin.js~~ — **FIKSET** (`async/await` korrekt)
 - Ingen paginering i brukerlisten (henter ALLE brukere)
 - Ingen søk/filtrering av brukere
 - Ingen realtime-oppdatering etter abonnementsendring
@@ -479,7 +479,7 @@ GloseMester-V0.1-Alpha/
 | Offline-side | offline.html med auto-reload | Fungerer |
 
 **Mangler:**
-- `manifest.json` peker på `index-v2.html` — **filen eksisterer kanskje ikke**
+- ~~`manifest.json` peker på `index-v2.html`~~ — **FIKSET** (peker nå til `./index.html`)
 - Kun ett ikon (192/512) — bør ha flere størrelser
 - Ingen bakgrunnssynkronisering
 
@@ -524,30 +524,30 @@ GloseMester-V0.1-Alpha/
 
 ### Prioritet 1 — Sikkerhets/tilgangsfeil
 
-| # | Bug | Fil | Linje | Konsekvens |
-|---|-----|-----|-------|------------|
-| 1 | `erAdmin()` mangler `await` | `brukeradmin.js` | ~22 | **Alle innloggede brukere kan se admin-panelet for brukeradministrasjon** |
-| 2 | `erAdmin()` mangler `await` | `glosebank-admin.js` | ~89 | **Alle innloggede kan moderere GloseBank** |
-| 3 | Betaling verifiseres via URL-param | `payment.js` | — | Bruker kan legge til `?status=success` i URL manuelt (trenger server-webhook) |
+| # | Bug | Fil | Status |
+|---|-----|-----|--------|
+| 1 | ~~`erAdmin()` mangler `await`~~ | `brukeradmin.js` | **FIKSET** — `async/await` korrekt |
+| 2 | ~~`erAdmin()` mangler `await`~~ | `glosebank-admin.js` | **FIKSET** — `async/await` korrekt |
+| 3 | Betaling verifiseres via URL-param | `payment.js` | **ÅPEN** — Trenger server-side Stripe webhook |
 
 ### Prioritet 2 — Funksjonsfeil
 
-| # | Bug | Fil | Konsekvens |
-|---|-----|-----|------------|
-| 4 | QR-URL bruker `?prove=` men skanner parser `?quiz=` | `saved-tests.js` + `qr-scanner.js` | **QR-koder som skannes fungerer ikke** |
-| 5 | GDPR-sletting søker feil felt (`bruker_id` vs `elev_id`) | `gdpr.js` | Quiz-resultater slettes ikke ved kontosletting |
-| 6 | GDPR-sletting mangler diktat/GloseBank | `gdpr.js` | Ufullstendig datasletting (Art. 17 brudd) |
-| 7 | GDPR-eksport mangler resultater | `gdpr.js` | Ufullstendig dataportabilitet (Art. 20 brudd) |
-| 8 | `manifest.json` peker på `index-v2.html` | `manifest.json` | PWA-startside kan 404-e |
-| 9 | Tidssone hardkodet UTC+1 | `teacher-analytics.js` | Aktivitetsgraf viser feil dag i sommertid (mars–oktober) |
+| # | Bug | Fil | Status |
+|---|-----|-----|--------|
+| 4 | ~~QR-URL `?prove=` vs `?quiz=` mismatch~~ | `qr-scanner.js` | **FIKSET** — Håndterer begge parametre |
+| 5 | ~~GDPR-sletting søker feil felt~~ | `gdpr.js` | **FIKSET** — Søker `prove_eier`, `elev_id` og `bruker_id` |
+| 6 | ~~GDPR-sletting mangler diktat/GloseBank~~ | `gdpr.js` | **FIKSET** — Sletter diktat, Storage-filer og GloseBank |
+| 7 | ~~GDPR-eksport mangler GloseBank-data~~ | `gdpr.js` | **FIKSET** — Eksporterer nå profil, prøver, resultater, diktat og GloseBank |
+| 8 | ~~`manifest.json` peker på `index-v2.html`~~ | `manifest.json` | **FIKSET** — Peker til `./index.html` |
+| 9 | ~~Tidssone hardkodet UTC+1~~ | `teacher-analytics.js` | **FIKSET** — Bruker `Date.UTC` + `Intl` offset |
 
 ### Prioritet 3 — UX-feil
 
-| # | Bug | Fil | Konsekvens |
-|---|-----|-----|------------|
-| 10 | `avvisPersonvern()` blokkerer ikke tilgang | `auth.js` | Bruker kan bruke tjenesten etter å avvise personvern |
-| 11 | `slettProve()` sletter ikke resultater | `saved-tests.js` | Foreldreløse resultater i Firestore |
-| 12 | `skrivUtQRKode()` skriver ut hele siden | `saved-tests.js` | Dårlig utskrift |
+| # | Bug | Fil | Status |
+|---|-----|-----|--------|
+| 10 | `avvisPersonvern()` blokkerer ikke tilgang | `auth.js` | **ÅPEN** |
+| 11 | ~~`slettProve()` sletter ikke resultater~~ | `saved-tests.js` | **FIKSET** |
+| 12 | `skrivUtQRKode()` skriver ut hele siden | `saved-tests.js` | **ÅPEN** |
 
 ---
 
@@ -555,11 +555,12 @@ GloseMester-V0.1-Alpha/
 
 ### Må ha (P0)
 
-- [ ] **Fiks alle Prioritet 1 og 2 bugs ovenfor**
+- [x] **Fiks Prioritet 1 bugs** — Admin-tilgang (`erAdmin()` await) fikset
+- [x] **Fiks Prioritet 2 bugs** — QR-mismatch, GDPR-sletting, manifest.json, tidssone — alle fikset
 - [ ] **Firebase Storage Rules** — regler for diktat-mappen (se egen guide)
 - [ ] **Konsistent versjonsnummer** — én kilde til sannhet for versjon
-- [ ] **Fjern all debug-logging** — minst 16 filer har `console.log` i produksjon
-- [ ] **Fiks manifest.json** — pek på riktig `index.html`
+- [x] **Fjern all debug-logging** — ~150 console.log fjernet fra 28 filer (2026-02-13)
+- [x] **Fiks manifest.json** — peker nå på `./index.html`
 - [ ] **Test betalingsflyt ende-til-ende** — Stripe webhook for server-verifisering
 
 ### Bør ha (P1)
@@ -568,9 +569,9 @@ GloseMester-V0.1-Alpha/
 - [ ] **Lydeffekter** — deaktivert i koden, bør reaktiveres eller fjernes
 - [ ] **Standardprøver for matte og norsk** — kun engelskfaget nå
 - [ ] **Videregående-prøver** — kategori finnes i UI men ingen innhold
-- [ ] **Søk i GloseBank på emne/nivå/ordinnhold** — ikke bare tittel
+- [x] **Søk i GloseBank på emne/nivå/ordinnhold** — fikset, søker nå i tittel, emne, nivå og ordliste
 - [ ] **Paginering i brukeradmin** — skalerer ikke med mange brukere
-- [ ] **Sommertid-håndtering** — bruk `Intl.DateTimeFormat` i stedet for hardkodet offset
+- [x] **Sommertid-håndtering** — fikset, bruker nå `Intl.DateTimeFormat` + `Date.UTC`
 - [ ] **Progress-synkronisering** — elev-fremgang kun i localStorage, tapt ved nettleserbyte
 - [ ] **QR-skanner visuell indikator** — ramme/linje for bedre UX
 - [ ] **Fiks 3 uoppnåelige badges** — implementer perfectStreak, earlyBird, nightOwl
@@ -597,7 +598,7 @@ GloseMester-V0.1-Alpha/
 
 | Problem | Omfang | Forslag |
 |---------|--------|---------|
-| **Debug-logging i produksjon** | 16 av 23 feature-filer | Bruk `logger.js` konsekvent (finnes allerede!) |
+| ~~**Debug-logging i produksjon**~~ | ~~16 av 23 feature-filer~~ | **FIKSET** — ~150 console.log fjernet fra 28 filer (2026-02-13) |
 | **Global state på `window`** | 50+ funksjoner + variabler | Flytt til modul-exports eller event bus |
 | **Inline HTML-styles i JS** | Nesten alle feature-filer | Flytt til CSS-klasser |
 | **Duplisert kode** | `stokkArray()`, abonnementsjekk, progresjons-UI | Lag felles utilities |
@@ -653,4 +654,83 @@ GloseMester-V0.1-Alpha/
 
 ---
 
-*Dokumentet er generert 2026-02-11. Oppdater ved større endringer.*
+---
+
+## 9. PLAN: Standardprøver for Matte og Norsk
+
+### Bakgrunn
+Standardprøver finnes i dag kun for **Engelsk** (GloseMester). For å dekke alle tre fag i Mester Suite trengs tilsvarende for **MatteMester** og **NorskMester**.
+
+### Fase 1 — Datamodell (Firestore)
+Utvid `standardprover`-collection med et `fag`-felt:
+- `fag: "engelsk"` — eksisterende prøver (ordliste med `s`/`e`-par)
+- `fag: "matte"` — nye matteprøver
+- `fag: "norsk"` — nye norskprøver
+
+**Matteprøve-struktur:**
+```
+{
+  fag: "matte",
+  tittel: "Gangetabellen 1-10",
+  nivaa: "barneskole",
+  trinn: "3. trinn",
+  emne: "multiplikasjon",
+  oppgaver: [
+    { sporsmal: "7 × 8", svar: "56", type: "regnestykke" },
+    { sporsmal: "Hva er halvparten av 120?", svar: "60", type: "tekstoppgave" }
+  ]
+}
+```
+
+**Norskprøve-struktur:**
+```
+{
+  fag: "norsk",
+  tittel: "Rettskriving – dobbel konsonant",
+  nivaa: "barneskole",
+  trinn: "5. trinn",
+  emne: "rettskriving",
+  oppgaver: [
+    { sporsmal: "Fyll inn riktig: ka__e (katt/kate)", svar: "katte", type: "fyll_inn" },
+    { sporsmal: "Er 'solen' hankjønn, hunkjønn eller intetkjønn?", svar: "hankjønn", type: "flervalgssporsmal", alternativer: ["hankjønn","hunkjønn","intetkjønn"] }
+  ]
+}
+```
+
+### Fase 2 — UI-endringer i `standardprove.js`
+1. Legg til **fag-filter** (fane eller dropdown): Engelsk | Matte | Norsk
+2. `lagProveKort()` — vis forskjellig korttype basert på `fag`
+3. `visPreview()` — tilpass forhåndsvisning for matte/norsk-oppgaver
+
+### Fase 3 — Quiz-motor per fag
+- **Matte**: Vis regnestykke → input-felt for svar → sjekk numerisk likhet
+- **Norsk**: Støtt oppgavetypene `fyll_inn`, `flervalgssporsmal`, `diktat` (gjenbruk diktat-motor)
+- **Engelsk**: Eksisterende ordliste-quiz (uendret)
+
+Disse kan implementeres som egne rendere i `quiz.js` som velges basert på `prove.fag`.
+
+### Fase 4 — Innholdsproduksjon
+Lag 8-10 standardprøver per fag, fordelt på nivå:
+
+| Fag | Barneskole | Ungdomsskole | Totalt |
+|-----|-----------|-------------|--------|
+| Matte | 5 (gangetabell, addisjon, brøk, geometri, måleenheter) | 5 (algebra, prosent, likninger, statistikk, funksjoner) | 10 |
+| Norsk | 5 (rettskriving, ordklasser, les/forstå, grammatikk, diktat) | 5 (sjanger, nynorsk, argumentasjon, grammatikk, tekstanalyse) | 10 |
+
+### Fase 5 — Kopiering og resultat
+- `kopierProve()` må lagre `fag`-felt i `prover`-collection
+- Resultat-visning må tilpasses for ulike oppgavetyper
+- XP-beregning beholdes uendret (riktig svar = XP)
+
+### Estimert arbeid
+- Fase 1-2: Datamodell + UI-filter
+- Fase 3: Quiz-motor utvidelse (størst jobb)
+- Fase 4: Innholdsproduksjon (kan gjøres parallelt)
+- Fase 5: Tilpasninger
+
+### Prioritet
+Start med **Fase 1+2** (legge til fag-filter og datamodell) slik at eksisterende engelskprøver får `fag: "engelsk"`, deretter **Fase 3** for matteprøver (enklere oppgavetype), og til slutt norskprøver.
+
+---
+
+*Dokumentet er oppdatert 2026-02-13. Oppdater ved større endringer.*

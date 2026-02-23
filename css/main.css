@@ -369,6 +369,10 @@ select {
     box-shadow: var(--shadow);
     cursor: pointer;
     text-align: center;
+    transition: transform 0.2s;
+}
+.role-card:active {
+    transform: scale(0.95);
 }
 
 .trinn-grid {
@@ -661,6 +665,11 @@ select {
     transform: translateY(-8px);
     box-shadow: 0 12px 30px rgba(0, 113, 227, 0.2);
     border-color: var(--accent-blue);
+}
+
+.fag-card-active:active {
+    transform: scale(0.97);
+    transition: transform 0.1s;
 }
 
 .fag-card-disabled {
@@ -1147,6 +1156,12 @@ select {
     color: #667eea;
     padding: 2rem;
 }
+
+/* Responsive table wrapper for admin panels */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -15px; padding: 0 15px; }
+
+/* Disabled button style */
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* --- LOADING SPINNER --- */
 .spinner {

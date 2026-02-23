@@ -66,7 +66,6 @@ export async function lastInnStandardprover() {
           <option value="alle">Alle nivå</option>
           <option value="barneskole">Barneskole</option>
           <option value="ungdomsskole">Ungdomsskole</option>
-          <option value="videregaende">Videregående</option>
         </select>
       </div>
 
@@ -95,67 +94,48 @@ export async function lastInnStandardprover() {
 // --- HJELPEFUNKSJONER ---
 
 async function sjekkTilgang(user) {
-    console.log("🔐 Sjekker StandardProver tilgang for:", user.uid);
-    
     try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists()) {
-            console.log("❌ Bruker finnes ikke i Firestore");
-            return false;
-        }
-        
+        if (!snap.exists()) return false;
+
         const d = snap.data();
-        console.log("👤 Brukerdata:", d);
-        
+
         // 1. Sjekk Vipps Premium (subscription-feltet)
         if (d.subscription?.status === 'premium') {
             const exp = d.subscription.expiresAt?.toDate();
-            if (exp && Date.now() < exp.getTime()) {
-                console.log("✅ Har Vipps Premium tilgang");
-                return true;
-            }
+            if (exp && Date.now() < exp.getTime()) return true;
         }
-        
+
         // 2. Sjekk Skolepakke/Admin (abonnement-feltet)
         const abo = d.abonnement || {};
         if (abo.status === 'active' || abo.type === 'skolepakke' || abo.status === 'school') {
             const exp = abo.utloper?.toDate();
-            if (!exp || Date.now() < exp.getTime()) {
-                console.log("✅ Har Skolepakke/Admin tilgang");
-                return true;
-            }
+            if (!exp || Date.now() < exp.getTime()) return true;
         }
-        
-        console.log("❌ Ingen tilgang funnet");
+
         return false;
-    } catch (e) { 
-        console.error("❌ Feil ved tilgangssjekk:", e);
-        return false; 
+    } catch (e) {
+        console.error("Feil ved tilgangssjekk:", e);
+        return false;
     }
 }
 
 async function lastInnProver() {
-  console.log("📡 Starter lastInnProver()");
-  
   try {
     const q = query(
       collection(db, 'standardprover'),
       where('synlig', '==', true),
       orderBy('rekkefolge', 'asc')
     );
-    
+
     const snap = await getDocs(q);
-    console.log("✅ Query OK - Antall prøver:", snap.size);
-    
-    alleStandardProver = snap.docs.map(d => {
-        const data = d.data();
-        return { id: d.id, ...data };
-    });
-    
+
+    alleStandardProver = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
     visStandardProver(alleStandardProver);
-  } catch (e) { 
-      console.error("❌ StandardProver fetch error:", e);
-      document.getElementById('standard-liste').innerHTML = '<p>Kunne ikke laste prøver: ' + e.message + '</p>'; 
+  } catch (e) {
+      console.error("StandardProver fetch error:", e);
+      document.getElementById('standard-liste').innerHTML = '<p>Kunne ikke laste prøver: ' + e.message + '</p>';
   }
 }
 
@@ -194,13 +174,6 @@ function visStandardProver(prover) {
     });
   }
 
-  // Videregående
-  if (gruppert.videregaende && gruppert.videregaende.length > 0) {
-    html += '<h3 class="nivaa-header">┏━ VIDEREGÅENDE ━┓</h3>';
-    gruppert.videregaende.forEach(prove => {
-      html += lagProveKort(prove);
-    });
-  }
 
   listeEl.innerHTML = html;
 }

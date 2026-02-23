@@ -1,7 +1,6 @@
 /**
  * GloseBank Browse v0.9.0
  * Tilgang: Kun Skolepakke og Admin
- * OPPDATERT: Bruker felles_prover collection + debug logging
  */
 
 import { auth, db, collection, query, where, orderBy, getDocs, getDoc, doc, addDoc, updateDoc, increment, serverTimestamp } from './firebase.js';
@@ -11,9 +10,6 @@ let alleProver = [], filtrerteProver = [];
 export async function lastInnGlosebankSok() {
   const mainContent = document.getElementById('glosebank-browse');
   const currentUser = auth.currentUser;
-
-  console.log("🔍 GloseBank: Starter lasting...");
-  console.log("👤 Current user:", currentUser?.uid, currentUser?.email);
 
   if (!mainContent) return;
 
@@ -25,8 +21,6 @@ export async function lastInnGlosebankSok() {
 
   // 2. SJEKK TILGANG (Kun Skolepakke!)
   const harTilgang = await sjekkSkoleTilgang(currentUser);
-
-  console.log("🔐 GloseBank tilgangssjekk:", harTilgang);
 
   if (!harTilgang) {
     mainContent.innerHTML = `
@@ -53,14 +47,13 @@ export async function lastInnGlosebankSok() {
       <div class="glosebank-header"><h1>📚 GloseBank</h1><p class="undertekst">Delte prøver fra lærere - kvalitetssikret</p></div>
       
       <div class="glosebank-sok">
-        <input type="text" id="glosebank-sok-input" placeholder="🔍 Søk i prøver..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;">
+        <input type="text" id="glosebank-sok-input" placeholder="🔍 Søk på tittel, emne eller ord..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;">
         
         <div class="filter-container" style="display:flex; gap:10px; flex-wrap:wrap;">
            <select id="filter-nivaa" class="filter-select">
                 <option value="">Alle nivå</option>
                 <option value="barneskole">Barneskole</option>
                 <option value="ungdomsskole">Ungdomsskole</option>
-                <option value="videregaende">Videregående</option>
            </select>
         </div>
       </div>
@@ -83,77 +76,67 @@ export async function lastInnGlosebankSok() {
 // --- HJELPEFUNKSJONER ---
 
 async function sjekkSkoleTilgang(user) {
-    console.log("🔍 Sjekker GloseBank tilgang for:", user.uid);
-    
     try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        if (!snap.exists()) {
-            console.log("❌ Bruker finnes ikke i Firestore");
-            return false;
-        }
-        
+        if (!snap.exists()) return false;
+
         const data = snap.data();
-        console.log("👤 Brukerdata:", data);
-        
         const abo = data.abonnement || {};
-        console.log("📦 Abonnement:", abo);
-        
-        // Sjekk strengt på Skolepakke / School / Admin
+
         if (abo.status === 'active' || abo.type === 'skolepakke' || abo.status === 'school') {
             const exp = abo.utloper?.toDate();
             if (!exp || Date.now() < exp.getTime()) {
-                console.log("✅ Har skolepakke-tilgang");
                 return true;
             }
         }
-        
-        console.log("❌ Ingen skolepakke-tilgang funnet");
-        console.log("Abonnement data:", data.abonnement);
+
         return false;
-    } catch (e) { 
-        console.error("❌ Feil ved tilgangssjekk:", e);
-        return false; 
+    } catch (e) {
+        console.error("Feil ved tilgangssjekk:", e);
+        return false;
     }
 }
 
 async function lastInnProver() {
-  console.log("🔍 Starter lastInnProver()");
-  
   try {
-    console.log("📡 Kjører Firestore query på 'glosebank'...");
-    
     const q = query(
         collection(db, 'glosebank'),
         where('synlig_for_kunder', '==', true),
         orderBy('nedlastninger', 'desc')
     );
-    
+
     const snap = await getDocs(q);
-    console.log("✅ Query OK - Antall prøver:", snap.size);
-    
-    alleProver = snap.docs.map(d => {
-        const data = d.data();
-        console.log("📄 Prøve funnet:", d.id, data);
-        return { id: d.id, ...data };
-    });
+
+    alleProver = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     
     filtrerteProver = [...alleProver];
     visProver();
   } catch (e) { 
-      console.error("❌ GloseBank fetch error:", e);
+      console.error("GloseBank fetch error:", e);
       const el = document.getElementById('glosebank-resultater');
       if(el) el.innerHTML = '<p>Kunne ikke laste prøver: ' + e.message + '</p>'; 
   }
 }
 
 function filtrerProver() {
-  const sok = document.getElementById('glosebank-sok-input').value.toLowerCase();
+  const sok = document.getElementById('glosebank-sok-input').value.toLowerCase().trim();
   const nivaa = document.getElementById('filter-nivaa').value;
 
   filtrerteProver = alleProver.filter(p => {
-      const tittelMatch = p.tittel.toLowerCase().includes(sok);
+      // Søk i tittel, emne og ordliste-innhold
+      let sokMatch = !sok;
+      if (sok) {
+          const tittelMatch = (p.tittel || '').toLowerCase().includes(sok);
+          const emneMatch = (p.emne || '').toLowerCase().includes(sok);
+          const nivaaTextMatch = (p.nivaa || '').toLowerCase().includes(sok);
+          const ordMatch = Array.isArray(p.ordliste) && p.ordliste.some(ord =>
+              (ord.s || '').toLowerCase().includes(sok) ||
+              (ord.e || '').toLowerCase().includes(sok)
+          );
+          sokMatch = tittelMatch || emneMatch || nivaaTextMatch || ordMatch;
+      }
       const nivaaMatch = !nivaa || (p.nivaa && p.nivaa === nivaa);
-      return tittelMatch && nivaaMatch;
+      return sokMatch && nivaaMatch;
   });
   visProver();
 }
@@ -178,6 +161,7 @@ function visProver() {
             <h3 style="margin:0 0 5px 0; font-size:16px;">${p.tittel}</h3>
             
             <div style="font-size:12px; color:#666; margin-bottom:15px; flex-grow:1;">
+                ${p.emne ? `<div>📖 ${p.emne}</div>` : ''}
                 <div>📚 ${antallOrd} ord</div>
                 <div>🎓 ${nivaaTekst}</div>
                 <div>🔥 ${p.nedlastninger || 0} nedlastninger</div>

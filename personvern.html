@@ -164,8 +164,8 @@
 <body>
     <div class="container">
         <h1>🛡️ Personvernerklæring</h1>
-        <p><strong>GloseMester v0.10.0-BETA</strong></p>
-        <p><em>Sist oppdatert: 19. januar 2026</em></p>
+        <p><strong>Mester Suite v2.3.0-ALPHA</strong></p>
+        <p><em>Sist oppdatert: 23. februar 2026</em></p>
 
         <div class="highlight-box">
             <h3>📌 Kort oppsummert:</h3>
@@ -174,7 +174,7 @@
                 <li>✅ <strong>Lokal lagring</strong> - elevers data lagres kun på deres enhet</li>
                 <li>✅ <strong>Feide-innlogging</strong> - sikker autentisering for lærere</li>
                 <li>✅ <strong>GDPR-compliant</strong> - full etterlevelse av personvernforordningen</li>
-                <li>💳 <strong>Betaling:</strong> Stripe brukes for sikker kortbetaling for lærerkjøp</li>
+                <li>💳 <strong>Betaling:</strong> Stripe brukes for sikker kortbetaling. Faktura for skolepakker</li>
             </ul>
         </div>
 
@@ -202,12 +202,12 @@
         </table>
 
         <h2>2. Hva er GloseMester?</h2>
-        <p>GloseMester er en Progressiv Web App (PWA) som gjør glosepugging om til en skattejakt gjennom gamification.
-            Tjenesten er delt i to nivåer:</p>
+        <p>Mester Suite (GloseMester, MatteMester, NorskMester) er en Progressiv Web App (PWA) som gjør læring om til en
+            skattejakt gjennom gamification. Tjenesten er delt i to nivåer:</p>
         <ul>
-            <li><strong>For elever:</strong> En anonym øvingsplattform som lagrer progresjon lokalt.</li>
-            <li><strong>For lærere:</strong> Et administrasjonsverktøy for å lage prøver, dele via QR-koder og
-                administrere innhold.</li>
+            <li><strong>For elever:</strong> En anonym øvingsplattform som lagrer progresjon lokalt. Ingen innlogging kreves.</li>
+            <li><strong>For lærere:</strong> Et administrasjonsverktøy for å lage prøver, dele via QR-koder, se statistikk og
+                administrere innhold. Innlogging med Feide, Google eller e-post.</li>
         </ul>
 
         <h2>3. Hvilke personopplysninger behandles?</h2>
@@ -268,7 +268,7 @@
             <tr>
                 <td>Betalingshistorikk</td>
                 <td>Regnskap og tilgangsstyring</td>
-                <td>Vipps MobilePay</td>
+                <td>Stripe</td>
             </tr>
         </table>
 
@@ -322,9 +322,9 @@
                 <td>Norge</td>
             </tr>
             <tr>
-                <td><strong>Vipps MobilePay</strong></td>
-                <td>Betalingsformidling</td>
-                <td>Norge</td>
+                <td><strong>Stripe</strong></td>
+                <td>Betalingsformidling (kortbetaling)</td>
+                <td>EU / USA (PCI DSS-sertifisert)</td>
             </tr>
         </table>
 
@@ -369,6 +369,9 @@
 
         <h2>11. Endringslogg</h2>
         <ul>
+            <li><strong>v2.3.0 (23. februar 2026):</strong> Oppdatert til Mester Suite (GloseMester + MatteMester + NorskMester).
+                Stripe erstatter Vipps som betalingsløsning. Personvern-samtykke ved lærerinnlogging.
+                GDPR-eksport inkluderer nå GloseBank-data.</li>
             <li><strong>v0.10.0 (19. januar 2026):</strong> Nytt 4-nivå system, bildestøtte, justert kortbelønning,
                 forbedret sikkerhet (CSP, rate limiting).</li>
             <li><strong>v0.9.8 (13. januar 2026):</strong> Oppdatert med Feide-innlogging, Vipps ePay og nye
@@ -378,7 +381,7 @@
         </ul>
 
         <div class="footer">
-            <p>© 2024-2026 Øyvind Nilsen Oksvold / Oksvold EDB. Alle rettigheter forbeholdt.</p>
+            <p>&copy; 2024-2026 Mester Suite / Oksvold EDB. Alle rettigheter forbeholdt.</p>
         </div>
 
         <div style="text-align: center; margin-top: 40px;">

@@ -760,7 +760,6 @@ async function leggTilMangledeStandardprover() {
 
       // Sjekk om dokumentet finnes
       if (docSnap.exists()) {
-        console.log(`⏭️ Hopper over: ${prove.tittel} (finnes allerede)`);
         skipped++;
         continue;
       }
@@ -772,7 +771,6 @@ async function leggTilMangledeStandardprover() {
         opprettet_dato: serverTimestamp()
       });
 
-      console.log(`✅ Lagt til: ${prove.tittel}`);
       success++;
 
     } catch (error) {
@@ -800,10 +798,7 @@ export function visAdminVerktoy() {
     return;
   }
 
-  if (document.getElementById('admin-verktoey')) {
-    console.log('✅ Admin-verktøy allerede lastet');
-    return;
-  }
+  if (document.getElementById('admin-verktoey')) return;
 
   const verktoeyHTML = `
     <div id="admin-verktoey" style="margin-top: 0; padding: 25px; background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%); border: 2px solid #0071e3; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,113,227,0.1);">
@@ -865,10 +860,8 @@ export function visAdminVerktoy() {
           status.innerHTML += ` <span style="color: #f44336;">(${resultat.failed} feilet)</span>`;
         }
         
-        console.log('📊 Resultat:', resultat);
-        
       } catch (error) {
-        console.error('❌ Feil ved lasting:', error);
+        console.error('Feil ved lasting:', error);
         btn.disabled = false;
         btn.textContent = '➕ Legg til manglende standardprøver';
         status.innerHTML = `❌ Feil: ${error.message}`;
@@ -877,5 +870,4 @@ export function visAdminVerktoy() {
     });
   }
 
-  console.log('✅ Admin-verktøy lastet i verktøy-fanen');
 }

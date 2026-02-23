@@ -118,8 +118,6 @@ function oppdaterMenyer(sideId) {
 }
 
 export function initNavigation() {
-    console.log("✅ Navigasjon lastet med auto-load for: lagrede prøver, Admin-panel, GloseBank Browse, Standardprøver.");
-
     // Håndter tilbake-knapp i nettleser
     window.onpopstate = function (event) {
         if (event.state && event.state.sideId) {

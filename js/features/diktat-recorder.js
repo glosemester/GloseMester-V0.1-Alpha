@@ -39,8 +39,6 @@ const MAKS_OPPTAK_PER_TIME = 200;
 // INIT
 // ============================
 export function initDiktatRecorder() {
-    console.log("🎤 Diktat-recorder lastet v1.0");
-
     window.velgDiktatKilde = velgDiktatKilde;
     window.bekreftEgneOrd = bekreftEgneOrd;
     window.startOpptak = startOpptak;
