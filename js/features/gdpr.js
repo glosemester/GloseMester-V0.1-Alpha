@@ -474,7 +474,24 @@ export async function eksporterMinData() {
             console.warn('Kunne ikke hente diktat-sett for eksport:', e.message);
         }
 
-        // 5. Hent localStorage data
+        // 5. Hent GloseBank-oppføringer
+        let glosebankData = [];
+        try {
+            const gbQuery = query(
+                collection(db, "glosebank"),
+                where("opprettet_av", "==", user.uid)
+            );
+            const gbSnapshot = await getDocs(gbQuery);
+            glosebankData = gbSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                opprettet_dato: doc.data().opprettet_dato?.toDate?.()?.toISOString() || null
+            }));
+        } catch (e) {
+            console.warn('Kunne ikke hente GloseBank-data for eksport:', e.message);
+        }
+
+        // 6. Hent localStorage data
         const localStorageData = {};
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -507,11 +524,13 @@ export async function eksporterMinData() {
             prover: prover,
             resultater: resultater,
             diktat_sett: diktatSett,
+            glosebank: glosebankData,
             statistikk: {
                 totalt_prover: prover.length,
                 totalt_ord: prover.reduce((sum, p) => sum + (p.ordliste?.length || 0), 0),
                 totalt_resultater: resultater.length,
-                totalt_diktat: diktatSett.length
+                totalt_diktat: diktatSett.length,
+                totalt_glosebank: glosebankData.length
             },
             lokal_lagring: localStorageData
         };

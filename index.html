@@ -979,12 +979,36 @@
     </div>
 
     <div id="personvern-popup" class="popup-overlay" style="display:none;">
-        <div class="popup-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
-            <h2>🛡️ Velkommen!</h2>
-            <p>Vi lagrer kun nødvendig informasjon. Se <a href="personvern.html" target="_blank">personvern.html</a> for detaljer.</p>
+        <div class="popup-content" style="max-width: 600px; max-height: 85vh; overflow-y: auto; text-align:left;">
+            <h2 style="text-align:center;">🛡️ Personvern & Samtykke</h2>
+            <p style="text-align:center; color:#666; margin-bottom:20px;">For at du skal kunne bruke GloseMester som lærer, trenger vi ditt samtykke.</p>
+
+            <div style="background:#e8f5e9; border-left:4px solid #4caf50; padding:15px; border-radius:8px; margin-bottom:20px;">
+                <p style="margin:0 0 8px 0; font-weight:700; color:#2e7d32;">Elevene er trygge:</p>
+                <ul style="margin:0; padding-left:20px; font-size:14px; color:#333;">
+                    <li>Elever trenger <strong>ingen innlogging</strong></li>
+                    <li>All elevdata lagres <strong>kun lokalt</strong> på elevens enhet</li>
+                    <li>Vi samler <strong>aldri</strong> inn elevnavn, e-post eller personnummer</li>
+                </ul>
+            </div>
+
+            <div style="background:#e3f2fd; border-left:4px solid #2196f3; padding:15px; border-radius:8px; margin-bottom:20px;">
+                <p style="margin:0 0 8px 0; font-weight:700; color:#1565c0;">Hva vi lagrer om deg som lærer:</p>
+                <ul style="margin:0; padding-left:20px; font-size:14px; color:#333;">
+                    <li>Navn og e-post (fra Feide/Google)</li>
+                    <li>Prøver og innhold du oppretter</li>
+                    <li>Eventuell betalingshistorikk (via Stripe)</li>
+                </ul>
+            </div>
+
+            <div style="background:#f5f5f5; padding:12px; border-radius:8px; margin-bottom:20px; font-size:13px; color:#555;">
+                <p style="margin:0 0 5px 0;"><strong>Dine rettigheter:</strong> Du kan når som helst be om innsyn, retting eller sletting av dine data. Kontakt <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a>.</p>
+                <p style="margin:0;">Les fullstendig <a href="personvern.html" target="_blank" style="font-weight:600;">personvernerklæring</a>.</p>
+            </div>
+
             <div style="display:flex; gap:10px; margin-top:25px;">
-                <button class="btn-primary" onclick="godtaPersonvern()" style="flex:1;">✅ Jeg godtar</button>
-                <button class="btn-primary" onclick="avvisPersonvern()" style="flex:1;">❌ Avvis</button>
+                <button class="btn-primary" onclick="godtaPersonvern()" style="flex:1;">Jeg godtar</button>
+                <button class="btn-primary" onclick="avvisPersonvern()" style="flex:1; background:#e0e0e0; color:#333;">Avvis</button>
             </div>
         </div>
     </div>
@@ -1108,21 +1132,22 @@
     </script>
     
     <div id="info-modal" class="popup-overlay" style="display:none;">
-    <div class="popup-content" style="max-width:500px;">
-        
+    <div class="popup-content" style="max-width:520px;">
+
         <div class="modal-header-fancy">
-            <h2>GloseMester 💎</h2>
-            <p>Gjør glosepugging om til en skattejakt!</p>
+            <h2>Mester Suite</h2>
+            <p>Gamifisert læringsplattform for norske skoler</p>
         </div>
 
         <div class="modal-body">
-            
+
             <div class="feature-section">
                 <div class="feature-title">🏫 FOR SKOLER & LÆRERE</div>
                 <ul class="feature-list">
-                    <li><span class="feature-icon">✅</span> <span><strong>Trygt & Enkelt:</strong> GDPR-vennlig og ingen elev-login nødvendig.</span></li>
+                    <li><span class="feature-icon">✅</span> <span><strong>Trygt & Enkelt:</strong> GDPR-vennlig, ingen elev-innlogging nødvendig.</span></li>
                     <li><span class="feature-icon">⏱️</span> <span><strong>Spar Tid:</strong> "Øv Selv" gir mengdetrening uten at du må rette.</span></li>
                     <li><span class="feature-icon">🔥</span> <span><strong>Motivasjon:</strong> Elevene jakter på legendariske kort mens de lærer.</span></li>
+                    <li><span class="feature-icon">📊</span> <span><strong>Statistikk:</strong> Se resultater og fremgang for hele klassen.</span></li>
                 </ul>
             </div>
 
@@ -1131,12 +1156,35 @@
                 <ul class="feature-list">
                     <li><span class="feature-icon">🦖</span> <span>Samle <strong>150+ unike kort</strong> (biler, dyr, guder).</span></li>
                     <li><span class="feature-icon">♻️</span> <span><strong>Panteordning:</strong> Bytt dubletter mot diamanter.</span></li>
-                    <li><span class="feature-icon">🎉</span> <span>Lær engelsk, vinn premier i spillet.</span></li>
+                    <li><span class="feature-icon">🎉</span> <span>Lær gloser, matte og norsk - vinn premier underveis.</span></li>
+                </ul>
+            </div>
+
+            <div class="feature-section">
+                <div class="feature-title">🛡️ PERSONVERN & SIKKERHET</div>
+                <ul class="feature-list">
+                    <li><span class="feature-icon">🔒</span> <span><strong>100% anonymt for elever</strong> - ingen innlogging, ingen persondata.</span></li>
+                    <li><span class="feature-icon">📱</span> <span>Elevdata lagres <strong>kun lokalt</strong> på elevens enhet (localStorage).</span></li>
+                    <li><span class="feature-icon">🚫</span> <span>Vi samler <strong>aldri</strong> inn navn, e-post eller personnummer fra elever.</span></li>
+                    <li><span class="feature-icon">🇪🇺</span> <span>GDPR-compliant. All data lagres i <strong>EU</strong> (Firebase Europe-west1).</span></li>
+                    <li><span class="feature-icon">🔑</span> <span>Lærere logger inn med <strong>Feide</strong> (Sikt) eller Google.</span></li>
+                </ul>
+                <div style="text-align:center; margin-top:8px;">
+                    <a href="personvern.html" target="_blank" style="font-size:13px; font-weight:600; color:#0071e3;">Les fullstendig personvernerklæring →</a>
+                </div>
+            </div>
+
+            <div class="feature-section">
+                <div class="feature-title">💎 FOR FORELDRE</div>
+                <ul class="feature-list">
+                    <li><span class="feature-icon">👨‍👩‍👧</span> <span>Barnet trenger <strong>ingen konto</strong> - bare åpne nettsiden og begynn.</span></li>
+                    <li><span class="feature-icon">🛡️</span> <span>Ingen sporing, ingen reklame, ingen tredjeparter som ser barnet.</span></li>
+                    <li><span class="feature-icon">📲</span> <span>Installer som app fra nettleseren - fungerer offline.</span></li>
                 </ul>
             </div>
 
             <div class="contact-box">
-                <p style="font-size:13px; font-weight:bold; margin:0 0 10px 0; color:#333;">Fant du en feil eller har et tips?</p>
+                <p style="font-size:13px; font-weight:bold; margin:0 0 10px 0; color:#333;">Spørsmål, feil eller tips?</p>
                 <div class="contact-links">
                     <a href="mailto:system@glosemester.no?subject=Feilmelding" class="contact-btn">
                         🐞 Meld feil

@@ -297,8 +297,6 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
     const userDocRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userDocRef);
 
-    // console.log("💾 Oppdaterer bruker:", user.uid);
-
     if (!userSnap.exists()) {
         await setDoc(userDocRef, {
             email: emailOverride || user.email,
@@ -306,11 +304,9 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
             rolle: "laerer",
             kilde: kilde,
             opprettet: new Date(),
-            abonnement: { status: "free", start_dato: new Date() }
+            abonnement: { status: "free", start_dato: new Date() },
+            personvernGodtatt: false
         });
-        // console.log("✅ Ny bruker opprettet");
-    } else {
-        // console.log("✅ Eksisterende bruker");
     }
 }
 
@@ -337,8 +333,21 @@ export async function loggUt() {
 // VELLYKKET INNLOGGING
 // ============================================
 
-function handterVellykketInnlogging(user) {
+async function handterVellykketInnlogging(user) {
     document.querySelectorAll('.popup-overlay').forEach(p => p.style.display = 'none');
+
+    // Sjekk om bruker har godtatt personvernerklæring
+    try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists() && userSnap.data().personvernGodtatt === false) {
+            const popup = document.getElementById('personvern-popup');
+            if (popup) popup.style.display = 'flex';
+        }
+    } catch (e) {
+        // Ignorer feil — ikke blokker innlogging
+    }
+
     visToast(`Velkommen!`, "success");
     oppdaterUIForInnloggetBruker(user);
     if (typeof window.visSide === 'function') {
@@ -410,8 +419,17 @@ async function sjekkOgOppdaterAdminTilgang(user) {
 // PERSONVERN
 // ============================================
 
-export function godtaPersonvern() { 
-    document.getElementById('personvern-popup').style.display = 'none'; 
+export async function godtaPersonvern() {
+    document.getElementById('personvern-popup').style.display = 'none';
+    // Lagre samtykke i Firestore
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await updateDoc(doc(db, "users", user.uid), { personvernGodtatt: true });
+        } catch (e) {
+            // Ignorer feil
+        }
+    }
 }
 
 export async function avvisPersonvern() {

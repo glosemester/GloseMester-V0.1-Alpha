@@ -537,7 +537,7 @@ GloseMester-V0.1-Alpha/
 | 4 | ~~QR-URL `?prove=` vs `?quiz=` mismatch~~ | `qr-scanner.js` | **FIKSET** — Håndterer begge parametre |
 | 5 | ~~GDPR-sletting søker feil felt~~ | `gdpr.js` | **FIKSET** — Søker `prove_eier`, `elev_id` og `bruker_id` |
 | 6 | ~~GDPR-sletting mangler diktat/GloseBank~~ | `gdpr.js` | **FIKSET** — Sletter diktat, Storage-filer og GloseBank |
-| 7 | GDPR-eksport mangler resultater | `gdpr.js` | **ÅPEN** — Kun profil og prøver eksporteres |
+| 7 | ~~GDPR-eksport mangler GloseBank-data~~ | `gdpr.js` | **FIKSET** — Eksporterer nå profil, prøver, resultater, diktat og GloseBank |
 | 8 | ~~`manifest.json` peker på `index-v2.html`~~ | `manifest.json` | **FIKSET** — Peker til `./index.html` |
 | 9 | ~~Tidssone hardkodet UTC+1~~ | `teacher-analytics.js` | **FIKSET** — Bruker `Date.UTC` + `Intl` offset |
 
