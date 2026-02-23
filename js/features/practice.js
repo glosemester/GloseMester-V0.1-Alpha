@@ -63,7 +63,9 @@ export async function startOving(nivaValg) {
 
     window.ovingOrdliste = stokkArray([...window.vokabularData[nivaValg]]);
     window.ovingIndex = 0;
+
     window.riktigeSvar = 0;
+    window.currentStreak = 0; // ✅ Ny streak-teller
 
     if (!window.ovingRetning || window.ovingRetning === 'no') {
         window.ovingRetning = 'en';
@@ -93,17 +95,14 @@ export function settSprakRetning(retning) {
 }
 
 function oppdaterProgress() {
-    const progressBar = document.getElementById('game-progress-target-bar');
+    const progressBar = document.getElementById('game-progress-fill'); // ✅ Oppdatert ID
     if (!progressBar) return;
 
     // Calculate percentage based on 10 correct answers per round
-    // Using modulo 10 logic similar to existing code
     const currentProgress = window.riktigeSvar % 10;
     const isCompletedRound = (window.riktigeSvar > 0 && currentProgress === 0);
 
-    // If we just hit 10/20/30 etc, show full bar before resetting
     const percentage = isCompletedRound ? 100 : (currentProgress * 10);
-
     progressBar.style.width = `${percentage}%`;
 
     // Update text if it exists
@@ -113,6 +112,62 @@ function oppdaterProgress() {
             "Partybølge fullført! 🎉" :
             `Mot nytt kort: ${currentProgress} / 10`;
     }
+
+    // ✅ Oppdater Streak Teller med bump-animasjon
+    const streakEl = document.getElementById('streak-counter');
+    if (streakEl) {
+        streakEl.innerHTML = `🔥 ${window.currentStreak || 0}`;
+        streakEl.classList.remove('streak-bump');
+        void streakEl.offsetWidth; // trigger reflow
+        streakEl.classList.add('streak-bump');
+    }
+}
+
+// ✅ Flytende poeng-animasjon (+1 som svever oppover med glow)
+function visFlytendPoeng(erRiktig) {
+    const scoreEl = document.getElementById('oving-score');
+    if (!scoreEl) return;
+
+    const floater = document.createElement('span');
+    floater.className = 'score-float' + (erRiktig ? '' : ' wrong');
+    floater.textContent = erRiktig ? '+1' : '✗';
+
+    // Posisjonering relativt til score-elementet
+    scoreEl.style.position = 'relative';
+    floater.style.left = '50%';
+    floater.style.top = '0';
+    floater.style.transform = 'translateX(-50%)';
+    scoreEl.appendChild(floater);
+
+    // Fjern etter animasjon
+    setTimeout(() => floater.remove(), 1300);
+}
+
+// ✅ Flash-effekt på navigasjonsbaren (grønn/rød glow)
+function flashNavBar(erRiktig) {
+    // Finn den synlige menybaren
+    const menyIds = ['oving-meny', 'matte-oving-meny', 'norsk-oving-meny'];
+    let aktivMeny = null;
+    for (const id of menyIds) {
+        const el = document.getElementById(id);
+        if (el && el.style.display !== 'none') {
+            aktivMeny = el;
+            break;
+        }
+    }
+    if (!aktivMeny) return;
+
+    const flashClass = erRiktig ? 'nav-flash-green' : 'nav-flash-red';
+    const varighet = erRiktig ? 1500 : 1000;
+
+    // Fjern gamle flash-klasser
+    aktivMeny.classList.remove('nav-flash-green', 'nav-flash-red');
+    void aktivMeny.offsetWidth; // trigger reflow for re-animasjon
+    aktivMeny.classList.add(flashClass);
+
+    setTimeout(() => {
+        aktivMeny.classList.remove(flashClass);
+    }, varighet);
 }
 
 function visNesteSporsmaal() {
@@ -197,24 +252,18 @@ function visNesteSporsmaal() {
 
         alternativer.forEach(alt => {
             const btn = document.createElement('button');
-            btn.className = 'btn-secondary';
+            btn.className = 'answer-btn'; // ✅ Ny klasse
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
 
-            btn.style.display = 'flex';
-            btn.style.justifyContent = 'space-between';
-            btn.style.alignItems = 'center';
-            btn.style.padding = '12px 15px';
-            btn.style.textAlign = 'left';
-
-            // ✅ FIX: Tydeligere tekst med fet skrift og større font
+            // ✅ FIX: Ny HTML struktur for buttons
             btn.innerHTML = `
-                <span style="pointer-events: none; font-weight:700; font-size:1.05rem; color:#333;">${btnTekst}</span>
-                <div onclick="event.stopPropagation(); window.lesOppOving('${btnTekst}', '${altLang}')" 
-                      style="font-size:1.3rem; cursor:pointer; padding:8px; background:rgba(0,0,0,0.05); border-radius:50%; margin-left:15px; display:flex; align-items:center; justify-content:center;">
+                <span>${btnTekst}</span>
+                <div class="audio-btn-small" onclick="event.stopPropagation(); window.lesOppOving('${btnTekst}', '${altLang}')">
                     🔊
                 </div>
             `;
-            btn.onclick = () => sjekkOvingSvar(alt);
+            // Send med event for å kunne endre stil på knappen ved klikk
+            btn.onclick = (e) => sjekkOvingSvar(alt, e.currentTarget);
             altContainer.appendChild(btn);
         });
 
@@ -223,15 +272,18 @@ function visNesteSporsmaal() {
         inputContainer.style.display = 'flex';
         altContainer.style.display = 'none';
         const inputFelt = document.getElementById('oving-svar');
-        inputFelt.value = '';
-        inputFelt.focus();
-        inputFelt.onkeydown = (e) => {
-            if (e.key === 'Enter') sjekkOvingSvar();
-        };
+        if (inputFelt) {
+            inputFelt.value = '';
+            inputFelt.style.borderColor = '#ddd'; // Reset border color
+            inputFelt.focus();
+            inputFelt.onkeydown = (e) => {
+                if (e.key === 'Enter') sjekkOvingSvar();
+            };
+        }
     }
 }
 
-export function sjekkOvingSvar(valgtOrd = null) {
+export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
     // ✅ RATE LIMITING: Sjekk om bruker har svart for mange ganger
     const rateCheck = practiceLimiter.check('practice_answer');
 
@@ -287,7 +339,22 @@ export function sjekkOvingSvar(valgtOrd = null) {
         oppdaterProgress();
 
         const scoreEl = document.getElementById('oving-score');
-        if (scoreEl) scoreEl.innerText = `${window.riktigeSvar} riktige i dag`;
+        if (scoreEl) scoreEl.innerText = `${window.riktigeSvar} poeng`;
+
+        window.currentStreak = (window.currentStreak || 0) + 1; // Øk streak
+
+        // ✅ Visuell feedback på knappen
+        if (clickedBtn) {
+            clickedBtn.classList.add('correct');
+        } else {
+            const input = document.getElementById('oving-svar');
+            if (input) input.style.borderColor = '#4CAF50';
+        }
+        oppdaterProgress(); // Oppdater streak teller UI
+
+        // ✅ NY: Flytende poeng-animasjon og nav bar flash
+        visFlytendPoeng(true);
+        flashNavBar(true);
 
         // ✅ DEAKTIVER KLIKK: Hindre at bruker kan klikke mens feedback vises
         const altContainer = document.getElementById('oving-alternativer');
@@ -322,6 +389,22 @@ export function sjekkOvingSvar(valgtOrd = null) {
 
         spillLyd('feil');
         vibrer(200);
+
+
+        window.currentStreak = 0; // Nullstill streak
+        oppdaterProgress(); // Oppdater streak teller UI
+
+        // ✅ NY: Flytende feil-animasjon og nav bar flash
+        visFlytendPoeng(false);
+        flashNavBar(false);
+
+        // ✅ Visuell feedback på knappen
+        if (clickedBtn) {
+            clickedBtn.classList.add('wrong');
+        } else {
+            const input = document.getElementById('oving-svar');
+            if (input) input.style.borderColor = '#FF5252';
+        }
 
         document.getElementById('fasit-tekst').innerText = riktigSvarTekst;
         document.getElementById('feil-svar-popup').style.display = 'flex';

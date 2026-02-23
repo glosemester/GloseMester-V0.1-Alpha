@@ -5,21 +5,23 @@ Basert på referansebildet ("Playwize"), skal GloseMester redesignes for å frem
 ## 1. Visuell Identitet
 Vi går bort fra det "strene" dashboard-utseendet til et mer organisk og flytende design.
 
-### Fargepalett
-Originalen har allerede gode farger (Sunset Orange, Soft Lavender), men vi skal justere dem for å matche "Playwize"-estetikken som er mer mettet og "electric".
-*   **Primary Purple:** `#7C3AED` (Dyp, energisk lilla)
-*   **Vibrant Orange:** `#FB923C` (Leken oransje for handlinger)
-*   **Sunny Yellow:** `#FBBF24` (For highlights og "fun" elementer)
-*   **Background:** `#F5F3FF` (Veldig lys lilla/hvit tone for mykhet)
+### Fargepalett (Branding)
+*   **LæreMester (Main):** Gradient Blue/Purple (`#667eea` -> `#764ba2`)
+*   **MatteMester:** Gradient Purple/Pink (`#af52de` -> `#ff2d55`)
+*   **NorskMester:** Gradient Red/Orange (`#e74c3c` -> `#f39c12`)
+*   **GloseMester:** Gradient Blue/Cyan (`#0071e3` -> `#00c6fb`)
 
-### Typografi
-*   **Headings:** `Outfit` eller `Poppins` (Bold/ExtraBold). Runde, vennlige bokstaver.
-*   **Body:** `Inter` eller `DM Sans` for lesbarhet.
+### Logo & Branding (CSS)
+Vi bruker nå CSS-klassen `.logo-branding` i stedet for bilder.
+*   **Struktur:**
+    ```html
+    <div class="logo-branding brand-navn">
+        <div class="logo-icon">IKON<div class="logo-star">⭐</div></div>
+        <h1 class="logo-text">Navn</h1>
+    </div>
+    ```
+*   **Fonter:** `Outfit` (Headings) og system-fonts som fallback.
 
-### Formspråk
-*   **Blobs & Waves:** Bakgrunner er ikke rette linjer, men buede former og "blobs".
-*   **High-Radius:** Alt av kort og knapper har store radier (20px - 50px).
-*   **Cut-out Imagery:** Bruk av frilagte bilder av mennesker (lærere/elever) kombinert med abstrakte doodle-elementer.
 
 ## 2. Layout & Komponenter
 

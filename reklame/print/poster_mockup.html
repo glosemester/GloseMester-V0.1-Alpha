@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plakat Mockup</title>
+    <!-- Link to main app styles for brand consistency -->
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .a4-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Print settings */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        @media print {
+            body {
+                background: none;
+            }
+
+            .a4-page {
+                box-shadow: none;
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-bottom-left-radius: 50% 20px;
+            border-bottom-right-radius: 50% 20px;
+        }
+
+        .header-section h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .header-section p {
+            font-size: 1.5rem;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card-visual {
+            width: 180px;
+            height: 260px;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 8px solid #FFD700;
+            /* Gold border */
+            transform: rotate(-5deg);
+            margin: 20px;
+        }
+
+        .card-visual.blue {
+            border-color: #667eea;
+            transform: rotate(5deg);
+            z-index: 1;
+        }
+
+        .cta-box {
+            background: #fff;
+            border: 3px dashed #667eea;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            width: 80%;
+        }
+
+        .url-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d3748;
+            margin: 20px 0;
+        }
+
+        .text-subtitle {
+            font-size: 2rem;
+            color: #4a5568;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .emoji-large {
+            font-size: 3rem;
+        }
+
+        .text-intro {
+            font-size: 1.2rem;
+            color: #4a5568;
+            max-width: 80%;
+        }
+
+        .cta-label {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .cta-subtext {
+            margin: 5px 0 0 0;
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="a4-page">
+        <div class="header-section">
+            <h1>Bli en Mester!</h1>
+            <p>Lær språk & matte gjennom spill 🎮</p>
+        </div>
+
+        <div class="content-section">
+            <h2 class="text-subtitle">Samle kort mens du lærer!</h2>
+
+            <div class="cards-container">
+                <div class="card-visual">
+                    <span class="emoji-large">🦁</span>
+                    <strong>Løve</strong>
+                </div>
+                <div class="card-visual blue">
+                    <span class="emoji-large">🇬🇧</span>
+                    <strong>Lion</strong>
+                </div>
+            </div>
+
+            <p class="text-intro">
+                Ingen nedlasting. Ingen innlogging for å prøve.
+                Fungerer på PC, iPad og mobil.
+            </p>
+
+            <div class="cta-box">
+                <p class="cta-label">Gå til:</p>
+                <div class="url-text">glosemester.no</div>
+                <p class="cta-subtext">Gratis for alle!</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            Mester Suite &copy; 2025 - Laget med ❤️ for norske elever
+        </div>
+    </div>
+
+</body>
+
+</html>
