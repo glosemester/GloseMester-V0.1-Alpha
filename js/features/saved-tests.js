@@ -798,8 +798,9 @@ window.visDetaljerteSvar = async function(resultatId) {
 // QR-KODE GENERERING
 // ============================================
 window.genererQRKode = async function(proveId, tittel) {
-    const url = `https://glosemester.no/?prove=${proveId}`;
-    
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/?prove=${proveId}`;
+
     const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
 
     const modalHTML = `
@@ -809,7 +810,14 @@ window.genererQRKode = async function(proveId, tittel) {
                 <h2>📱 QR-kode: ${tittel}</h2>
                 <p class="qr-instruksjon">Elever kan skanne denne koden for å starte prøven direkte!</p>
                 <div class="qr-container">
-                    <img src="${qrApiUrl}" alt="QR-kode" class="qr-image" id="qr-image-${proveId}">
+                    <img src="${qrApiUrl}" alt="QR-kode" class="qr-image" id="qr-image-${proveId}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div style="display:none; padding:20px; text-align:center; background:#f5f5f5; border-radius:12px;">
+                        <p style="font-size:16px; margin-bottom:10px;">QR-bildet kunne ikke lastes.</p>
+                        <p style="font-size:14px; color:#666;">Del denne lenken i stedet:</p>
+                        <code style="display:block; padding:10px; background:#fff; border-radius:8px; margin-top:8px; word-break:break-all; font-size:13px;">${url}</code>
+                        <button class="btn-secondary" style="margin-top:10px;" onclick="navigator.clipboard.writeText('${url}').then(()=>alert('Lenke kopiert!'))">📋 Kopier lenke</button>
+                    </div>
                 </div>
                 <p class="qr-kode-tekst">Prøvekode: <code>${proveId}</code></p>
                 <div class="qr-actions">
