@@ -60,22 +60,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 4. Start hovedappen
     initApp();
 
-    // 5. Sjekk for prøve-kode i URL
+    // 5. Sjekk for prøve-kode i URL (QR-kode / delelenke)
     const urlParams = new URLSearchParams(window.location.search);
     const proveKode = urlParams.get('quiz') || urlParams.get('prove');
 
     if (proveKode) {
+        // Sett session-state direkte (unngå fragile setTimeout-kjede)
+        sessionStorage.setItem('aktivRolle', 'kode');
+        sessionStorage.setItem('aktivtFag', 'gloser');
+
+        // Naviger direkte til elev-dashboard (hopper over fag-velger)
+        if (window.visSide) window.visSide('elev-dashboard');
+
+        const elevMeny = document.getElementById('elev-meny');
+        if (elevMeny) elevMeny.style.display = 'flex';
+
+        const input = document.getElementById('prove-kode');
+        if (input) input.value = proveKode;
+
+        // Start prøven (kort delay for DOM-oppdatering)
         setTimeout(() => {
-            if (window.velgRolle) window.velgRolle('kode');
-
-            setTimeout(() => {
-                const input = document.getElementById('prove-kode');
-                if (input) input.value = proveKode;
-
-                setTimeout(() => {
-                    if (window.startProve) window.startProve(proveKode);
-                }, 800);
-            }, 600);
-        }, 1200);
+            if (window.startProve) window.startProve(proveKode);
+        }, 200);
     }
 });
