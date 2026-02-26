@@ -388,16 +388,24 @@ export class TeacherModule {
             </div>
         `;
 
-        // Generate QR code (using placeholder for now)
+        // Generer ekte QR-kode med QRCode.js (lastet via CDN i index-v2.html)
         const qrcodeContainer = container.querySelector('#qrcode');
-        qrcodeContainer.innerHTML = `
-            <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; border-radius: 12px;">
-                <div style="text-align: center; color: #999;">
-                    <div style="font-size: 48px; margin-bottom: 10px;">📱</div>
-                    <div style="font-size: 12px;">QR-kode genereres her</div>
-                </div>
-            </div>
-        `;
+        if (typeof QRCode !== 'undefined') {
+            try {
+                new QRCode(qrcodeContainer, {
+                    text: testUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#1F2937',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (e) {
+                qrcodeContainer.innerHTML = `<div style="width:200px;height:200px;background:#f5f3ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;font-size:13px;text-align:center;padding:10px;">Kode: <strong>${test.code}</strong></div>`;
+            }
+        } else {
+            qrcodeContainer.innerHTML = `<div style="width:200px;height:200px;background:#f5f3ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;font-size:13px;text-align:center;padding:10px;">Kode: <strong>${test.code}</strong></div>`;
+        }
 
         // Event listeners
         const copyCodeBtn = container.querySelector('#copy-code-btn');

@@ -5,6 +5,9 @@
    ============================================ */
 
 import { router } from '../core/navigation/router.js';
+import { krevInnlogging } from '../core/auth/auth-service.js';
+import { hentProveMedKode, startQuiz } from '../shared/quiz/quiz-engine.js';
+import { visToast } from '../core/utils/feedback.js';
 
 /**
  * FagStart - Mellomledd som viser rollevalg
@@ -171,7 +174,14 @@ export class FagStart {
                 break;
 
             case 'norsk':
-                alert('NorskMester kommer snart! 🚧');
+                if (!window.MesterSuite.moduler.norskmester) {
+                    console.log('📖 Loading NorskMester module...');
+                    const { norskmester } = await import('../features/norskmester/index.js');
+                    window.MesterSuite.moduler.norskmester = norskmester;
+                    await norskmester.init();
+                } else {
+                    window.MesterSuite.moduler.norskmester.renderPracticeUI();
+                }
                 break;
         }
     }
@@ -185,24 +195,27 @@ export class FagStart {
 
         // Show prove code input modal
         const modal = document.createElement('div');
-        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        modal.id = 'prove-modal';
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px);';
         modal.innerHTML = `
-            <div style="background: white; border-radius: 16px; padding: 40px; max-width: 400px; width: 90%;">
-                <h2 style="margin: 0 0 10px 0; color: #0071e3;">Skriv inn prøvekode</h2>
-                <p style="color: #666; margin: 0 0 20px 0;">Du har fått en prøvekode fra læreren din</p>
+            <div style="background: white; border-radius: 24px; padding: 40px; max-width: 400px; width: 92%; box-shadow: 0 24px 60px rgba(0,0,0,0.18);">
+                <h2 style="margin: 0 0 8px 0; font-family: 'Outfit', system-ui; font-size: 22px; font-weight: 800; color: #1F2937;">Skriv inn prøvekode</h2>
+                <p style="color: #6B7280; margin: 0 0 20px 0; font-size: 14px;">Du har fått en prøvekode fra læreren din</p>
                 <input
                     type="text"
                     id="prove-code-input"
                     placeholder="F.eks. ABC123"
-                    style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; margin-bottom: 20px; text-transform: uppercase;"
-                    maxlength="10"
+                    style="width: 100%; padding: 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 20px; font-weight: 700; letter-spacing: 3px; text-align: center; margin-bottom: 20px; text-transform: uppercase; outline: none;"
+                    maxlength="8"
+                    autocomplete="off"
+                    autocapitalize="characters"
                 />
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="this.closest('[style*=fixed]').remove()" style="flex: 1; padding: 15px; border: none; background: #e0e0e0; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    <button onclick="document.getElementById('prove-modal').remove()" style="flex: 1; padding: 15px; border: none; background: #f3f4f6; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; color: #374151;">
                         Avbryt
                     </button>
-                    <button onclick="window.fagStart.submitProveCode('${fagType}')" style="flex: 1; padding: 15px; border: none; background: #0071e3; color: white; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                        Start prøve
+                    <button id="prove-start-btn" onclick="window.fagStart.submitProveCode('${fagType}')" style="flex: 2; padding: 15px; border: none; background: #7C3AED; color: white; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px;">
+                        🎯 Start prøve
                     </button>
                 </div>
             </div>
@@ -212,37 +225,65 @@ export class FagStart {
     }
 
     /**
-     * Submit prove code
+     * Submit prove code — henter prøve fra Firestore og starter quiz
      * @param {string} fagType - Fag type
      */
-    static submitProveCode(fagType) {
+    static async submitProveCode(fagType) {
         const input = document.getElementById('prove-code-input');
-        const code = input.value.trim().toUpperCase();
+        const code = input?.value.trim().toUpperCase();
 
-        if (!code) {
-            alert('Vennligst skriv inn en prøvekode');
+        if (!code || code.length < 4) {
+            visToast('Skriv inn en gyldig prøvekode', 'warning');
             return;
         }
 
-        console.log(`Submitting prove code: ${code} for ${fagType}`);
+        const btn = document.querySelector('#prove-start-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Henter prøve…'; }
 
-        // TODO: Validate code with backend
-        // For now, just show message
-        alert(`Prøvekode "${code}" er registrert!\n\nDenne funksjonen kommer snart. 🚧`);
+        try {
+            const prove = await hentProveMedKode(code);
 
-        // Close modal
-        document.querySelector('[style*=fixed]').remove();
+            if (!prove) {
+                visToast(`Fant ingen prøve med kode "${code}". Sjekk koden og prøv igjen.`, 'error');
+                if (btn) { btn.disabled = false; btn.textContent = 'Start prøve'; }
+                return;
+            }
+
+            // Lukk modal
+            document.getElementById('prove-modal')?.remove();
+
+            // Start quiz
+            await startQuiz(prove);
+
+        } catch (err) {
+            console.error('Feil ved henting av prøve:', err);
+            visToast('Kunne ikke hente prøven. Sjekk internettilkoblingen.', 'error');
+            if (btn) { btn.disabled = false; btn.textContent = 'Start prøve'; }
+        }
     }
 
     /**
-     * Start Lærer mode
+     * Start Lærer mode — krev innlogging og last lærermodul
      * @param {string} fagType - Fag type
      */
-    static startLarer(fagType) {
-        console.log(`Starting Lærer for ${fagType}`);
+    static async startLarer(fagType) {
+        try {
+            const { user, userData } = await krevInnlogging('Du må logge inn for å bruke lærerportalen.');
 
-        // For now, show login required message
-        alert('Lærerfunksjonalitet kommer snart! 🚧\n\nDu vil kunne:\n- Lage egne prøver\n- Se elevresultater\n- Dele med QR-kode');
+            const { TeacherModule } = await import('../features/teacher/teacher-module.js');
+            const teacher = new TeacherModule();
+            await teacher.init({
+                userName: userData?.displayName || user.displayName || 'Lærer',
+                userId: user.uid,
+                isAdmin: userData?.rolle === 'admin'
+            });
+
+        } catch (err) {
+            if (err?.message !== 'Avbrutt') {
+                console.error('Feil ved innlogging:', err);
+                visToast('Innlogging feilet. Prøv igjen.', 'error');
+            }
+        }
     }
 }
 
