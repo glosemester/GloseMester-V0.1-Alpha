@@ -67,6 +67,22 @@ export async function startOving(nivaValg) {
     window.riktigeSvar = 0;
     window.currentStreak = 0; // ✅ Ny streak-teller
 
+    // Badge-tracking: early_bird og night_owl (én gang per dag per kategori)
+    try {
+        const hour = new Date().getHours();
+        const today = new Date().setHours(0, 0, 0, 0).toString();
+        const badgeStats = JSON.parse(localStorage.getItem('mester_badge_stats') || '{}');
+        if (hour < 8 && badgeStats.earlyBirdLastDate !== today) {
+            badgeStats.earlyBirdCount = (badgeStats.earlyBirdCount || 0) + 1;
+            badgeStats.earlyBirdLastDate = today;
+            localStorage.setItem('mester_badge_stats', JSON.stringify(badgeStats));
+        } else if (hour >= 22 && badgeStats.nightOwlLastDate !== today) {
+            badgeStats.nightOwlCount = (badgeStats.nightOwlCount || 0) + 1;
+            badgeStats.nightOwlLastDate = today;
+            localStorage.setItem('mester_badge_stats', JSON.stringify(badgeStats));
+        }
+    } catch (e) { /* ignorer feil */ }
+
     if (!window.ovingRetning || window.ovingRetning === 'no') {
         window.ovingRetning = 'en';
     }
@@ -342,6 +358,17 @@ export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
         if (scoreEl) scoreEl.innerText = `${window.riktigeSvar} poeng`;
 
         window.currentStreak = (window.currentStreak || 0) + 1; // Øk streak
+
+        // Badge-tracking: perfect_10 (10 riktige på rad i én økt)
+        if (window.currentStreak >= 10) {
+            try {
+                const badgeStats = JSON.parse(localStorage.getItem('mester_badge_stats') || '{}');
+                if ((badgeStats.perfectStreak || 0) < 10) {
+                    badgeStats.perfectStreak = 10;
+                    localStorage.setItem('mester_badge_stats', JSON.stringify(badgeStats));
+                }
+            } catch (e) { /* ignorer feil */ }
+        }
 
         // ✅ Visuell feedback på knappen
         if (clickedBtn) {
