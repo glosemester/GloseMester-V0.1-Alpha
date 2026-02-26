@@ -1372,9 +1372,7 @@
 
         <script>
             function startPremiumBetaling() {
-                alert("Betaling kommer snart!\n\nVi jobber med å integrere Vipps og Stripe.\n\nTil da kan du bruke kampanjekode 'BETA2026' for 3 måneders gratis tilgang.");
-                const input = document.getElementById('kampanje-input');
-                if (input) input.value = 'BETA2026';
+                startStripeBetaling('premium_monthly');
             }
             function kontaktForSkolepakke() {
                 const user = auth?.currentUser;

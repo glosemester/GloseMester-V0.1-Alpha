@@ -1,6 +1,6 @@
 /**
  * STANDARDPRØVER v0.8.2 - FINAL
- * Oppdatert dørvakt: Vipps + Skolepakke
+ * Oppdatert dørvakt: Stripe + Skolepakke
  * Fjernet gammel melding om "Kun for Premium"
  */
 
@@ -107,7 +107,7 @@ async function sjekkTilgang(user) {
 
         const d = snap.data();
 
-        // 1. Sjekk Vipps Premium (subscription-feltet)
+        // 1. Sjekk Stripe Premium (subscription-feltet)
         if (d.subscription?.status === 'premium') {
             const exp = d.subscription.expiresAt?.toDate();
             if (exp && Date.now() < exp.getTime()) return true;

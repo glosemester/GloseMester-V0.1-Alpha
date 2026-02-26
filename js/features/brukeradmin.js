@@ -42,16 +42,16 @@ export async function lastInnBrukere() {
 function visStatistikk() {
     const div = document.getElementById('brukeradmin-stats');
     if (!div) return;
-    let free=0, vipps=0, skole=0;
+    let free=0, stripe=0, skole=0;
     alleBrukere.forEach(u => {
-        if (u.subscription?.status === 'premium') vipps++;
+        if (u.subscription?.status === 'premium') stripe++;
         else if (u.abonnement?.status === 'active') skole++;
         else free++;
     });
     div.innerHTML = `
         <div style="display:flex; gap:10px; margin-bottom:20px;">
             <span class="badge" style="background:#e3f2fd;">${alleBrukere.length} Totalt</span>
-            <span class="badge" style="background:#e8f5e9; color:green;">${vipps} Vipps</span>
+            <span class="badge" style="background:#e8f5e9; color:green;">${stripe} Stripe</span>
             <span class="badge" style="background:#fff3e0; color:orange;">${skole} Skole</span>
         </div>`;
 }
@@ -112,8 +112,8 @@ function visBrukerliste(brukere) {
                 <td style="padding:10px;">
                     <select onchange="window.endreAbonnement('${u.id}', this.value)" style="padding:5px; border:1px solid #ccc; background:${farge(val)};">
                         <option value="free" ${val==='free'?'selected':''}>Gratis</option>
-                        <option value="premium_monthly" ${val==='premium_monthly'?'selected':''}>Vipps Mnd</option>
-                        <option value="premium_yearly" ${val==='premium_yearly'?'selected':''}>Vipps År</option>
+                        <option value="premium_monthly" ${val==='premium_monthly'?'selected':''}>Premium Mnd</option>
+                        <option value="premium_yearly" ${val==='premium_yearly'?'selected':''}>Premium År</option>
                         <option value="skolepakke" ${val==='skolepakke'?'selected':''}>Skolepakke</option>
                     </select>
                 </td>

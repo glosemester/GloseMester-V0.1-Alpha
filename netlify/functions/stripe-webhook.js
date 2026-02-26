@@ -42,6 +42,12 @@ exports.handler = async function (event, context) {
                 break;
             }
 
+            case 'invoice.payment_succeeded': {
+                const invoice = stripeEvent.data.object;
+                await handleInvoicePaymentSucceeded(invoice);
+                break;
+            }
+
             case 'customer.subscription.deleted': {
                 const subscription = stripeEvent.data.object;
                 await handleSubscriptionCancelled(subscription);
@@ -78,17 +84,20 @@ async function handleCheckoutCompleted(session) {
         return;
     }
 
-    // Calculate expiry date
+    // Fetch actual subscription period end from Stripe
     const now = new Date();
     let expiryDate = new Date();
 
-    if (plan === 'premium_monthly') {
-        expiryDate.setDate(now.getDate() + 30);
-    } else if (plan === 'premium_yearly') {
-        expiryDate.setDate(now.getDate() + 365);
+    if (session.subscription) {
+        try {
+            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+            expiryDate = new Date(subscription.current_period_end * 1000);
+        } catch (err) {
+            console.error('Could not fetch subscription, falling back to fixed days:', err.message);
+            expiryDate.setDate(now.getDate() + (plan === 'premium_yearly' ? 365 : 30));
+        }
     } else {
-        // Default to 30 days if plan is unknown
-        expiryDate.setDate(now.getDate() + 30);
+        expiryDate.setDate(now.getDate() + (plan === 'premium_yearly' ? 365 : 30));
     }
 
     // Update user subscription in Firestore
@@ -168,5 +177,49 @@ async function handleSubscriptionUpdated(subscription) {
         });
 
         console.log(`User ${userId} subscription status: ${subscription.status}`);
+    }
+}
+
+async function handleInvoicePaymentSucceeded(invoice) {
+    console.log('Processing invoice.payment_succeeded:', invoice.id);
+
+    // Only handle subscription renewals (not the initial invoice, which is covered by checkout.session.completed)
+    if (invoice.billing_reason !== 'subscription_cycle') {
+        console.log(`Skipping invoice with billing_reason: ${invoice.billing_reason}`);
+        return;
+    }
+
+    const subscriptionId = invoice.subscription;
+    if (!subscriptionId) {
+        console.log('No subscription ID on invoice, skipping');
+        return;
+    }
+
+    let userId, plan;
+    try {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        userId = subscription.metadata?.userId;
+        plan = subscription.metadata?.plan;
+
+        if (!userId) {
+            console.error('No userId in subscription metadata for renewal');
+            return;
+        }
+
+        const expiryDate = new Date(subscription.current_period_end * 1000);
+
+        const userRef = db.collection('users').doc(userId);
+        await userRef.update({
+            'abonnement.type': 'premium',
+            'abonnement.expiresAt': admin.firestore.Timestamp.fromDate(expiryDate),
+            'subscription.status': 'premium',
+            'subscription.expiresAt': admin.firestore.Timestamp.fromDate(expiryDate),
+            'subscription.lastPaymentDate': admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        console.log(`Renewed subscription for user ${userId} until ${expiryDate.toISOString()}`);
+    } catch (err) {
+        console.error('Error handling invoice renewal:', err);
+        throw err;
     }
 }
