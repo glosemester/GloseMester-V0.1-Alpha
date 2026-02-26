@@ -9,6 +9,18 @@ import { visToast, spillLyd, vibrer } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
 import { hentTilfeldigKort } from './kort-display.js';
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
+import { AdaptiveDifficulty } from './learningEngine.js';
+
+// AdaptiveDifficulty med MatteMester-spesifikk localStorage-nøkkel
+class MatteAdaptiveDifficulty extends AdaptiveDifficulty {
+    constructor() {
+        super();
+        this.storageKey = 'mester_matte_performance';
+        this.recentPerformance = this.loadFromStorage();
+    }
+}
+
+const matteDiff = new MatteAdaptiveDifficulty();
 
 // ============================================
 // OPPGAVE CONFIG (tilpasset LK20)
@@ -330,6 +342,8 @@ async function sjekkMatteSvar() {
 
     const feedbackEl = document.getElementById('matte-feedback');
 
+    matteDiff.recordAnswer(erRiktig);
+
     if (erRiktig) {
         matteState.sessionCorrect++;
         matteState.dailyCorrect++;
@@ -338,8 +352,9 @@ async function sjekkMatteSvar() {
         // Lagre XP
         saveTotalCorrect(getTotalCorrect() + 1);
 
+        const perf = matteDiff.getPerformanceStatus();
         if (feedbackEl) {
-            feedbackEl.innerHTML = `<div class="correct"><p class="feedback-main">Riktig! 🎉</p></div>`;
+            feedbackEl.innerHTML = `<div class="correct"><p class="feedback-main">Riktig! 🎉</p><p style="font-size:13px;opacity:0.7;">${perf.emoji} ${perf.status}</p></div>`;
             feedbackEl.className = 'feedback correct';
         }
 

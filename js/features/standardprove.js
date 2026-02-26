@@ -67,6 +67,13 @@ export async function lastInnStandardprover() {
           <option value="barneskole">Barneskole</option>
           <option value="ungdomsskole">Ungdomsskole</option>
         </select>
+        <label style="margin-left:12px;">Fag:</label>
+        <select id="fag-filter" onchange="filtrerStandardProver()">
+          <option value="alle">Alle fag</option>
+          <option value="engelsk">🇬🇧 Engelsk</option>
+          <option value="matte">➕ Matte</option>
+          <option value="norsk">📖 Norsk</option>
+        </select>
       </div>
 
       <div id="standard-liste">
@@ -193,7 +200,7 @@ function lagProveKort(prove) {
         </span>
       </div>
       <div class="kort-metadata">
-        ${prove.nivaa} • ${prove.trinn} • ${antallOrd} ord
+        ${getFagBadge(prove.fag)}${prove.nivaa} • ${prove.trinn} • ${antallOrd} ord
       </div>
       <p class="kort-beskrivelse">${prove.beskrivelse || ''}</p>
       <div class="kort-stats">
@@ -209,6 +216,15 @@ function lagProveKort(prove) {
       </div>
     </div>
   `;
+}
+
+function getFagBadge(fag) {
+  const merker = {
+    engelsk: '🇬🇧 Engelsk • ',
+    matte:   '➕ Matte • ',
+    norsk:   '📖 Norsk • '
+  };
+  return merker[fag] || '';
 }
 
 function getEmojiForEmne(emne) {
@@ -304,12 +320,13 @@ window.kopierProve = async function(proveId) {
 };
 
 window.filtrerStandardProver = function() {
-  const filter = document.getElementById('nivaa-filter').value;
+  const nivaFilter = document.getElementById('nivaa-filter').value;
+  const fagFilter  = document.getElementById('fag-filter')?.value || 'alle';
 
-  if (filter === 'alle') {
-    visStandardProver(alleStandardProver);
-  } else {
-    const filtrerte = alleStandardProver.filter(p => p.nivaa === filter);
-    visStandardProver(filtrerte);
-  }
+  const filtrerte = alleStandardProver.filter(p =>
+    (nivaFilter === 'alle' || p.nivaa === nivaFilter) &&
+    (fagFilter  === 'alle' || p.fag   === fagFilter)
+  );
+
+  visStandardProver(filtrerte);
 };

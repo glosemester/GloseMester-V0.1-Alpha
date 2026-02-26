@@ -16,9 +16,21 @@ export function initSoundSystem() {
     }
 }
 
-// spillLyd er fjernet — lydeffekter er ikke i bruk.
-// Beholder som no-op for bakoverkompatibilitet med kall i andre moduler.
-export function spillLyd() {}
+const LYDER = {
+    riktig:  new Audio('sounds/correct.mp3'),
+    feil:    new Audio('sounds/wrong.mp3'),
+    pop:     new Audio('sounds/pop.mp3'),
+    win:     new Audio('sounds/win.mp3'),
+    fanfare: new Audio('sounds/fanfare.mp3')
+};
+
+export function spillLyd(type = 'riktig') {
+    if (!lydErPaa) return;
+    const lyd = LYDER[type];
+    if (!lyd) return;
+    lyd.currentTime = 0;
+    lyd.play().catch(() => {});
+}
 
 export function vibrer(ms) {
     if (navigator.vibrate) {
