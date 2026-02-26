@@ -220,9 +220,18 @@ export function beregnDashboardStats() {
 
         // Achievements
         levelCompleted,
-        perfectStreak: 0, // TODO: Track in practice session
-        earlyBirdCount: 0, // TODO: Track time-based activities
-        nightOwlCount: 0
+        ...(() => {
+            try {
+                const s = JSON.parse(localStorage.getItem('mester_badge_stats') || '{}');
+                return {
+                    perfectStreak: s.perfectStreak || 0,
+                    earlyBirdCount: s.earlyBirdCount || 0,
+                    nightOwlCount: s.nightOwlCount || 0
+                };
+            } catch (e) {
+                return { perfectStreak: 0, earlyBirdCount: 0, nightOwlCount: 0 };
+            }
+        })()
     };
 }
 

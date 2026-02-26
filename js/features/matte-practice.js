@@ -198,6 +198,16 @@ export function startMatteOving(operasjon, nivå) {
     matteState.currentAnswer = '';
     matteState.sessionCorrect = 0;
 
+    // Reset dagsteller om det er ny dag
+    const today = new Date().toDateString();
+    if (localStorage.getItem('mester_matte_daily_date') !== today) {
+        matteState.dailyCorrect = 0;
+        localStorage.setItem('mester_matte_daily_date', today);
+        localStorage.setItem('mester_matte_daily_correct', '0');
+    } else {
+        matteState.dailyCorrect = parseInt(localStorage.getItem('mester_matte_daily_correct') || '0', 10);
+    }
+
     window.gjeldendeNiva = nivå; // For kort-belønning
 
     visSide('matte-oving-omraade');
@@ -323,6 +333,7 @@ async function sjekkMatteSvar() {
     if (erRiktig) {
         matteState.sessionCorrect++;
         matteState.dailyCorrect++;
+        localStorage.setItem('mester_matte_daily_correct', matteState.dailyCorrect);
 
         // Lagre XP
         saveTotalCorrect(getTotalCorrect() + 1);
