@@ -226,16 +226,6 @@ function visNesteSporsmaal() {
     const currentBox = userProgress[wordId]?.box || 1;
     visLeitnerStatus(currentBox, leitner.getBoxName(currentBox));
 
-    // ✅ BILDESTØTTE: Vis bilde hvis det finnes
-    const bildeContainer = document.getElementById('oving-bilde-container');
-    if (gjeldendeOrd.image && bildeContainer) {
-        bildeContainer.innerHTML = `<img src="${gjeldendeOrd.image}" class="oving-bilde" alt="${sporsmaalTekst}" loading="lazy">`;
-        bildeContainer.style.display = 'block';
-    } else if (bildeContainer) {
-        bildeContainer.innerHTML = '';
-        bildeContainer.style.display = 'none';
-    }
-
     const altLang = window.ovingRetning === 'no' ? 'en-US' : 'no-NO';
 
     // ✅ ADAPTIV VANSKELIGHETSGRAD
