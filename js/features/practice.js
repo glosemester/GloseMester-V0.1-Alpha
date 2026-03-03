@@ -206,16 +206,17 @@ function visNesteSporsmaal() {
         dueWords = [...window.vokabularData[gjeldendeNiva]];
     }
 
-    // Prioriter ord i lavere bokser (trenger mer øving)
-    const sortedWords = dueWords.sort((a, b) => {
-        const wordIdA = leitner.getWordId(a);
-        const wordIdB = leitner.getWordId(b);
-        const boxA = userProgress[wordIdA]?.box || 1;
-        const boxB = userProgress[wordIdB]?.box || 1;
-        return boxA - boxB;
-    });
+    // Prioriter ord i lavere bokser, men stokk innenfor samme boks
+    const lowestBox = dueWords.reduce((min, w) => {
+        const box = userProgress[leitner.getWordId(w)]?.box || 1;
+        return box < min ? box : min;
+    }, Infinity);
 
-    gjeldendeOrd = sortedWords[0];
+    const wordsInLowestBox = stokkArray(
+        dueWords.filter(w => (userProgress[leitner.getWordId(w)]?.box || 1) === lowestBox)
+    );
+
+    gjeldendeOrd = wordsInLowestBox[0];
 
     const sporsmaalTekst = window.ovingRetning === 'no' ? gjeldendeOrd.s : gjeldendeOrd.e;
     document.getElementById('oving-spm').innerText = sporsmaalTekst;

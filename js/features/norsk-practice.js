@@ -10,6 +10,27 @@ import { visToast, spillLyd, vibrer, lesOpp } from '../ui/helpers.js';
 import { saveCredits, getCredits, saveTotalCorrect, getTotalCorrect } from '../core/storage.js';
 import { hentTilfeldigKort } from './kort-display.js';
 import { practiceLimiter, cardLimiter } from '../core/rate-limiter.js';
+import { LeitnerSystem } from './learningEngine.js';
+
+// ============================================
+// LEITNER - NorskMester (egne nøkler)
+// ============================================
+
+const norskLeitner = new LeitnerSystem();
+const NORSK_PROGRESS_KEY = 'mester_norsk_user_progress';
+
+function getNorskProgress() {
+    try {
+        const s = localStorage.getItem(NORSK_PROGRESS_KEY);
+        return s ? JSON.parse(s) : {};
+    } catch (e) { return {}; }
+}
+
+function saveNorskProgress(progress) {
+    try {
+        localStorage.setItem(NORSK_PROGRESS_KEY, JSON.stringify(progress));
+    } catch (e) { /* ignorer lagringsfeil */ }
+}
 
 // ============================================
 // STATE
@@ -114,7 +135,14 @@ export async function startNorskOving(nivaValg) {
         return;
     }
 
-    norskState.ordliste = stokkArray([...window.norskVokabular[nivaValg]]);
+    // Leitner: prioriter forfalne ord, nye ord sist
+    const alleOrd = [...window.norskVokabular[nivaValg]];
+    const norskProgress = getNorskProgress();
+    const forfalne = norskLeitner.getDueWords(alleOrd, norskProgress);
+    const ikkeForfall = alleOrd.filter(w =>
+        !forfalne.some(d => norskLeitner.getWordId(d) === norskLeitner.getWordId(w))
+    );
+    norskState.ordliste = [...stokkArray(forfalne), ...stokkArray(ikkeForfall)];
     norskState.index = 0;
     norskState.riktigeSvar = 0;
     norskState.sessionCorrect = 0;
@@ -265,6 +293,17 @@ export function sjekkNorskSvar(valgtOrd = null) {
         const input = document.getElementById('norsk-svar-input');
         const brukerSvar = input?.value.trim().toLowerCase();
         erRiktig = (brukerSvar === riktigSvar.toLowerCase());
+    }
+
+    // Leitner: oppdater per-ord progresjon
+    if (norskState.currentWord) {
+        const wordId = norskLeitner.getWordId(norskState.currentWord);
+        const np = getNorskProgress();
+        const wd = np[wordId] || { box: 1 };
+        wd.box = norskLeitner.moveCard(erRiktig, wd.box);
+        wd.lastReview = Date.now();
+        np[wordId] = wd;
+        saveNorskProgress(np);
     }
 
     // Deaktiver klikk midlertidig

@@ -66,8 +66,6 @@ window.startStripeBetaling = async function (plan) {
     }
 };
 
-// Legacy function name for backward compatibility
-window.startVippsBetaling = window.startStripeBetaling;
 
 /**
  * Check URL params for payment status and show appropriate message

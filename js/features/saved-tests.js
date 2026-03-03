@@ -795,31 +795,25 @@ window.visDetaljerteSvar = async function(resultatId) {
 };
 
 // ============================================
-// QR-KODE GENERERING
+// QR-KODE GENERERING (client-side via qrgen.js)
 // ============================================
-window.genererQRKode = async function(proveId, tittel) {
+window.genererQRKode = function(proveId, tittel) {
     const baseUrl = window.location.origin;
     const url = `${baseUrl}/?prove=${proveId}`;
-
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
 
     const modalHTML = `
         <div class="modal-overlay" onclick="this.remove()">
             <div class="modal-content qr-modal" onclick="event.stopPropagation()">
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✖</button>
-                <h2>📱 QR-kode: ${tittel}</h2>
+                <h2>📱 QR-kode: ${escapeHtml(tittel)}</h2>
                 <p class="qr-instruksjon">Elever kan skanne denne koden for å starte prøven direkte!</p>
                 <div class="qr-container">
-                    <img src="${qrApiUrl}" alt="QR-kode" class="qr-image" id="qr-image-${proveId}"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div style="display:none; padding:20px; text-align:center; background:#f5f5f5; border-radius:12px;">
-                        <p style="font-size:16px; margin-bottom:10px;">QR-bildet kunne ikke lastes.</p>
-                        <p style="font-size:14px; color:#666;">Del denne lenken i stedet:</p>
-                        <code style="display:block; padding:10px; background:#fff; border-radius:8px; margin-top:8px; word-break:break-all; font-size:13px;">${url}</code>
-                        <button class="btn-secondary" style="margin-top:10px;" onclick="navigator.clipboard.writeText('${url}').then(()=>alert('Lenke kopiert!'))">📋 Kopier lenke</button>
-                    </div>
+                    <div id="qr-canvas-${proveId}" class="qr-image"></div>
                 </div>
                 <p class="qr-kode-tekst">Prøvekode: <code>${proveId}</code></p>
+                <p class="qr-kode-tekst" style="font-size:12px;word-break:break-all;">
+                    <a href="${url}" target="_blank">${url}</a>
+                </p>
                 <div class="qr-actions">
                     <button class="btn-primary" onclick="window.lastNedQRKode('${proveId}', '${tittel.replace(/'/g, "\\'")}')">
                         💾 Last ned som PNG
@@ -833,30 +827,28 @@ window.genererQRKode = async function(proveId, tittel) {
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Generer QR client-side
+    const container = document.getElementById(`qr-canvas-${proveId}`);
+    if (container && window.QRGen) {
+        window.QRGen(container, { text: url, size: 300 });
+    } else if (container) {
+        container.innerHTML = '<p style="color:#c00;font-size:13px;">QR-generator ikke lastet. Last siden på nytt.</p>';
+    }
 };
 
-window.lastNedQRKode = async function(proveId, tittel) {
-    const img = document.getElementById(`qr-image-${proveId}`);
-    if (!img) return;
+window.lastNedQRKode = function(proveId, tittel) {
+    const container = document.getElementById(`qr-canvas-${proveId}`);
+    const canvas = container && container.querySelector('canvas');
+    if (!canvas) { alert('❌ Ingen QR-kode å laste ned.'); return; }
 
-    try {
-        const response = await fetch(img.src);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `QR_${tittel.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert('✅ QR-kode lastet ned!');
-    } catch (error) {
-        console.error('Feil ved nedlasting:', error);
-        alert('❌ Kunne ikke laste ned QR-kode. Prøv høyreklikk → Lagre bilde.');
-    }
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `QR_${tittel.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    alert('✅ QR-kode lastet ned!');
 };
 
 window.skrivUtQRKode = function() {

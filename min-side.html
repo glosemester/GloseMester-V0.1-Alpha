@@ -291,7 +291,7 @@
             let expiryText = 'Aldri';
             let providerText = '-';
 
-            // 1. Sjekk VIPPS PREMIUM
+            // 1. Sjekk Stripe Premium
             if (sub.status === 'premium') {
                 status = 'premium';
                 
@@ -301,7 +301,7 @@
                 if (sub.expiresAt && sub.expiresAt.toDate) {
                     expiryText = sub.expiresAt.toDate().toLocaleDateString('no-NO');
                 }
-                providerText = 'Vipps';
+                providerText = 'Stripe';
             }
             // 2. Sjekk SKOLEPAKKE
             else if (abo.status === 'active' || abo.type === 'skolepakke') {

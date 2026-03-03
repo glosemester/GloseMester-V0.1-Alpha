@@ -120,7 +120,7 @@ async function sjekkAbonnement(user) {
         const sub = data.subscription || {}; 
         const proverOpprettet = data.proverOpprettet || 0;
         
-        // 1. Sjekk Vipps (Premium)
+        // 1. Sjekk Stripe Premium
         if (sub.status === 'premium') {
              const expires = sub.expiresAt?.toDate();
              if (expires && Date.now() < expires.getTime()) {

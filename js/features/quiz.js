@@ -422,6 +422,15 @@ function visFeilPopup(fasit) {
 
     document.body.appendChild(popup);
 
+    // ✅ Cleanup funksjon — MÅ deklareres før den refereres nedenfor
+    const cleanupPopup = () => {
+        if (popup.parentElement) {
+            popup.remove();
+        }
+        document.removeEventListener('keydown', handleEscape);
+        activePopupCleanup = null;
+    };
+
     // ✅ Focus på lukk-knapp for keyboard navigation
     const lukkBtn = popup.querySelector('.feil-popup-lukk-btn');
     if (lukkBtn) {
@@ -436,18 +445,6 @@ function visFeilPopup(fasit) {
         }
     };
     document.addEventListener('keydown', handleEscape);
-
-    // ✅ Cleanup funksjon (forhindrer memory leaks)
-    const cleanupPopup = () => {
-        if (popup.parentElement) {
-            popup.remove();
-        }
-        document.removeEventListener('keydown', handleEscape);
-        if (lukkBtn) {
-            lukkBtn.removeEventListener('click', cleanupPopup);
-        }
-        activePopupCleanup = null;
-    };
 
     activePopupCleanup = cleanupPopup;
 
