@@ -175,23 +175,23 @@ export class AdaptiveDifficulty {
 
     /**
      * Bestem øvelsestype basert på prestasjon
-     * @param {string} level - Nåværende nivå (niva1-niva4)
+     * @param {string} level - Nåværende nivå (niva1-niva3)
      * @returns {string} Øvelsestype ('multiple-choice' eller 'typing')
      */
     getExerciseType(level) {
         const rate = this.getSuccessRate();
 
-        // Nivå 1-2: Alltid flervalg (som før)
-        if (level === 'niva1' || level === 'niva2') {
+        // Nivå 1: Alltid flervalg
+        if (level === 'niva1') {
             return 'multiple-choice';
         }
 
-        // Nivå 4: Mye skriving (som før)
-        if (level === 'niva4') {
+        // Nivå 3: Mye skriving
+        if (level === 'niva3') {
             return Math.random() < 0.8 ? 'typing' : 'multiple-choice';
         }
 
-        // Nivå 3: Adaptiv mix basert på prestasjon
+        // Nivå 2: Adaptiv mix basert på prestasjon
         // Hvis brukeren sliter (< 50%), gi mer flervalg
         if (rate < 0.5) {
             return Math.random() < 0.7 ? 'multiple-choice' : 'typing';

@@ -1,22 +1,21 @@
 // ============================================
 // VOCABULARY.JS - GloseMester v0.10.0
-// Oppdatert: LK20-tilpasset (Nivå 1-4)
-// Nivå 1 (Bilder): Superenkle substantiv med bilder (Førskolenivå / 1. trinn) - 40 ord
-// Nivå 2: Det nære (1.-4. trinn) - 50 ord
-// Nivå 3 (Middels): Beskrivelser & Hverdag (5.-7. trinn) - 50 ord
-// Nivå 4 (Vanskelig): Gaming, Samfunn & Meninger (8.-10. trinn) - 50 ord
+// Oppdatert: LK20-tilpasset (Nivå 1-3)
+// Nivå 1: Superenkle ord + Det nære (Førskolenivå / 1.-4. trinn) - 90 ord
+// Nivå 2 (Middels): Beskrivelser & Hverdag (5.-7. trinn) - 50 ord
+// Nivå 3 (Vanskelig): Gaming, Samfunn & Meninger (8.-10. trinn) - 50 ord
 // ============================================
 
 window.vokabularData = {
     "niva1": [
-        // --- SUPERENKLE SUBSTANTIV MED BILDER (40 ord) ---
+        // --- SUPERENKLE SUBSTANTIV (40 ord) ---
         // Dyr (10)
-        {s:"Hund",e:"Dog",image:"images/dyr/007-valp.png"},
-        {s:"Katt",e:"Cat",image:"images/dyr/006-kattunge.png"},
+        {s:"Hund",e:"Dog"},
+        {s:"Katt",e:"Cat"},
         {s:"Hest",e:"Horse"},{s:"Ku",e:"Cow"},{s:"Gris",e:"Pig"},
         {s:"Sau",e:"Sheep"},{s:"Fugl",e:"Bird"},{s:"Fisk",e:"Fish"},
-        {s:"Mus",e:"Mouse",image:"images/dyr/009-mus.png"},
-        {s:"And",e:"Duck",image:"images/dyr/008-and.png"},
+        {s:"Mus",e:"Mouse"},
+        {s:"And",e:"Duck"},
 
         // Familie (5)
         {s:"Mor",e:"Mother"},{s:"Far",e:"Father"},{s:"Baby",e:"Baby"},
@@ -36,10 +35,8 @@ window.vokabularData = {
         {s:"Eple",e:"Apple"},{s:"Banan",e:"Banana"},{s:"Melk",e:"Milk"},{s:"Vann",e:"Water"},
 
         // Kropp (3)
-        {s:"Hode",e:"Head"},{s:"Hånd",e:"Hand"},{s:"Fot",e:"Foot"}
-    ],
+        {s:"Hode",e:"Head"},{s:"Hånd",e:"Hand"},{s:"Fot",e:"Foot"},
 
-    "niva2": [
         // --- DET NÆRE: Familie, dyr, skole, kropp, natur (50 ord) ---
         // Familie & Mennesker (8)
         {s:"Søster",e:"Sister"},{s:"Bror",e:"Brother"},{s:"Bestemor",e:"Grandmother"},
@@ -67,7 +64,7 @@ window.vokabularData = {
         {s:"Skrive",e:"Write"},{s:"Snakke",e:"Talk"}
     ],
 
-    "niva3": [
+    "niva2": [
         // --- BESKRIVELSER & HVERDAG: Klær, vær, følelser, tid (50 ord) ---
         // Klær & Utseende (8)
         {s:"Jakke",e:"Jacket"},{s:"Bukse",e:"Trousers"},{s:"Genser",e:"Sweater"},
@@ -98,7 +95,7 @@ window.vokabularData = {
         {s:"Når",e:"When"},{s:"Hvorfor",e:"Why"},{s:"Hvordan",e:"How"}
     ],
 
-    "niva4": [
+    "niva3": [
         // --- GAMING, SAMFUNN & MENINGER (50 ord) ---
         // Gaming & Teknologi (12)
         {s:"Datamaskin",e:"Computer"},{s:"Skjerm",e:"Screen"},{s:"Tastatur",e:"Keyboard"},

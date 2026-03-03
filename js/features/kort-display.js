@@ -99,7 +99,7 @@ export async function hentTilfeldigKort() {
     const aktivtNiva = window.gjeldendeNiva || 'niva1';
 
     // Fjern guder-kategorien på lavere nivåer
-    if (aktivtNiva === 'niva1' || aktivtNiva === 'niva2') {
+    if (aktivtNiva === 'niva1') {
         tilgjengeligeKategorier = tilgjengeligeKategorier.filter(kat => kat !== 'guder');
     }
 
