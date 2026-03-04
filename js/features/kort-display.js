@@ -186,8 +186,8 @@ export function visSamling() {
             
             let byttKnapp = '';
             if(kort.antall > 1) {
-                // Vi bruker window.resirkulerKort her fordi knappen lages som HTML-streng
-                byttKnapp = `<button class="btn-resirkuler" onclick="event.stopPropagation(); window.resirkulerKort('${kort.id}')">♻️ Bytt inn (1 💎)</button>`;
+                // Bruker dataset + addEventListener for å unngå XSS via onclick-streng
+                byttKnapp = `<button class="btn-resirkuler" data-kortid="${kort.id.replace(/"/g, '&quot;')}">♻️ Bytt inn (1 💎)</button>`;
             }
             
             el.innerHTML = `
@@ -197,6 +197,14 @@ export function visSamling() {
                 ${byttKnapp}
             `;
             el.onclick = () => visStortKort(kort, config);
+            // Koble opp bytt-knappen med event listener (ikke inline onclick) for å unngå XSS
+            const byttBtn = el.querySelector('.btn-resirkuler');
+            if (byttBtn) {
+                byttBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.resirkulerKort(byttBtn.dataset.kortid);
+                });
+            }
             container.appendChild(el);
         });
     });

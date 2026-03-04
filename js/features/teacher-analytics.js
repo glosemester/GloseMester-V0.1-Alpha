@@ -505,12 +505,26 @@ export async function lastMiniDashboard() {
         const miniStats = document.getElementById('dashboard-mini-stats');
         const snarvei = document.getElementById('siste-prove-snarvei');
 
+        // Dato i hero
+        const datoEl = document.getElementById('db-dato-tekst');
+        if (datoEl) {
+            datoEl.textContent = new Intl.DateTimeFormat('no-NO', {
+                weekday: 'long', day: 'numeric', month: 'long'
+            }).format(new Date());
+        }
+
+        // Lærer-navn
+        const navnEl = document.getElementById('laerer-navn');
+        if (navnEl && user.displayName) {
+            navnEl.textContent = user.displayName.split(' ')[0];
+        }
+
         if (antall === 0) {
             if (miniStats) miniStats.style.display = 'none';
             if (snarvei) snarvei.innerHTML = `
-                <div class="dashboard-empty">
-                    <p>Du har ikke laget noen prøver ennå.</p>
-                    <button class="btn-primary" onclick="visSide('lag-prove')" style="margin-top:8px;">
+                <div class="db-empty">
+                    <p style="margin:0 0 12px;">Du har ikke laget noen prøver ennå.</p>
+                    <button class="btn-primary" onclick="visSide('lag-prove')" style="width:auto; padding:10px 24px; margin:0;">
                         ✏️ Lag din første prøve →
                     </button>
                 </div>`;
@@ -518,42 +532,41 @@ export async function lastMiniDashboard() {
         } else {
             if (miniStats) miniStats.style.display = '';
 
-            // Mini-stats tall
             el('dash-prover', antall);
             el('dash-gjennomforinger', gjennomforinger);
             el('dash-score', snitt ? snitt + '%' : '–');
 
-            // Aktiv-indikator på Mine Prøver-kortet
             const aktivTekst = aktivitetSisteUke > 0
-                ? `${antall} prøve${antall === 1 ? '' : 'r'} · ${aktivitetSisteUke} aktive siste dag`
+                ? `${antall} prøve${antall === 1 ? '' : 'r'} · ${aktivitetSisteUke} aktive i dag`
                 : `${antall} prøve${antall === 1 ? '' : 'r'}`;
             el('mine-prover-count', aktivTekst);
 
-            // Siste prøve som snarvei
+            // Siste prøve som snarvei — nye CSS-klasser
             if (snarvei && prover[0]) {
                 const siste = prover[0];
                 const kode = siste.kode || siste.prove_kode || '';
                 snarvei.innerHTML = `
-                    <div class="siste-prove-snarvei">
-                        <span class="siste-prove-tittel">📄 ${siste.tittel || 'Uten tittel'}</span>
-                        ${kode ? `<button class="siste-prove-kopier" onclick="navigator.clipboard.writeText('${kode}').then(()=>window.visToast && visToast('Kode kopiert!','success'))" title="Kopier prøvekode">📋 ${kode}</button>` : ''}
+                    <div class="db-snarvei">
+                        <span class="db-snarvei-tittel">📄 ${siste.tittel || 'Uten tittel'}</span>
+                        ${kode ? `<button class="db-snarvei-kopi" title="Kopier prøvekode">📋 ${kode}</button>` : ''}
                     </div>`;
+                if (kode) {
+                    snarvei.querySelector('.db-snarvei-kopi')?.addEventListener('click', () => {
+                        navigator.clipboard.writeText(kode).then(() => {
+                            if (window.visToast) visToast('Kode kopiert!', 'success');
+                        });
+                    });
+                }
             }
         }
 
-        // Plan-badge
+        // Plan-badge — nye CSS-klasser
         const planBadge = document.getElementById('plan-badge-dash');
-        if (planBadge && window.currentUser?.abonnement?.type) {
-            const type = window.currentUser.abonnement.type;
+        if (planBadge) {
+            const type = window.currentUser?.abonnement?.type || 'free';
             planBadge.textContent = type === 'premium' ? '⭐ Premium'
                 : type === 'skolepakke' ? '🏫 Skole' : 'Free';
-            planBadge.className = `plan-badge plan-badge-${type}`;
-        }
-
-        // Lærer-navn
-        const navnEl = document.getElementById('laerer-navn');
-        if (navnEl && user.displayName) {
-            navnEl.textContent = user.displayName.split(' ')[0];
+            planBadge.className = `db-plan-badge db-plan-badge-${type}`;
         }
 
     } catch (e) { /* Stille feil — mini-stats er ikke kritisk */ }

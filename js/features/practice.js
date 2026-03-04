@@ -259,8 +259,10 @@ function visNesteSporsmaal() {
 
         alternativer.forEach(alt => {
             const btn = document.createElement('button');
-            btn.className = 'answer-btn'; // ✅ Ny klasse
+            btn.className = 'answer-btn';
+            btn.type = 'button';
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
+            btn.setAttribute('aria-label', `Svar: ${btnTekst}`);
 
             // ✅ FIX: Ny HTML struktur for buttons
             btn.innerHTML = `
@@ -281,11 +283,14 @@ function visNesteSporsmaal() {
         const inputFelt = document.getElementById('oving-svar');
         if (inputFelt) {
             inputFelt.value = '';
-            inputFelt.style.borderColor = '#ddd'; // Reset border color
+            inputFelt.style.borderColor = '#ddd';
             inputFelt.focus();
-            inputFelt.onkeydown = (e) => {
-                if (e.key === 'Enter') sjekkOvingSvar();
-            };
+            // Fjern forrige handler før ny legges til (unngår memory leak ved akkumulerte lyttere)
+            if (inputFelt._ovingKeyHandler) {
+                inputFelt.removeEventListener('keydown', inputFelt._ovingKeyHandler);
+            }
+            inputFelt._ovingKeyHandler = (e) => { if (e.key === 'Enter') sjekkOvingSvar(); };
+            inputFelt.addEventListener('keydown', inputFelt._ovingKeyHandler);
         }
     }
 }

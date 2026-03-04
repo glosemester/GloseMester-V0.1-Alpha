@@ -750,58 +750,68 @@
         </div>
 
         <div id="laerer-dashboard" class="page">
-            <div class="dashboard-wrapper">
+            <div class="db-wrap">
 
-                <!-- Hilsen + plan-badge -->
-                <div class="dashboard-greeting">
-                    <div>
-                        <h2>Hei, <span id="laerer-navn">Lærer</span> 👋</h2>
-                        <p style="margin:0; color:#666;">Her administrerer du dine prøver.</p>
-                    </div>
-                    <a href="/min-side.html" class="plan-badge" id="plan-badge-dash">Free</a>
-                </div>
-
-                <!-- To hovdkort -->
-                <div class="dashboard-main-grid">
-                    <div class="dashboard-card dashboard-card-primary" onclick="visSide('lag-prove')">
-                        <div class="dashboard-card-icon">✏️</div>
+                <!-- HERO GRADIENT -->
+                <div class="db-hero">
+                    <div class="db-hero-top">
                         <div>
-                            <h3>Lag Prøve</h3>
-                            <p>Opprett ny test</p>
+                            <p class="db-dato" id="db-dato-tekst"></p>
+                            <h2 class="db-greeting">Hei, <span id="laerer-navn">Lærer</span> 👋</h2>
+                        </div>
+                        <a href="/min-side.html" class="db-plan-badge" id="plan-badge-dash">Free</a>
+                    </div>
+                    <div class="db-stats-row" id="dashboard-mini-stats">
+                        <div class="db-stat">
+                            <span class="db-stat-num" id="dash-prover">–</span>
+                            <span class="db-stat-lbl">prøver</span>
+                        </div>
+                        <div class="db-stat-div"></div>
+                        <div class="db-stat">
+                            <span class="db-stat-num" id="dash-gjennomforinger">–</span>
+                            <span class="db-stat-lbl">gjennomf.</span>
+                        </div>
+                        <div class="db-stat-div"></div>
+                        <div class="db-stat">
+                            <span class="db-stat-num" id="dash-score">–</span>
+                            <span class="db-stat-lbl">snitt %</span>
                         </div>
                     </div>
-                    <div class="dashboard-card" onclick="visSide('lagrede-prover')">
-                        <div class="dashboard-card-icon">📋</div>
-                        <div>
-                            <h3>Mine Prøver</h3>
-                            <p id="mine-prover-count">Laster...</p>
+                </div>
+
+                <!-- HANDLING-KORT -->
+                <div class="db-actions">
+                    <div class="db-action-card db-action-primary" onclick="visSide('lag-prove')" role="button" tabindex="0">
+                        <span class="db-action-icon">✏️</span>
+                        <div class="db-action-text">
+                            <strong>Lag Prøve</strong>
+                            <small>Opprett ny test</small>
                         </div>
+                        <span class="db-action-arrow">›</span>
+                    </div>
+                    <div class="db-action-card" onclick="visSide('lagrede-prover')" role="button" tabindex="0">
+                        <span class="db-action-icon">📋</span>
+                        <div class="db-action-text">
+                            <strong>Mine Prøver</strong>
+                            <small id="mine-prover-count">Laster...</small>
+                        </div>
+                        <span class="db-action-arrow">›</span>
                     </div>
                 </div>
 
-                <!-- Siste prøve som snarvei -->
+                <!-- SISTE PRØVE SNARVEI / TOM-TILSTAND -->
                 <div id="siste-prove-snarvei"></div>
 
-                <!-- Mini statistikk-rad -->
-                <div class="dashboard-mini-stats" id="dashboard-mini-stats">
-                    <div class="mini-stat">
-                        <span class="mini-stat-value" id="dash-prover">–</span>
-                        <label>prøver</label>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value" id="dash-gjennomforinger">–</span>
-                        <label>gjennomføringer</label>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value" id="dash-score">–</span>
-                        <label>snitt %</label>
-                    </div>
-                </div>
-
-                <!-- Se full statistikk -->
-                <div style="text-align:center; margin-top:10px;">
-                    <button class="btn-secondary btn-small" onclick="visSide('laerer-statistikk')">
-                        📊 Se full statistikk →
+                <!-- SEKUNDÆRE HANDLINGER -->
+                <div class="db-secondary">
+                    <button class="db-sec-btn" onclick="visSide('diktat-recorder'); window.lastMineDiktatSett && window.lastMineDiktatSett()">
+                        🎤<br>Diktat-opptak
+                    </button>
+                    <button class="db-sec-btn" onclick="visSide('standardprover')">
+                        📚<br>Standardprøver
+                    </button>
+                    <button class="db-sec-btn" onclick="visSide('laerer-statistikk')">
+                        📊<br>Statistikk
                     </button>
                 </div>
 
