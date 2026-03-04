@@ -383,14 +383,26 @@ export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
         sjekkOmGevinst();
         recordDailyActivity(); // Track activity for streak tracking
 
-        // ✅ RASKERE FEEDBACK: 1 sekund i stedet for 1.5
-        setTimeout(() => {
-            // Reaktiver klikk
+        // Vis «Neste»-knapp slik at brukeren kan styre tempoet
+        feedbackEl.insertAdjacentHTML('beforeend',
+            ' <button id="neste-spm-btn" class="btn-neste">Neste →</button>'
+        );
+
+        const nesteTimer = setTimeout(() => {
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
-
             visNesteSporsmaal();
-        }, 1000);
+        }, 2000);
+
+        const nesteBtnEl = document.getElementById('neste-spm-btn');
+        if (nesteBtnEl) {
+            nesteBtnEl.onclick = () => {
+                clearTimeout(nesteTimer);
+                if (altContainer) altContainer.style.pointerEvents = 'auto';
+                if (inputContainer) inputContainer.style.pointerEvents = 'auto';
+                visNesteSporsmaal();
+            };
+        }
 
     } else {
         // ✅ LEITNER: Registrer feil svar (flytt ned i bokser)

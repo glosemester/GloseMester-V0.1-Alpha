@@ -2749,3 +2749,21 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
         justify-content: flex-start !important;
     }
 }
+
+/* «Neste»-knapp i feedback etter riktig svar */
+.btn-neste {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 20px;
+    background: var(--accent-blue, #0071e3);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    vertical-align: middle;
+}
+.btn-neste:hover { opacity: 0.85; transform: translateX(2px); }
+.btn-neste:active { transform: scale(0.97); }
