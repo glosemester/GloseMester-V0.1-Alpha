@@ -21,6 +21,26 @@ import {
 import { escapeHtml } from '../ui/helpers.js';
 
 // ============================================
+// SØKEFILTER: Mine Prøver
+// ============================================
+
+let _alleProverKort = []; // { tittel, html } — brukes av søk-filter
+
+function oppdaterProveListe(sok) {
+    const container = document.getElementById('prover-liste');
+    if (!container || !_alleProverKort.length) return;
+    const filter = (sok || '').toLowerCase().trim();
+    const treff = filter
+        ? _alleProverKort.filter(p => p.tittel.toLowerCase().includes(filter))
+        : _alleProverKort;
+    if (treff.length === 0) {
+        container.innerHTML = '<p style="color:#999; text-align:center; padding:20px;">Ingen prøver matcher søket.</p>';
+    } else {
+        container.innerHTML = '<div class="saved-tests-grid">' + treff.map(p => p.html).join('') + '</div>';
+    }
+}
+
+// ============================================
 // HOVEDFUNKSJON: Vis lagrede prøver
 // ============================================
 export async function visSavedTests() {
@@ -58,7 +78,7 @@ export async function visSavedTests() {
             return;
         }
 
-        let html = '<div class="saved-tests-grid">';
+        _alleProverKort = [];
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const proveId = docSnap.id;
@@ -69,7 +89,7 @@ export async function visSavedTests() {
             const dato = data.opprettet_dato ? new Date(data.opprettet_dato.toDate()).toLocaleDateString('nb-NO') : 'Ukjent dato';
             const antallGjennomforinger = data.antall_gjennomforinger || 0;
 
-            html += `
+            _alleProverKort.push({ tittel, html: `
                 <div class="saved-test-card">
                     <div class="test-header">
                         <h3>${tittelSafe}</h3>
@@ -101,11 +121,17 @@ export async function visSavedTests() {
                         </button>
                     </div>
                 </div>
-            `;
+            ` });
         });
-        html += '</div>';
 
-        container.innerHTML = html;
+        oppdaterProveListe('');
+
+        // Koble søkefelt til filter (nullstill ved ny last)
+        const sokInput = document.getElementById('prover-sok');
+        if (sokInput) {
+            sokInput.value = '';
+            sokInput.oninput = () => oppdaterProveListe(sokInput.value);
+        }
 
     } catch (error) {
         console.error("Feil ved lasting av prøver:", error);

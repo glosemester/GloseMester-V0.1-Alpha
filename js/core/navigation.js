@@ -20,7 +20,12 @@ export function visSide(sideId) {
         // Auto-load data for spesifikke sider
         switch (sideId) {
             case 'laerer-dashboard':
-                // ✅ NY: Last dashboard-statistikk automatisk
+                if (typeof window.lastMiniDashboard === 'function') {
+                    setTimeout(() => window.lastMiniDashboard(), 50);
+                }
+                break;
+
+            case 'laerer-statistikk':
                 if (typeof window.initDashboard === 'function') {
                     setTimeout(() => window.initDashboard(), 50);
                 }
@@ -112,7 +117,7 @@ function oppdaterMenyer(sideId) {
         if (norskOvingMeny) norskOvingMeny.style.display = 'flex';
     }
     // Lærer (delt for alle fag)
-    else if (['laerer-dashboard', 'lag-prove', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
+    else if (['laerer-dashboard', 'laerer-statistikk', 'lag-prove', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
         if (laererMeny) laererMeny.style.display = 'flex';
     }
 }

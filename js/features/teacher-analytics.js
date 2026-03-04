@@ -467,8 +467,101 @@ export async function initDashboard() {
     }
 }
 
+// ============================================
+// MINI DASHBOARD (Rask oversikt for #laerer-dashboard)
+// ============================================
+
+/**
+ * Laster kun 3 tall til mini-stats-raden. Mye raskere enn full initDashboard().
+ * Inkluderer: tom-tilstand, aktiv-indikator, siste prøve som snarvei.
+ */
+export async function lastMiniDashboard() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const proverQuery = query(
+            collection(db, "prover"),
+            where("opprettet_av", "==", user.uid),
+            orderBy("opprettet_dato", "desc")
+        );
+        const snapshot = await getDocs(proverQuery);
+        const prover = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        const antall = prover.length;
+        const gjennomforinger = prover.reduce((s, p) => s + (p.antall_gjennomforinger || 0), 0);
+
+        // Hent snitt-score
+        const statsArr = await Promise.all(prover.map(p => hentProveStatistikk(p.id)));
+        const snitt = statsArr.length > 0
+            ? Math.round(statsArr.reduce((s, st) => s + st.gjennomsnitt, 0) / statsArr.length)
+            : 0;
+
+        // Aktive siste uke
+        const aktivitetSisteUke = statsArr.reduce((s, st) => s + (st.siste24t || 0), 0);
+
+        const el = (id, val) => { const e = document.getElementById(id); if (e) e.innerText = val; };
+
+        // -- Tom-tilstand vs normalvisning --
+        const miniStats = document.getElementById('dashboard-mini-stats');
+        const snarvei = document.getElementById('siste-prove-snarvei');
+
+        if (antall === 0) {
+            if (miniStats) miniStats.style.display = 'none';
+            if (snarvei) snarvei.innerHTML = `
+                <div class="dashboard-empty">
+                    <p>Du har ikke laget noen prøver ennå.</p>
+                    <button class="btn-primary" onclick="visSide('lag-prove')" style="margin-top:8px;">
+                        ✏️ Lag din første prøve →
+                    </button>
+                </div>`;
+            el('mine-prover-count', 'Ingen prøver ennå');
+        } else {
+            if (miniStats) miniStats.style.display = '';
+
+            // Mini-stats tall
+            el('dash-prover', antall);
+            el('dash-gjennomforinger', gjennomforinger);
+            el('dash-score', snitt ? snitt + '%' : '–');
+
+            // Aktiv-indikator på Mine Prøver-kortet
+            const aktivTekst = aktivitetSisteUke > 0
+                ? `${antall} prøve${antall === 1 ? '' : 'r'} · ${aktivitetSisteUke} aktive siste dag`
+                : `${antall} prøve${antall === 1 ? '' : 'r'}`;
+            el('mine-prover-count', aktivTekst);
+
+            // Siste prøve som snarvei
+            if (snarvei && prover[0]) {
+                const siste = prover[0];
+                const kode = siste.kode || siste.prove_kode || '';
+                snarvei.innerHTML = `
+                    <div class="siste-prove-snarvei">
+                        <span class="siste-prove-tittel">📄 ${siste.tittel || 'Uten tittel'}</span>
+                        ${kode ? `<button class="siste-prove-kopier" onclick="navigator.clipboard.writeText('${kode}').then(()=>window.visToast && visToast('Kode kopiert!','success'))" title="Kopier prøvekode">📋 ${kode}</button>` : ''}
+                    </div>`;
+            }
+        }
+
+        // Plan-badge
+        const planBadge = document.getElementById('plan-badge-dash');
+        if (planBadge && window.currentUser?.abonnement?.type) {
+            const type = window.currentUser.abonnement.type;
+            planBadge.textContent = type === 'premium' ? '⭐ Premium'
+                : type === 'skolepakke' ? '🏫 Skole' : 'Free';
+            planBadge.className = `plan-badge plan-badge-${type}`;
+        }
+
+        // Lærer-navn
+        const navnEl = document.getElementById('laerer-navn');
+        if (navnEl && user.displayName) {
+            navnEl.textContent = user.displayName.split(' ')[0];
+        }
+
+    } catch (e) { /* Stille feil — mini-stats er ikke kritisk */ }
+}
+
 // Eksponer globalt for HTML onclick
 window.initDashboard = initDashboard;
+window.lastMiniDashboard = lastMiniDashboard;
 window.eksporterTilCSV = eksporterTilCSV;
 window.lastLoadedDashboardData = null;
 
@@ -477,5 +570,6 @@ export default {
     lastDashboardData,
     visDashboard,
     initDashboard,
+    lastMiniDashboard,
     eksporterTilCSV
 };
