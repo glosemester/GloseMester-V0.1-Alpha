@@ -625,8 +625,8 @@
                 <input type="text" id="quiz-input" placeholder="Svar her..." aria-label="Skriv ditt svar på spørsmålet"
                     aria-required="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 <button class="btn-primary" onclick="sjekkSvar()" aria-label="Send inn svar">Svar</button>
-                <button class="btn-primary btn-small" onclick="lesOppProve()"
-                    aria-label="Les opp spørsmålet med talesyntese">🔊 Les opp</button>
+                <button class="btn-lyd" onclick="lesOppProve()"
+                    aria-label="Les opp spørsmålet med talesyntese" title="Les opp uttale">🔊</button>
             </div>
         </div>
 
@@ -669,7 +669,7 @@
                 <h2 id="oving-spm" style="text-align:center; font-size:40px; margin:10px 0 30px 0;">...</h2>
 
                 <div style="text-align:center; margin-bottom:20px;">
-                    <button class="btn-primary btn-small" onclick="lesOppOving()">🔊 Les opp</button>
+                    <button class="btn-lyd" onclick="lesOppOving()" title="Les opp uttale">🔊</button>
                 </div>
 
                 <div id="oving-alternativer"
