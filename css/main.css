@@ -2153,17 +2153,40 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
     .game-container {
-        padding: 20px;
+        padding: 20px 18px 100px;
         width: 100%;
         max-width: 100%;
-        border-radius: 0;
-        height: 100vh;
+        border-radius: 0 0 28px 28px;
+        min-height: calc(100dvh - 90px);
+        height: auto;
         margin: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.85);
-        /* Mer solid på mobil */
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    }
+}
+
+/* Mobil: spørsmål og svarknapper */
+@media (max-width: 600px) {
+    #oving-spm, #quiz-spm {
+        font-size: 2rem;
+        margin: 8px 0 20px;
+    }
+    .answer-btn {
+        padding: 14px 16px;
+        font-size: 1rem;
+        border-radius: 14px;
+    }
+    body {
+        padding-bottom: 95px;
+    }
+}
+
+@media (max-width: 400px) {
+    #oving-spm, #quiz-spm {
+        font-size: 1.7rem;
     }
 }
 
@@ -2251,6 +2274,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     75% {
         transform: translateX(5px);
     }
+}
+
+@keyframes pulse-green {
+    0%   { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.6); }
+    70%  { box-shadow: 0 0 0 12px rgba(76, 175, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
 
 /* 4. Progress Bar (Streak) */

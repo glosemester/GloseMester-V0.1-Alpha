@@ -264,13 +264,18 @@ function visNesteSporsmaal() {
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
             btn.setAttribute('aria-label', `Svar: ${btnTekst}`);
 
-            // ✅ FIX: Ny HTML struktur for buttons
             btn.innerHTML = `
                 <span>${btnTekst}</span>
-                <div class="audio-btn-small" onclick="event.stopPropagation(); window.lesOppOving('${btnTekst}', '${altLang}')">
-                    🔊
-                </div>
+                <button type="button" class="audio-btn-small" aria-label="Les opp ${btnTekst}">🔊</button>
             `;
+            // Koble lyd trygt via closure — unngår syntaksfeil ved apostrof i btnTekst
+            const audioBtn = btn.querySelector('.audio-btn-small');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.lesOppOving(btnTekst, altLang);
+                });
+            }
             // Send med event for å kunne endre stil på knappen ved klikk
             btn.onclick = (e) => sjekkOvingSvar(alt, e.currentTarget);
             altContainer.appendChild(btn);
