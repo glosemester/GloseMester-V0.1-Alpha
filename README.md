@@ -4,10 +4,34 @@
 
 🌐 **Nettside:** [glosemester.no](https://glosemester.no)  
 👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)  
-📅 **Versjon:** v0.9.9-BETA (Januar 2026)  
+📅 **Versjon:** v2.3.1-ALPHA (4. mars 2026)
 📋 **Launch-plan:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 
 GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en skattejakt. Elevene samler digitale kort, bytter dubletter og klatrer i nivåene, mens lærere enkelt kan lage prøver med QR-kode deling.
+
+---
+
+## 🆕 NYTT I v2.3.1-ALPHA (4. mars 2026)
+
+### ✅ GloseMester — Strukturforenkling 📚
+- **Nivå 1+2 slått sammen:** Gammel niva1 (40 ord) og niva2 (50 ord) er nå ett nivå (90 ord, ingen bilder)
+- **Bilder fjernet:** Alle image-felt fjernet fra vokabular — fokus på tekst/lyd fremfor visuelt
+- **3 nivåer:** Redusert fra 4 til 3 (Enkel → Middels → Avansert)
+- **Filer:** `js/vocabulary.js`, `js/features/practice.js`, `js/features/learningEngine.js`, `js/features/kort-display.js`, `index.html`
+
+### ✅ Design & UX
+- **Lydknapp diskretisert:** 🔊-knapp gjort mindre fremtredende for å unngå utilsiktede klikk
+- **Desktop-optimalisering:** Nye `@media (min-width: 1024px)` og `1400px`-regler for bedre stor-skjerm-tilpasning
+- **Mer app-aktig:** Navigasjonsbar, game-container og rolle-grid skalerer nå korrekt på store skjermer
+
+### ✅ Bugfixes (v2.3.0)
+- **Tilfeldig rekkefølge i øv-modus:** Spørsmål stokkes nå riktig ved oppstart av ny økt
+- **TDZ-bug quiz.js:** Lukk-knapp i feil-svar-popup fungerer nå som forventet
+- **QR-koder client-side:** Fjernet avhengighet av ekstern tjeneste (`api.qrserver.com`)
+
+### ✅ Dokumentasjon & opprydding (v2.3.0)
+- Fullstendig markedsføringsplan lagt til i `docs/`
+- `.md`-dokumenter ryddet og sortert i `docs/arkiv/` og `docs/`
 
 ---
 
