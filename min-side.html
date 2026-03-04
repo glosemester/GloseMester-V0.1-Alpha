@@ -144,6 +144,22 @@
             </div>
         </div>
 
+        <!-- KAMPANJEKODE -->
+        <div class="card">
+            <h2>🎁 Har du kampanjekode?</h2>
+            <p style="color:#666; margin-bottom:15px;">
+                Premium-koder gir tilgang til ubegrenset antall prøver og standardprøver.
+            </p>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="kampanje-input" placeholder="F.eks: BETA2026"
+                    style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                <button onclick="window.aktiverKampanjekode()"
+                    style="padding:10px 20px; background:#0071e3; color:white; border:none; border-radius:8px; cursor:pointer;">
+                    Aktiver
+                </button>
+            </div>
+        </div>
+
         <!-- MIN PROFIL -->
         <div class="card">
             <h2>👤 Min Profil</h2>
@@ -214,11 +230,13 @@
     <script type="module">
         import { auth, db, doc, getDoc, onAuthStateChanged, signOut } from './js/features/firebase.js';
         import { visCookieInnstillinger, slettMinData, eksporterMinData } from './js/features/gdpr.js';
+        import { aktiverKampanjekode } from './js/app.js';
 
-        // Eksporter GDPR-funksjoner til window-objektet
+        // Eksporter funksjoner til window-objektet
         window.visCookieInnstillinger = visCookieInnstillinger;
         window.slettMinData = slettMinData;
         window.eksporterMinData = eksporterMinData;
+        window.aktiverKampanjekode = aktiverKampanjekode;
 
         // Logg ut funksjon
         document.getElementById('logout-btn').addEventListener('click', async () => {

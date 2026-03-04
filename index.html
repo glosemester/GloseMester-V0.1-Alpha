@@ -568,16 +568,14 @@
         </nav>
 
         <div id="nav-items" class="nav-items">
-            <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard'); lukkHamburger()">📊
-                Dashboard</button>
-            <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover'); lukkHamburger()">📝 Lagrede
-                Prøver</button>
-            <button id="btn-standardprover" onclick="visSide('standardprover'); lukkHamburger()">📚
-                Standardprøver</button>
+            <button id="btn-laerer-dashboard" class="active" onclick="visSide('laerer-dashboard'); lukkHamburger()">🏠 Hjem</button>
+            <button id="btn-lagrede-prover" onclick="visSide('lagrede-prover'); lukkHamburger()">📋 Mine Prøver</button>
+            <button id="btn-lag-prove" onclick="visSide('lag-prove'); lukkHamburger()">✏️ Lag Prøve</button>
+            <button id="btn-laerer-statistikk" onclick="visSide('laerer-statistikk'); lukkHamburger()">📊 Statistikk</button>
+            <button id="btn-standardprover" onclick="visSide('standardprover'); lukkHamburger()">📚 Standardprøver</button>
+            <button id="btn-diktat-recorder" onclick="visSide('diktat-recorder'); lukkHamburger()">🎤 Diktat-opptak</button>
             <button id="btn-glosebank-browse" onclick="visSide('glosebank-browse'); lukkHamburger()"
                 style="display:none;">📚 GloseBank</button>
-            <button id="btn-diktat-recorder" onclick="visSide('diktat-recorder'); lukkHamburger()">🎤
-                Diktat-opptak</button>
             <button id="btn-admin-panel" onclick="visSide('admin-panel'); lukkHamburger()" style="display:none;">🔧
                 Admin</button>
             <button onclick="loggUt()" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">🚪 Logg
@@ -752,62 +750,83 @@
         </div>
 
         <div id="laerer-dashboard" class="page">
-            <div class="card-container">
-                <h2>Velkommen, Lærer!</h2>
-                <p style="color:#666; margin-bottom:20px;">Lag prøver, del med QR-kode og følg med på elevenes
-                    resultater.</p>
+            <div class="dashboard-wrapper">
 
-                <!-- ✅ NY: Analytics Dashboard -->
-                <div id="dashboard-stats" style="margin-bottom: 30px;">
-                    <!-- Dashboard-data lastes her av teacher-analytics.js -->
+                <!-- Hilsen + plan-badge -->
+                <div class="dashboard-greeting">
+                    <div>
+                        <h2>Hei, <span id="laerer-navn">Lærer</span> 👋</h2>
+                        <p style="margin:0; color:#666;">Her administrerer du dine prøver.</p>
+                    </div>
+                    <a href="/min-side.html" class="plan-badge" id="plan-badge-dash">Free</a>
                 </div>
 
-                <!-- Eksporter-knapp -->
-                <div style="text-align: right; margin-bottom: 20px;">
-                    <button class="btn-secondary btn-small" onclick="eksporterTilCSV(window.lastLoadedDashboardData)"
-                        style="padding: 8px 16px;">
-                        📥 Eksporter statistikk (CSV)
+                <!-- To hovdkort -->
+                <div class="dashboard-main-grid">
+                    <div class="dashboard-card dashboard-card-primary" onclick="visSide('lag-prove')">
+                        <div class="dashboard-card-icon">✏️</div>
+                        <div>
+                            <h3>Lag Prøve</h3>
+                            <p>Opprett ny test</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card" onclick="visSide('lagrede-prover')">
+                        <div class="dashboard-card-icon">📋</div>
+                        <div>
+                            <h3>Mine Prøver</h3>
+                            <p id="mine-prover-count">Laster...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Siste prøve som snarvei -->
+                <div id="siste-prove-snarvei"></div>
+
+                <!-- Mini statistikk-rad -->
+                <div class="dashboard-mini-stats" id="dashboard-mini-stats">
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" id="dash-prover">–</span>
+                        <label>prøver</label>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" id="dash-gjennomforinger">–</span>
+                        <label>gjennomføringer</label>
+                    </div>
+                    <div class="mini-stat">
+                        <span class="mini-stat-value" id="dash-score">–</span>
+                        <label>snitt %</label>
+                    </div>
+                </div>
+
+                <!-- Se full statistikk -->
+                <div style="text-align:center; margin-top:10px;">
+                    <button class="btn-secondary btn-small" onclick="visSide('laerer-statistikk')">
+                        📊 Se full statistikk →
                     </button>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:30px;">
-                    <div class="bank-container" style="text-align:center; cursor:pointer;"
-                        onclick="visSide('lag-prove')">
-                        <div style="font-size:48px; margin-bottom:10px;">📝</div>
-                        <h3 style="margin:0; font-size:18px;">Lag Prøve</h3>
-                        <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Opprett ny ordlistetest</p>
-                    </div>
-                    <div class="bank-container" style="text-align:center; cursor:pointer;"
-                        onclick="visSide('lagrede-prover')">
-                        <div style="font-size:48px; margin-bottom:10px;">💾</div>
-                        <h3 style="margin:0; font-size:18px;">Mine Prøver</h3>
-                        <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Se og administrer</p>
-                    </div>
-                    <div class="bank-container" style="text-align:center; cursor:pointer;"
-                        onclick="visSide('diktat-recorder'); lastMineDiktatSett()">
-                        <div style="font-size:48px; margin-bottom:10px;">🎤</div>
-                        <h3 style="margin:0; font-size:18px;">Diktat-opptak</h3>
-                        <p style="margin:5px 0 0 0; font-size:13px; color:#666;">Les inn med din stemme</p>
-                    </div>
+            </div>
+        </div>
+
+        <!-- ========================================
+             LÆRER STATISTIKK
+             ======================================== -->
+        <div id="laerer-statistikk" class="page">
+            <div class="card-container">
+                <button class="btn-secondary btn-small" onclick="visSide('laerer-dashboard')"
+                    style="margin-bottom:15px;">← Tilbake</button>
+                <h2>📊 Statistikk</h2>
+                <p style="color:#666; margin-bottom:20px;">Oversikt over dine prøver og elevaktivitet.</p>
+
+                <div style="text-align:right; margin-bottom:20px;">
+                    <button class="btn-secondary btn-small"
+                        onclick="eksporterTilCSV(window.lastLoadedDashboardData)">
+                        📥 Eksporter (CSV)
+                    </button>
                 </div>
 
-                <div id="abonnement-info"
-                    style="background:#F0F9FF; padding:20px; border-radius:12px; border:2px solid #BAE6FD; margin-bottom:20px;">
-                </div>
-
-                <div style="background:#F9FAFB; padding:20px; border-radius:12px; border:1px solid #E5E7EB;">
-                    <h3 style="margin:0 0 15px 0; font-size:16px; color:#374151;">🎁 Har du kampanjekode?</h3>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="kampanje-input" placeholder="F.eks: BETA2026" style="flex:1; margin:0;">
-                        <button class="btn-primary" onclick="aktiverKampanjekode()"
-                            style="width:auto; padding:12px 25px; margin:0;">
-                            Aktiver
-                        </button>
-                    </div>
-                    <p style="margin:10px 0 0 0; font-size:12px; color:#6B7280;">
-                        Premium-koder gir tilgang til ubegrenset antall prøver, standardprøver og statistikk.
-                    </p>
-                </div>
+                <!-- Analytics injiseres her av teacher-analytics.js -->
+                <div id="dashboard-stats"></div>
             </div>
         </div>
 
@@ -890,8 +909,8 @@
                 <button class="btn-secondary btn-small" onclick="visSide('laerer-dashboard')"
                     style="margin-bottom:15px; display:inline-flex; align-items:center; gap:5px;">← Tilbake</button>
                 <h2>Mine Lagrede Prøver</h2>
-                <p style="color:#666; margin-bottom:20px;">Alle dine opprettede prøver. Del med QR-kode eller prøvekode.
-                </p>
+                <p style="color:#666; margin-bottom:15px;">Alle dine opprettede prøver. Del med QR-kode eller prøvekode.</p>
+                <input type="search" id="prover-sok" placeholder="🔍 Søk etter prøve..." style="margin-bottom:20px;">
                 <div id="prover-liste"></div>
             </div>
         </div>
