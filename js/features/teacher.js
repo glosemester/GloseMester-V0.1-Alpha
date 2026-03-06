@@ -20,7 +20,6 @@ export function initTeacherFeatures() {
     window.slettOrd = window.slettOrd || function(){};
     window.sjekkKampanjeKode = sjekkKampanjeKode;
     window.visAbonnementInfo = visAbonnementInfo;
-    window.velgProveFag = velgProveFag; // ✅ NYTT: Multi-fag støtte
 
     setTimeout(setupKeyboardShortcuts, 1000);
 
@@ -158,35 +157,16 @@ async function sjekkAbonnement(user) {
 let midlertidigProveListe = [];
 
 export function leggTilOrd() {
-    // ✅ Les prøvetype for å velge riktige input-felt
-    const typeInput = document.getElementById('prove-type');
-    const proveType = typeInput ? typeInput.value : 'gloser';
-
-    let spmInput, svarInput, spm, svar;
-
-    if (proveType === 'gloser') {
-        spmInput = document.getElementById('norsk-ord');
-        svarInput = document.getElementById('engelsk-ord');
-    } else if (proveType === 'matte') {
-        spmInput = document.getElementById('matte-oppgave');
-        svarInput = document.getElementById('matte-svar');
-    } else if (proveType === 'norsk') {
-        spmInput = document.getElementById('norsk-sporsmal');
-        svarInput = document.getElementById('norsk-svar');
-    }
+    const spmInput = document.getElementById('norsk-ord');
+    const svarInput = document.getElementById('engelsk-ord');
 
     if (!spmInput || !svarInput) return;
 
-    spm = spmInput.value.trim();
-    svar = svarInput.value.trim();
+    const spm = spmInput.value.trim();
+    const svar = svarInput.value.trim();
 
     if (!spm || !svar) {
-        visToast(
-            proveType === 'gloser' ? "Skriv både norsk og engelsk ord." :
-            proveType === 'matte' ? "Skriv både oppgave og svar." :
-            "Skriv både spørsmål og svar.",
-            "error"
-        );
+        visToast("Skriv både norsk og engelsk ord.", "error");
         spmInput.focus();
         return;
     }
@@ -369,7 +349,6 @@ export function visAbonnementInfo() {
 }
 
 function setupKeyboardShortcuts() {
-    // ✅ OPPDATERT: Legg til keyboard shortcuts for alle fagtyper
     const enterHandler = (e) => {
         if(e.key==='Enter') {
             e.preventDefault();
@@ -377,68 +356,11 @@ function setupKeyboardShortcuts() {
         }
     };
 
-    // Gloser
     const norskOrd = document.getElementById('norsk-ord');
     const engelskOrd = document.getElementById('engelsk-ord');
     if(norskOrd && engelskOrd) {
         norskOrd.addEventListener('keydown', enterHandler);
         engelskOrd.addEventListener('keydown', enterHandler);
     }
-
-    // Matte
-    const matteOppgave = document.getElementById('matte-oppgave');
-    const matteSvar = document.getElementById('matte-svar');
-    if(matteOppgave && matteSvar) {
-        matteOppgave.addEventListener('keydown', enterHandler);
-        matteSvar.addEventListener('keydown', enterHandler);
-    }
-
-    // Norsk
-    const norskSporsmal = document.getElementById('norsk-sporsmal');
-    const norskSvar = document.getElementById('norsk-svar');
-    if(norskSporsmal && norskSvar) {
-        norskSporsmal.addEventListener('keydown', enterHandler);
-        norskSvar.addEventListener('keydown', enterHandler);
-    }
 }
 
-// ==============================================
-// MULTI-FAG STØTTE - FAG-VELGER
-// ==============================================
-
-export function velgProveFag(fag) {
-    // Oppdater hidden input
-    const typeInput = document.getElementById('prove-type');
-    if (typeInput) typeInput.value = fag;
-
-    // Oppdater aktiv tab
-    document.querySelectorAll('.fag-tab').forEach(tab => {
-        tab.classList.remove('active');
-        tab.style.borderBottom = '3px solid transparent';
-        tab.style.color = '#666';
-    });
-
-    const aktivTab = document.getElementById(`fag-tab-${fag}`);
-    if (aktivTab) {
-        aktivTab.classList.add('active');
-        aktivTab.style.borderBottom = fag === 'gloser' ? '3px solid #0071e3' :
-                                       fag === 'matte' ? '3px solid #f39c12' :
-                                       '3px solid #e74c3c';
-        aktivTab.style.color = '#1d1d1f';
-    }
-
-    // Skjul alle input-bokser
-    document.getElementById('prove-input-gloser').style.display = 'none';
-    document.getElementById('prove-input-matte').style.display = 'none';
-    document.getElementById('prove-input-norsk').style.display = 'none';
-
-    // Vis riktig input-boks
-    const inputBox = document.getElementById(`prove-input-${fag}`);
-    if (inputBox) inputBox.style.display = 'block';
-
-    // Tøm midlertidig liste ved fag-bytte (for sikkerhetsskyld)
-    midlertidigProveListe = [];
-    oppdaterEditorListe();
-
-    spillLyd('klikk');
-}
