@@ -10,7 +10,7 @@
 
 | # | Test | Forventet resultat | Status |
 |---|------|--------------------|--------|
-| 1.1 | Åpne `index.html` i nettleser | `glosemester-start` vises, header viser «LæreMester» | ⬜ |
+| 1.1 | Åpne `index.html` i nettleser | `glosemester-start` vises, header viser «GloseMester» | ⬜ |
 | 1.2 | Ingen `fag-velger` div er aktiv | Kun én `.page.active` i DOM ved oppstart | ⬜ |
 | 1.3 | Klikk «Tilbake» i nettleseren fra en underside | Returnerer til `glosemester-start` | ⬜ |
 | 1.4 | Lyd-toggle-knapp øverst til høyre er synlig | 🔇-knapp vises på alle sider | ⬜ |
