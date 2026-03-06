@@ -2,12 +2,71 @@
 
 **Gamifisert språklæring for norske skoler og selvstudium**
 
-🌐 **Nettside:** [glosemester.no](https://glosemester.no)  
-👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)  
-📅 **Versjon:** v2.3.1-ALPHA (4. mars 2026)
+🌐 **Nettside:** [glosemester.no](https://glosemester.no)
+👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)
+📅 **Versjon:** v2.4.2-ALPHA (6. mars 2026)
 📋 **Launch-plan:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 
 GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en skattejakt. Elevene samler digitale kort, bytter dubletter og klatrer i nivåene, mens lærere enkelt kan lage prøver med QR-kode deling.
+
+---
+
+## 🆕 NYTT I v2.4.2-ALPHA (6. mars 2026) — Design-gjennomgang
+
+### ✅ Øvemodus og prøvemodus — konsistens
+- **`#quiz-spm` inline-stil fjernet:** `font-size:32px` inline-attributt overstyrer ikke lenger CSS-regelen — spørsmålstekst i prøvemodus er nå lik øvemodus (3.5rem/56px + mobilskalering)
+- **Prøvemodus glassmorphism:** `#prove-omraade` byttet fra `.card-container` til `.game-container` — visuell konsistens med øvemodus
+- **Lydknapp mer synlig:** `.audio-btn-small` opacity økt fra `0.2` → `0.45` — 🔊-ikonet i svaralternativer er nå synlig uten hover
+- **Quiz-popups CSS-refaktorert:** Alle popup-funksjoner (`visRiktigPopup`, `visFeilPopup`, `visFerdigPopup`) bruker nå CSS-klasser (`.quiz-popup-overlay`, `.quiz-popup-modal`, `.quiz-popup-riktig/feil/ferdig`) i stedet for 100+ inline-stiler
+
+**Filer:** `index.html`, `css/main.css`, `js/shared/quiz.js`
+
+---
+
+## 🆕 NYTT I v2.4.1-ALPHA (6. mars 2026) — Kritiske bugfixer
+
+### ✅ Practice/Quiz fikset + mobildesign
+- **Lydknapp apostrof-bug:** `btnTekst` direkte i `onclick`-streng krasjet ved norske ord med apostrof (`it's`). Erstattet med `addEventListener`-closure
+- **`pulse-green` keyframe lagt til:** `.answer-btn.correct` animasjon fungerer nå
+- **`height: 100vh` mobile-fiks:** `.game-container` på mobil bruker nå `min-height: calc(100dvh - 90px); height: auto` — nav-baren dekker ikke lenger innholdet
+- **Mobile media queries:** Spørsmålstekst skalerer til `2rem` (600px) og `1.7rem` (400px); svarknapper bredere og mer luftige
+
+**Filer:** `js/features/practice.js`, `css/main.css`
+
+---
+
+## 🆕 NYTT I v2.4.0-ALPHA (5. mars 2026) — Dashboard redesign + bugfixer
+
+### ✅ Lærer-dashboard — komplett redesign
+- **Ny hero-seksjon:** Gradient-bakgrunn (`#0a0a1a → #0071e3`), hilsen med dato, abonnementsbadge
+- **To hovdkort:** Lag Prøve (blå gradient) og Mine Prøver med live antall
+- **Mini stats-rad:** Glassmorfisk rad med antall prøver, gjennomføringer og snitt %
+- **Siste prøve-snarvei:** `#siste-prove-snarvei` viser rask tilgang til siste prøve med kopi-kode
+- **Tom-tilstand:** Ny onboarding-melding når ingen prøver er opprettet
+- **Persistent sidebar desktop:** `@media (min-width: 1100px)` — sidebar fast til venstre, hamburger skjult
+- **Søk i Mine Prøver:** Klient-side filter på tittel via `<input type="search">`
+- **Separate statistikk-side:** `#laerer-statistikk` med full analytics, dashboard er nå rent og fokusert
+- **`lastMiniDashboard()`:** Ny rask Firestore-funksjon (ikke `initDashboard()`) for dashboard-visning
+
+### ✅ Kritiske bugfixer (v2.4.0)
+- **K1 — XSS i `kort-display.js`:** `onclick="resirkulerKort('${kort.id}')"` → `data-kortid` + `addEventListener`
+- **K4 — Memory leak i `practice.js`:** `inputFelt.onkeydown` → `removeEventListener` + `addEventListener` med lagret referanse
+- **H1 — Leitner-algoritme:** Krev 2 riktige på rad for å avansere boks; feil gir -1 (ikke -2)
+- **H3 — ARIA på flervalg:** `aria-label="Svar: {tekst}"` og `type="button"` på alle svar-alternativer
+- **H4 — `prefers-reduced-motion`:** Confetti og float-score animasjoner deaktivert for bevegelsessensitive brukere
+
+**Filer:** `index.html`, `css/main.css`, `js/features/teacher-analytics.js`, `js/core/navigation.js`, `js/features/saved-tests.js`, `js/features/kort-display.js`, `js/features/practice.js`, `js/features/learningEngine.js`
+
+---
+
+## 🆕 NYTT I v2.3.2-ALPHA (5. mars 2026)
+
+### ✅ H2 — Feedbacktid og «Neste»-knapp
+- Tilbakemeldingstid økt fra 1000ms → **2000ms** etter riktig svar
+- **«Neste →»-knapp** vises i feedback-elementet — bruker kan styre tempoet selv
+- Timer avbrytes ved klikk; knappen forsvinner automatisk ved neste spørsmål
+
+**Filer:** `js/features/practice.js`, `css/main.css`
 
 ---
 
@@ -17,114 +76,106 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - **Nivå 1+2 slått sammen:** Gammel niva1 (40 ord) og niva2 (50 ord) er nå ett nivå (90 ord, ingen bilder)
 - **Bilder fjernet:** Alle image-felt fjernet fra vokabular — fokus på tekst/lyd fremfor visuelt
 - **3 nivåer:** Redusert fra 4 til 3 (Enkel → Middels → Avansert)
-- **Filer:** `js/vocabulary.js`, `js/features/practice.js`, `js/features/learningEngine.js`, `js/features/kort-display.js`, `index.html`
 
 ### ✅ Design & UX
 - **Lydknapp diskretisert:** 🔊-knapp gjort mindre fremtredende for å unngå utilsiktede klikk
-- **Desktop-optimalisering:** Nye `@media (min-width: 1024px)` og `1400px`-regler for bedre stor-skjerm-tilpasning
-- **Mer app-aktig:** Navigasjonsbar, game-container og rolle-grid skalerer nå korrekt på store skjermer
+- **Desktop-optimalisering:** `@media (min-width: 1024px)` og `1400px`-regler for stor-skjerm
+- **Mer app-aktig:** Navigasjonsbar, game-container og rolle-grid skalerer korrekt på store skjermer
 
 ### ✅ Bugfixes (v2.3.0)
-- **Tilfeldig rekkefølge i øv-modus:** Spørsmål stokkes nå riktig ved oppstart av ny økt
-- **TDZ-bug quiz.js:** Lukk-knapp i feil-svar-popup fungerer nå som forventet
-- **QR-koder client-side:** Fjernet avhengighet av ekstern tjeneste (`api.qrserver.com`)
-
-### ✅ Dokumentasjon & opprydding (v2.3.0)
-- Fullstendig markedsføringsplan lagt til i `docs/`
-- `.md`-dokumenter ryddet og sortert i `docs/arkiv/` og `docs/`
+- **Tilfeldig rekkefølge i øv-modus:** Spørsmål stokkes nå riktig ved oppstart
+- **TDZ-bug quiz.js:** Lukk-knapp i feil-svar-popup fungerer nå
+- **QR-koder client-side:** Fjernet avhengighet av `api.qrserver.com`
 
 ---
 
 ## 🚀 LANSERINGSSTATUS
 
-**Nåværende fase:** BETA-testing  
-**Prod-klar:** ~95% (Stripe integrasjon ferdig)  
-**Launch ETA:** Februar 2026
+**Nåværende fase:** ALPHA-testing
+**Prod-klar:** ~80%
+**Launch ETA:** Q2 2026
 
 ✅ **Ferdig:**
 - Feide innlogging med lærer/elev-skille
-- Stripe betalingsintegrasjon
+- Stripe betalingsintegrasjon + webhook
 - Firebase backend & Firestore
 - PWA med offline-støtte
-- Admin-panel & GloseBank (alle lærere kan dele)
+- Admin-panel & GloseBank
 - Resend e-postvarsel for skolepakke-forespørsler
 - Git + Netlify auto-deploy
-- Juridiske dokumenter (klare for juridisk gjennomgang)
+- Juridiske dokumenter (under juridisk gjennomgang)
+- Rate limiting på Netlify Functions
+- GDPR-compliance (cookie, eksport, sletting)
+- Lærer-dashboard redesign
+- Glassmorfisk øvemodus + prøvemodus
 
 🟡 **Pågående:**
-- Stripe konfigurasjon (test-modus)
 - Beta-testing med pilotskoler
+- Stripe konfigurasjon (test-modus → prod)
 - Juridisk gjennomgang av personvernerklæring
 
 ---
 
-## 🆕 NYTT I v0.9.9-BETA (15. Januar 2026)
+## 📋 UTVIKLINGSPLAN — TODO-liste
 
-### ✅ GloseBank - Deling for alle lærere 🏦
-- **Alle lærere kan dele:** Fjernet admin-begrensning på deling til GloseBank
-- **Admin-godkjenning:** Admin godkjenner/avslår før prøver blir synlige
-- **Firestore Rules:** Oppdatert for å tillate alle lærere å skrive til `glosebank`
-- **teacher.js:** Automatisk backup til GloseBank ved lagring (bruker `delt_av`, `delt_dato`)
-- **glosebank-admin.js:** Støtter både `delt_dato` og `opprettet_dato` (bakoverkompatibelt)
-- **Testing:** Feide-bruker delte prøve → Pending → Godkjent → Synlig i Browse ✅
+### 🔴 Kritiske bugs (må fikses før launch)
 
-### ✅ E-postvarsel med Resend 📧
-- **DNS verifisert:** DKIM + SPF records aktivert
-- **Automatisk varsling:** Skolepakke-forespørsler sendes til kontakt@glosemester.no
-- **Pent formatert HTML:** Profesjonell e-postmal med all kontaktinfo
-- **Testing:** E-post mottatt innen 10 sekunder ✅
+| # | Oppgave | Fil | Status |
+|---|---------|-----|--------|
+| K2 | Fix duplikate Firebase-imports | `js/features/gdpr.js` | ⏳ |
+| K3 | Fix storage-nøkkelkollisjon (bruk Firebase UID) | `js/features/storage.js` | ⏳ |
 
-### ✅ Git + Netlify Auto-Deploy 🚀
-- **GitHub-kobling:** Netlify deployer automatisk ved `git push`
-- **Environment Variables:** Konfigurert for Stripe, Resend, Firebase
-- **Ingen mer manuell opplasting:** Sparer tid på hver endring
-
-### ✅ Multi-bruker Progressbar 📊
-- **Felles teller:** Alle elever på samme prøve deler progressbar
-- **Real-time synkronisering:** Oppdateres dynamisk uten refresh
-- **Firestore-basert:** Bruker `resultat_av` array for å telle unike brukere
-
-### 🛠 Bugfixes
-- **glosebank-admin.js:** Fikset query-feil ved sortering (linje 90-119)
-- **teacher.js:** Støtter nå både `delt_dato` og `opprettet_dato` i visning
+> **K1** (XSS kort-display) og **K4** (memory leak practice.js) er allerede fikset i v2.4.0.
 
 ---
 
-## 🆕 NYTT I v0.9.8-BETA (13. Januar 2026)
+### 🟠 Høy prioritet
 
-### ✅ Sikkerhet & Autentisering 🔐
-- **Feide Rolle-verifisering:** 4-trinns sjekk for lærer/elev
-  - Steg 1: `eduPersonPrimaryAffiliation` (employee/student)
-  - Steg 2: Groups API (organisasjonstilhørighet)
-  - Steg 3: Brukernavn-analyse (fallback for test-brukere)
-  - Steg 4: Sikker blokkering (default: elev hvis uklar)
-- **Elev-blokkering:** Vennlig popup med veiledning til prøvekoder
-- **Min Side forbedringer:** Viser korrekt navn og e-post fra Firestore
-- **Automatisk abonnement-oppdatering:** Stripe webhook aktiverer Premium umiddelbart
+| # | Oppgave | Fil | Status |
+|---|---------|-----|--------|
+| H5 | Paginering for kortsamling (IntersectionObserver) | `js/features/kort-display.js` | ⏳ |
+| — | Reaktiver lydeffekter (`spillLyd`) | `js/ui/helpers.js` | ⏳ |
+| — | Leitner-integrasjon i NorskMester | `js/features/norsk-practice.js` | ⏳ |
+| — | AdaptiveDifficulty i MatteMester | `js/features/matte-practice.js` | ⏳ |
+| — | Fag-filter i Standardprøver (engelsk/matte/norsk) | `js/features/standardprove.js` | ⏳ |
 
-### ✅ Betalingsintegrasjon 💳
-- **Stripe Checkout:** Produksjonsklar kode
-  - Sikker hosted checkout-side
-  - Automatisk Premium-aktivering via webhook
-  - Komplett ordre-tracking i Firestore
-- **Skolepakke-forespørsel:** Fullstendig skjema med Firestore-lagring
-- **Kjøpsvilkår:** Publisert på glosemester.no/vilkar.html
-
-### 🐛 Bugfixes
-- **teacher.js:** Fikset `undefined variable` i abonnement-sjekk (linje 154)
-- **auth.js:** Håndterer elev-blokkering gracefully
-- **min-side.html:** Prioriterer Firestore-data over Firebase Auth
+> **H1** (Leitner-algoritme), **H2** (2s feedback + Neste-knapp), **H3** (ARIA), **H4** (reduced-motion) er ferdig.
 
 ---
 
-## 🆕 NYTT I v0.9.7-BETA (9. Januar 2026)
+### 🟡 Medium prioritet
 
-### ✅ Profesjonalisering & UI/UX 🎨
-- **Ny "Om oss"-side:** Fullstendig redesignet profilside med oppdatert biografi og kontaktinfo
-- **Smart Footer-logikk:** Footer vises kun på landingssiden
-- **Floating Upgrade Button:** Flyttet inn i landingssiden
-- **Sikkerhets-CSS:** Kritisk CSS i `<head>` for å hindre blank side
-- **Navigasjons-fiks:** "Avbryt"-knapper tar deg korrekt tilbake
+| # | Oppgave | Fil | Status |
+|---|---------|-----|--------|
+| M1 | Refaktorer global state til modul-scope objekt | `js/features/practice.js` | ⏳ |
+| M2 | Utvid vokabular (100 ord/nivå, nå 50) | `js/vocabulary.js` | ⏳ |
+| M3 | Erstatt magiske tall med navngitte konstanter | `js/features/practice.js` | ⏳ |
+| M4 | localStorage skjemavalidering for Leitner-data | `js/features/storage.js` | ⏳ |
+| — | `dailyCorrect` nullstilles aldri i MatteMester | `js/features/matte-practice.js` | ⏳ |
+
+---
+
+### 🟢 Lav prioritet
+
+| # | Oppgave | Fil | Status |
+|---|---------|-----|--------|
+| L1 | Hinte-system (vis første bokstav etter 2 feil) | `js/features/practice.js` | ⏳ |
+| L2 | «Neste repetisjon»-oversikt (Leitner) | `js/features/learningEngine.js` | ⏳ |
+| L4 | Konsistent navngiving (norsk/engelsk mix) | Alle filer | ⏳ |
+
+---
+
+### 🏗️ v2.0 Fremtidsplan (`src/`-strukturen)
+
+| Oppgave | Status |
+|---------|--------|
+| Autentisering v2 (Google + Feide-modal) | ⏳ |
+| Prøvemodus for elever (Firestore-kobling) | ⏳ |
+| QR-kode integrasjon v2 | ⏳ |
+| PWA install-knapp v2 | ⏳ |
+| Resultatsending elev → lærer | ⏳ |
+| NorskMester-modul v2 | ⏳ |
+| `index-v2.html` erstatter `index.html` | ⏳ |
 
 ---
 
@@ -134,9 +185,10 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 **Læringssystemer:**
 - **3 nivåer:** Knapper, Mix, Skriving (progressiv vanskelighetsgrad)
+- **Leitner-system:** Ord som man svarer feil på repeteres hyppigere
 - **Progresjon:** 10-rute visuell bar med automatisk lagring
 - **Lydstøtte:** Syntetisk tale (Web Speech API) for alle ord
-- **Umiddelbar feedback:** Grønne/røde indikatorer, ingen poeng for feil
+- **Umiddelbar feedback:** Grønne/røde indikatorer, «Neste →»-knapp
 
 **Gamification:**
 - **Kortsamling:** 4 sjeldenhetsgrader (Common, Rare, Epic, Legendary)
@@ -145,9 +197,9 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - **Nivåbasert belønning:** Nye kort ved fullføring av nivåer
 
 **Tekniske features:**
-- Progressive Web App (PWA) - installerbar på mobil/desktop
+- Progressive Web App (PWA) — installerbar på mobil/desktop
 - Offline-støtte med Service Worker
-- Responsive design (mobil-først)
+- Responsive design (mobil-først + desktop-optimalisering)
 - LocalStorage for lokal progresjon
 
 ---
@@ -160,29 +212,22 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - **E-post/passord:** Tradisjonell registrering
 - **Rolle-verifisering:** Automatisk skille mellom lærer og elev
 
+**Dashboard:**
+- **Hero-seksjon:** Dato, hilsen, abonnementsbadge
+- **Rask oversikt:** Antall prøver, gjennomføringer, snitt %
+- **Siste prøve-snarvei:** Kopi kode direkte fra dashboard
+- **Separat statistikk-side:** Full analytics med grafer og CSV-eksport
+
 **Prøvehåndtering:**
-- **Dashboard:** Komplett oversikt over alle prøver
 - **Prøve-editor:** Legg til/slett ord, min. 3 ord per prøve
 - **QR-kode generering:** Del prøver umiddelbart med elever
 - **Duplisering:** Kopier og modifiser eksisterende prøver
-- **Redigering:** Endre tittel og ordliste på lagrede prøver
+- **Søk i Mine Prøver:** Filtrer etter tittel klient-side
 - **Resultatstatistikk:** Se fullføringsrate og gjennomsnittsscore
 
 **Innholdsbibliotek:**
 - **Standardprøver:** 16 ferdiglagde LK20-alignerte prøver
-  - Nivå 1 (8.-10. trinn): 8 prøver
-  - Nivå 2 (Vg1-Vg2): 5 prøver
-  - Nivå 3 (Vg3): 3 prøver
 - **GloseBank:** Deling av prøver mellom lærere (Skolepakke/Admin)
-  - Søk og filtrer etter emne/nivå
-  - Last ned andres prøver
-  - Del egne prøver (admin-godkjenning)
-
-**Admin-funksjoner:**
-- **Admin-panel:** Full CRUD på prøver, brukere, standardprøver
-- **GloseBank-moderering:** Godkjenn/avvis innsendte prøver
-- **Brukeradministrasjon:** Håndter abonnementer og tilganger
-- **Statistikk-dashboard:** Oversikt over bruk og aktivitet
 
 ---
 
@@ -209,7 +254,6 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - ✅ **Feide-integrasjon:** SSO for alle lærere
 - ✅ Dedikert support og opplæring
 - ✅ Faktura med 30 dagers betalingsfrist
-- 📧 Forespørsel via kontakt@glosemester.no
 
 ---
 
@@ -219,7 +263,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 **Frontend:**
 - Progressive Web App (PWA)
-- Vanilla JavaScript (ES6+)
+- Vanilla JavaScript (ES6+ modules)
 - Firebase Client SDK v9 (modular)
 - CSS Grid & Flexbox (responsive design)
 - Service Worker for offline-støtte
@@ -244,17 +288,25 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ```
 glosemester/
-├── index.html                    # Landingsside
+├── index.html                    # SPA — all app-logikk her
 ├── min-side.html                 # Brukerprofilside med abo-info
 ├── oppgrader.html                # Prisside med Stripe-integrasjon
 ├── vilkar.html                   # Kjøpsvilkår
+├── css/
+│   └── main.css                  # Alt styling (~2900 linjer)
 ├── js/
 │   ├── app.js                    # Hovedapp-logikk
+│   ├── vocabulary.js             # Ordlister (niva1–3, 90/50/50 ord)
 │   ├── features/
 │   │   ├── auth.js               # Autentisering (Feide, Google, Email)
-│   │   ├── teacher.js            # Lærer-funksjoner & abo-sjekk
-│   │   ├── saved-tests.js        # Prøvehåndtering
+│   │   ├── practice.js           # Øvemodus (Leitner + AdaptiveDifficulty)
+│   │   ├── learningEngine.js     # LeitnerSystem + AdaptiveDifficulty klasser
+│   │   ├── teacher-analytics.js  # Dashboard + statistikk
+│   │   ├── saved-tests.js        # Mine Prøver + søk
+│   │   ├── kort-display.js       # Kortsamling + galleri
 │   │   └── firebase.js           # Firebase config
+│   ├── shared/
+│   │   └── quiz.js               # Prøvemodus for elever
 │   └── core/
 │       └── navigation.js         # SPA-navigasjon
 ├── netlify/functions/
@@ -262,7 +314,7 @@ glosemester/
 │   ├── stripe-checkout.js        # Stripe Checkout initiering
 │   ├── stripe-webhook.js         # Stripe webhook (auto-aktivering)
 │   └── school-inquiry.js         # Skolepakke-forespørsel
-├── sw.js                         # Service Worker
+├── sw.js                         # Service Worker (v2.3.0-ALPHA)
 └── firestore.rules               # Sikkerhet & tilgangskontroll
 ```
 
@@ -275,60 +327,37 @@ glosemester/
 - Rolle-basert tilgangskontroll (lærer/elev/admin)
 - Custom tokens for Feide-brukere
 
+**Kode-sikkerhet:**
+- Rate limiting på alle brukerinteraksjoner
+- XSS-beskyttelse: `data-*` + `addEventListener` i stedet for inline `onclick`
+- Sanitering av brukerinput i quiz-popups
+
 **Datahåndtering:**
 - GDPR-compliant personvernerklæring (under juridisk gjennomgang)
 - Databehandleravtale for skoler
-- Minimal datainnsamling (kun nødvendig info)
+- Minimal datainnsamling
 - Feide-data lagres kryptert i Firestore
 
 **Betalingssikkerhet:**
 - Stripe-integrasjon (PCI DSS Level 1)
-- Ingen lagring av betalingskort (Stripe håndterer alt)
+- Ingen lagring av betalingskort
 - Webhook signatur-verifisering for ordre-bekreftelse
-
----
-
-## 📋 Utviklingsplan
-
-Se fullstendig launch-sjekkliste: **[LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)**
-
-### Kritiske prioriteter (før launch):
-
-**1. Stripe konfigurasjon** ⏱️ 1 dag
-- ✅ Stripe integrasjon ferdig
-- ⏳ Konfigurer produkter og priser i Stripe Dashboard
-- 🔧 Sett opp webhook endpoint
-
-**2. Beta-testing** ⏱️ 2-4 uker
-- 🔍 Rekrutter 1-2 pilotskoler
-- 🧪 Test alle kritiske flyter
-- 📊 Samle feedback
-
-**3. Juridisk gjennomgang** ⏱️ 1-2 uker
-- 📄 Personvernerklæring (advokat)
-- 📄 Bruksvilkår
-- 💰 Kostnad: 5.000-15.000 kr
-
-**4. Infrastruktur** ⏱️ 1 dag
-- ☁️ Firebase backup (daily)
-- 📊 UptimeRobot monitoring
-- 🔒 Rate limiting på Functions
 
 ---
 
 ## 📞 Kontakt & Support
 
-**Utvikler:** Øyvind Nilsen Oksvold  
-**Bedrift:** Oksvold EDB (Org.nr: 836 906 012)  
-**E-post:** kontakt@glosemester.no  
-**Support:** Innen 2 virkedager  
+**Utvikler:** Øyvind Nilsen Oksvold
+**Bedrift:** Oksvold EDB (Org.nr: 836 906 012)
+**E-post:** kontakt@glosemester.no
+**Support:** Innen 2 virkedager
 **Nettside:** https://glosemester.no
 
 ---
 
 ## 📜 Lisens & Opphavsrett
 
-© 2025-2026 Øyvind Nilsen Oksvold / Oksvold EDB  
+© 2025-2026 Øyvind Nilsen Oksvold / Oksvold EDB
 Alle rettigheter forbeholdt.
 
 **GloseMester** er et registrert merke.
@@ -347,14 +376,14 @@ Alle rettigheter forbeholdt.
 
 ## 📊 Statistikk
 
-**Utviklet:** November 2024 - Januar 2026  
-**Kodebasis:** ~15.000 linjer (JS, HTML, CSS)  
-**Standardprøver:** 16 LK20-alignerte prøver  
-**Samlebokskort:** 50+ unike kort (4 sjeldenhetsgrader)  
+**Utviklet:** November 2024 — mars 2026
+**Kodebasis:** ~18.000 linjer (JS, HTML, CSS)
+**Standardprøver:** 16 LK20-alignerte prøver
+**Samlebokskort:** 50+ unike kort (4 sjeldenhetsgrader)
 **Støttede plattformer:** Web, iOS, Android (PWA)
 
 ---
 
-**🚀 Klar for lansering Februar 2026!**
+**🚀 Mål: lansering Q2 2026**
 
 For teknisk dokumentasjon, se [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
