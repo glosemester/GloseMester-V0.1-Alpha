@@ -16,8 +16,6 @@ setupGlobalErrorHandler();
 // VIKTIG: Last vocabulary.js FØRST
 import './vocabulary.js';
 
-// Last NorskMester data
-import './data/norskData.js';
 
 import { initNavigation, visSide } from './core/navigation.js';
 import { visSamling, lukkKort, byttSortering } from './features/kort-display.js';
@@ -73,20 +71,6 @@ import {
     eksporterTilCSV
 } from './features/teacher-analytics.js';
 
-// MatteMester & NorskMester
-import {
-    visMatteOperasjoner,
-    startMatteOving,
-    avsluttMatteOving,
-    matteProvIgjen
-} from './features/matte-practice.js';
-
-import {
-    startNorskOving,
-    sjekkNorskSvar,
-    avsluttNorskOving,
-    startLaererDiktat
-} from './features/norsk-practice.js';
 
 import { initDiktatRecorder } from './features/diktat-recorder.js';
 
@@ -127,18 +111,6 @@ window.eksporterMinData = eksporterMinData;
 window.initDashboard = initDashboard;
 window.eksporterTilCSV = eksporterTilCSV;
 
-// MatteMester
-window.visMatteOperasjoner = visMatteOperasjoner;
-window.startMatteOving = startMatteOving;
-window.avsluttMatteOving = avsluttMatteOving;
-window.matteProvIgjen = matteProvIgjen;
-
-// NorskMester
-window.startNorskOving = startNorskOving;
-window.sjekkNorskSvar = sjekkNorskSvar;
-window.avsluttNorskOving = avsluttNorskOving;
-window.startLaererDiktat = startLaererDiktat;
-
 // Galleri
 window.visGalleriSide = function() {
     visSide('galleri-visning'); 
@@ -147,23 +119,12 @@ window.visGalleriSide = function() {
 
 window.gaTilbakeFraGalleri = function() {
     const rolle = sessionStorage.getItem('aktivRolle');
-    const fag = sessionStorage.getItem('aktivtFag');
 
     skjulAlleMenyer();
 
     if (rolle === 'oving') {
-        if (fag === 'matte') {
-            const m = document.getElementById('matte-oving-meny');
-            if (m) m.style.display = 'flex';
-            visMatteOperasjoner();
-        } else if (fag === 'norsk') {
-            const n = document.getElementById('norsk-oving-meny');
-            if (n) n.style.display = 'flex';
-            visSide('norsk-oving-start');
-        } else {
-            document.getElementById('oving-meny').style.display = 'flex';
-            visOvingSamling();
-        }
+        document.getElementById('oving-meny').style.display = 'flex';
+        visOvingSamling();
     }
     else if (rolle === 'kode') {
         document.getElementById('elev-meny').style.display = 'flex';
@@ -234,113 +195,32 @@ window.velgRolle = function(rolle) {
    ============================================ */
 
 /**
- * Velger fag og navigerer til riktig start-side
- * @param {string} fag - 'gloser', 'matte', eller 'norsk'
+ * Velger fag — alltid GloseMester
  */
 window.velgFag = function(fag) {
     spillLyd('klikk');
-    sessionStorage.setItem('aktivtFag', fag);
-
-    if (fag === 'gloser') {
-        visSide('glosemester-start');
-    } else if (fag === 'matte') {
-        visSide('mattemester-start');
-    } else if (fag === 'norsk') {
-        visSide('norskmester-start');
-    }
-};
-
-/**
- * Velg rolle for MatteMester (øving, kode, lærer)
- */
-window.velgMatteRolle = function(rolle) {
-    spillLyd('klikk');
-    sessionStorage.setItem('aktivRolle', rolle);
-    sessionStorage.setItem('aktivtFag', 'matte');
-
-    // Skjul mattemester-start
-    const startEl = document.getElementById('mattemester-start');
-    if (startEl) { startEl.classList.remove('active'); startEl.style.display = 'none'; }
-
-    skjulAlleMenyer();
-
-    if (rolle === 'oving') {
-        const matteOvingMeny = document.getElementById('matte-oving-meny');
-        if (matteOvingMeny) matteOvingMeny.style.display = 'flex';
-        visMatteOperasjoner();
-    }
-    else if (rolle === 'kode') {
-        document.getElementById('elev-meny').style.display = 'flex';
-        visSide('elev-dashboard');
-    }
-    else if (rolle === 'laerer') {
-        if (window.currentUser) {
-            document.getElementById('laerer-meny').style.display = 'flex';
-            visSide('laerer-dashboard');
-            // Sett fag-tab til matte
-            if (typeof window.velgProveFag === 'function') {
-                setTimeout(() => window.velgProveFag('matte'), 100);
-            }
-        } else {
-            document.getElementById('laerer-login-popup').style.display = 'flex';
-        }
-    }
-};
-
-/**
- * Velg rolle for NorskMester (øving, kode, lærer)
- */
-window.velgNorskRolle = function(rolle) {
-    spillLyd('klikk');
-    sessionStorage.setItem('aktivRolle', rolle);
-    sessionStorage.setItem('aktivtFag', 'norsk');
-
-    // Skjul norskmester-start
-    const startEl = document.getElementById('norskmester-start');
-    if (startEl) { startEl.classList.remove('active'); startEl.style.display = 'none'; }
-
-    skjulAlleMenyer();
-
-    if (rolle === 'oving') {
-        const norskOvingMeny = document.getElementById('norsk-oving-meny');
-        if (norskOvingMeny) norskOvingMeny.style.display = 'flex';
-        visSide('norsk-oving-start');
-    }
-    else if (rolle === 'kode') {
-        document.getElementById('elev-meny').style.display = 'flex';
-        visSide('elev-dashboard');
-    }
-    else if (rolle === 'laerer') {
-        if (window.currentUser) {
-            document.getElementById('laerer-meny').style.display = 'flex';
-            visSide('laerer-dashboard');
-            if (typeof window.velgProveFag === 'function') {
-                setTimeout(() => window.velgProveFag('norsk'), 100);
-            }
-        } else {
-            document.getElementById('laerer-login-popup').style.display = 'flex';
-        }
-    }
+    sessionStorage.setItem('aktivtFag', 'gloser');
+    visSide('glosemester-start');
 };
 
 /**
  * Hjelpefunksjon: Skjul alle navigasjonsmenyer
  */
 function skjulAlleMenyer() {
-    ['elev-meny', 'oving-meny', 'laerer-meny', 'matte-oving-meny', 'norsk-oving-meny'].forEach(id => {
+    ['elev-meny', 'oving-meny', 'laerer-meny'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
 }
 
 /**
- * Går tilbake til fagvelger fra fagspesifikk startside
+ * Går tilbake til GloseMester-start
  */
 window.tilbakeTilFagvelger = function() {
     spillLyd('klikk');
     sessionStorage.removeItem('aktivtFag');
     sessionStorage.removeItem('aktivRolle');
-    visSide('fag-velger');
+    visSide('glosemester-start');
 };
 
 /**
@@ -354,7 +234,7 @@ window.tilbakeTilStart = function() {
     // Lukk hamburger-meny hvis åpen
     lukkHamburger();
 
-    visSide('fag-velger');
+    visSide('glosemester-start');
 };
 
 /* ============================================

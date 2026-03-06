@@ -153,8 +153,6 @@ body {
 
 /* iPhone safe-area for bottom nav bars */
 #oving-meny,
-#matte-oving-meny,
-#norsk-oving-meny,
 #elev-meny {
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -2004,16 +2002,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* MatteMester - Purple/Pink */
-.brand-mattemester .logo-text {
-    background-image: linear-gradient(135deg, #af52de 0%, #ff2d55 100%);
-}
-
-/* NorskMester - Red/Orange */
-.brand-norskmester .logo-text {
-    background-image: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
-}
-
 /* GloseMester - Blue/Cyan (Optional) */
 .brand-glosemester .logo-text {
     background-image: linear-gradient(135deg, #0071e3 0%, #00c6fb 100%);
@@ -2373,23 +2361,17 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 /* 4d. Nav Bar Flash Effects */
-#oving-meny,
-#matte-oving-meny,
-#norsk-oving-meny {
+#oving-meny {
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-#oving-meny.nav-flash-green,
-#matte-oving-meny.nav-flash-green,
-#norsk-oving-meny.nav-flash-green {
+#oving-meny.nav-flash-green {
     background-color: rgba(76, 175, 80, 0.25) !important;
     box-shadow: 0 0 20px rgba(76, 175, 80, 0.5), 0 -4px 15px rgba(76, 175, 80, 0.3), inset 0 0 20px rgba(76, 175, 80, 0.1) !important;
     animation: navGlowGreen 1.5s ease-out forwards;
 }
 
-#oving-meny.nav-flash-red,
-#matte-oving-meny.nav-flash-red,
-#norsk-oving-meny.nav-flash-red {
+#oving-meny.nav-flash-red {
     background-color: rgba(255, 82, 82, 0.2) !important;
     box-shadow: 0 0 20px rgba(255, 82, 82, 0.5), 0 -4px 15px rgba(255, 82, 82, 0.3), inset 0 0 20px rgba(255, 82, 82, 0.1) !important;
     animation: navGlowRed 1s ease-out forwards;
