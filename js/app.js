@@ -72,8 +72,6 @@ import {
 } from './features/teacher-analytics.js';
 
 
-import { initDiktatRecorder } from './features/diktat-recorder.js';
-
 // --- GLOBALE FUNKSJONER ---
 
 window.visSide = visSide;
@@ -620,9 +618,6 @@ export function initApp() {
     
     if(typeof initTeacherFeatures === 'function') {
         initTeacherFeatures();
-    }
-    if(typeof initDiktatRecorder === 'function') {
-        initDiktatRecorder();
     }
     
     // Lukk hamburger-meny når man klikker på en side (unntatt knappen selv)

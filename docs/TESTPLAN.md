@@ -82,15 +82,12 @@
 
 ---
 
-## 7. Lærer – statistikk og diktat
+## 7. Lærer – statistikk
 
 | # | Test | Forventet resultat | Status |
 |---|------|--------------------|--------|
 | 7.1 | Klikk «Statistikk» | `laerer-statistikk` lastes med elevdata | ⬜ |
 | 7.2 | Klikk «Eksporter (CSV)» | CSV-fil lastes ned | ⬜ |
-| 7.3 | Klikk «Diktat-opptak» | `diktat-recorder` vises | ⬜ |
-| 7.4 | Velg ordliste → start opptak | Mikrofon aktiveres, ord vises | ⬜ |
-| 7.5 | Fullfør diktat → lagre | Delingskode vises | ⬜ |
 
 ---
 
