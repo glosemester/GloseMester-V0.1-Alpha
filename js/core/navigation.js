@@ -14,6 +14,7 @@ export function visSide(sideId) {
     // 2. Vis valgt side
     const valgtSide = document.getElementById(sideId);
     if (valgtSide) {
+        valgtSide.style.display = '';
         valgtSide.classList.add('active');
         window.scrollTo(0, 0);
 
