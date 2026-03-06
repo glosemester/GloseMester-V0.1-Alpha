@@ -312,29 +312,12 @@ function visNesteSporsmaal() {
 // ==============================================
 function visRiktigPopup() {
     const popup = document.createElement('div');
-    popup.style.cssText = `
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.2s;
-    `;
+    popup.className = 'quiz-popup-overlay';
 
     popup.innerHTML = `
-        <div style="
-            background: white;
-            padding: 40px 60px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.2s;
-            border-top: 5px solid #34c759;
-        ">
-            <div style="font-size: 70px; margin-bottom: 10px;">✅</div>
-            <h2 style="color: #34c759; margin: 0; font-size: 28px;">Riktig!</h2>
+        <div class="quiz-popup-modal quiz-popup-riktig">
+            <div class="quiz-popup-ikon" aria-hidden="true">✅</div>
+            <h2 class="quiz-popup-tittel-riktig">Riktig!</h2>
         </div>
     `;
 
@@ -360,16 +343,6 @@ function visFeilPopup(fasit) {
     popup.setAttribute('role', 'alertdialog');
     popup.setAttribute('aria-labelledby', 'feil-popup-tittel');
     popup.setAttribute('aria-describedby', 'feil-popup-beskrivelse');
-    popup.style.cssText = `
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s;
-    `;
 
     // ✅ Sanitér fasit for å forhindre XSS
     const sanitizedFasit = String(fasit)
@@ -379,38 +352,13 @@ function visFeilPopup(fasit) {
         .replace(/'/g, '&#x27;');
 
     popup.innerHTML = `
-        <div style="
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s;
-        ">
-            <div style="font-size: 60px; margin-bottom: 15px;" aria-hidden="true">❌</div>
-            <h2 id="feil-popup-tittel" style="color: #ff3b30; margin: 0 0 15px 0; font-size: 24px;">Beklager!</h2>
-            <p id="feil-popup-beskrivelse" style="color: #666; font-size: 16px; margin-bottom: 10px;">
-                Riktig svar var:
-            </p>
-            <p style="color: #0071e3; font-size: 22px; font-weight: bold; margin-bottom: 25px;">
-                ${sanitizedFasit}
-            </p>
-            <button class="feil-popup-lukk-btn"
-                aria-label="Lukk og gå til neste spørsmål"
-                style="
-                    padding: 12px 30px;
-                    background: #0071e3;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                "
-                onmouseover="this.style.background='#005bb5'"
-                onmouseout="this.style.background='#0071e3'">
+        <div class="quiz-popup-modal quiz-popup-feil">
+            <div class="quiz-popup-ikon" aria-hidden="true">❌</div>
+            <h2 id="feil-popup-tittel" class="quiz-popup-tittel-feil">Beklager!</h2>
+            <p id="feil-popup-beskrivelse" style="color:#666; margin-bottom:8px;">Riktig svar var:</p>
+            <p class="quiz-popup-fasit">${sanitizedFasit}</p>
+            <button class="feil-popup-lukk-btn quiz-popup-lukk-btn"
+                aria-label="Lukk og gå til neste spørsmål">
                 Neste spørsmål (Esc)
             </button>
         </div>
@@ -608,48 +556,15 @@ function genererAnonymtElevId() {
 function visFerdigPopup(melding) {
     const popup = document.createElement('div');
     popup.className = 'quiz-popup-overlay';
-    popup.style.cssText = `
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: fadeIn 0.3s;
-    `;
 
     const meldingMedBreaks = melding.split('\n').join('<br>');
 
     popup.innerHTML = `
-        <div style="
-            background: white;
-            padding: 50px;
-            border-radius: 16px;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s;
-        ">
-            <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-            <h2 style="color: #0071e3; margin: 0 0 20px 0; font-size: 28px;">Prøve Fullført!</h2>
-            <p style="color: #333; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
-                ${meldingMedBreaks}
-            </p>
-            <button onclick="this.closest('.quiz-popup-overlay').remove();"
-                style="
-                    padding: 15px 40px;
-                    background: #0071e3;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: background 0.2s;
-                "
-                onmouseover="this.style.background='#005bb5'"
-                onmouseout="this.style.background='#0071e3'">
+        <div class="quiz-popup-modal quiz-popup-ferdig">
+            <div class="quiz-popup-ikon" aria-hidden="true">🎉</div>
+            <h2 class="quiz-popup-tittel-ferdig">Prøve Fullført!</h2>
+            <p class="quiz-popup-detalj" style="line-height:1.8;">${meldingMedBreaks}</p>
+            <button class="quiz-popup-lukk-btn ferdig-lukk-btn">
                 Fortsett (Esc)
             </button>
         </div>
@@ -657,12 +572,17 @@ function visFerdigPopup(melding) {
 
     document.body.appendChild(popup);
 
+    // Koble lukk-knapp
+    const lukkBtn = popup.querySelector('.ferdig-lukk-btn');
+    const closePopup = () => {
+        if (popup.parentElement) popup.remove();
+        document.removeEventListener('keydown', handleEscape);
+    };
+    if (lukkBtn) lukkBtn.addEventListener('click', closePopup);
+
     // ✅ Escape-key support
     const handleEscape = (e) => {
-        if (e.key === 'Escape' && popup.parentElement) {
-            popup.remove();
-            document.removeEventListener('keydown', handleEscape);
-        }
+        if (e.key === 'Escape' && popup.parentElement) closePopup();
     };
     document.addEventListener('keydown', handleEscape);
 }

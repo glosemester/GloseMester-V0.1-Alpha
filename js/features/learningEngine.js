@@ -34,16 +34,17 @@ export class LeitnerSystem {
      * @param {number} currentBox - Nåværende boks (1-5)
      * @returns {number} Ny boks (1-5)
      */
-    moveCard(isCorrect, currentBox) {
-        if (isCorrect && currentBox < 5) {
-            // Riktig svar: Flytt opp én boks
-            return currentBox + 1;
-        } else if (!isCorrect && currentBox > 1) {
-            // Feil svar: Flytt ned to bokser (raskere tilbake til start)
-            return Math.max(1, currentBox - 2);
+    moveCard(isCorrect, currentBox, correctStreak = 0) {
+        if (isCorrect) {
+            // Krev 2 riktige på rad for å avansere (hindrer gjetting)
+            if (correctStreak >= 1 && currentBox < 5) {
+                return currentBox + 1;
+            }
+            return currentBox; // Holder plassen til neste riktige
+        } else {
+            // Feil: ett steg ned (ikke to – mer human)
+            return Math.max(1, currentBox - 1);
         }
-        // Allerede i høyeste/laveste boks
-        return currentBox;
     }
 
     /**
@@ -328,9 +329,9 @@ export function updateWordProgress(wordId, isCorrect, currentBox = null) {
     // Beregn mastery level (0-1)
     wordProgress.masteryLevel = wordProgress.correctCount / wordProgress.reviewCount;
 
-    // Flytt til ny boks
+    // Flytt til ny boks — send med streak slik at moveCard kan kreve 2 riktige på rad
     const oldBox = currentBox || wordProgress.box;
-    wordProgress.box = leitner.moveCard(isCorrect, oldBox);
+    wordProgress.box = leitner.moveCard(isCorrect, oldBox, wordProgress.streak);
 
     // Lagre tilbake
     progress[wordId] = wordProgress;

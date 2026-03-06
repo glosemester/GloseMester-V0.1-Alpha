@@ -259,16 +259,23 @@ function visNesteSporsmaal() {
 
         alternativer.forEach(alt => {
             const btn = document.createElement('button');
-            btn.className = 'answer-btn'; // ✅ Ny klasse
+            btn.className = 'answer-btn';
+            btn.type = 'button';
             const btnTekst = window.ovingRetning === 'no' ? alt.e : alt.s;
+            btn.setAttribute('aria-label', `Svar: ${btnTekst}`);
 
-            // ✅ FIX: Ny HTML struktur for buttons
             btn.innerHTML = `
                 <span>${btnTekst}</span>
-                <div class="audio-btn-small" onclick="event.stopPropagation(); window.lesOppOving('${btnTekst}', '${altLang}')">
-                    🔊
-                </div>
+                <button type="button" class="audio-btn-small" aria-label="Les opp ${btnTekst}">🔊</button>
             `;
+            // Koble lyd trygt via closure — unngår syntaksfeil ved apostrof i btnTekst
+            const audioBtn = btn.querySelector('.audio-btn-small');
+            if (audioBtn) {
+                audioBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.lesOppOving(btnTekst, altLang);
+                });
+            }
             // Send med event for å kunne endre stil på knappen ved klikk
             btn.onclick = (e) => sjekkOvingSvar(alt, e.currentTarget);
             altContainer.appendChild(btn);
@@ -281,11 +288,14 @@ function visNesteSporsmaal() {
         const inputFelt = document.getElementById('oving-svar');
         if (inputFelt) {
             inputFelt.value = '';
-            inputFelt.style.borderColor = '#ddd'; // Reset border color
+            inputFelt.style.borderColor = '#ddd';
             inputFelt.focus();
-            inputFelt.onkeydown = (e) => {
-                if (e.key === 'Enter') sjekkOvingSvar();
-            };
+            // Fjern forrige handler før ny legges til (unngår memory leak ved akkumulerte lyttere)
+            if (inputFelt._ovingKeyHandler) {
+                inputFelt.removeEventListener('keydown', inputFelt._ovingKeyHandler);
+            }
+            inputFelt._ovingKeyHandler = (e) => { if (e.key === 'Enter') sjekkOvingSvar(); };
+            inputFelt.addEventListener('keydown', inputFelt._ovingKeyHandler);
         }
     }
 }
@@ -383,14 +393,26 @@ export function sjekkOvingSvar(valgtOrd = null, clickedBtn = null) {
         sjekkOmGevinst();
         recordDailyActivity(); // Track activity for streak tracking
 
-        // ✅ RASKERE FEEDBACK: 1 sekund i stedet for 1.5
-        setTimeout(() => {
-            // Reaktiver klikk
+        // Vis «Neste»-knapp slik at brukeren kan styre tempoet
+        feedbackEl.insertAdjacentHTML('beforeend',
+            ' <button id="neste-spm-btn" class="btn-neste">Neste →</button>'
+        );
+
+        const nesteTimer = setTimeout(() => {
             if (altContainer) altContainer.style.pointerEvents = 'auto';
             if (inputContainer) inputContainer.style.pointerEvents = 'auto';
-
             visNesteSporsmaal();
-        }, 1000);
+        }, 2000);
+
+        const nesteBtnEl = document.getElementById('neste-spm-btn');
+        if (nesteBtnEl) {
+            nesteBtnEl.onclick = () => {
+                clearTimeout(nesteTimer);
+                if (altContainer) altContainer.style.pointerEvents = 'auto';
+                if (inputContainer) inputContainer.style.pointerEvents = 'auto';
+                visNesteSporsmaal();
+            };
+        }
 
     } else {
         // ✅ LEITNER: Registrer feil svar (flytt ned i bokser)
