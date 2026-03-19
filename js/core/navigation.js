@@ -14,6 +14,7 @@ export function visSide(sideId) {
     // 2. Vis valgt side
     const valgtSide = document.getElementById(sideId);
     if (valgtSide) {
+        valgtSide.style.display = '';
         valgtSide.classList.add('active');
         window.scrollTo(0, 0);
 
@@ -55,11 +56,6 @@ export function visSide(sideId) {
                 }
                 break;
 
-            case 'diktat-recorder':
-                if (typeof window.lastMineDiktatSett === 'function') {
-                    setTimeout(() => window.lastMineDiktatSett(), 50);
-                }
-                break;
         }
     } else {
         console.warn(`Fant ikke siden med ID: ${sideId}`);
@@ -98,7 +94,7 @@ function oppdaterMenyer(sideId) {
         if (ovingMeny) ovingMeny.style.display = 'flex';
     }
     // Lærer
-    else if (['laerer-dashboard', 'laerer-statistikk', 'lag-prove', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse', 'diktat-recorder'].includes(sideId)) {
+    else if (['laerer-dashboard', 'laerer-statistikk', 'lag-prove', 'lagrede-prover', 'standardprover', 'admin-panel', 'glosebank-browse'].includes(sideId)) {
         if (laererMeny) laererMeny.style.display = 'flex';
     }
 }
