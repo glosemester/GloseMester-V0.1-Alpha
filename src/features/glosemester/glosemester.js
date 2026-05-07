@@ -128,22 +128,25 @@ export class GloseMester extends FagModul {
                 <div class="level-grid">
         `;
 
+        const levelIcons = { niva1: '🌱', niva2: '📗', niva3: '🔥', niva4: '🚀' };
+
         this.levels.forEach(level => {
             const metadata = getLevelMetadata(level);
             const wordCount = getWordCountForLevel(level);
+            const icon = levelIcons[level] || '📚';
 
             html += `
                 <div class="level-card" data-level="${level}">
                     <div class="level-header">
-                        <h3>${metadata.name}</h3>
+                        <h3>${icon} ${metadata.name}</h3>
                         <span class="level-badge">${metadata.description}</span>
                     </div>
                     <div class="level-stats">
                         <span class="word-count">${wordCount} ord</span>
                         ${metadata.hasImages ? '<span class="has-images">🖼️ Med bilder</span>' : ''}
                     </div>
-                    <button class="btn-primary start-practice-btn" data-level="${level}">
-                        Start øving
+                    <button class="start-practice-btn" data-level="${level}">
+                        Start øving →
                     </button>
                 </div>
             `;
