@@ -206,7 +206,7 @@ export function visLoginModal(melding = null) {
         feideBtn.onclick = () => {
             // Lagre nåværende sti for redirect tilbake
             sessionStorage.setItem('feide_redirect_after_login', window.location.hash || '/');
-            window.location.href = '/.netlify/functions/feide-auth?redirect=' + encodeURIComponent(window.location.origin + '/index-v2.html');
+            window.location.href = '/.netlify/functions/feide-auth?redirect=' + encodeURIComponent(window.location.origin + '/index.html');
         };
     });
 }
