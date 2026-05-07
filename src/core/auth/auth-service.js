@@ -203,11 +203,18 @@ export function visLoginModal(melding = null) {
             }
         };
 
-        // Feide sign-in (redirect til Netlify function)
+        // Feide sign-in — redirect direkte til Feide OAuth (som i gammel versjon)
         feideBtn.onclick = () => {
-            // Lagre nåværende sti for redirect tilbake
-            sessionStorage.setItem('feide_redirect_after_login', window.location.hash || '/');
-            window.location.href = '/.netlify/functions/feide-auth?redirect=' + encodeURIComponent(window.location.origin + '/index.html');
+            const redirectUri = window.location.origin + '/';
+            const scope = 'openid userid-feide email userinfo-name groups-org groups-edu';
+            const authUrl =
+                `https://auth.dataporten.no/oauth/authorization` +
+                `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
+                `&response_type=code` +
+                `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                `&scope=${encodeURIComponent(scope)}`;
+            sessionStorage.setItem('feideLoginProcess', 'true');
+            window.location.href = authUrl;
         };
     });
 }
@@ -226,32 +233,46 @@ export async function krevInnlogging(melding = null) {
 
 /**
  * Håndter Feide OAuth callback — kall tidlig ved oppstart.
- * Feide redirecter tilbake til appen med #feide_token=... i URL-hashen.
+ * Feide redirecter tilbake til https://glosemester.no/?code=... etter autentisering.
+ * Koden POSTes til Netlify-funksjonen som returnerer et Firebase custom token.
  * @returns {Promise<{user, userData}|null>} null hvis ikke en Feide-callback
  */
 export async function handleFeideCallback() {
-    const hash = window.location.hash;
-    if (!hash.includes('feide_token=') && !hash.includes('feide_error=')) return null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const code  = urlParams.get('code');
+    const error = urlParams.get('error');
+    const isFeideProcess = sessionStorage.getItem('feideLoginProcess');
 
-    const params = new URLSearchParams(hash.slice(1));
-    const token    = params.get('feide_token');
-    const error    = params.get('feide_error');
-    const userRaw  = params.get('feide_user');
+    if (error) {
+        sessionStorage.removeItem('feideLoginProcess');
+        history.replaceState({}, '', '/');
+        if (error === 'access_denied') throw new Error('Feide-innlogging avbrutt.');
+        throw new Error(`Feide-innlogging feilet: ${error}`);
+    }
 
-    // Fjern token fra URL umiddelbart
-    history.replaceState(null, '', window.location.pathname + window.location.search);
+    if (!code || !isFeideProcess) return null;
 
-    if (error === 'student_blocked') throw new Error('Feide-innlogging er kun for lærere.');
-    if (error) throw new Error('Feide-innlogging feilet. Prøv igjen.');
-    if (!token) return null;
+    // Rydd URL umiddelbart
+    history.replaceState({}, '', '/');
+    sessionStorage.removeItem('feideLoginProcess');
 
-    const result = await signInWithCustomToken(auth, decodeURIComponent(token));
+    const redirectUri = window.location.origin + '/';
+    const response = await fetch('/.netlify/functions/feide-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, redirect_uri: redirectUri })
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 403) throw new Error('Feide-innlogging er kun for lærere.');
+        throw new Error(data.error || 'Feide-innlogging feilet. Prøv igjen.');
+    }
+
+    const { token } = await response.json();
+    const result = await signInWithCustomToken(auth, token);
     const user = result.user;
-
-    let extraData = {};
-    try { extraData = JSON.parse(decodeURIComponent(userRaw || '{}')); } catch {}
-
-    const userData = await hentBrukerData(user.uid) || extraData;
+    const userData = await hentBrukerData(user.uid) || {};
     return { user, userData };
 }
 
