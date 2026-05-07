@@ -33,8 +33,14 @@ export class TeacherModule {
         // Show teacher menu
         this.showTeacherMenu();
 
-        // Show dashboard by default
-        this.showDashboard();
+        // Show onboarding for first-time users, otherwise dashboard
+        const hasSeenOnboarding = localStorage.getItem('mester_onboarding_done');
+        if (!hasSeenOnboarding && this.tests.length === 0) {
+            this.showDashboard();
+            this.showOnboardingModal();
+        } else {
+            this.showDashboard();
+        }
 
         console.log('✅ TeacherModule initialized');
     }
@@ -343,6 +349,9 @@ export class TeacherModule {
                     <button id="copy-link-btn" class="btn btn-secondary" style="width: 100%;">
                         🔗 Kopier link til prøve
                     </button>
+                    <button id="share-colleague-btn" class="btn btn-secondary" style="width: 100%; background: rgba(28,75,130,0.08); border-color: rgba(28,75,130,0.25); color: #1c4b82;">
+                        🏫 Del GloseMester med en kollega
+                    </button>
                     <button id="view-tests-btn" class="btn btn-secondary" style="width: 100%;">
                         📝 Se alle lagrede prøver
                     </button>
@@ -390,6 +399,17 @@ export class TeacherModule {
         copyLinkBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(testUrl);
             visToast('✅ Link kopiert!', 'success');
+        });
+
+        const shareColleagueBtn = container.querySelector('#share-colleague-btn');
+        shareColleagueBtn.addEventListener('click', () => {
+            const shareText = `Hei! Jeg bruker GloseMester til glose-tester — enkelt å sette opp og elevene elsker det. Prøv det gratis: https://glosemester.no/for-laerere.html`;
+            if (navigator.share) {
+                navigator.share({ title: 'GloseMester for lærere', text: shareText, url: 'https://glosemester.no/for-laerere.html' });
+            } else {
+                navigator.clipboard.writeText(shareText);
+                visToast('✅ Tekst kopiert — lim inn i en e-post til en kollega!', 'success');
+            }
         });
 
         const viewTestsBtn = container.querySelector('#view-tests-btn');
@@ -611,6 +631,64 @@ export class TeacherModule {
      */
     showGlosebank() {
         visToast('🚧 GloseBank kommer snart!', 'info');
+    }
+
+    /**
+     * Show onboarding modal for first-time teachers
+     */
+    showOnboardingModal() {
+        const overlay = document.createElement('div');
+        overlay.id = 'onboarding-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);padding:20px;';
+
+        const steps = [
+            { icon: '👋', title: `Velkommen, ${this.userName}!`, body: 'GloseMester gjør det enkelt å lage glose-tester og dele dem med elevene dine. La oss sette opp din første prøve på 2 minutter.' },
+            { icon: '📝', title: 'Lag en prøve', body: 'Velg nivå (1.–10. trinn), sett antall spørsmål og gi prøven et navn. Innholdet er allerede klart — ingen gloser å registrere.' },
+            { icon: '📲', title: 'Del med klassen', body: 'Etter oppretting får du en QR-kode og en lenke. Vis den på tavlen eller send i Teams. Elevene er i gang på sekunder.' },
+        ];
+
+        let current = 0;
+
+        const render = () => {
+            const s = steps[current];
+            const isLast = current === steps.length - 1;
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:28px;padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+                    <div style="font-size:64px;margin-bottom:16px;">${s.icon}</div>
+                    <h2 style="font-family:'Outfit',system-ui;font-size:24px;font-weight:800;margin-bottom:12px;color:#1F2937;">${s.title}</h2>
+                    <p style="color:#6B7280;font-size:16px;line-height:1.6;margin-bottom:32px;">${s.body}</p>
+                    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:28px;">
+                        ${steps.map((_, i) => `<div style="width:${i===current?24:8}px;height:8px;border-radius:4px;background:${i===current?'#7C3AED':'#E5E7EB'};transition:all 0.3s;"></div>`).join('')}
+                    </div>
+                    <button id="onboard-next" style="width:100%;padding:15px;background:linear-gradient(135deg,#7C3AED,#A78BFA);color:white;border:none;border-radius:999px;font-family:'Outfit',system-ui;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,0.4);">
+                        ${isLast ? '🚀 Lag min første prøve' : 'Neste →'}
+                    </button>
+                    ${current === 0 ? `<button id="onboard-skip" style="display:block;margin:12px auto 0;background:none;border:none;color:#9CA3AF;font-size:14px;cursor:pointer;">Hopp over</button>` : ''}
+                </div>
+            `;
+
+            overlay.querySelector('#onboard-next').onclick = () => {
+                if (isLast) {
+                    localStorage.setItem('mester_onboarding_done', '1');
+                    overlay.remove();
+                    this.showCreateTest('gloser');
+                } else {
+                    current++;
+                    render();
+                }
+            };
+
+            const skipBtn = overlay.querySelector('#onboard-skip');
+            if (skipBtn) {
+                skipBtn.onclick = () => {
+                    localStorage.setItem('mester_onboarding_done', '1');
+                    overlay.remove();
+                };
+            }
+        };
+
+        render();
+        document.body.appendChild(overlay);
     }
 
     /**

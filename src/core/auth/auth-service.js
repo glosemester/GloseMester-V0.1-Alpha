@@ -128,34 +128,34 @@ export function visLoginModal(melding = null) {
                     Logg inn for å lage prøver, se resultater og dele med elever.
                 </p>
 
-                <!-- Google -->
-                <button id="google-login-btn" style="
+                <!-- Feide (primær) -->
+                <button id="feide-login-btn" style="
                     width: 100%; padding: 14px 20px;
-                    background: #fff; border: 2px solid #e5e7eb;
-                    border-radius: 14px; font-size: 16px; font-weight: 600;
-                    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-                    transition: all 0.2s; color: #1F2937;
+                    background: #1c4b82; border: none;
+                    border-radius: 14px; font-size: 16px; font-weight: 700;
+                    cursor: pointer; color: white; display: flex;
+                    align-items: center; justify-content: center; gap: 12px;
+                    transition: all 0.2s; box-shadow: 0 4px 14px rgba(28,75,130,0.35);
                 ">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22" height="22" alt="Google" />
-                    Fortsett med Google
+                    🏫 Logg inn med Feide
                 </button>
 
-                <div style="margin: 20px 0; display: flex; align-items: center; gap: 12px; color: #9CA3AF; font-size: 13px;">
+                <div style="margin: 16px 0; display: flex; align-items: center; gap: 12px; color: #9CA3AF; font-size: 13px;">
                     <div style="flex:1; height:1px; background:#e5e7eb;"></div>
                     eller
                     <div style="flex:1; height:1px; background:#e5e7eb;"></div>
                 </div>
 
-                <!-- Feide -->
-                <button id="feide-login-btn" style="
+                <!-- Google -->
+                <button id="google-login-btn" style="
                     width: 100%; padding: 14px 20px;
-                    background: #1c4b82; border: none;
-                    border-radius: 14px; font-size: 16px; font-weight: 600;
-                    cursor: pointer; color: white; display: flex;
-                    align-items: center; justify-content: center; gap: 12px;
-                    transition: all 0.2s;
+                    background: #fff; border: 2px solid #e5e7eb;
+                    border-radius: 14px; font-size: 15px; font-weight: 600;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+                    transition: all 0.2s; color: #1F2937;
                 ">
-                    🏫 Logg inn med Feide
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22" height="22" alt="Google" />
+                    Fortsett med Google
                 </button>
 
                 <p id="auth-feil" style="color:#ef4444;font-size:13px;margin-top:16px;display:none;"></p>
@@ -171,10 +171,10 @@ export function visLoginModal(melding = null) {
         // Hover-effekter
         const googleBtn = modal.querySelector('#google-login-btn');
         const feideBtn = modal.querySelector('#feide-login-btn');
+        feideBtn.onmouseenter = () => { feideBtn.style.background = '#163d6a'; feideBtn.style.boxShadow = '0 6px 20px rgba(28,75,130,0.5)'; };
+        feideBtn.onmouseleave = () => { feideBtn.style.background = '#1c4b82'; feideBtn.style.boxShadow = '0 4px 14px rgba(28,75,130,0.35)'; };
         googleBtn.onmouseenter = () => googleBtn.style.borderColor = '#7C3AED';
         googleBtn.onmouseleave = () => googleBtn.style.borderColor = '#e5e7eb';
-        feideBtn.onmouseenter = () => feideBtn.style.background = '#163d6a';
-        feideBtn.onmouseleave = () => feideBtn.style.background = '#1c4b82';
 
         // Lukk
         modal.querySelector('#auth-close-btn').onclick = () => {

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GloseMester for lærere – Lag engelske glose-tester på 2 minutter</title>
+    <meta name="description" content="GloseMester hjelper lærere å lage glose-tester raskt, dele med QR-kode og motivere elever gjennom gamification. Gratis å starte — ingen installasjon." />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="GloseMester for lærere" />
+    <meta property="og:description" content="Lag engelske glose-tester på 2 minutter. Del med QR-kode. Elever elsker det." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://glosemester.no/for-laerere" />
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalApplication",
+        "name": "GloseMester",
+        "description": "Gamifisert glose-læring for norske skoler. Lærere lager tester, elever øver og samler kort.",
+        "url": "https://glosemester.no",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "NOK",
+            "description": "Gratis opp til 3 tester"
+        },
+        "audience": {
+            "@type": "EducationalAudience",
+            "educationalRole": "teacher"
+        }
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="src/styles/redesign.css" />
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { font-family: 'Inter', system-ui, sans-serif; background: hsl(258, 60%, 97%); color: #1F2937; overflow-x: hidden; }
+
+        /* Nav */
+        .top-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(124,58,237,0.1);
+            padding: 14px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .top-nav-logo { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: #7C3AED; text-decoration: none; }
+        .top-nav-cta { background: linear-gradient(135deg, #7C3AED, #A78BFA); color: #fff; border: none; border-radius: 999px; padding: 10px 22px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(170deg, hsl(258,80%,14%) 0%, hsl(270,75%,22%) 100%);
+            color: white;
+            padding: 80px 24px 72px;
+            text-align: center;
+            border-radius: 0 0 60px 60px;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 20% 0%, rgba(139,92,246,0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 80% 100%, rgba(99,102,241,0.2) 0%, transparent 55%);
+            pointer-events: none;
+        }
+        .hero-eyebrow {
+            display: inline-block; background: rgba(167,139,250,0.2); border: 1px solid rgba(167,139,250,0.4);
+            color: #C4B5FD; border-radius: 999px; padding: 6px 16px; font-size: 13px; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1;
+        }
+        .hero h1 {
+            font-family: 'Outfit', sans-serif; font-size: clamp(32px, 6vw, 58px); font-weight: 900;
+            line-height: 1.1; margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, hsl(270,100%,88%) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            position: relative; z-index: 1;
+        }
+        .hero p { font-size: clamp(16px, 2.5vw, 20px); color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto 36px; position: relative; z-index: 1; line-height: 1.6; }
+        .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+        .btn-hero-primary {
+            background: linear-gradient(135deg, #7C3AED, #A78BFA); color: #fff;
+            border: none; border-radius: 999px; padding: 16px 36px;
+            font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;
+            cursor: pointer; text-decoration: none; box-shadow: 0 6px 24px rgba(124,58,237,0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(124,58,237,0.6); }
+        .btn-hero-secondary {
+            background: rgba(255,255,255,0.12); color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 15px 32px;
+            font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600;
+            cursor: pointer; text-decoration: none; backdrop-filter: blur(8px);
+            transition: background 0.2s ease;
+        }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.2); }
+        .feide-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(28,75,130,0.5); border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8); border-radius: 999px; padding: 8px 16px;
+            font-size: 13px; font-weight: 600; margin-top: 24px; position: relative; z-index: 1;
+        }
+
+        /* Section */
+        section { max-width: 960px; margin: 0 auto; padding: 80px 24px; }
+
+        /* Fordeler */
+        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+        .benefit-card {
+            background: rgba(255,255,255,0.88); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.7); border-radius: 28px; padding: 32px 28px;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.08);
+        }
+        .benefit-icon { font-size: 40px; margin-bottom: 16px; }
+        .benefit-card h3 { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #1F2937; }
+        .benefit-card p { font-size: 15px; color: #6B7280; line-height: 1.6; }
+
+        /* Steg-seksjon */
+        .steps-section { background: linear-gradient(170deg, hsl(258,80%,14%) 0%, hsl(270,75%,22%) 100%); border-radius: 48px; padding: 64px 40px; color: white; max-width: 960px; margin: 0 auto 0; }
+        .steps-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 900; text-align: center; margin-bottom: 48px; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+        .step { text-align: center; }
+        .step-num { width: 52px; height: 52px; border-radius: 50%; background: rgba(167,139,250,0.25); border: 2px solid rgba(167,139,250,0.5); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px; color: #C4B5FD; margin: 0 auto 16px; }
+        .step h3 { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+
+        /* Priser */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .pricing-card {
+            background: rgba(255,255,255,0.88); border: 1px solid rgba(124,58,237,0.15);
+            border-radius: 28px; padding: 36px 28px;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.08);
+        }
+        .pricing-card.featured { background: linear-gradient(145deg, hsl(258,80%,48%), hsl(270,85%,58%)); color: white; border: none; box-shadow: 0 12px 48px rgba(124,58,237,0.35); }
+        .pricing-name { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7C3AED; margin-bottom: 8px; }
+        .pricing-card.featured .pricing-name { color: rgba(255,255,255,0.7); }
+        .pricing-price { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .pricing-price span { font-size: 16px; font-weight: 500; }
+        .pricing-desc { font-size: 14px; color: #6B7280; margin-bottom: 24px; }
+        .pricing-card.featured .pricing-desc { color: rgba(255,255,255,0.7); }
+        .pricing-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+        .pricing-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #4B5563; }
+        .pricing-card.featured .pricing-list li { color: rgba(255,255,255,0.85); }
+        .pricing-list li::before { content: '✓'; font-weight: 700; color: #7C3AED; flex-shrink: 0; }
+        .pricing-card.featured .pricing-list li::before { color: #C4B5FD; }
+        .btn-pricing {
+            width: 100%; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+            border-radius: 999px; cursor: pointer; text-align: center; text-decoration: none; display: block;
+            border: 2px solid rgba(124,58,237,0.3); background: transparent; color: #7C3AED;
+            transition: all 0.2s ease;
+        }
+        .btn-pricing:hover { background: rgba(124,58,237,0.07); border-color: #7C3AED; }
+        .btn-pricing-primary {
+            width: 100%; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+            border-radius: 999px; cursor: pointer; text-align: center; text-decoration: none; display: block;
+            background: white; color: #7C3AED; border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        .btn-pricing-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+        /* Testimonial-plass */
+        .testimonial-section { text-align: center; padding: 72px 24px; }
+        .testimonial-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(24px, 4vw, 36px); font-weight: 900; margin-bottom: 40px; }
+        .testimonial-placeholder {
+            max-width: 480px; margin: 0 auto;
+            background: rgba(255,255,255,0.7); border: 2px dashed rgba(124,58,237,0.2);
+            border-radius: 24px; padding: 40px 32px; color: #9CA3AF; font-size: 15px;
+        }
+
+        /* CTA-seksjon */
+        .cta-section { text-align: center; padding: 80px 24px; }
+        .cta-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(26px, 4vw, 42px); font-weight: 900; margin-bottom: 12px; }
+        .cta-section p { color: #6B7280; font-size: 17px; margin-bottom: 32px; }
+
+        /* Footer */
+        footer { background: hsl(258,60%,10%); color: rgba(255,255,255,0.5); text-align: center; padding: 32px 24px; font-size: 13px; }
+        footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .hero { padding: 60px 20px 56px; border-radius: 0 0 40px 40px; }
+            section { padding: 56px 20px; }
+            .steps-section { padding: 48px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toppmeny -->
+<nav class="top-nav">
+    <a href="/" class="top-nav-logo">📚 GloseMester</a>
+    <a href="/#laerer" class="top-nav-cta">Kom i gang gratis →</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+    <div class="hero-eyebrow">For lærere i norsk skole</div>
+    <h1>Lag engelske<br>glose-tester på 2 minutter</h1>
+    <p>Del med QR-kode. Elevene øver og samler kort. Du ser resultatene.</p>
+    <div class="hero-ctas">
+        <a href="/#laerer" class="btn-hero-primary">🚀 Lag din første test — gratis</a>
+        <a href="#slik-fungerer-det" class="btn-hero-secondary">Se hvordan det fungerer</a>
+    </div>
+    <div class="feide-badge">🏫 Støtter Feide-innlogging</div>
+</div>
+
+<!-- Fordeler -->
+<section>
+    <div style="text-align:center; margin-bottom:48px;">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7C3AED;margin-bottom:12px;">Hvorfor GloseMester?</div>
+        <h2 style="font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:900;">Laget for lærere, elsket av elever</h2>
+    </div>
+    <div class="benefits-grid">
+        <div class="benefit-card">
+            <div class="benefit-icon">⚡</div>
+            <h3>Ferdig på sekunder</h3>
+            <p>Velg nivå, sett antall spørsmål og trykk opprett. Ingen registrering av gloser nødvendig — innholdet er allerede klart.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">📲</div>
+            <h3>Del med QR-kode</h3>
+            <p>Vis QR-koden på tavlen. Elevene scanner og er i gang umiddelbart — ingen app å laste ned, ingen konto å opprette.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">🎮</div>
+            <h3>Elevene elsker det</h3>
+            <p>Gamification med samlekort (150+ unike kort), XP og daglige utfordringer gjør at elever øver frivillig — også hjemme.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">📊</div>
+            <h3>Se resultatene</h3>
+            <p>Dashbordet viser hvem som har tatt prøven, score og fremdrift. Ingen papirrettig, ingen kaos.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">🏫</div>
+            <h3>Feide-innlogging</h3>
+            <p>Logg inn med skole-kontoen din via Feide. Ingen ekstra passord å huske, ingen ny bruker å opprette.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-icon">🔒</div>
+            <h3>GDPR-trygt</h3>
+            <p>Elevdata lagres i Norge. Ingen personopplysninger kreves for å øve. Oppfyller kravene i opplæringsloven.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Steg-for-steg -->
+<div style="padding: 0 24px 80px;" id="slik-fungerer-det">
+    <div class="steps-section">
+        <h2>Slik fungerer det</h2>
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Logg inn med Feide</h3>
+                <p>Bruk skole-kontoen din. Er du ikke på Feide? Google-innlogging fungerer like bra.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Lag en prøve</h3>
+                <p>Velg nivå (1.–10. trinn), sett antall spørsmål og gi prøven et navn. Klart på under 2 minutter.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Del med klassen</h3>
+                <p>Vis QR-koden på tavlen eller send lenken i Teams/itslearning. Elevene er i gang umiddelbart.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <h3>Følg med på resultatene</h3>
+                <p>Se hvem som er ferdig og hvilken score de fikk — i sanntid fra dashbordet ditt.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Priser -->
+<section>
+    <div style="text-align:center;margin-bottom:48px;">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7C3AED;margin-bottom:12px;">Priser</div>
+        <h2 style="font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:900;">Start gratis — oppgrader når du vil</h2>
+    </div>
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-name">Gratis</div>
+            <div class="pricing-price">0 <span>kr</span></div>
+            <div class="pricing-desc">For å prøve uten forpliktelser</div>
+            <ul class="pricing-list">
+                <li>Opp til 3 lagrede prøver</li>
+                <li>QR-kode-deling</li>
+                <li>Alle 4 glose-nivåer</li>
+                <li>Grunnleggende resultater</li>
+            </ul>
+            <a href="/#laerer" class="btn-pricing">Start gratis</a>
+        </div>
+        <div class="pricing-card featured">
+            <div class="pricing-name">Premium Lærer</div>
+            <div class="pricing-price">99 <span>kr/mnd</span></div>
+            <div class="pricing-desc">For lærere som bruker det aktivt</div>
+            <ul class="pricing-list">
+                <li>Ubegrenset antall prøver</li>
+                <li>Detaljerte analyser per elev</li>
+                <li>16 ferdige standardprøver (LK20)</li>
+                <li>Eksport av resultater (CSV)</li>
+                <li>Prioritert støtte</li>
+            </ul>
+            <a href="/#laerer" class="btn-pricing-primary">Prøv Premium — 30 dager gratis</a>
+        </div>
+        <div class="pricing-card">
+            <div class="pricing-name">Skolepakke</div>
+            <div class="pricing-price" style="font-size:28px;">Fra 5 000 <span>kr/år</span></div>
+            <div class="pricing-desc">For hele skolen eller fagteamet</div>
+            <ul class="pricing-list">
+                <li>Alt i Premium, for alle lærere</li>
+                <li>Felles GloseBank for teamet</li>
+                <li>Feide SSO (automatisk)</li>
+                <li>Opplæring og support</li>
+                <li>Faktura til skolen</li>
+            </ul>
+            <a href="mailto:kontakt@glosemester.no" class="btn-pricing">Ta kontakt</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial-plass -->
+<section class="testimonial-section">
+    <h2>Hva lærere sier</h2>
+    <div class="testimonial-placeholder">
+        🌟 Vi samler inn tilbakemeldinger fra pilotskoler nå.<br>Er du interessert i å prøve GloseMester i klassen din?<br><br>
+        <a href="mailto:kontakt@glosemester.no" style="color:#7C3AED;font-weight:700;text-decoration:none;">Meld deg som pilotlærer →</a>
+    </div>
+</section>
+
+<!-- Slutt-CTA -->
+<section class="cta-section">
+    <h2>Klar til å prøve?</h2>
+    <p>Gratis å starte. Ingen installasjon. Ingen kredittkort.</p>
+    <a href="/#laerer" style="display:inline-block;background:linear-gradient(135deg,#7C3AED,#A78BFA);color:#fff;border:none;border-radius:999px;padding:18px 44px;font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;text-decoration:none;box-shadow:0 6px 24px rgba(124,58,237,0.4);transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 36px rgba(124,58,237,0.55)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 24px rgba(124,58,237,0.4)'">
+        🚀 Lag din første test — gratis
+    </a>
+    <p style="margin-top:16px;font-size:13px;color:#9CA3AF;">Eller logg inn med Feide — samme konto du bruker på skolen</p>
+</section>
+
+<footer>
+    <p>© 2026 GloseMester · <a href="/personvern.html">Personvern</a> · <a href="/vilkar.html">Vilkår</a> · <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></p>
+</footer>
+
+</body>
+</html>
