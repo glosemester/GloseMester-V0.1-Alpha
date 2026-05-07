@@ -271,10 +271,9 @@ export class MenuSystem {
         const {
             userName = 'Lærer',
             onDashboard,
-            onSavedTests,
-            onStandardTests,
-            onGlosebank,
-            onAdmin,
+            onMyTests,
+            onCreateTest,
+            onAnalytics,
             onHome,
             onLogout
         } = options;
@@ -327,10 +326,9 @@ export class MenuSystem {
         this.populateDrawer({
             userName,
             onDashboard,
-            onSavedTests,
-            onStandardTests,
-            onGlosebank,
-            onAdmin,
+            onMyTests,
+            onCreateTest,
+            onAnalytics,
             onLogout
         });
 
@@ -354,24 +352,19 @@ export class MenuSystem {
         const {
             userName,
             onDashboard,
-            onSavedTests,
-            onStandardTests,
-            onGlosebank,
-            onAdmin,
+            onMyTests,
+            onCreateTest,
+            onAnalytics,
             onLogout
         } = options;
 
-        this.drawerElement.className = 'nav-items glass-panel';
+        this.drawerElement.className = 'nav-items';
         this.drawerElement.style.cssText = `
             position: fixed;
             top: 0;
             left: -100%;
             width: 280px;
             height: 100vh;
-            background: var(--glass-bg, rgba(255, 255, 255, 0.8));
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--glass-border, rgba(255, 255, 255, 0.3));
-            box-shadow: 10px 0 30px rgba(0,0,0,0.05);
             z-index: 4000;
             display: flex;
             flex-direction: column;
@@ -381,34 +374,27 @@ export class MenuSystem {
         `;
 
         this.drawerElement.innerHTML = `
-            <div class="drawer-header" style="padding: 0 25px 30px; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 20px;">
-                <div style="font-size: 14px; color: var(--purple-500); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">
-                    Lærerportal
-                </div>
-                <div style="font-size: 20px; font-weight: 800; font-family: var(--font-heading); color: var(--purple-900); word-break: break-word;">
-                    ${userName}
-                </div>
+            <div class="drawer-header">
+                <div class="drawer-header-label">Lærerportal</div>
+                <div class="drawer-header-name">${userName}</div>
             </div>
 
-            <div class="drawer-section" style="padding: 0 15px;">
+            <div class="drawer-section">
                 <button class="drawer-item active" data-action="dashboard">
                     <span class="item-icon">📊</span> Dashboard
                 </button>
-                <button class="drawer-item" data-action="saved-tests">
-                    <span class="item-icon">📝</span> Mine Prøver
+                <button class="drawer-item" data-action="my-tests">
+                    <span class="item-icon">📝</span> Mine prøver
                 </button>
-                <button class="drawer-item" data-action="standard-tests">
-                    <span class="item-icon">📚</span> Standardprøver
+                <button class="drawer-item" data-action="create-test">
+                    <span class="item-icon">➕</span> Lag prøve
                 </button>
-                <button class="drawer-item" data-action="glosebank" style="display: none;">
-                    <span class="item-icon">🏦</span> GloseBank
-                </button>
-                <button class="drawer-item" data-action="admin" style="display: none;">
-                    <span class="item-icon">🔧</span> Admin
+                <button class="drawer-item" data-action="analytics">
+                    <span class="item-icon">📈</span> Analyser
                 </button>
             </div>
 
-            <button class="drawer-item logout" data-action="logout" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto; padding: 20px 25px; color: #ef4444; font-weight: 600;">
+            <button class="drawer-item drawer-item-logout" data-action="logout">
                 <span class="item-icon">🚪</span> Logg ut
             </button>
         `;
@@ -421,7 +407,7 @@ export class MenuSystem {
 
                 // Update active state
                 items.forEach(i => i.classList.remove('active'));
-                if (!item.classList.contains('logout')) {
+                if (action !== 'logout') {
                     item.classList.add('active');
                 }
 
@@ -432,10 +418,9 @@ export class MenuSystem {
 
                 // Call handlers
                 if (action === 'dashboard' && onDashboard) onDashboard();
-                else if (action === 'saved-tests' && onSavedTests) onSavedTests();
-                else if (action === 'standard-tests' && onStandardTests) onStandardTests();
-                else if (action === 'glosebank' && onGlosebank) onGlosebank();
-                else if (action === 'admin' && onAdmin) onAdmin();
+                else if (action === 'my-tests' && onMyTests) onMyTests();
+                else if (action === 'create-test' && onCreateTest) onCreateTest();
+                else if (action === 'analytics' && onAnalytics) onAnalytics();
                 else if (action === 'logout' && onLogout) onLogout();
             });
         });
@@ -626,9 +611,6 @@ export class MenuSystem {
                 }
             }
         `;
-
-        document.head.appendChild(style);
-    }
 
         document.head.appendChild(style);
     }

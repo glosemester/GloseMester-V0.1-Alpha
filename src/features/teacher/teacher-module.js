@@ -1,791 +1,693 @@
 /* ============================================
-   TEACHER-MODULE.JS - GloseMester v2.6
-   Teacher functionality for all subjects
+   TEACHER-MODULE.JS - GloseMester v3.0
+   Ground-up rebuild — mørk editorial design
    ============================================ */
 
 import { menuSystem } from '../core/navigation/menu-system.js';
 import { visToast } from '../core/utils/feedback.js';
 
-/**
- * TeacherModule - Central hub for teachers across all subjects
- */
+const LEVEL_NAMES = {
+    niva1: 'Nivå 1 — Grunnleggende',
+    niva2: 'Nivå 2 — Elementær',
+    niva3: 'Nivå 3 — Middels',
+    niva4: 'Nivå 4 — Avansert'
+};
+
 export class TeacherModule {
     constructor() {
-        this.currentFag = null;
-        this.currentView = 'dashboard';
-        this.userName = null;
+        this.userName = 'Lærer';
+        this.isAdmin = false;
         this.tests = [];
+        this.currentView = null;
     }
 
-    /**
-     * Initialize teacher module
-     * @param {Object} options - { userName, isAdmin }
-     */
-    async init(options = {}) {
-        console.log('👨‍🏫 Initializing TeacherModule...');
+    // ==================== INIT ====================
 
-        this.userName = options.userName || 'Lærer';
+    async init(options = {}) {
+        this.userName = options.userName || options.user?.displayName || 'Lærer';
         this.isAdmin = options.isAdmin || false;
 
-        // Load saved tests from localStorage
+        document.body.classList.add('teacher-mode');
         this.loadTests();
+        this._buildMenu();
 
-        // Show teacher menu
-        this.showTeacherMenu();
-
-        // Show onboarding for first-time users, otherwise dashboard
-        const hasSeenOnboarding = localStorage.getItem('mester_onboarding_done');
-        if (!hasSeenOnboarding && this.tests.length === 0) {
-            this.showDashboard();
+        const hasOnboarded = localStorage.getItem('mester_onboarding_done');
+        if (!hasOnboarded && this.tests.length === 0) {
+            this.navigate('dashboard');
             this.showOnboardingModal();
         } else {
-            this.showDashboard();
+            this.navigate('dashboard');
         }
-
-        console.log('✅ TeacherModule initialized');
     }
 
-    /**
-     * Show teacher menu
-     */
-    showTeacherMenu() {
+    _buildMenu() {
         menuSystem.init();
         menuSystem.showMenu('laerer', {
-            userName: this.userName,
-            onDashboard: () => this.showDashboard(),
-            onSavedTests: () => this.showSavedTests(),
-            onStandardTests: () => this.showStandardTests(),
-            onGlosebank: () => this.showGlosebank(),
-            onAdmin: () => this.showAdmin(),
-            onHome: () => this.goHome(),
-            onLogout: () => this.logout()
+            userName:    this.userName,
+            onDashboard: () => this.navigate('dashboard'),
+            onMyTests:   () => this.navigate('my-tests'),
+            onCreateTest:() => this.navigate('create-test'),
+            onAnalytics: () => this.navigate('analytics'),
+            onHome:      () => this.goHome(),
+            onLogout:    () => this.logout()
         });
     }
 
-    /**
-     * Show teacher dashboard
-     */
-    showDashboard() {
-        this.currentView = 'dashboard';
-        menuSystem.setActive('dashboard');
+    // ==================== NAVIGATION ====================
 
-        const container = document.getElementById('app');
-        if (!container) return;
+    navigate(view, params = {}) {
+        this.currentView = view;
 
-        container.innerHTML = `
-            <div class="teacher-dashboard" style="padding: 100px 20px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease;">
-                <header class="dashboard-header" style="margin-bottom: 60px;">
-                    <div class="landing-eyebrow" style="margin-bottom: 12px;">Lærerportal</div>
-                    <h1 style="font-size: clamp(32px, 5vw, 48px); font-family: var(--font-heading); font-weight: 800; color: var(--purple-900); margin-bottom: 10px;">
-                        Velkommen, <span style="background: var(--gradient-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${this.userName}</span> 👋
-                    </h1>
-                    <p style="color: var(--purple-600); font-size: 18px; font-weight: 500;">Her er din oversikt for GloseMester</p>
-                </header>
-
-                <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                    
-                    <!-- Hovedkort: Lag Prøve -->
-                    <div class="glass-card-dark fag-card" data-fag="gloser" style="padding: 40px; cursor: pointer; position: relative; overflow: hidden; border: 1px solid var(--purple-400);">
-                        <div class="card-glow" style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
-                        <div style="font-size: 64px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.5));">📚</div>
-                        <h2 style="font-size: 28px; font-family: var(--font-heading); font-weight: 800; color: white; margin-bottom: 12px;">GloseMester</h2>
-                        <p style="color: var(--purple-100); margin-bottom: 30px; font-size: 16px; line-height: 1.5;">Opprett nye glosetester, administrer eksisterende prøver og se elevenes resultater.</p>
-                        <button class="btn-primary" style="width: 100%; padding: 16px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-purple);">
-                            ➕ Lag ny prøve
-                        </button>
-                    </div>
-
-                    <!-- Stats & Info -->
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <div class="glass-card" style="padding: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--purple-200);">
-                            <div style="width: 60px; height: 60px; border-radius: 20px; background: var(--purple-100); display: flex; align-items: center; justify-content: center; font-size: 30px;">📝</div>
-                            <div>
-                                <div style="font-size: 32px; font-weight: 800; color: var(--purple-900); font-family: var(--font-heading); line-height: 1;">${this.tests.length}</div>
-                                <div style="font-size: 14px; color: var(--purple-600); font-weight: 600; margin-top: 4px;">Lagrede prøver</div>
-                            </div>
-                        </div>
-
-                        <div class="glass-card" style="padding: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--purple-200);">
-                            <div style="width: 60px; height: 60px; border-radius: 20px; background: var(--purple-100); display: flex; align-items: center; justify-content: center; font-size: 30px;">🎓</div>
-                            <div>
-                                <div style="font-size: 32px; font-weight: 800; color: var(--purple-900); font-family: var(--font-heading); line-height: 1;">–</div>
-                                <div style="font-size: 14px; color: var(--purple-600); font-weight: 600; margin-top: 4px;">Aktive elever</div>
-                            </div>
-                        </div>
-
-                        <div class="glass-card" style="padding: 25px; background: var(--gradient-purple); color: white; border: none;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Premium Lærer</h3>
-                            <p style="font-size: 14px; opacity: 0.9; margin-bottom: 15px;">Du har tilgang til alle funksjoner, inkludert standardprøver og eksport.</p>
-                            <div style="height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px;">
-                                <div style="width: 100%; height: 100%; background: white; border-radius: 3px; box-shadow: 0 0 10px white;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        `;
-
-        // Add event listeners
-        const fagCards = container.querySelectorAll('.fag-card[data-fag]');
-        fagCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const fag = card.dataset.fag;
-                if (fag !== 'norsk') {
-                    this.showCreateTest(fag);
-                }
-            });
-        });
-    }
-
-    /**
-     * Show create test view
-     * @param {string} fag - 'gloser', 'matte', 'norsk'
-     */
-    showCreateTest(fag) {
-        this.currentFag = fag;
-
-        const container = document.getElementById('app');
-        if (!container) return;
-
-        const fagConfig = {
-            gloser: {
-                name: 'GloseMester',
-                emoji: '📚',
-                gradient: 'linear-gradient(135deg, #7C3AED, #A78BFA)',
-                levels: ['niva1', 'niva2', 'niva3', 'niva4']
-            }
+        const viewMap = {
+            'dashboard':    () => this.renderDashboard(),
+            'my-tests':     () => this.renderMyTests(),
+            'create-test':  () => this.renderCreateTest(),
+            'analytics':    () => this.renderAnalytics(),
         };
 
-        const config = fagConfig[fag];
-
-        container.innerHTML = `
-            <div class="create-test-view" style="padding: 80px 20px 100px; max-width: 800px; margin: 0 auto;">
-                <button class="btn-back" id="back-to-dashboard" style="margin-bottom: 20px;">
-                    ← Tilbake til dashboard
-                </button>
-
-                <div class="hero-section" style="background: ${config.gradient}; padding: 40px; border-radius: var(--radius-xl, 50px); text-align: center; margin-bottom: 40px; color: white;">
-                    <div class="icon-large" style="font-size: 72px; margin-bottom: 15px;">${config.emoji}</div>
-                    <h1 style="font-size: 32px; margin-bottom: 10px;">Lag ${config.name}-prøve</h1>
-                    <p style="opacity: 0.9;">Opprett en ny prøve for elevene dine</p>
-                </div>
-
-                <form id="create-test-form" class="playful-card" style="background: white; padding: 40px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-lg);">
-
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 16px;">
-                            📝 Prøvetittel
-                        </label>
-                        <input
-                            type="text"
-                            id="test-title"
-                            placeholder="F.eks. 'Ukentlig glose-quiz' eller 'Kapittel 3 - Addisjon'"
-                            required
-                            style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: var(--radius-md, 20px); font-size: 16px;"
-                        />
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 16px;">
-                            📚 Velg nivå
-                        </label>
-                        <select
-                            id="test-level"
-                            required
-                            style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: var(--radius-md, 20px); font-size: 16px;"
-                        >
-                            <option value="">-- Velg nivå --</option>
-                            ${config.levels.map(level => `
-                                <option value="${level}">${this.getLevelName(level, fag)}</option>
-                            `).join('')}
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 16px;">
-                            🔢 Antall spørsmål
-                        </label>
-                        <input
-                            type="number"
-                            id="test-questions"
-                            min="5"
-                            max="50"
-                            value="10"
-                            required
-                            style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: var(--radius-md, 20px); font-size: 16px;"
-                        />
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 25px;">
-                        <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 16px;">
-                            ⏱️ Tidsbegrensning (minutter)
-                        </label>
-                        <input
-                            type="number"
-                            id="test-time"
-                            min="5"
-                            max="120"
-                            value="15"
-                            placeholder="0 = ingen tidsbegrensning"
-                            style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: var(--radius-md, 20px); font-size: 16px;"
-                        />
-                    </div>
-
-                    <div class="form-group" style="margin-bottom: 30px;">
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <input
-                                type="checkbox"
-                                id="test-shuffle"
-                                checked
-                                style="width: 20px; height: 20px; cursor: pointer;"
-                            />
-                            <span style="font-weight: 500;">🔀 Bland rekkefølgen på spørsmålene</span>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 18px; font-weight: 600;">
-                        ✨ Opprett prøve
-                    </button>
-
-                </form>
-            </div>
-        `;
-
-        // Event listeners
-        const backBtn = container.querySelector('#back-to-dashboard');
-        backBtn.addEventListener('click', () => this.showDashboard());
-
-        const form = container.querySelector('#create-test-form');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleCreateTest(fag);
-        });
+        if (viewMap[view]) {
+            viewMap[view]();
+            menuSystem.setActive(view);
+        } else if (view === 'test-details') {
+            this.renderTestDetails(params.testId);
+        } else if (view === 'edit-test') {
+            this.renderEditTest(params.testId);
+        } else if (view === 'test-success') {
+            this.renderTestSuccess(params.test);
+        }
     }
 
-    /**
-     * Handle test creation
-     * @param {string} fag
-     */
-    handleCreateTest(fag) {
-        const title = document.getElementById('test-title').value.trim();
-        const level = document.getElementById('test-level').value;
-        const questions = parseInt(document.getElementById('test-questions').value);
-        const time = parseInt(document.getElementById('test-time').value) || 0;
-        const shuffle = document.getElementById('test-shuffle').checked;
+    _setContent(html) {
+        const app = document.getElementById('app');
+        if (!app) return;
+        app.innerHTML = `<div class="teacher-content">${html}</div>`;
+    }
 
-        if (!title || !level) {
-            visToast('⚠️ Vennligst fyll ut alle obligatoriske felt', 'warning');
+    // ==================== DASHBOARD ====================
+
+    renderDashboard() {
+        const totalTests = this.tests.length;
+        const totalResults = this.tests.reduce((s, t) => s + (t.results?.length || 0), 0);
+        const avgScore = this._calcAvgScore();
+
+        const recentTests = [...this.tests]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 3);
+
+        this._setContent(`
+            <div class="t-page-header">
+                <div class="t-eyebrow">Lærerportal</div>
+                <div class="t-page-title">God dag, ${this.userName}</div>
+                <div class="t-page-sub">Her er oversikten din for GloseMester</div>
+            </div>
+
+            <div class="t-stats-row">
+                <div class="t-stat-card">
+                    <div class="t-stat-label">Lagrede prøver</div>
+                    <div class="t-stat-value">${totalTests}</div>
+                </div>
+                <div class="t-stat-card">
+                    <div class="t-stat-label">Innleveringer</div>
+                    <div class="t-stat-value teal">${totalResults}</div>
+                </div>
+                <div class="t-stat-card">
+                    <div class="t-stat-label">Snitt-score</div>
+                    <div class="t-stat-value white">${avgScore}</div>
+                </div>
+            </div>
+
+            <div class="t-section-title">Hurtighandlinger</div>
+            <div class="t-actions-grid">
+                <button class="t-action-card" id="quick-create">
+                    <div class="t-action-icon">➕</div>
+                    <div class="t-action-title">Lag ny prøve</div>
+                    <div class="t-action-desc">Opprett en ny glose-test og del med klassen din</div>
+                    <div class="t-action-arrow">→</div>
+                </button>
+                <button class="t-action-card" id="quick-tests">
+                    <div class="t-action-icon">📝</div>
+                    <div class="t-action-title">Mine prøver</div>
+                    <div class="t-action-desc">Se, rediger og del prøvene du har opprettet</div>
+                    <div class="t-action-arrow">→</div>
+                </button>
+                <button class="t-action-card" id="quick-analytics">
+                    <div class="t-action-icon">📈</div>
+                    <div class="t-action-title">Analyser</div>
+                    <div class="t-action-desc">Følg med på elevresultater og fremgang</div>
+                    <div class="t-action-arrow">→</div>
+                </button>
+            </div>
+
+            ${recentTests.length > 0 ? `
+                <div class="t-divider"></div>
+                <div class="t-section-title">Siste prøver</div>
+                <div class="t-test-grid">
+                    ${recentTests.map(t => this._renderTestCard(t)).join('')}
+                </div>
+            ` : ''}
+        `);
+
+        document.getElementById('quick-create')?.addEventListener('click', () => this.navigate('create-test'));
+        document.getElementById('quick-tests')?.addEventListener('click',  () => this.navigate('my-tests'));
+        document.getElementById('quick-analytics')?.addEventListener('click', () => this.navigate('analytics'));
+        this._attachTestCardListeners();
+    }
+
+    // ==================== MINE PRØVER ====================
+
+    renderMyTests() {
+        if (this.tests.length === 0) {
+            this._setContent(`
+                <div class="t-page-header">
+                    <div class="t-eyebrow">Prøver</div>
+                    <div class="t-page-title">Mine prøver</div>
+                </div>
+                ${this._renderEmptyState('Ingen prøver ennå', 'Lag din første prøve og del den med klassen.', 'Lag prøve', () => this.navigate('create-test'))}
+            `);
             return;
         }
 
-        // Generate unique test code
-        const testCode = this.generateTestCode();
+        this._setContent(`
+            <div class="t-page-header">
+                <div class="t-eyebrow">Prøver</div>
+                <div class="t-page-title">Mine prøver</div>
+                <div class="t-page-sub">${this.tests.length} ${this.tests.length === 1 ? 'prøve' : 'prøver'} totalt</div>
+            </div>
 
-        // Create test object
+            <div class="t-search-bar">
+                <input class="t-search-input" id="test-search" placeholder="Søk etter prøvetittel…" type="search" />
+            </div>
+
+            <div class="t-test-grid" id="tests-grid">
+                ${this.tests.map(t => this._renderTestCard(t)).join('')}
+            </div>
+        `);
+
+        document.getElementById('test-search')?.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('.t-test-card').forEach(card => {
+                const title = card.querySelector('.t-test-title')?.textContent.toLowerCase() || '';
+                card.style.display = title.includes(q) ? '' : 'none';
+            });
+        });
+
+        this._attachTestCardListeners();
+    }
+
+    _renderTestCard(test) {
+        const date = new Date(test.createdAt).toLocaleDateString('no-NO', { day: 'numeric', month: 'short', year: 'numeric' });
+        const resultCount = test.results?.length || 0;
+
+        return `
+            <div class="t-test-card" data-test-id="${test.id}">
+                <div class="t-test-title">${this._esc(test.title)}</div>
+                <div class="t-test-meta">
+                    <span class="t-chip">${LEVEL_NAMES[test.level] || test.level}</span>
+                    <span class="t-chip">${test.questions} spørsmål</span>
+                    <span class="t-chip">${date}</span>
+                    ${resultCount > 0 ? `<span class="t-chip">${resultCount} innlevering${resultCount !== 1 ? 'er' : ''}</span>` : ''}
+                </div>
+                <div class="t-test-code">${test.code}</div>
+                <div class="t-test-actions">
+                    <button class="t-btn t-btn-ghost t-btn-sm view-test-btn" data-test-id="${test.id}">👁 Detaljer</button>
+                    <button class="t-btn t-btn-ghost t-btn-sm edit-test-btn" data-test-id="${test.id}">✏️ Rediger</button>
+                    <button class="t-btn t-btn-ghost t-btn-sm share-test-btn" data-test-id="${test.id}">🔗 Del</button>
+                    <button class="t-btn t-btn-danger t-btn-sm delete-test-btn" data-test-id="${test.id}" style="margin-left:auto">🗑</button>
+                </div>
+            </div>
+        `;
+    }
+
+    _attachTestCardListeners() {
+        document.querySelectorAll('.view-test-btn').forEach(btn =>
+            btn.addEventListener('click', () => this.navigate('test-details', { testId: btn.dataset.testId })));
+        document.querySelectorAll('.edit-test-btn').forEach(btn =>
+            btn.addEventListener('click', () => this.navigate('edit-test', { testId: btn.dataset.testId })));
+        document.querySelectorAll('.share-test-btn').forEach(btn =>
+            btn.addEventListener('click', () => this._shareTest(btn.dataset.testId)));
+        document.querySelectorAll('.delete-test-btn').forEach(btn =>
+            btn.addEventListener('click', () => this.handleDeleteTest(btn.dataset.testId)));
+    }
+
+    // ==================== LAG PRØVE ====================
+
+    renderCreateTest(prefill = null) {
+        const isEdit = !!prefill;
+        const v = prefill || {};
+
+        this._setContent(`
+            <button class="t-btn-back" id="back-btn">Tilbake</button>
+
+            <div class="t-page-header">
+                <div class="t-eyebrow">${isEdit ? 'Rediger' : 'Opprett'}</div>
+                <div class="t-page-title">${isEdit ? 'Rediger prøve' : 'Lag ny prøve'}</div>
+            </div>
+
+            <div class="t-card" style="max-width:600px;">
+                <form class="t-form" id="create-test-form">
+                    <div class="t-form-group">
+                        <label class="t-label" for="test-title">Prøvetittel</label>
+                        <input class="t-input" id="test-title" type="text"
+                            placeholder="F.eks. «Ukeprøve — Klasse 5B»"
+                            value="${this._esc(v.title || '')}" required />
+                    </div>
+
+                    <div class="t-form-group">
+                        <label class="t-label" for="test-level">Nivå</label>
+                        <select class="t-select" id="test-level" required>
+                            <option value="">— Velg nivå —</option>
+                            ${Object.entries(LEVEL_NAMES).map(([k, n]) =>
+                                `<option value="${k}" ${v.level === k ? 'selected' : ''}>${n}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+
+                    <div class="t-form-group">
+                        <label class="t-label" for="test-questions">Antall spørsmål</label>
+                        <input class="t-input" id="test-questions" type="number"
+                            min="5" max="50" value="${v.questions || 10}" required />
+                    </div>
+
+                    <div class="t-form-group">
+                        <label class="t-label" for="test-time">Tidsbegrensning (minutter, 0 = ingen)</label>
+                        <input class="t-input" id="test-time" type="number"
+                            min="0" max="120" value="${v.timeLimit || 0}" />
+                    </div>
+
+                    <div class="t-form-group">
+                        <label class="t-checkbox-row">
+                            <input class="t-checkbox" id="test-shuffle" type="checkbox" ${v.shuffle !== false ? 'checked' : ''} />
+                            <span class="t-checkbox-label">Bland rekkefølgen på spørsmålene</span>
+                        </label>
+                    </div>
+
+                    <button class="t-btn t-btn-primary t-btn-lg" type="submit" style="width:100%;">
+                        ${isEdit ? '💾 Lagre endringer' : '✨ Opprett prøve'}
+                    </button>
+                    ${isEdit ? `<input type="hidden" id="edit-test-id" value="${v.id}" />` : ''}
+                </form>
+            </div>
+        `);
+
+        document.getElementById('back-btn')?.addEventListener('click', () =>
+            isEdit ? this.navigate('my-tests') : this.navigate('dashboard'));
+
+        document.getElementById('create-test-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            isEdit ? this.handleEditTest() : this.handleCreateTest();
+        });
+    }
+
+    // ==================== PRØVEDETALJER ====================
+
+    renderTestDetails(testId) {
+        const test = this.tests.find(t => t.id === testId);
+        if (!test) { this.navigate('my-tests'); return; }
+
+        const testUrl = `${window.location.origin}${window.location.pathname}?prove=${test.code}`;
+        const date = new Date(test.createdAt).toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        this._setContent(`
+            <button class="t-btn-back" id="back-btn">Mine prøver</button>
+
+            <div class="t-details-header">
+                <div>
+                    <div class="t-eyebrow">Prøve</div>
+                    <div class="t-page-title">${this._esc(test.title)}</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+                    <button class="t-btn t-btn-secondary" id="edit-from-detail">✏️ Rediger</button>
+                    <button class="t-btn t-btn-secondary" id="share-from-detail">🔗 Del</button>
+                </div>
+            </div>
+
+            <div class="t-info-grid">
+                <div class="t-info-item">
+                    <div class="t-info-item-label">Prøvekode</div>
+                    <div class="t-info-item-value mono">${test.code}</div>
+                </div>
+                <div class="t-info-item">
+                    <div class="t-info-item-label">Nivå</div>
+                    <div class="t-info-item-value">${LEVEL_NAMES[test.level] || test.level}</div>
+                </div>
+                <div class="t-info-item">
+                    <div class="t-info-item-label">Spørsmål</div>
+                    <div class="t-info-item-value">${test.questions}</div>
+                </div>
+                <div class="t-info-item">
+                    <div class="t-info-item-label">Opprettet</div>
+                    <div class="t-info-item-value">${date}</div>
+                </div>
+                ${test.timeLimit ? `
+                <div class="t-info-item">
+                    <div class="t-info-item-label">Tidsbegrensning</div>
+                    <div class="t-info-item-value">${test.timeLimit} min</div>
+                </div>` : ''}
+            </div>
+
+            <div class="t-card" style="max-width:340px;text-align:center;margin-bottom:28px;">
+                <div class="t-code-label">QR-kode</div>
+                <div id="qrcode-wrap" class="t-qr-wrap" style="display:inline-block;margin:12px 0;"></div>
+                <div style="font-size:13px;color:var(--t-muted);">Elever scanner for å starte</div>
+                <div style="display:flex;gap:8px;margin-top:14px;">
+                    <button class="t-btn t-btn-secondary t-btn-sm" id="copy-code" style="flex:1">📋 Kode</button>
+                    <button class="t-btn t-btn-secondary t-btn-sm" id="copy-link" style="flex:1">🔗 Link</button>
+                </div>
+            </div>
+
+            <div class="t-divider"></div>
+            <div class="t-results-header">Resultater</div>
+            ${test.results?.length > 0 ? `
+                <div>
+                    ${test.results.map(r => {
+                        const score = r.score || 0;
+                        const cls = score >= 80 ? 'good' : score >= 50 ? 'ok' : 'poor';
+                        return `
+                        <div class="t-result-row">
+                            <div>
+                                <div class="t-result-name">${this._esc(r.studentName || 'Anonym')}</div>
+                                <div class="t-result-meta">${r.correct}/${r.total} riktige · ${new Date(r.completedAt).toLocaleString('no-NO')}</div>
+                            </div>
+                            <div class="t-result-score ${cls}">${score}%</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            ` : this._renderEmptyState('Ingen resultater ennå', 'Del prøven med klassen for å samle inn besvarelser.', null, null)}
+        `);
+
+        document.getElementById('back-btn')?.addEventListener('click', () => this.navigate('my-tests'));
+        document.getElementById('edit-from-detail')?.addEventListener('click', () => this.navigate('edit-test', { testId }));
+        document.getElementById('share-from-detail')?.addEventListener('click', () => this._shareTest(testId));
+        document.getElementById('copy-code')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(test.code);
+            visToast('✅ Prøvekode kopiert!', 'success');
+        });
+        document.getElementById('copy-link')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(testUrl);
+            visToast('✅ Link kopiert!', 'success');
+        });
+
+        this._generateQR('qrcode-wrap', testUrl);
+    }
+
+    // ==================== REDIGER PRØVE ====================
+
+    renderEditTest(testId) {
+        const test = this.tests.find(t => t.id === testId);
+        if (!test) { this.navigate('my-tests'); return; }
+        this.renderCreateTest(test);
+    }
+
+    // ==================== SUKSESSSKJERM ====================
+
+    renderTestSuccess(test) {
+        const testUrl = `${window.location.origin}${window.location.pathname}?prove=${test.code}`;
+
+        this._setContent(`
+            <div class="t-success-screen">
+                <div class="t-success-icon">🎉</div>
+                <div class="t-success-title">Prøve opprettet!</div>
+                <div class="t-success-sub">«${this._esc(test.title)}» er klar for elevene</div>
+
+                <div class="t-code-display">
+                    <div class="t-code-label">Prøvekode</div>
+                    <div class="t-code-value">${test.code}</div>
+                    <div id="qrcode-wrap" class="t-qr-wrap"></div>
+                    <div style="font-size:12px;color:var(--t-muted);margin-top:6px;">Elever scanner eller skriver inn koden</div>
+                </div>
+
+                <div class="t-action-list">
+                    <button class="t-btn t-btn-primary t-btn-lg" id="copy-code-btn" style="width:100%;">📋 Kopier prøvekode</button>
+                    <button class="t-btn t-btn-secondary t-btn-lg" id="copy-link-btn" style="width:100%;">🔗 Kopier lenke</button>
+                    <button class="t-btn t-btn-secondary t-btn-lg" id="share-colleague-btn" style="width:100%;background:rgba(28,75,130,0.15);border-color:rgba(28,75,130,0.3);color:#7EB3FF;">🏫 Del med en kollega</button>
+                    <div style="display:flex;gap:10px;margin-top:4px;">
+                        <button class="t-btn t-btn-ghost" id="view-tests-btn" style="flex:1;">📝 Mine prøver</button>
+                        <button class="t-btn t-btn-ghost" id="back-dashboard-btn" style="flex:1;">🏠 Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        document.getElementById('copy-code-btn')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(test.code);
+            visToast('✅ Prøvekode kopiert!', 'success');
+        });
+        document.getElementById('copy-link-btn')?.addEventListener('click', () => {
+            navigator.clipboard.writeText(testUrl);
+            visToast('✅ Lenke kopiert!', 'success');
+        });
+        document.getElementById('share-colleague-btn')?.addEventListener('click', () => this._shareColleague());
+        document.getElementById('view-tests-btn')?.addEventListener('click', () => this.navigate('my-tests'));
+        document.getElementById('back-dashboard-btn')?.addEventListener('click', () => this.navigate('dashboard'));
+
+        this._generateQR('qrcode-wrap', testUrl);
+    }
+
+    // ==================== ANALYSER ====================
+
+    renderAnalytics() {
+        const hasResults = this.tests.some(t => t.results?.length > 0);
+
+        const rows = this.tests
+            .filter(t => t.results?.length > 0)
+            .map(t => {
+                const avg = t.results.reduce((s, r) => s + (r.score || 0), 0) / t.results.length;
+                const pct = Math.round(avg);
+                return { t, pct };
+            })
+            .sort((a, b) => b.pct - a.pct);
+
+        this._setContent(`
+            <div class="t-page-header">
+                <div class="t-eyebrow">Statistikk</div>
+                <div class="t-page-title">Analyser</div>
+                <div class="t-page-sub">Resultater per prøve</div>
+            </div>
+
+            ${!hasResults
+                ? this._renderEmptyState('Ingen resultater ennå', 'Resultater vil dukke opp her når elevene har tatt prøvene dine.', 'Lag en prøve', () => this.navigate('create-test'))
+                : `
+                <div class="t-analytics-grid">
+                    ${rows.map(({ t, pct }) => `
+                        <div class="t-analytics-row" style="cursor:pointer;" data-test-id="${t.id}">
+                            <div style="min-width:0;">
+                                <div class="t-analytics-title">${this._esc(t.title)}</div>
+                                <div class="t-analytics-meta">${t.results.length} innlevering${t.results.length !== 1 ? 'er' : ''} · ${LEVEL_NAMES[t.level] || t.level}</div>
+                                <div class="t-bar-track">
+                                    <div class="t-bar-fill ${pct >= 70 ? '' : 'teal'}" style="width:${pct}%;"></div>
+                                </div>
+                            </div>
+                            <div class="t-analytics-score">${pct}%</div>
+                        </div>
+                    `).join('')}
+                </div>
+                `
+            }
+        `);
+
+        document.querySelectorAll('.t-analytics-row[data-test-id]').forEach(row =>
+            row.addEventListener('click', () => this.navigate('test-details', { testId: row.dataset.testId })));
+    }
+
+    // ==================== HANDLERS ====================
+
+    handleCreateTest() {
+        const title     = document.getElementById('test-title')?.value.trim();
+        const level     = document.getElementById('test-level')?.value;
+        const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
+        const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
+        const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
+
+        if (!title || !level) {
+            visToast('⚠️ Fyll ut tittel og nivå', 'warning');
+            return;
+        }
+
         const test = {
             id: Date.now().toString(),
-            code: testCode,
-            fag,
-            title,
-            level,
-            questions,
-            timeLimit: time,
-            shuffle,
+            code: this._generateCode(),
+            fag: 'gloser',
+            title, level, questions, timeLimit, shuffle,
             createdAt: new Date().toISOString(),
             createdBy: this.userName,
             results: []
         };
 
-        // Save test
         this.tests.push(test);
         this.saveTests();
-
-        console.log('✅ Test created:', test);
-
-        // Show success and QR code
-        this.showTestCreatedSuccess(test);
+        this.navigate('test-success', { test });
     }
 
-    /**
-     * Show test created success screen
-     * @param {Object} test
-     */
-    showTestCreatedSuccess(test) {
-        const container = document.getElementById('app');
-        if (!container) return;
+    handleEditTest() {
+        const id        = document.getElementById('edit-test-id')?.value;
+        const title     = document.getElementById('test-title')?.value.trim();
+        const level     = document.getElementById('test-level')?.value;
+        const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
+        const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
+        const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
 
-        const testUrl = `${window.location.origin}${window.location.pathname}?prove=${test.code}`;
-
-        container.innerHTML = `
-            <div class="test-success-view" style="padding: 80px 20px 100px; max-width: 600px; margin: 0 auto; text-align: center;">
-
-                <div class="success-animation" style="font-size: 100px; margin-bottom: 20px; animation: bounce 0.6s;">
-                    🎉
-                </div>
-
-                <h1 style="font-size: 32px; margin-bottom: 10px;">Prøve opprettet!</h1>
-                <p style="color: #666; font-size: 16px; margin-bottom: 40px;">
-                    Prøven "<strong>${test.title}</strong>" er nå klar for elevene
-                </p>
-
-                <div class="test-code-card playful-card" style="background: white; padding: 30px; border-radius: var(--radius-lg, 30px); margin-bottom: 30px;">
-                    <div style="font-size: 14px; color: #666; margin-bottom: 10px;">Prøvekode</div>
-                    <div class="test-code" style="font-size: 36px; font-weight: 800; font-family: monospace; color: var(--primary-purple, #7C3AED); letter-spacing: 4px; margin-bottom: 20px;">
-                        ${test.code}
-                    </div>
-
-                    <div id="qrcode" style="display: inline-block; padding: 20px; background: white; border-radius: var(--radius-md, 20px); margin-bottom: 20px;"></div>
-
-                    <div style="font-size: 13px; color: #999; margin-top: 15px;">
-                        Elever kan scanne QR-koden eller skrive inn prøvekoden
-                    </div>
-                </div>
-
-                <div class="action-buttons" style="display: flex; flex-direction: column; gap: 12px;">
-                    <button id="copy-code-btn" class="btn btn-primary" style="width: 100%;">
-                        📋 Kopier prøvekode
-                    </button>
-                    <button id="copy-link-btn" class="btn btn-secondary" style="width: 100%;">
-                        🔗 Kopier link til prøve
-                    </button>
-                    <button id="share-colleague-btn" class="btn btn-secondary" style="width: 100%; background: rgba(28,75,130,0.08); border-color: rgba(28,75,130,0.25); color: #1c4b82;">
-                        🏫 Del GloseMester med en kollega
-                    </button>
-                    <button id="view-tests-btn" class="btn btn-secondary" style="width: 100%;">
-                        📝 Se alle lagrede prøver
-                    </button>
-                    <button id="back-dashboard-btn" class="btn btn-secondary" style="width: 100%;">
-                        🏠 Tilbake til dashboard
-                    </button>
-                </div>
-
-                <style>
-                    @keyframes bounce {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.2); }
-                    }
-                </style>
-            </div>
-        `;
-
-        // Generer ekte QR-kode med QRCode.js (lastet via CDN i index-v2.html)
-        const qrcodeContainer = container.querySelector('#qrcode');
-        if (typeof QRCode !== 'undefined') {
-            try {
-                new QRCode(qrcodeContainer, {
-                    text: testUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark: '#1F2937',
-                    colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-            } catch (e) {
-                qrcodeContainer.innerHTML = `<div style="width:200px;height:200px;background:#f5f3ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;font-size:13px;text-align:center;padding:10px;">Kode: <strong>${test.code}</strong></div>`;
-            }
-        } else {
-            qrcodeContainer.innerHTML = `<div style="width:200px;height:200px;background:#f5f3ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#7C3AED;font-size:13px;text-align:center;padding:10px;">Kode: <strong>${test.code}</strong></div>`;
+        if (!title || !level) {
+            visToast('⚠️ Fyll ut tittel og nivå', 'warning');
+            return;
         }
 
-        // Event listeners
-        const copyCodeBtn = container.querySelector('#copy-code-btn');
-        copyCodeBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(test.code);
-            visToast('✅ Prøvekode kopiert!', 'success');
-        });
+        const idx = this.tests.findIndex(t => t.id === id);
+        if (idx === -1) { visToast('Fant ikke prøven', 'error'); return; }
 
-        const copyLinkBtn = container.querySelector('#copy-link-btn');
-        copyLinkBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(testUrl);
-            visToast('✅ Link kopiert!', 'success');
-        });
-
-        const shareColleagueBtn = container.querySelector('#share-colleague-btn');
-        shareColleagueBtn.addEventListener('click', () => {
-            const shareText = `Hei! Jeg bruker GloseMester til glose-tester — enkelt å sette opp og elevene elsker det. Prøv det gratis: https://glosemester.no/for-laerere.html`;
-            if (navigator.share) {
-                navigator.share({ title: 'GloseMester for lærere', text: shareText, url: 'https://glosemester.no/for-laerere.html' });
-            } else {
-                navigator.clipboard.writeText(shareText);
-                visToast('✅ Tekst kopiert — lim inn i en e-post til en kollega!', 'success');
-            }
-        });
-
-        const viewTestsBtn = container.querySelector('#view-tests-btn');
-        viewTestsBtn.addEventListener('click', () => this.showSavedTests());
-
-        const backBtn = container.querySelector('#back-dashboard-btn');
-        backBtn.addEventListener('click', () => this.showDashboard());
+        this.tests[idx] = { ...this.tests[idx], title, level, questions, timeLimit, shuffle };
+        this.saveTests();
+        visToast('✅ Prøve oppdatert', 'success');
+        this.navigate('test-details', { testId: id });
     }
 
-    /**
-     * Show saved tests
-     */
-    showSavedTests() {
-        this.currentView = 'saved-tests';
-        menuSystem.setActive('saved-tests');
-
-        const container = document.getElementById('app');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="saved-tests-view" style="padding: 80px 20px 100px; max-width: 1200px; margin: 0 auto;">
-                <header style="margin-bottom: 40px;">
-                    <h1 style="font-size: 32px; margin-bottom: 10px;">📝 Lagrede prøver</h1>
-                    <p style="color: #666;">Administrer og se resultater fra prøvene dine</p>
-                </header>
-
-                ${this.tests.length === 0 ? `
-                    <div class="empty-state" style="text-align: center; padding: 60px 20px; background: white; border-radius: var(--radius-lg, 30px);">
-                        <div style="font-size: 80px; margin-bottom: 20px; opacity: 0.3;">📭</div>
-                        <h3 style="font-size: 24px; margin-bottom: 10px;">Ingen prøver ennå</h3>
-                        <p style="color: #666; margin-bottom: 30px;">Opprett din første prøve fra dashboard</p>
-                        <button class="btn btn-primary" id="go-dashboard">
-                            🏠 Gå til dashboard
-                        </button>
-                    </div>
-                ` : `
-                    <div class="tests-grid" style="display: grid; gap: 20px;">
-                        ${this.tests.map(test => this.renderTestCard(test)).join('')}
-                    </div>
-                `}
-            </div>
-        `;
-
-        // Event listeners
-        if (this.tests.length === 0) {
-            const goDashboardBtn = container.querySelector('#go-dashboard');
-            goDashboardBtn.addEventListener('click', () => this.showDashboard());
-        } else {
-            // Add event listeners for test cards
-            const deleteButtons = container.querySelectorAll('.delete-test-btn');
-            deleteButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const testId = btn.dataset.testId;
-                    this.deleteTest(testId);
-                });
-            });
-
-            const viewButtons = container.querySelectorAll('.view-test-btn');
-            viewButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const testId = btn.dataset.testId;
-                    this.viewTestDetails(testId);
-                });
-            });
-        }
-    }
-
-    /**
-     * Render test card
-     * @param {Object} test
-     */
-    renderTestCard(test) {
-        const fagEmoji = {
-            gloser: '📚'
-        };
-
-        const date = new Date(test.createdAt).toLocaleDateString('no-NO');
-
-        return `
-            <div class="test-card playful-card" style="background: white; padding: 25px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-md); display: flex; justify-content: space-between; align-items: center;">
-                <div style="flex: 1;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                        <span style="font-size: 32px;">${fagEmoji[test.fag]}</span>
-                        <div>
-                            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">${test.title}</h3>
-                            <div style="font-size: 13px; color: #666;">
-                                ${test.level} • ${test.questions} spørsmål • Opprettet ${date}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="font-family: monospace; font-weight: 600; color: var(--primary-purple, #7C3AED); margin-top: 10px;">
-                        Kode: ${test.code}
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button class="view-test-btn btn btn-secondary" data-test-id="${test.id}" style="padding: 10px 20px;">
-                        👁️ Se detaljer
-                    </button>
-                    <button class="delete-test-btn btn btn-danger" data-test-id="${test.id}" style="padding: 10px 20px; background: #dc2626; color: white;">
-                        🗑️
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    /**
-     * View test details
-     * @param {string} testId
-     */
-    viewTestDetails(testId) {
-        const test = this.tests.find(t => t.id === testId);
-        if (!test) return;
-
-        const container = document.getElementById('app');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="test-details-view" style="padding: 80px 20px 100px; max-width: 800px; margin: 0 auto;">
-                <button class="btn-back" id="back-to-tests" style="margin-bottom: 20px;">
-                    ← Tilbake til prøver
-                </button>
-
-                <div class="playful-card" style="background: white; padding: 40px; border-radius: var(--radius-lg, 30px);">
-                    <h1 style="font-size: 28px; margin-bottom: 20px;">${test.title}</h1>
-
-                    <div class="test-info" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px;">
-                        <div>
-                            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Prøvekode</div>
-                            <div style="font-size: 20px; font-weight: 700; font-family: monospace; color: var(--primary-purple, #7C3AED);">
-                                ${test.code}
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Fag</div>
-                            <div style="font-size: 18px; font-weight: 600;">GloseMester</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Nivå</div>
-                            <div style="font-size: 18px; font-weight: 600;">${test.level}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Antall spørsmål</div>
-                            <div style="font-size: 18px; font-weight: 600;">${test.questions}</div>
-                        </div>
-                    </div>
-
-                    <div class="results-section" style="margin-top: 40px;">
-                        <h3 style="font-size: 20px; margin-bottom: 20px;">📊 Resultater</h3>
-                        ${test.results.length === 0 ? `
-                            <div style="text-align: center; padding: 40px; background: #f9f9f9; border-radius: var(--radius-md, 20px);">
-                                <div style="font-size: 48px; margin-bottom: 10px; opacity: 0.3;">📭</div>
-                                <p style="color: #666;">Ingen elever har tatt denne prøven ennå</p>
-                            </div>
-                        ` : `
-                            <div class="results-list">
-                                ${test.results.map(result => `
-                                    <div style="padding: 15px; background: #f9f9f9; border-radius: 12px; margin-bottom: 10px;">
-                                        <div style="display: flex; justify-content: space-between;">
-                                            <div style="font-weight: 600;">${result.studentName || 'Anonym'}</div>
-                                            <div style="font-weight: 700; color: ${result.score >= 80 ? '#22c55e' : result.score >= 60 ? '#f59e0b' : '#dc2626'};">
-                                                ${result.score}%
-                                            </div>
-                                        </div>
-                                        <div style="font-size: 13px; color: #666; margin-top: 4px;">
-                                            ${result.correct}/${result.total} riktige • ${new Date(result.completedAt).toLocaleString('no-NO')}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const backBtn = container.querySelector('#back-to-tests');
-        backBtn.addEventListener('click', () => this.showSavedTests());
-    }
-
-    /**
-     * Delete test
-     * @param {string} testId
-     */
-    deleteTest(testId) {
+    handleDeleteTest(testId) {
         if (!confirm('Er du sikker på at du vil slette denne prøven?')) return;
-
         this.tests = this.tests.filter(t => t.id !== testId);
         this.saveTests();
-        this.showSavedTests();
         visToast('🗑️ Prøve slettet', 'info');
+        this.navigate(this.currentView === 'test-details' ? 'my-tests' : this.currentView || 'my-tests');
     }
 
-    /**
-     * Show standard tests (placeholder)
-     */
-    showStandardTests() {
-        this.currentView = 'standard-tests';
-        menuSystem.setActive('standard-tests');
-
-        const container = document.getElementById('app');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="standard-tests-view" style="padding: 80px 20px 100px; max-width: 800px; margin: 0 auto; text-align: center;">
-                <h1 style="font-size: 32px; margin-bottom: 20px;">📚 Standardprøver</h1>
-                <div class="playful-card" style="background: white; padding: 60px 40px; border-radius: var(--radius-lg, 30px);">
-                    <div style="font-size: 80px; margin-bottom: 20px; opacity: 0.3;">🚧</div>
-                    <h3 style="font-size: 24px; margin-bottom: 10px;">Kommer snart!</h3>
-                    <p style="color: #666;">Vi jobber med ferdige standardprøver som du kan bruke direkte</p>
-                </div>
-            </div>
-        `;
+    _shareTest(testId) {
+        const test = this.tests.find(t => t.id === testId);
+        if (!test) return;
+        const url = `${window.location.origin}${window.location.pathname}?prove=${test.code}`;
+        if (navigator.share) {
+            navigator.share({ title: test.title, url });
+        } else {
+            navigator.clipboard.writeText(url);
+            visToast('✅ Lenke kopiert!', 'success');
+        }
     }
 
-    /**
-     * Show glosebank (placeholder)
-     */
-    showGlosebank() {
-        visToast('🚧 GloseBank kommer snart!', 'info');
+    _shareColleague() {
+        const msg = 'Hei! Jeg bruker GloseMester til glose-tester — enkelt å sette opp, og elevene elsker det. Prøv gratis: https://glosemester.no/for-laerere.html';
+        if (navigator.share) {
+            navigator.share({ title: 'GloseMester for lærere', text: msg, url: 'https://glosemester.no/for-laerere.html' });
+        } else {
+            navigator.clipboard.writeText(msg);
+            visToast('✅ Tekst kopiert — lim inn til en kollega!', 'success');
+        }
     }
 
-    /**
-     * Show onboarding modal for first-time teachers
-     */
+    // ==================== ONBOARDING ====================
+
     showOnboardingModal() {
-        const overlay = document.createElement('div');
-        overlay.id = 'onboarding-overlay';
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:10000;backdrop-filter:blur(4px);padding:20px;';
-
         const steps = [
-            { icon: '👋', title: `Velkommen, ${this.userName}!`, body: 'GloseMester gjør det enkelt å lage glose-tester og dele dem med elevene dine. La oss sette opp din første prøve på 2 minutter.' },
-            { icon: '📝', title: 'Lag en prøve', body: 'Velg nivå (1.–10. trinn), sett antall spørsmål og gi prøven et navn. Innholdet er allerede klart — ingen gloser å registrere.' },
-            { icon: '📲', title: 'Del med klassen', body: 'Etter oppretting får du en QR-kode og en lenke. Vis den på tavlen eller send i Teams. Elevene er i gang på sekunder.' },
+            { icon: '👋', title: `Hei, ${this.userName}!`, body: 'GloseMester gjør det enkelt å lage glose-tester og dele dem med elevene dine. La oss sette opp din første prøve.' },
+            { icon: '📝', title: 'Lag en prøve', body: 'Velg nivå (1.–10. trinn), sett antall spørsmål og gi prøven et navn. Innholdet er allerede klart.' },
+            { icon: '📲', title: 'Del med klassen', body: 'Etter oppretting får du en QR-kode og en lenke. Vis den på tavlen eller send i Teams. Elevene er i gang umiddelbart.' }
         ];
 
         let current = 0;
+        const overlay = document.createElement('div');
+        overlay.className = 't-onboarding-overlay';
 
         const render = () => {
             const s = steps[current];
             const isLast = current === steps.length - 1;
             overlay.innerHTML = `
-                <div style="background:white;border-radius:28px;padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.2);">
-                    <div style="font-size:64px;margin-bottom:16px;">${s.icon}</div>
-                    <h2 style="font-family:'Outfit',system-ui;font-size:24px;font-weight:800;margin-bottom:12px;color:#1F2937;">${s.title}</h2>
-                    <p style="color:#6B7280;font-size:16px;line-height:1.6;margin-bottom:32px;">${s.body}</p>
-                    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:28px;">
-                        ${steps.map((_, i) => `<div style="width:${i===current?24:8}px;height:8px;border-radius:4px;background:${i===current?'#7C3AED':'#E5E7EB'};transition:all 0.3s;"></div>`).join('')}
+                <div class="t-onboarding-box">
+                    <div class="t-onboarding-icon">${s.icon}</div>
+                    <div class="t-onboarding-title">${s.title}</div>
+                    <div class="t-onboarding-body">${s.body}</div>
+                    <div class="t-onboarding-dots">
+                        ${steps.map((_, i) => `<div class="t-onboarding-dot ${i === current ? 'active' : 'inactive'}"></div>`).join('')}
                     </div>
-                    <button id="onboard-next" style="width:100%;padding:15px;background:linear-gradient(135deg,#7C3AED,#A78BFA);color:white;border:none;border-radius:999px;font-family:'Outfit',system-ui;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(124,58,237,0.4);">
+                    <button class="t-btn t-btn-primary t-btn-lg" id="ob-next" style="width:100%;">
                         ${isLast ? '🚀 Lag min første prøve' : 'Neste →'}
                     </button>
-                    ${current === 0 ? `<button id="onboard-skip" style="display:block;margin:12px auto 0;background:none;border:none;color:#9CA3AF;font-size:14px;cursor:pointer;">Hopp over</button>` : ''}
+                    ${current === 0 ? '<button class="t-onboarding-skip" id="ob-skip">Hopp over</button>' : ''}
                 </div>
             `;
-
-            overlay.querySelector('#onboard-next').onclick = () => {
+            document.getElementById('ob-next')?.addEventListener('click', () => {
                 if (isLast) {
                     localStorage.setItem('mester_onboarding_done', '1');
                     overlay.remove();
-                    this.showCreateTest('gloser');
-                } else {
-                    current++;
-                    render();
-                }
-            };
-
-            const skipBtn = overlay.querySelector('#onboard-skip');
-            if (skipBtn) {
-                skipBtn.onclick = () => {
-                    localStorage.setItem('mester_onboarding_done', '1');
-                    overlay.remove();
-                };
-            }
+                    this.navigate('create-test');
+                } else { current++; render(); }
+            });
+            document.getElementById('ob-skip')?.addEventListener('click', () => {
+                localStorage.setItem('mester_onboarding_done', '1');
+                overlay.remove();
+            });
         };
 
         render();
         document.body.appendChild(overlay);
     }
 
-    /**
-     * Show admin panel (placeholder)
-     */
-    showAdmin() {
-        visToast('🚧 Admin-panel kommer snart!', 'info');
+    // ==================== HELPERS ====================
+
+    _renderEmptyState(title, sub, ctaLabel, ctaFn) {
+        const id = 'empty-cta-' + Math.random().toString(36).slice(2);
+        setTimeout(() => {
+            if (ctaFn) document.getElementById(id)?.addEventListener('click', ctaFn);
+        }, 0);
+        return `
+            <div class="t-empty-state">
+                <span class="t-empty-icon">📭</span>
+                <div class="t-empty-title">${title}</div>
+                <div class="t-empty-sub">${sub}</div>
+                ${ctaLabel ? `<button class="t-btn t-btn-primary t-btn-lg" id="${id}">${ctaLabel}</button>` : ''}
+            </div>
+        `;
     }
 
-    /**
-     * Get level name
-     */
-    getLevelName(level, fag) {
-        const levels = {
-            gloser: {
-                niva1: 'Nivå 1 - Grunnleggende',
-                niva2: 'Nivå 2 - Videregående',
-                niva3: 'Nivå 3 - Avansert',
-                niva4: 'Nivå 4 - Ekspert'
+    _generateQR(containerId, url) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if (typeof QRCode !== 'undefined') {
+            try {
+                new QRCode(el, { text: url, width: 160, height: 160, colorDark: '#1F2937', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+            } catch {
+                el.innerHTML = `<div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;color:var(--t-amber);font-family:var(--t-font-mono);font-size:20px;">${url.split('prove=')[1]}</div>`;
             }
-        };
-
-        return levels[fag]?.[level] || level;
-    }
-
-    /**
-     * Get test count by fag
-     */
-    getTestCountByFag(fag) {
-        return this.tests.filter(t => t.fag === fag).length;
-    }
-
-    /**
-     * Generate unique test code
-     */
-    generateTestCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 6; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        } else {
+            el.innerHTML = `<div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;color:var(--t-amber);font-family:var(--t-font-mono);font-size:20px;">${url.split('prove=')[1]}</div>`;
         }
-        return code;
     }
 
-    /**
-     * Load tests from localStorage
-     */
+    _calcAvgScore() {
+        const allResults = this.tests.flatMap(t => t.results || []);
+        if (allResults.length === 0) return '—';
+        const avg = allResults.reduce((s, r) => s + (r.score || 0), 0) / allResults.length;
+        return Math.round(avg) + '%';
+    }
+
+    _generateCode() {
+        return Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]).join('');
+    }
+
+    _esc(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
     loadTests() {
         try {
-            const saved = localStorage.getItem('mester_teacher_tests');
-            if (saved) {
-                this.tests = JSON.parse(saved);
-                console.log(`📚 Loaded ${this.tests.length} tests from storage`);
-            }
-        } catch (error) {
-            console.error('Error loading tests:', error);
-            this.tests = [];
-        }
+            const raw = localStorage.getItem('mester_teacher_tests');
+            this.tests = raw ? JSON.parse(raw) : [];
+        } catch { this.tests = []; }
     }
 
-    /**
-     * Save tests to localStorage
-     */
     saveTests() {
-        try {
-            localStorage.setItem('mester_teacher_tests', JSON.stringify(this.tests));
-            console.log(`💾 Saved ${this.tests.length} tests to storage`);
-        } catch (error) {
-            console.error('Error saving tests:', error);
-        }
+        try { localStorage.setItem('mester_teacher_tests', JSON.stringify(this.tests)); } catch {}
     }
 
-    /**
-     * Go home
-     */
-    goHome() {
-        window.location.href = '/';
-    }
+    goHome() { window.location.href = '/'; }
 
-    /**
-     * Logout
-     */
     logout() {
         if (confirm('Er du sikker på at du vil logge ut?')) {
+            document.body.classList.remove('teacher-mode');
             menuSystem.hideMenu();
             this.goHome();
         }
     }
 }
 
-// Export singleton
 export const teacherModule = new TeacherModule();
 
-// Make globally available
 if (typeof window !== 'undefined') {
     window.TeacherModule = TeacherModule;
     window.teacherModule = teacherModule;
 }
-
-console.log('👨‍🏫 TeacherModule loaded');
