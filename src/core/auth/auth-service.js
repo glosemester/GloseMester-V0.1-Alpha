@@ -8,6 +8,7 @@ import {
     db,
     googleProvider,
     signInWithPopup,
+    signInWithCustomToken,
     signOut,
     onAuthStateChanged,
     doc,
@@ -221,6 +222,37 @@ export async function krevInnlogging(melding = null) {
         return { user: auth.currentUser, userData };
     }
     return visLoginModal(melding);
+}
+
+/**
+ * Håndter Feide OAuth callback — kall tidlig ved oppstart.
+ * Feide redirecter tilbake til appen med #feide_token=... i URL-hashen.
+ * @returns {Promise<{user, userData}|null>} null hvis ikke en Feide-callback
+ */
+export async function handleFeideCallback() {
+    const hash = window.location.hash;
+    if (!hash.includes('feide_token=') && !hash.includes('feide_error=')) return null;
+
+    const params = new URLSearchParams(hash.slice(1));
+    const token    = params.get('feide_token');
+    const error    = params.get('feide_error');
+    const userRaw  = params.get('feide_user');
+
+    // Fjern token fra URL umiddelbart
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+
+    if (error === 'student_blocked') throw new Error('Feide-innlogging er kun for lærere.');
+    if (error) throw new Error('Feide-innlogging feilet. Prøv igjen.');
+    if (!token) return null;
+
+    const result = await signInWithCustomToken(auth, decodeURIComponent(token));
+    const user = result.user;
+
+    let extraData = {};
+    try { extraData = JSON.parse(decodeURIComponent(userRaw || '{}')); } catch {}
+
+    const userData = await hentBrukerData(user.uid) || extraData;
+    return { user, userData };
 }
 
 export { auth, onAuthStateChanged };

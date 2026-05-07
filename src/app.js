@@ -5,6 +5,7 @@
 
 import { router, ROUTES, isProtectedRoute } from './core/navigation/router.js';
 import { auth, onAuthStateChanged } from './core/auth/firebase-config.js';
+import { handleFeideCallback } from './core/auth/auth-service.js';
 import { visToast } from './core/utils/feedback.js'; // Load feedback utilities globally
 import { pwaInstaller } from './core/pwa/installer.js';
 import { createIOSPopup } from './core/pwa/ios-popup.js';
@@ -33,6 +34,9 @@ window.MesterSuite = window.GloseMester;
 async function initApp() {
     try {
         console.log('%c🚀 GloseMester v2.6.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
+
+        // 0. Handle Feide OAuth callback (token arrives in URL hash after redirect)
+        await handleFeideCallback().catch(err => visToast(err.message, 'error'));
 
         // 1. Setup routes FIRST
         setupRoutes();
