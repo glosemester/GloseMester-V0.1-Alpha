@@ -1,13 +1,6 @@
 /* ============================================
-   KORT-DATA.JS - Mester Suite v2.0
-   Master database for alle kort (GloseMester + MatteMester + NorskMester)
-
-   STRUCTURE:
-   - GloseMester: 152 kort (Biler, Dinosaurer, Dyr, Guder)
-   - MatteMester: 152 kort (Romvesen, Raketter, Planeter, Roboter) - TODO
-   - NorskMester: TBD - TODO
-
-   Total: 304+ kort
+   KORT-DATA.JS - GloseMester
+   Master database for alle kort
    ============================================ */
 
 // ==================== KONSTANTER ====================
@@ -17,16 +10,7 @@ export const CATEGORIES = {
     BILER: 'biler',
     DINOSAURER: 'dinosaurer',
     DYR: 'dyr',
-    GUDER: 'guder',
-
-    // MatteMester (TODO: uncomment når kort er klare)
-    // ROMVESEN: 'romvesen',
-    // RAKETTER: 'raketter',
-    // PLANETER: 'planeter',
-    // ROBOTER: 'roboter',
-
-    // NorskMester (TODO)
-    // ...
+    GUDER: 'guder'
 };
 
 export const RARITIES = {
@@ -271,55 +255,7 @@ const guder = [
     fag: 'gloser'
 }));
 
-// ==================== MATTEMESTER KORT (TODO) ====================
 
-// TODO: Implementer når Midjourney-kort er generert
-// Se: MIDJOURNEY_MATTEMESTER_KORT.md for specs
-/*
-const romvesen = [
-    // 40 kort: Zorg, Beep, Glorp, etc.
-].map((k, i) => ({
-    id: `romvesen_${String(i + 1).padStart(3, '0')}`,
-    name: k.n,
-    image: `images/romvesen/${k.f}`,
-    category: CATEGORIES.ROMVESEN,
-    rarity: getRarity(i + 1),
-    fag: 'matte'
-}));
-
-const raketter = [
-    // 40 kort: Stjerneskudd, Månefarer, etc.
-].map((k, i) => ({
-    id: `rakett_${String(i + 1).padStart(3, '0')}`,
-    name: k.n,
-    image: `images/raketter/${k.f}`,
-    category: CATEGORIES.RAKETTER,
-    rarity: getRarity(i + 1),
-    fag: 'matte'
-}));
-
-const planeter = [
-    // 36 kort: Merkur, Venus, Jorden, etc.
-].map((k, i) => ({
-    id: `planet_${String(i + 1).padStart(3, '0')}`,
-    name: k.n,
-    image: `images/planeter/${k.f}`,
-    category: CATEGORIES.PLANETER,
-    rarity: getRarity(i + 1),
-    fag: 'matte'
-}));
-
-const roboter = [
-    // 36 kort: Beep-Boop, Dusty, Doc, etc.
-].map((k, i) => ({
-    id: `robot_${String(i + 1).padStart(3, '0')}`,
-    name: k.n,
-    image: `images/roboter/${k.f}`,
-    category: CATEGORIES.ROBOTER,
-    rarity: getRarity(i + 1),
-    fag: 'matte'
-}));
-*/
 
 // ==================== MASTER KORT-ARRAY ====================
 
@@ -332,11 +268,6 @@ export const kortData = [
     ...dinosaurer,
     ...dyr,
     ...guder
-    // TODO: Uncomment når MatteMester kort er klare
-    // ...romvesen,
-    // ...raketter,
-    // ...planeter,
-    // ...roboter
 ];
 
 // Compatibility export (for old code)

@@ -1,6 +1,6 @@
 /* ============================================
    MAIN APP ENTRY POINT
-   Mester Suite v2.0 - Multi-fag læringsplattform
+   GloseMester v2.0
    ============================================ */
 
 import { router, ROUTES, isProtectedRoute } from './core/navigation/router.js';
@@ -18,9 +18,7 @@ window.MesterSuite = {
     aktivRolle: null,
     bruker: null,
     moduler: {
-        glosemester: null,
-        mattemester: null,
-        norskmester: null
+        glosemester: null
     },
     initialized: false
 };
@@ -30,7 +28,7 @@ window.MesterSuite = {
  */
 async function initApp() {
     try {
-        console.log('%c🚀 Mester Suite v2.0 - Initializing...', 'color: #0071e3; font-size: 16px; font-weight: bold;');
+        console.log('%c🚀 GloseMester v2.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
 
         // 1. Setup routes FIRST
         setupRoutes();
@@ -46,7 +44,7 @@ async function initApp() {
         // Mark as initialized
         window.MesterSuite.initialized = true;
 
-        console.log('%c✅ Mester Suite v2.0 - Ready!', 'color: #10B981; font-size: 14px; font-weight: bold;');
+        console.log('%c✅ GloseMester v2.0 - Ready!', 'color: #10B981; font-size: 14px; font-weight: bold;');
     } catch (error) {
         console.error('❌ App initialization failed:', error);
         visToast('Kunne ikke starte appen. Prøv å refresh siden.', 'error');
@@ -86,19 +84,6 @@ function setupRoutes() {
         window.FagStart.render('gloser');
     });
 
-    // ==================== MATTEMESTER ====================
-    router.register(ROUTES.MATTEMESTER, async () => {
-        // Show fag-start (Øv Selv / Prøve / Lærer)
-        await import('./pages/fag-start.js');
-        window.FagStart.render('matte');
-    });
-
-    // ==================== NORSKMESTER ====================
-    router.register(ROUTES.NORSKMESTER, async () => {
-        // Show fag-start (Øv Selv / Prøve / Lærer)
-        await import('./pages/fag-start.js');
-        window.FagStart.render('norsk');
-    });
 
     // ==================== TEACHER DASHBOARD ====================
     router.register(ROUTES.TEACHER_HOME, async () => {
@@ -196,16 +181,14 @@ async function loadUserData(userId) {
  */
 function getPageTitle(path) {
     const titles = {
-        '/': 'Mester Suite - Hva skal vi øve i dag?',
+        '/': 'GloseMester - Hva skal vi øve i dag?',
         '/gloser': 'GloseMester - Lær gloser',
-        '/matte': 'MatteMester - Tren matte',
-        '/norsk': 'NorskMester - Mestre norsk',
-        '/lærer': 'Lærer Dashboard - Mester Suite',
+        '/lærer': 'Lærer Dashboard - GloseMester',
         '/galleri': 'Min Kortsamling',
-        '/login': 'Logg inn - Mester Suite'
+        '/login': 'Logg inn - GloseMester'
     };
 
-    return titles[path] || 'Mester Suite';
+    return titles[path] || 'GloseMester';
 }
 
 /**

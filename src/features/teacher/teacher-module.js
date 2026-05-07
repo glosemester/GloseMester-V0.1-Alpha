@@ -1,5 +1,5 @@
 /* ============================================
-   TEACHER-MODULE.JS - Mester Suite v2.0
+   TEACHER-MODULE.JS - GloseMester v2.6
    Teacher functionality for all subjects
    ============================================ */
 
@@ -86,27 +86,6 @@ export class TeacherModule {
                                 Lag prøve
                             </button>
                         </div>
-
-                        <!-- MatteMester -->
-                        <div class="playful-card orange fag-card" data-fag="matte" style="cursor: pointer; transition: all 0.3s;">
-                            <div class="icon-large" style="font-size: 64px; margin-bottom: 15px;">➕</div>
-                            <h3 style="font-size: 22px; margin-bottom: 10px;">MatteMester</h3>
-                            <p style="color: #666; margin-bottom: 20px;">Lag matteprøver med flere nivåer</p>
-                            <button class="btn btn-primary" style="width: 100%;">
-                                Lag prøve
-                            </button>
-                        </div>
-
-                        <!-- NorskMester -->
-                        <div class="playful-card yellow fag-card" data-fag="norsk" style="cursor: pointer; transition: all 0.3s; opacity: 0.6; pointer-events: none;">
-                            <div class="icon-large" style="font-size: 64px; margin-bottom: 15px;">📖</div>
-                            <h3 style="font-size: 22px; margin-bottom: 10px;">NorskMester</h3>
-                            <p style="color: #666; margin-bottom: 20px;">Kommer snart! 🚧</p>
-                            <button class="btn btn-secondary" style="width: 100%;" disabled>
-                                Kommer snart
-                            </button>
-                        </div>
-
                     </div>
                 </div>
 
@@ -124,13 +103,6 @@ export class TeacherModule {
                             ${this.getTestCountByFag('gloser')}
                         </div>
                         <div style="color: #666; font-size: 14px;">GloseMester prøver</div>
-                    </div>
-
-                    <div class="stat-card" style="background: white; padding: 25px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-md); text-align: center;">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--sunny-yellow, #FBBF24); margin-bottom: 8px;">
-                            ${this.getTestCountByFag('matte')}
-                        </div>
-                        <div style="color: #666; font-size: 14px;">MatteMester prøver</div>
                     </div>
                 </div>
             </div>
@@ -164,18 +136,6 @@ export class TeacherModule {
                 emoji: '📚',
                 gradient: 'linear-gradient(135deg, #7C3AED, #A78BFA)',
                 levels: ['niva1', 'niva2', 'niva3', 'niva4']
-            },
-            matte: {
-                name: 'MatteMester',
-                emoji: '➕',
-                gradient: 'linear-gradient(135deg, #FB923C, #FCA65C)',
-                levels: ['niva1', 'niva2', 'niva3']
-            },
-            norsk: {
-                name: 'NorskMester',
-                emoji: '📖',
-                gradient: 'linear-gradient(135deg, #FBBF24, #FCD34D)',
-                levels: []
             }
         };
 
@@ -491,9 +451,7 @@ export class TeacherModule {
      */
     renderTestCard(test) {
         const fagEmoji = {
-            gloser: '📚',
-            matte: '➕',
-            norsk: '📖'
+            gloser: '📚'
         };
 
         const date = new Date(test.createdAt).toLocaleDateString('no-NO');
@@ -556,7 +514,7 @@ export class TeacherModule {
                         </div>
                         <div>
                             <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Fag</div>
-                            <div style="font-size: 18px; font-weight: 600;">${test.fag === 'gloser' ? 'GloseMester' : 'MatteMester'}</div>
+                            <div style="font-size: 18px; font-weight: 600;">GloseMester</div>
                         </div>
                         <div>
                             <div style="font-size: 13px; color: #666; margin-bottom: 4px;">Nivå</div>
@@ -660,11 +618,6 @@ export class TeacherModule {
                 niva2: 'Nivå 2 - Videregående',
                 niva3: 'Nivå 3 - Avansert',
                 niva4: 'Nivå 4 - Ekspert'
-            },
-            matte: {
-                niva1: 'Nivå 1 - Grunnleggende regning',
-                niva2: 'Nivå 2 - Mellomtrinn',
-                niva3: 'Nivå 3 - Avansert'
             }
         };
 

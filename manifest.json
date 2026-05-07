@@ -1,7 +1,7 @@
 {
-  "name": "Mester Suite - Lær med Gamification",
-  "short_name": "Mester Suite",
-  "description": "GloseMester, MatteMester og NorskMester - Lær språk og matte med kortsamling og gamification. Øv, ta prøver og samle kort!",
+  "name": "GloseMester - Lær engelsk med Gamification",
+  "short_name": "GloseMester",
+  "description": "Lær engelske gloser med kortsamling og gamification. Øv, ta prøver og samle kort!",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F5F3FF",
@@ -32,13 +32,7 @@
       "url": "./?fag=gloser",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     },
-    {
-      "name": "MatteMester",
-      "short_name": "Matte",
-      "description": "Tren matematikk og vinn romkort",
-      "url": "./?fag=matte",
-      "icons": [{ "src": "icon.png", "sizes": "192x192" }]
-    },
+
     {
       "name": "Lærerportal",
       "short_name": "Lærer",

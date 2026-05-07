@@ -1,6 +1,6 @@
 /* ============================================
    RATE-LIMITER.JS - Forhindre misbruk av API
-   Mester Suite v2.0
+   GloseMester v2.6
    ============================================ */
 
 /**

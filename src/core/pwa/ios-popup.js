@@ -1,5 +1,5 @@
 /* ============================================
-   IOS-POPUP.JS - Mester Suite v2.0
+   IOS-POPUP.JS - GloseMester v2.6
    iOS installation instructions popup
    ============================================ */
 

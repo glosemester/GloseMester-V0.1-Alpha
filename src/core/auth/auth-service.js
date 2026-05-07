@@ -1,5 +1,5 @@
 /* ============================================
-   AUTH-SERVICE.JS - Mester Suite v2.0
+   AUTH-SERVICE.JS - GloseMester v2.6
    Google sign-in + Feide OAuth for lærere
    ============================================ */
 

@@ -1,5 +1,5 @@
 /* ============================================
-   MENU-SYSTEM.JS - Mester Suite v2.0
+   MENU-SYSTEM.JS - GloseMester v2.6
    Bottom navigation and hamburger menu
    ============================================ */
 

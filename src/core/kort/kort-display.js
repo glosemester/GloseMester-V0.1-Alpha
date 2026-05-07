@@ -1,5 +1,5 @@
 /* ============================================
-   KORT-DISPLAY.JS - Mester Suite v2.0
+   KORT-DISPLAY.JS - GloseMester v2.6
    UI for kort-visning og galleri
    ============================================ */
 

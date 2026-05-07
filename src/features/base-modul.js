@@ -1,17 +1,17 @@
 /* ============================================
-   BASE-MODUL.JS - Mester Suite v2.0
+   BASE-MODUL.JS - GloseMester v2.0
    Abstract base class for all fagmoduler
    ============================================ */
 
 /**
  * FagModul - Base class that all subject modules must extend
  *
- * Each fag (GloseMester, MatteMester, NorskMester) implements this interface
+ * Each fag implements this interface
  * to ensure consistency across modules.
  */
 export class FagModul {
     /**
-     * @param {string} fagType - Type of subject ('gloser', 'matte', 'norsk')
+     * @param {string} fagType - Type of subject ('gloser')
      */
     constructor(fagType) {
         if (new.target === FagModul) {

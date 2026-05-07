@@ -1,7 +1,7 @@
 /* ============================================
    FEEDBACK.JS - User feedback utilities
    Toast notifications, vibration, text-to-speech
-   Mester Suite v2.0
+   GloseMester v2.6
    ============================================ */
 
 /**

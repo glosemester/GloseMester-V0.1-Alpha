@@ -1,7 +1,7 @@
 /* ============================================
    FAG-START.JS - Mellomledd for fagvalg
    Viser Øv Selv / Prøve / Lærer valg
-   Mester Suite v2.0
+   GloseMester v2.6
    ============================================ */
 
 import { router } from '../core/navigation/router.js';
@@ -98,8 +98,8 @@ export class FagStart {
                 <!-- Wave Divider -->
                 <div class="wave-divider" style="margin-top: 60px;"></div>
 
-                <footer style="text-align: center; padding: 40px 20px; color: var(--text-gray);">
-                    <p style="font-size: 14px;">&copy; 2026 Mester Suite. Laget med ❤️ for norske elever og lærere.</p>
+                <footer style="text-align: center; padding: 40px 20px; color: var(--text-secondary, #6B7280);">
+                    <p style="font-size: 14px;">&copy; 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
                 </footer>
             </div>
         `;
@@ -119,23 +119,9 @@ export class FagStart {
             gloser: {
                 name: 'GloseMester',
                 emoji: '📚',
-                description: 'Samle kort, bygg din samling og lær språk samtidig.',
-                gradient: 'linear-gradient(135deg, #0071e3 0%, #00c6fb 100%)',
+                description: 'Samle kort, bygg din samling og lær gloser samtidig.',
+                gradient: 'linear-gradient(145deg, hsl(258, 80%, 48%) 0%, hsl(270, 85%, 55%) 100%)',
                 proveNavn: 'GlosePrøve'
-            },
-            matte: {
-                name: 'MatteMester',
-                emoji: '➕',
-                description: 'Tren matematikk og samle romkort',
-                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                proveNavn: 'MattePrøve'
-            },
-            norsk: {
-                name: 'NorskMester',
-                emoji: '📖',
-                description: 'Mestre norsk og samle kort',
-                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                proveNavn: 'NorskPrøve'
             }
         };
 
@@ -162,27 +148,8 @@ export class FagStart {
                 }
                 break;
 
-            case 'matte':
-                if (!window.MesterSuite.moduler.mattemester) {
-                    console.log('➕ Loading MatteMester module...');
-                    const { mattemester } = await import('../features/mattemester/index.js');
-                    window.MesterSuite.moduler.mattemester = mattemester;
-                    await mattemester.init();
-                } else {
-                    window.MesterSuite.moduler.mattemester.renderPracticeUI();
-                }
-                break;
-
-            case 'norsk':
-                if (!window.MesterSuite.moduler.norskmester) {
-                    console.log('📖 Loading NorskMester module...');
-                    const { norskmester } = await import('../features/norskmester/index.js');
-                    window.MesterSuite.moduler.norskmester = norskmester;
-                    await norskmester.init();
-                } else {
-                    window.MesterSuite.moduler.norskmester.renderPracticeUI();
-                }
-                break;
+            default:
+                console.warn('Ukjent fag:', fagType);
         }
     }
 

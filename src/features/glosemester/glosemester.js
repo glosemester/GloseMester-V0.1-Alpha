@@ -1,5 +1,5 @@
 /* ============================================
-   GLOSEMESTER.JS - Mester Suite v2.0
+   GLOSEMESTER.JS - GloseMester v2.6
    GloseMester implementation of FagModul
    ============================================ */
 

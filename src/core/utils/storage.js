@@ -1,7 +1,7 @@
 /* ============================================
    STORAGE.JS - Sikker lagring v2.0
    Håndterer Kort, XP, Diamanter OG Elev-prøver
-   Mester Suite v2.0
+   GloseMester v2.6
    ============================================ */
 
 const STORAGE_KEY = 'mester_samling';

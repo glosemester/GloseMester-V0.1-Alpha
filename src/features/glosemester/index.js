@@ -1,6 +1,6 @@
 /* ============================================
    INDEX.JS - GloseMester Module Entry Point
-   Mester Suite v2.0
+   GloseMester v2.6
    ============================================ */
 
 // Export main module

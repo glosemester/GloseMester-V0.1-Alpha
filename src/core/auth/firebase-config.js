@@ -1,5 +1,5 @@
 /* ============================================
-   FIREBASE CONFIGURATION - Mester Suite v2.0
+   FIREBASE CONFIGURATION - GloseMester v2.6
    Felles Firebase config for alle fagmoduler
    ============================================ */
 

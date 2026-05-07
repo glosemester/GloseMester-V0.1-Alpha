@@ -1,6 +1,6 @@
 /* ============================================
    ROUTER - SPA Hash-based routing
-   Mester Suite v2.0
+   GloseMester v2.0
    ============================================ */
 
 /**
@@ -160,10 +160,6 @@ export const ROUTES = {
     // Fag-routes
     GLOSEMESTER: '/gloser',
     GLOSEMESTER_START: '/gloser/start',
-    MATTEMESTER: '/matte',
-    MATTEMESTER_START: '/matte/start',
-    NORSKMESTER: '/norsk',
-    NORSKMESTER_START: '/norsk/start',
 
     // Elev-routes
     STUDENT_HOME: '/elev',

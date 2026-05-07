@@ -11,21 +11,8 @@ service cloud.firestore {
     }
 
     // ============================================
-    // MESTER SUITE - MULTI-FAG STØTTE
+    // GLOSEMESTER
     // ============================================
-
-    // MATTE OPPGAVER (MatteMester)
-    match /matte_oppgaver/{oppgaveId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
-    }
-
-    // NORSK OPPGAVER (NorskMester)
-    match /norsk_oppgaver/{oppgaveId} {
-      allow read: if request.auth != null;
-      allow write: if isAdmin();
-    }
-
     // ============================================
     // FELLES_PROVER - GloseBank (kun admin deler)
     // ============================================
@@ -82,7 +69,7 @@ service cloud.firestore {
                               (resource.data.opprettet_av == request.auth.uid || isAdmin());
     }
 
-    // Resultater - støtter multi-fag
+    // Resultater
     // Alle resultater har nå 'prove_type' felt
     match /resultater/{resultatId} {
       allow read: if request.auth != null;

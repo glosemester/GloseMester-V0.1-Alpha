@@ -1,5 +1,5 @@
 /* ============================================
-   KORT-REWARD.JS - Mester Suite v2.0
+   KORT-REWARD.JS - GloseMester v2.6
    Belønningssystem for kort (fag-agnostisk)
    ============================================ */
 

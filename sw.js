@@ -1,7 +1,7 @@
-// SERVICE WORKER - Mester Suite v2.3.0-ALPHA
-// Oppdatert: Ryddet cache, fjernet lydfiler, offline-forbedring
-const APP_VERSION = 'v2.3.0-ALPHA';
-const CACHE_NAME = 'mester-suite-v2.3.0-alpha';
+// SERVICE WORKER - GloseMester v2.6.0-UX
+// Oppdatert: Fjernet MatteMester/NorskMester, oppgradert UX
+const APP_VERSION = 'v2.6.0-UX';
+const CACHE_NAME = 'glosemester-v2.6.0-ux';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -66,10 +66,6 @@ const ASSETS_TO_CACHE = [
   './src/features/glosemester/glosemester.js',
   './src/features/glosemester/vocabulary-data.js',
 
-  // MatteMester v2.0
-  './src/features/mattemester/index.js',
-  './src/features/mattemester/mattemester.js',
-  './src/features/mattemester/oppgave-generator.js',
 
   // Base modul
   './src/features/base-modul.js',
@@ -111,8 +107,6 @@ const ASSETS_TO_CACHE = [
 
   // Old features
   './js/features/practice.js',
-  './js/features/matte-practice.js',
-  './js/features/norsk-practice.js',
   './js/features/diktat-recorder.js',
   './js/features/quiz.js',
   './js/features/teacher.js',

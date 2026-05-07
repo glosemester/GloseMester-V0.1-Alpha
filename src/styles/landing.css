@@ -1,212 +1,334 @@
 /* ============================================
-   LANDING PAGE STYLES
-   Mester Suite v2.0
+   LANDING.CSS — GloseMester Premium Landing
+   v2.6 — Glassmorphism + Premium Palette
    ============================================ */
 
+/* ==================== SIDE-LAYOUT ==================== */
 .landing-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 40px 20px;
+    background:
+        radial-gradient(ellipse 90% 55% at 15% 0%, hsl(258, 85%, 93%) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 100%, hsl(270, 80%, 94%) 0%, transparent 55%),
+        hsl(258, 60%, 97%);
+    padding: 40px 20px 60px;
+    font-family: var(--font-body, 'Inter', system-ui, sans-serif);
+    position: relative;
+    overflow: hidden;
 }
 
+/* Decorative blobs */
+.landing-page::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -120px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(258, 80%, 80%) 0%, transparent 70%);
+    opacity: 0.25;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: blob-pulse 10s ease-in-out infinite;
+}
+
+.landing-page::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsl(270, 85%, 82%) 0%, transparent 70%);
+    opacity: 0.2;
+    filter: blur(50px);
+    pointer-events: none;
+    animation: blob-pulse 14s ease-in-out infinite reverse;
+}
+
+@keyframes blob-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.12); }
+}
+
+/* ==================== HEADER ==================== */
 .landing-header {
     text-align: center;
-    color: white;
-    margin-bottom: 60px;
-    animation: fadeInDown 0.6s ease;
+    margin-bottom: 64px;
+    animation: fade-down 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+    position: relative;
+    z-index: 1;
+}
+
+/* Liten chip over tittelen */
+.landing-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: hsl(258, 80%, 50%);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
 }
 
 .landing-header h1 {
-    font-size: 48px;
-    font-weight: 700;
-    margin: 0 0 15px 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-family: var(--font-heading, 'Outfit', system-ui);
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin: 0 0 18px 0;
+
+    /* Gradient-tekst */
+    background: linear-gradient(
+        135deg,
+        hsl(258, 80%, 40%) 0%,
+        hsl(270, 90%, 52%) 40%,
+        hsl(258, 75%, 60%) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .landing-header p {
-    font-size: 20px;
-    opacity: 0.95;
-    margin: 0;
+    font-size: clamp(16px, 2.5vw, 20px);
+    line-height: 1.65;
+    color: hsl(258, 12%, 45%);
+    max-width: 520px;
+    margin: 0 auto;
 }
 
-/* FAG GRID */
+/* ==================== FAG GRID ==================== */
 .fag-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    max-width: 1200px;
+    gap: 28px;
+    max-width: 1100px;
     margin: 0 auto;
     width: 100%;
     flex: 1;
+    position: relative;
+    z-index: 1;
 }
 
-/* FAG CARD */
+/* Senter enkelt kort */
+.fag-grid.single {
+    grid-template-columns: minmax(300px, 460px);
+    justify-content: center;
+}
+
+/* ==================== FAG CARD ==================== */
 .fag-card {
-    background: white;
-    border-radius: 20px;
-    padding: 40px 30px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 28px;
+    padding: 44px 36px;
     text-align: center;
-    transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     position: relative;
     overflow: hidden;
-    animation: fadeInUp 0.6s ease;
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow:
+        0 4px 24px rgba(124, 58, 237, 0.08),
+        0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    animation: fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+/* Top-strek aksentlinje */
 .fag-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #0071e3, #667eea);
+    height: 4px;
+    background: linear-gradient(90deg, hsl(258, 80%, 55%) 0%, hsl(270, 90%, 65%) 100%);
     transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.fag-card-active::before {
-    background: linear-gradient(90deg, #0071e3, #4A90E2);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 28px 28px 0 0;
 }
 
 .fag-card:hover::before {
     transform: scaleX(1);
 }
 
+/* Glødende kant på hover */
+.fag-card::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(99, 102, 241, 0.2) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    filter: blur(8px);
+}
+
+.fag-card-active:hover::after {
+    opacity: 1;
+}
+
 .fag-card-active:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0, 113, 227, 0.3);
+    transform: translateY(-14px);
+    box-shadow:
+        0 24px 64px rgba(124, 58, 237, 0.18),
+        0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    background: rgba(255, 255, 255, 0.88);
+    border-color: rgba(139, 92, 246, 0.35);
 }
 
 .fag-card-disabled {
-    opacity: 0.7;
+    opacity: 0.55;
     cursor: not-allowed;
+    filter: grayscale(60%);
 }
 
 .fag-card-disabled:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 24px rgba(124, 58, 237, 0.06);
 }
 
-/* FAG ICON */
+/* ==================== FAG IKON ==================== */
 .fag-ikon {
-    font-size: 80px;
-    margin-bottom: 20px;
-    animation: float 3s ease-in-out infinite;
+    font-size: 88px;
+    margin-bottom: 22px;
+    line-height: 1;
+    display: block;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
 }
 
 @keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-10px); }
 }
 
+/* ==================== KORT TEKST ==================== */
 .fag-card h2 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1d1d1f;
+    font-family: var(--font-heading, 'Outfit', system-ui);
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: hsl(258, 50%, 20%);
     margin: 0 0 10px 0;
 }
 
 .fag-card p {
     font-size: 16px;
-    color: #666;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
+    color: hsl(258, 10%, 45%);
+    margin: 0 0 24px 0;
+    line-height: 1.6;
 }
 
-/* BADGES */
+/* ==================== BADGES ==================== */
 .fag-badge {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
 .fag-badge-active {
-    background: #E8F5E9;
-    color: #2E7D32;
+    background: rgba(139, 92, 246, 0.12);
+    color: hsl(258, 80%, 48%);
+    border: 1px solid rgba(139, 92, 246, 0.28);
 }
 
 .fag-badge-soon {
-    background: #FFF3E0;
-    color: #F57C00;
+    background: rgba(156, 163, 175, 0.12);
+    color: hsl(258, 5%, 55%);
+    border: 1px solid rgba(156, 163, 175, 0.25);
 }
 
-/* FOOTER */
+/* ==================== FOOTER ==================== */
 .landing-footer {
     text-align: center;
-    color: white;
-    margin-top: 60px;
-    padding: 20px;
-    opacity: 0.9;
+    margin-top: 64px;
+    padding: 24px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-footer p {
     font-size: 14px;
-    animation: fadeIn 1s ease;
+    color: hsl(258, 10%, 60%);
+    margin-bottom: 6px;
 }
 
-/* ANIMATIONS */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.landing-footer a {
+    color: hsl(258, 70%, 52%);
+    text-decoration: none;
+    font-weight: 600;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.landing-footer a:hover {
+    text-decoration: underline;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+/* ==================== ANIMASJONER ==================== */
+@keyframes fade-down {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* RESPONSIVE */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Staggered animation for kort */
+.fag-card:nth-child(1) { animation-delay: 0.05s; }
+.fag-card:nth-child(2) { animation-delay: 0.12s; }
+.fag-card:nth-child(3) { animation-delay: 0.19s; }
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-    .landing-header h1 {
-        font-size: 36px;
+    .landing-page {
+        padding: 28px 16px 48px;
     }
 
-    .landing-header p {
-        font-size: 18px;
+    .landing-header {
+        margin-bottom: 40px;
     }
 
     .fag-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 18px;
     }
 
     .fag-card {
-        padding: 30px 20px;
+        padding: 32px 24px;
     }
 
     .fag-ikon {
-        font-size: 60px;
+        font-size: 68px;
     }
 
     .fag-card h2 {
-        font-size: 24px;
+        font-size: 26px;
     }
+}
+
+@media (max-width: 480px) {
+    .fag-card { border-radius: 22px; }
+    .landing-page::before,
+    .landing-page::after { display: none; }
 }

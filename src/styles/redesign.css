@@ -1,205 +1,584 @@
 /* ============================================
-   REDESIGN.CSS - Playwize-inspirert design
-   Mester Suite v2.0
+   REDESIGN.CSS — GloseMester Premium Design System
+   v2.6 — Glassmorphism + Dark Purple + Neon Glow
    ============================================ */
 
-/* ==================== VARIABLER ==================== */
+/* ==================== DESIGN TOKENS ==================== */
 :root {
-    /* Playwize farger */
-    --primary-purple: #7C3AED;
-    --vibrant-orange: #FB923C;
-    --sunny-yellow: #FBBF24;
-    --background: #F5F3FF;
+    /* ── Primærfarger ── */
+    --purple-900: hsl(258, 90%, 20%);
+    --purple-800: hsl(258, 85%, 30%);
+    --purple-700: hsl(258, 80%, 40%);
+    --purple-600: hsl(258, 80%, 50%);   /* Primær */
+    --purple-500: hsl(258, 75%, 58%);
+    --purple-400: hsl(258, 80%, 68%);
+    --purple-300: hsl(258, 85%, 78%);
+    --purple-100: hsl(258, 80%, 96%);
 
-    /* Ekstra farger */
-    --electric-blue: #3B82F6;
-    --soft-pink: #F472B6;
-    --mint-green: #10B981;
+    /* ── Aksentfarger ── */
+    --accent-violet: hsl(270, 100%, 65%);
+    --accent-indigo: hsl(240, 90%, 65%);
+    --accent-gold:   hsl(43,  95%, 58%);
+    --accent-cyan:   hsl(195, 90%, 55%);
+    --accent-pink:   hsl(320, 85%, 65%);
 
-    /* Nøytrale */
-    --text-dark: #1F2937;
-    --text-gray: #6B7280;
-    --white: #FFFFFF;
+    /* ── Glassmorphism overflater ── */
+    --glass-white: rgba(255, 255, 255, 0.08);
+    --glass-white-hover: rgba(255, 255, 255, 0.14);
+    --glass-white-strong: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-border-strong: rgba(255, 255, 255, 0.45);
 
-    /* Typografi */
+    /* ── Mørk app-bakgrunn ── */
+    --bg-deep: hsl(258, 60%, 8%);
+    --bg-dark: hsl(258, 50%, 12%);
+    --bg-card: hsl(258, 45%, 15%);
+
+    /* ── Lys app-bakgrunn (student-view) ── */
+    --bg-light: hsl(258, 60%, 97%);
+    --bg-surface: rgba(255, 255, 255, 0.78);
+
+    /* ── Tekst ── */
+    --text-primary: hsl(258, 15%, 12%);
+    --text-secondary: hsl(258, 10%, 40%);
+    --text-muted: hsl(258, 8%, 60%);
+    --text-on-dark: rgba(255, 255, 255, 0.95);
+    --text-on-dark-muted: rgba(255, 255, 255, 0.6);
+
+    /* ── Typografi ── */
     --font-heading: 'Outfit', 'Poppins', system-ui, sans-serif;
     --font-body: 'Inter', 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-    /* Radiuser */
-    --radius-sm: 12px;
-    --radius-md: 20px;
-    --radius-lg: 30px;
-    --radius-xl: 50px;
+    /* ── Radiuser ── */
+    --radius-xs:  8px;
+    --radius-sm:  14px;
+    --radius-md:  22px;
+    --radius-lg:  32px;
+    --radius-xl:  50px;
+    --radius-full: 9999px;
 
-    /* Skygger */
-    --shadow-sm: 0 2px 8px rgba(124, 58, 237, 0.1);
-    --shadow-md: 0 4px 16px rgba(124, 58, 237, 0.15);
-    --shadow-lg: 0 8px 32px rgba(124, 58, 237, 0.2);
+    /* ── Skygger (lys modus) ── */
+    --shadow-xs: 0 1px 4px rgba(124, 58, 237, 0.06);
+    --shadow-sm: 0 2px 12px rgba(124, 58, 237, 0.10);
+    --shadow-md: 0 6px 24px rgba(124, 58, 237, 0.14);
+    --shadow-lg: 0 12px 48px rgba(124, 58, 237, 0.20);
+    --shadow-xl: 0 24px 80px rgba(124, 58, 237, 0.28);
+
+    /* ── Neon glødeffekter ── */
+    --glow-purple: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.2);
+    --glow-gold:   0 0 20px rgba(251, 191, 36, 0.5), 0 0 60px rgba(251, 191, 36, 0.2);
+    --glow-cyan:   0 0 20px rgba(6, 182, 212, 0.5),  0 0 60px rgba(6, 182, 212, 0.2);
+
+    /* ── Blur-verdier ── */
+    --blur-glass: blur(16px);
+    --blur-heavy: blur(32px);
+
+    /* ── Overganger ── */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.3s var(--ease-smooth);
+    --transition-spring: 0.45s var(--ease-spring);
 }
 
 /* ==================== GLOBAL RESET ==================== */
-* {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: var(--font-body);
-    color: var(--text-dark);
-    background: var(--background);
+    color: var(--text-primary);
+    background: var(--bg-light);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
-/* ==================== BLOB BACKGROUNDS ==================== */
+/* ==================== ANIMATED MESH BACKGROUND ==================== */
+
+/* Lys variant (elev-sider) */
+.bg-mesh-light {
+    background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, hsl(258, 90%, 92%) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 100%, hsl(270, 85%, 93%) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 50% 50%, hsl(240, 80%, 95%) 0%, transparent 70%),
+        hsl(258, 60%, 97%);
+}
+
+/* Mørk variant (lærer-dashboard) */
+.bg-mesh-dark {
+    background:
+        radial-gradient(ellipse 70% 60% at 20% 0%, hsl(258, 80%, 25%) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 80% 100%, hsl(270, 90%, 22%) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, hsl(240, 70%, 18%) 0%, transparent 60%),
+        hsl(258, 60%, 8%);
+    color: var(--text-on-dark);
+}
+
+/* Animerte blobber */
 .blob-bg {
     position: relative;
     overflow: hidden;
 }
 
-.blob-bg::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, var(--primary-purple) 0%, transparent 70%);
-    opacity: 0.1;
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    animation: blob-float 20s ease-in-out infinite;
-}
-
+.blob-bg::before,
 .blob-bg::after {
     content: '';
     position: absolute;
-    bottom: -30%;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    filter: var(--blur-heavy);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.blob-bg::before {
+    top: -20%;
+    right: -10%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, var(--purple-400) 0%, transparent 65%);
+    animation: blob-drift 25s ease-in-out infinite;
+}
+
+.blob-bg::after {
+    bottom: -20%;
     left: -10%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--vibrant-orange) 0%, transparent 70%);
-    opacity: 0.1;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--accent-indigo) 0%, transparent 65%);
+    animation: blob-drift 18s ease-in-out infinite reverse;
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    animation: blob-float 15s ease-in-out infinite reverse;
 }
 
-@keyframes blob-float {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    33% { transform: translate(30px, -30px) rotate(120deg); }
-    66% { transform: translate(-20px, 20px) rotate(240deg); }
+@keyframes blob-drift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25%       { transform: translate(40px, -50px) rotate(90deg) scale(1.05); }
+    50%       { transform: translate(-30px, 30px) rotate(180deg) scale(0.97); }
+    75%       { transform: translate(20px, 50px) rotate(270deg) scale(1.03); }
 }
 
-/* ==================== KORTDESIGN ==================== */
-.playful-card {
-    background: var(--white);
+/* Sørg for at innhold er over blobbene */
+.blob-bg > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ==================== GLASSMORPHISM KORT ==================== */
+.glass-card {
+    background: var(--bg-surface);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--glass-border-strong);
     border-radius: var(--radius-lg);
-    padding: 30px;
+    padding: 32px;
     box-shadow: var(--shadow-md);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: var(--transition-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+    border-color: rgba(139, 92, 246, 0.35);
+}
+
+/* Dark variant (på mørk bakgrunn) */
+.glass-card-dark {
+    background: var(--glass-white);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: var(--transition-spring);
+    position: relative;
+    overflow: hidden;
+    color: var(--text-on-dark);
+}
+
+.glass-card-dark:hover {
+    background: var(--glass-white-hover);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4), var(--glow-purple);
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Linje-aksent øverst på kort */
+.glass-card::before,
+.glass-card-dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.5) 0%, rgba(99, 102, 241, 0.2) 50%, transparent 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: var(--transition-base);
+}
+
+.glass-card:hover::before,
+.glass-card-dark:hover::before {
+    opacity: 1;
+}
+
+/* Fargerike kort (fag-kort) */
+.playful-card {
+    background: var(--bg-surface);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--glass-border-strong);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-spring);
     position: relative;
     overflow: hidden;
 }
 
 .playful-card:hover {
-    transform: translateY(-8px) rotate(1deg);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-10px) rotate(0.5deg);
+    box-shadow: var(--shadow-xl);
 }
 
 .playful-card.purple {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, #9333EA 100%);
-    color: var(--white);
+    background: linear-gradient(145deg, hsl(258, 80%, 48%) 0%, hsl(270, 85%, 55%) 100%);
+    color: var(--text-on-dark);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-lg), var(--glow-purple);
 }
 
-.playful-card.orange {
-    background: linear-gradient(135deg, var(--vibrant-orange) 0%, #F97316 100%);
-    color: var(--white);
+.playful-card.purple:hover {
+    box-shadow: var(--shadow-xl), 0 0 40px rgba(139, 92, 246, 0.5);
 }
 
-.playful-card.yellow {
-    background: linear-gradient(135deg, var(--sunny-yellow) 0%, #EAB308 100%);
-    color: var(--text-dark);
+.playful-card.gold {
+    background: linear-gradient(145deg, hsl(40, 90%, 52%) 0%, hsl(35, 95%, 45%) 100%);
+    color: hsl(258, 60%, 15%);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-lg), var(--glow-gold);
 }
 
-/* Doodle dekorelementer */
+.playful-card.indigo {
+    background: linear-gradient(145deg, hsl(240, 80%, 55%) 0%, hsl(250, 85%, 62%) 100%);
+    color: var(--text-on-dark);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-lg), var(--glow-cyan);
+}
+
+/* Dekorasjoner */
 .doodle {
     position: absolute;
-    opacity: 0.15;
     pointer-events: none;
+    opacity: 0.15;
 }
 
-.doodle-star {
-    font-size: 24px;
-    top: 10px;
-    right: 10px;
-}
+.doodle-star  { font-size: 26px; top: 12px; right: 14px; animation: spin-slow 12s linear infinite; }
+.doodle-arrow { font-size: 34px; bottom: 12px; left: 14px; transform: rotate(-20deg); }
 
-.doodle-arrow {
-    font-size: 32px;
-    bottom: 10px;
-    left: 10px;
-    transform: rotate(-15deg);
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 
 /* ==================== KNAPPER ==================== */
 .btn {
     font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 16px;
-    padding: 16px 32px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.01em;
+    padding: 14px 28px;
     border: none;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-spring);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple-effekt */
+.btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.15);
+    opacity: 0;
+    border-radius: inherit;
+    transition: opacity 0.2s ease;
+}
+
+.btn:hover::after  { opacity: 1; }
+.btn:active::after { opacity: 0; }
+
+.btn:hover  { transform: translateY(-3px); }
+.btn:active { transform: translateY(0) scale(0.98); }
+
+/* Primær */
+.btn-primary {
+    background: linear-gradient(135deg, hsl(258, 80%, 52%) 0%, hsl(270, 85%, 60%) 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 8px 32px rgba(124, 58, 237, 0.55), var(--glow-purple);
+}
+
+/* Sekundær (outline) */
+.btn-secondary {
+    background: transparent;
+    color: var(--purple-600);
+    border: 2px solid var(--purple-400);
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: var(--purple-100);
+    border-color: var(--purple-600);
     box-shadow: var(--shadow-sm);
 }
 
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+/* Sekundær på mørk bakgrunn */
+.btn-ghost {
+    background: var(--glass-white);
+    backdrop-filter: var(--blur-glass);
+    color: #fff;
+    border: 1px solid var(--glass-border);
 }
 
-.btn:active {
-    transform: translateY(0);
+.btn-ghost:hover {
+    background: var(--glass-white-hover);
+    border-color: rgba(255, 255, 255, 0.35);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-purple) 0%, #9333EA 100%);
-    color: var(--white);
+/* Gull / Premium */
+.btn-gold {
+    background: linear-gradient(135deg, hsl(43, 95%, 55%) 0%, hsl(38, 100%, 50%) 100%);
+    color: hsl(258, 60%, 15%);
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
 }
 
-.btn-secondary {
-    background: var(--white);
-    color: var(--primary-purple);
-    border: 2px solid var(--primary-purple);
+.btn-gold:hover {
+    box-shadow: 0 8px 32px rgba(251, 191, 36, 0.55), var(--glow-gold);
 }
 
-.btn-orange {
-    background: linear-gradient(135deg, var(--vibrant-orange) 0%, #F97316 100%);
-    color: var(--white);
-}
-
-.btn-yellow {
-    background: linear-gradient(135deg, var(--sunny-yellow) 0%, #EAB308 100%);
-    color: var(--text-dark);
-}
+/* Størrelsesvarianter */
+.btn-sm { padding: 10px 20px; font-size: 13px; }
+.btn-lg { padding: 18px 40px; font-size: 17px; }
 
 /* ==================== IKONER ==================== */
 .icon-large {
-    font-size: 64px;
+    font-size: 72px;
     margin-bottom: 20px;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.15));
+    animation: float-icon 4s ease-in-out infinite;
 }
 
-/* ==================== WAVES ==================== */
+@keyframes float-icon {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-8px); }
+}
+
+/* ==================== HERO / HEADER ==================== */
+.hero-section {
+    text-align: center;
+    padding: 80px 24px 60px;
+    background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, hsl(258, 85%, 38%) 0%, transparent 65%),
+        linear-gradient(170deg, hsl(258, 80%, 14%) 0%, hsl(258, 70%, 8%) 100%);
+    color: var(--text-on-dark);
+    border-radius: 0 0 60px 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, hsl(270, 100%, 85%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    text-shadow: none;
+}
+
+.hero-section p {
+    font-size: clamp(16px, 2.5vw, 20px);
+    color: var(--text-on-dark-muted);
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+/* ==================== PROGRESS BAR ==================== */
+.progress-container {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-full);
+    padding: 6px;
+    backdrop-filter: var(--blur-glass);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.progress-boxes {
+    display: flex;
+    gap: 6px;
+}
+
+.progress-box {
+    flex: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: all 0.4s var(--ease-spring);
+}
+
+.progress-box.filled {
+    background: linear-gradient(90deg, var(--accent-gold) 0%, hsl(38, 100%, 62%) 100%);
+    box-shadow: var(--glow-gold);
+    animation: pulse-fill 0.5s var(--ease-spring);
+}
+
+@keyframes pulse-fill {
+    0%   { transform: scale(0.8); opacity: 0.5; }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==================== FORMS & INPUTS ==================== */
+.input-field {
+    width: 100%;
+    padding: 14px 20px;
+    border: 2px solid hsl(258, 40%, 88%);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    transition: var(--transition-base);
+    box-shadow: inset 0 2px 6px rgba(124, 58, 237, 0.04);
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: var(--purple-500);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.18), inset 0 2px 6px rgba(124, 58, 237, 0.04);
+}
+
+.input-field::placeholder {
+    color: var(--text-muted);
+}
+
+.form-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* ==================== BADGES & CHIPS ==================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.badge-purple {
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--purple-600);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.badge-gold {
+    background: rgba(251, 191, 36, 0.15);
+    color: hsl(38, 90%, 40%);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.12);
+    color: hsl(162, 80%, 32%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* ==================== STAT CARDS ==================== */
+.stat-card {
+    background: var(--bg-surface);
+    backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--glass-border-strong);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    transition: var(--transition-spring);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 42px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--purple-600) 0%, var(--accent-violet) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* ==================== WAVE DIVIDER ==================== */
 .wave-divider {
     width: 100%;
     height: 80px;
@@ -207,73 +586,85 @@ h1, h2, h3, h4, h5, h6 {
     background-size: cover;
 }
 
-/* ==================== HEADER / HERO ==================== */
-.hero-section {
-    text-align: center;
-    padding: 60px 20px;
-    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--electric-blue) 100%);
-    color: var(--white);
-    border-radius: 0 0 50px 50px;
-    position: relative;
-    overflow: hidden;
+/* ==================== TOASTS / FEEDBACK ==================== */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 15px;
+    z-index: 9999;
+    backdrop-filter: var(--blur-glass);
+    border: 1px solid var(--glass-border);
+    animation: toast-in 0.4s var(--ease-spring);
+    box-shadow: var(--shadow-lg);
 }
 
-.hero-section h1 {
-    font-size: 48px;
-    font-weight: 800;
-    margin-bottom: 16px;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.toast-success {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: hsl(162, 80%, 32%);
 }
 
-.hero-section p {
-    font-size: 20px;
-    opacity: 0.95;
+.toast-error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: hsl(0, 75%, 40%);
 }
 
-/* ==================== PROGRESS BAR ==================== */
-.progress-container {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-xl);
-    padding: 8px;
-    backdrop-filter: blur(10px);
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(60px) scale(0.9); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-.progress-boxes {
-    display: flex;
-    gap: 8px;
+/* ==================== LOADING SPINNER ==================== */
+.spinner {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 4px solid rgba(139, 92, 246, 0.2);
+    border-top-color: var(--purple-500);
+    animation: spin 0.8s linear infinite;
 }
 
-.progress-box {
-    flex: 1;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
-    transition: all 0.3s ease;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-.progress-box.filled {
-    background: var(--sunny-yellow);
-    box-shadow: 0 0 12px var(--sunny-yellow);
-    animation: pulse-fill 0.5s ease;
+/* ==================== SCROLLBAR ==================== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 4px;
 }
-
-@keyframes pulse-fill {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.55);
 }
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 768px) {
-    .hero-section h1 {
-        font-size: 32px;
+    .hero-section {
+        padding: 60px 20px 48px;
+        border-radius: 0 0 40px 40px;
     }
 
+    .glass-card,
+    .glass-card-dark,
     .playful-card {
-        padding: 20px;
+        padding: 22px;
     }
 
-    .btn {
-        font-size: 14px;
-        padding: 12px 24px;
-    }
+    .btn { font-size: 14px; padding: 12px 22px; }
+    .btn-lg { padding: 15px 28px; font-size: 15px; }
+
+    .icon-large { font-size: 56px; }
+
+    .stat-value { font-size: 32px; }
+}
+
+@media (max-width: 480px) {
+    .toast { right: 12px; left: 12px; }
 }

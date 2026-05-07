@@ -1,5 +1,5 @@
 /* ============================================
-   PWA-INSTALLER.JS - Mester Suite v2.0
+   PWA-INSTALLER.JS - GloseMester v2.6
    Progressive Web App installation handler
    ============================================ */
 

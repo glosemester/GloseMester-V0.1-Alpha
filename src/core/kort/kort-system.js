@@ -1,5 +1,5 @@
 /* ============================================
-   KORT-SYSTEM.JS - Mester Suite v2.0
+   KORT-SYSTEM.JS - GloseMester v2.6
    Main entry point for kort-systemet
    ============================================ */
 

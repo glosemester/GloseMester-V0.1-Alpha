@@ -1,5 +1,5 @@
 /* ============================================
-   QUIZ-ENGINE.JS - Mester Suite v2.0
+   QUIZ-ENGINE.JS - GloseMester v2.6
    Student prøvemodus: hent prøve fra Firestore,
    vis quiz, send resultater tilbake til lærer.
    ============================================ */
@@ -339,5 +339,5 @@ function normaliser(s) {
 }
 
 function fagLabel(fag) {
-    return { gloser: 'GloseMester', matte: 'MatteMester', norsk: 'NorskMester' }[fag] || fag;
+    return { gloser: 'GloseMester' }[fag] || 'GloseMester';
 }
