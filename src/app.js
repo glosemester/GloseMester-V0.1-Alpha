@@ -35,8 +35,11 @@ async function initApp() {
     try {
         console.log('%c🚀 GloseMester v2.6.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
 
-        // 0. Handle Feide OAuth callback (token arrives in URL hash after redirect)
-        await handleFeideCallback().catch(err => visToast(err.message, 'error'));
+        // 0. Handle Feide OAuth callback — Feide sender ?code= til rot-URL etter autentisering
+        const feideResult = await handleFeideCallback().catch(err => {
+            visToast(err.message, 'error');
+            return null;
+        });
 
         // 1. Setup routes FIRST
         setupRoutes();
@@ -44,10 +47,14 @@ async function initApp() {
 
         // 2. Initialize async features
         onAuthStateChanged(auth, handleAuthChange);
-        await initPWA(); 
+        await initPWA();
 
-        // 3. Then handle initial route
-        router.handleRoute();
+        // 3. Handle initial route — etter Feide-login: gå til lærerdashboard
+        if (feideResult) {
+            router.push(ROUTES.TEACHER_HOME);
+        } else {
+            router.handleRoute();
+        }
 
         // Mark as initialized
         window.GloseMester.initialized = true;
