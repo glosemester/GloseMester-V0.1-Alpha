@@ -88,18 +88,24 @@ function setupRoutes() {
     // ==================== TEACHER DASHBOARD ====================
     router.register(ROUTES.TEACHER_HOME, async () => {
         const { teacherModule } = await import('./features/teacher/teacher-module.js');
+        const { visLoginModal } = await import('./core/auth/auth-service.js');
         window.GloseMester.moduler.teacher = teacherModule;
-        
-        // Check if user is logged in
-        if (!auth.currentUser) {
-            visToast('Du må være innlogget for å se lærersiden', 'warning');
-            router.push(ROUTES.LANDING);
-            return;
+
+        let user = auth.currentUser;
+
+        // Ikke innlogget — vis login-modal i stedet for å sende brukeren tilbake
+        if (!user) {
+            try {
+                const result = await visLoginModal();
+                user = result.user;
+            } catch {
+                // Bruker avbrøt innlogging — tilbake til fagvalg
+                router.push(ROUTES.GLOSEMESTER);
+                return;
+            }
         }
 
-        await teacherModule.init({
-            user: auth.currentUser
-        });
+        await teacherModule.init({ user });
     });
 
     // ==================== LOGIN ====================
