@@ -67,43 +67,55 @@ export class TeacherModule {
         if (!container) return;
 
         container.innerHTML = `
-            <div class="teacher-dashboard" style="padding: 80px 20px 100px; max-width: 1200px; margin: 0 auto;">
-                <header class="dashboard-header" style="text-align: center; margin-bottom: 40px;">
-                    <h1 style="font-size: 32px; margin-bottom: 10px;">👨‍🏫 Lærerportalen</h1>
-                    <p style="color: #666; font-size: 16px;">Velkommen, ${this.userName}</p>
+            <div class="teacher-dashboard" style="padding: 100px 20px; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease;">
+                <header class="dashboard-header" style="margin-bottom: 60px;">
+                    <div class="landing-eyebrow" style="margin-bottom: 12px;">Lærerportal</div>
+                    <h1 style="font-size: clamp(32px, 5vw, 48px); font-family: var(--font-heading); font-weight: 800; color: var(--purple-900); margin-bottom: 10px;">
+                        Velkommen, <span style="background: var(--gradient-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${this.userName}</span> 👋
+                    </h1>
+                    <p style="color: var(--purple-600); font-size: 18px; font-weight: 500;">Her er din oversikt for GloseMester</p>
                 </header>
 
-                <div class="fag-selector" style="margin-bottom: 40px;">
-                    <h2 style="font-size: 24px; margin-bottom: 20px;">Velg fag for å lage prøve</h2>
-                    <div class="fag-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-
-                        <!-- GloseMester -->
-                        <div class="playful-card purple fag-card" data-fag="gloser" style="cursor: pointer; transition: all 0.3s;">
-                            <div class="icon-large" style="font-size: 64px; margin-bottom: 15px;">📚</div>
-                            <h3 style="font-size: 22px; margin-bottom: 10px;">GloseMester</h3>
-                            <p style="color: #666; margin-bottom: 20px;">Lag glosetester for elevene</p>
-                            <button class="btn btn-primary" style="width: 100%;">
-                                Lag prøve
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick stats -->
-                <div class="stats-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 40px;">
-                    <div class="stat-card" style="background: white; padding: 25px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-md); text-align: center;">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--primary-purple, #7C3AED); margin-bottom: 8px;">
-                            ${this.tests.length}
-                        </div>
-                        <div style="color: #666; font-size: 14px;">Lagrede prøver</div>
+                <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    
+                    <!-- Hovedkort: Lag Prøve -->
+                    <div class="glass-card-dark fag-card" data-fag="gloser" style="padding: 40px; cursor: pointer; position: relative; overflow: hidden; border: 1px solid var(--purple-400);">
+                        <div class="card-glow" style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+                        <div style="font-size: 64px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.5));">📚</div>
+                        <h2 style="font-size: 28px; font-family: var(--font-heading); font-weight: 800; color: white; margin-bottom: 12px;">GloseMester</h2>
+                        <p style="color: var(--purple-100); margin-bottom: 30px; font-size: 16px; line-height: 1.5;">Opprett nye glosetester, administrer eksisterende prøver og se elevenes resultater.</p>
+                        <button class="btn-primary" style="width: 100%; padding: 16px; font-weight: 700; font-size: 16px; box-shadow: var(--glow-purple);">
+                            ➕ Lag ny prøve
+                        </button>
                     </div>
 
-                    <div class="stat-card" style="background: white; padding: 25px; border-radius: var(--radius-lg, 30px); box-shadow: var(--shadow-md); text-align: center;">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--vibrant-orange, #FB923C); margin-bottom: 8px;">
-                            ${this.getTestCountByFag('gloser')}
+                    <!-- Stats & Info -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="glass-card" style="padding: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--purple-200);">
+                            <div style="width: 60px; height: 60px; border-radius: 20px; background: var(--purple-100); display: flex; align-items: center; justify-content: center; font-size: 30px;">📝</div>
+                            <div>
+                                <div style="font-size: 32px; font-weight: 800; color: var(--purple-900); font-family: var(--font-heading); line-height: 1;">${this.tests.length}</div>
+                                <div style="font-size: 14px; color: var(--purple-600); font-weight: 600; margin-top: 4px;">Lagrede prøver</div>
+                            </div>
                         </div>
-                        <div style="color: #666; font-size: 14px;">GloseMester prøver</div>
+
+                        <div class="glass-card" style="padding: 30px; display: flex; align-items: center; gap: 20px; border: 1px solid var(--purple-200);">
+                            <div style="width: 60px; height: 60px; border-radius: 20px; background: var(--purple-100); display: flex; align-items: center; justify-content: center; font-size: 30px;">🎓</div>
+                            <div>
+                                <div style="font-size: 32px; font-weight: 800; color: var(--purple-900); font-family: var(--font-heading); line-height: 1;">–</div>
+                                <div style="font-size: 14px; color: var(--purple-600); font-weight: 600; margin-top: 4px;">Aktive elever</div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card" style="padding: 25px; background: var(--gradient-purple); color: white; border: none;">
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Premium Lærer</h3>
+                            <p style="font-size: 14px; opacity: 0.9; margin-bottom: 15px;">Du har tilgang til alle funksjoner, inkludert standardprøver og eksport.</p>
+                            <div style="height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px;">
+                                <div style="width: 100%; height: 100%; background: white; border-radius: 3px; box-shadow: 0 0 10px white;"></div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         `;

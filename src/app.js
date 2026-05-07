@@ -12,39 +12,43 @@ import { createIOSPopup } from './core/pwa/ios-popup.js';
 /**
  * Global app state
  */
-window.MesterSuite = {
-    version: '2.0.0-ALPHA',
-    aktivtFag: null,
+window.GloseMester = {
+    version: '2.6.0',
+    aktivtFag: 'gloser',
     aktivRolle: null,
     bruker: null,
     moduler: {
-        glosemester: null
+        glosemester: null,
+        teacher: null
     },
     initialized: false
 };
+
+// For backward compatibility during migration
+window.MesterSuite = window.GloseMester;
 
 /**
  * Initialize app
  */
 async function initApp() {
     try {
-        console.log('%c🚀 GloseMester v2.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
+        console.log('%c🚀 GloseMester v2.6.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
 
         // 1. Setup routes FIRST
         setupRoutes();
         setupNavigationGuards();
 
-        // 2. Then handle initial route (manually trigger to ensure routes are registered)
+        // 2. Initialize async features
+        onAuthStateChanged(auth, handleAuthChange);
+        await initPWA(); 
+
+        // 3. Then handle initial route
         router.handleRoute();
 
-        // 3. Initialize async features
-        onAuthStateChanged(auth, handleAuthChange);
-        await initPWA(); // Await PWA initialization
-
         // Mark as initialized
-        window.MesterSuite.initialized = true;
+        window.GloseMester.initialized = true;
 
-        console.log('%c✅ GloseMester v2.0 - Ready!', 'color: #10B981; font-size: 14px; font-weight: bold;');
+        console.log('%c✅ GloseMester v2.6.0 - Ready!', 'color: #10B981; font-size: 14px; font-weight: bold;');
     } catch (error) {
         console.error('❌ App initialization failed:', error);
         visToast('Kunne ikke starte appen. Prøv å refresh siden.', 'error');
@@ -63,20 +67,6 @@ function setupRoutes() {
         window.Landing.render();
     });
 
-    // ==================== LOGIN ====================
-    router.register(ROUTES.LOGIN, async () => {
-        // TODO: Import login page when created
-        console.log('Login page - TODO');
-        showPlaceholder('Login Page (Coming Soon)');
-    });
-
-    // ==================== ROLE SELECTOR ====================
-    router.register(ROUTES.ROLE_SELECT, async () => {
-        // TODO: Import role selector when created
-        console.log('Role selector - TODO');
-        showPlaceholder('Role Selector (Coming Soon)');
-    });
-
     // ==================== GLOSEMESTER ====================
     router.register(ROUTES.GLOSEMESTER, async () => {
         // Show fag-start (Øv Selv / Prøve / Lærer)
@@ -84,19 +74,33 @@ function setupRoutes() {
         window.FagStart.render('gloser');
     });
 
-
     // ==================== TEACHER DASHBOARD ====================
     router.register(ROUTES.TEACHER_HOME, async () => {
-        // TODO: Import teacher dashboard when refactored
-        console.log('Teacher dashboard - TODO');
-        showPlaceholder('Teacher Dashboard (Being refactored)');
+        const { teacherModule } = await import('./features/teacher/teacher-module.js');
+        window.GloseMester.moduler.teacher = teacherModule;
+        
+        // Check if user is logged in
+        if (!auth.currentUser) {
+            visToast('Du må være innlogget for å se lærersiden', 'warning');
+            router.push(ROUTES.LANDING);
+            return;
+        }
+
+        await teacherModule.init({
+            user: auth.currentUser
+        });
+    });
+
+    // ==================== LOGIN ====================
+    router.register(ROUTES.LOGIN, async () => {
+        // For nå, redirect til landing da den har login-knapp
+        router.push(ROUTES.LANDING);
     });
 
     // ==================== GALLERY ====================
     router.register(ROUTES.GALLERY, async () => {
-        // TODO: Import gallery when created
         console.log('Gallery - TODO');
-        showPlaceholder('Card Gallery (Coming Soon)');
+        showPlaceholder('Kortgalleriet kommer snart!');
     });
 
     console.log(`✅ ${router.getRoutes().length} routes registered`);
@@ -106,28 +110,18 @@ function setupRoutes() {
  * Setup navigation guards
  */
 function setupNavigationGuards() {
-    // ==================== BEFORE EACH ====================
     router.beforeEach(async (route) => {
-        console.log(`🔍 Before navigation: ${route.path}`);
-
         // Check authentication for protected routes
         if (isProtectedRoute(route.path) && !auth.currentUser) {
-            console.warn('⚠️ Protected route - redirecting to login');
-            router.push(ROUTES.LOGIN);
-            return false; // Cancel navigation
+            visToast('Du må logge inn for å se denne siden', 'info');
+            router.push(ROUTES.LANDING);
+            return false;
         }
-
-        return true; // Allow navigation
+        return true;
     });
 
-    // ==================== AFTER EACH ====================
     router.afterEach((route) => {
-        console.log(`✅ After navigation: ${route.path}`);
-
-        // Update page title
         document.title = getPageTitle(route.path);
-
-        // Scroll to top
         window.scrollTo(0, 0);
     });
 }
@@ -138,18 +132,15 @@ function setupNavigationGuards() {
 function handleAuthChange(user) {
     if (user) {
         console.log('✅ User logged in:', user.email);
-        window.MesterSuite.bruker = user;
-
-        // Load user data
+        window.GloseMester.bruker = user;
         loadUserData(user.uid);
     } else {
         console.log('❌ User logged out');
-        window.MesterSuite.bruker = null;
-
-        // Only redirect to login if on protected route
+        window.GloseMester.bruker = null;
+        
         const currentRoute = router.getCurrentRoute();
-        if (isProtectedRoute(currentRoute.path)) {
-            router.push(ROUTES.LOGIN);
+        if (currentRoute && isProtectedRoute(currentRoute.path)) {
+            router.push(ROUTES.LANDING);
         }
     }
 }

@@ -264,7 +264,7 @@ export class MenuSystem {
     }
 
     /**
-     * Show lærer menu (hamburger + drawer)
+     * Show lærer menu (sidebar + top bar)
      * @param {Object} options
      */
     showLaererMenu(options = {}) {
@@ -279,17 +279,19 @@ export class MenuSystem {
             onLogout
         } = options;
 
-        // Top nav bar with hamburger
+        // Add class to body for layout adjustment on desktop
+        document.body.classList.add('has-sidebar');
+
+        // Top nav bar (mobile only or secondary actions)
         const nav = document.createElement('nav');
         nav.id = 'laerer-meny';
-        nav.className = 'top-nav laerer-nav';
+        nav.className = 'top-nav laerer-nav glass-panel';
         nav.style.cssText = `
             display: flex;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: var(--glass-bg, rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(16px);
             padding: 12px 20px;
-            border-radius: 0;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
             position: fixed;
             top: 0;
             left: 0;
@@ -306,10 +308,13 @@ export class MenuSystem {
                 <span class="hamburger-text">Meny</span>
             </button>
 
-            <span class="user-info">${userName}</span>
+            <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 24px;">🎓</span>
+                <span style="font-family: var(--font-heading); font-weight: 800; font-size: 18px; background: var(--gradient-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GloseMester</span>
+            </div>
 
             <div class="nav-actions">
-                <button class="btn-primary nav-action-btn" id="home-btn">
+                <button class="btn-primary nav-action-btn" id="home-btn" style="padding: 8px 16px; font-size: 13px;">
                     🏠 Hjem
                 </button>
             </div>
@@ -356,30 +361,55 @@ export class MenuSystem {
             onLogout
         } = options;
 
+        this.drawerElement.className = 'nav-items glass-panel';
+        this.drawerElement.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--glass-bg, rgba(255, 255, 255, 0.8));
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border, rgba(255, 255, 255, 0.3));
+            box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+            z-index: 4000;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 0 20px 0;
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow-y: auto;
+        `;
+
         this.drawerElement.innerHTML = `
-            <div class="drawer-header" style="padding: 0 25px 20px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
-                <div style="font-size: 18px; font-weight: 700; color: #1d1d1f; word-break: break-word;">
+            <div class="drawer-header" style="padding: 0 25px 30px; border-bottom: 1px solid rgba(0,0,0,0.05); margin-bottom: 20px;">
+                <div style="font-size: 14px; color: var(--purple-500); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">
+                    Lærerportal
+                </div>
+                <div style="font-size: 20px; font-weight: 800; font-family: var(--font-heading); color: var(--purple-900); word-break: break-word;">
                     ${userName}
                 </div>
             </div>
 
-            <button class="drawer-item active" data-action="dashboard">
-                📊 Dashboard
-            </button>
-            <button class="drawer-item" data-action="saved-tests">
-                📝 Lagrede Prøver
-            </button>
-            <button class="drawer-item" data-action="standard-tests">
-                📚 Standardprøver
-            </button>
-            <button class="drawer-item" data-action="glosebank" style="display: none;">
-                📚 GloseBank
-            </button>
-            <button class="drawer-item" data-action="admin" style="display: none;">
-                🔧 Admin
-            </button>
-            <button class="drawer-item logout" data-action="logout" style="border-top: 2px solid #eee; margin-top: auto; color: #dc2626;">
-                🚪 Logg ut
+            <div class="drawer-section" style="padding: 0 15px;">
+                <button class="drawer-item active" data-action="dashboard">
+                    <span class="item-icon">📊</span> Dashboard
+                </button>
+                <button class="drawer-item" data-action="saved-tests">
+                    <span class="item-icon">📝</span> Mine Prøver
+                </button>
+                <button class="drawer-item" data-action="standard-tests">
+                    <span class="item-icon">📚</span> Standardprøver
+                </button>
+                <button class="drawer-item" data-action="glosebank" style="display: none;">
+                    <span class="item-icon">🏦</span> GloseBank
+                </button>
+                <button class="drawer-item" data-action="admin" style="display: none;">
+                    <span class="item-icon">🔧</span> Admin
+                </button>
+            </div>
+
+            <button class="drawer-item logout" data-action="logout" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto; padding: 20px 25px; color: #ef4444; font-weight: 600;">
+                <span class="item-icon">🚪</span> Logg ut
             </button>
         `;
 
@@ -395,8 +425,10 @@ export class MenuSystem {
                     item.classList.add('active');
                 }
 
-                // Close drawer
-                this.closeHamburger();
+                // Close drawer only on mobile
+                if (window.innerWidth < 1024) {
+                    this.closeHamburger();
+                }
 
                 // Call handlers
                 if (action === 'dashboard' && onDashboard) onDashboard();
@@ -407,6 +439,11 @@ export class MenuSystem {
                 else if (action === 'logout' && onLogout) onLogout();
             });
         });
+
+        // Show drawer immediately on desktop
+        if (window.innerWidth >= 1024) {
+            setTimeout(() => { this.drawerElement.style.left = '0'; }, 100);
+        }
     }
 
     /**
@@ -431,11 +468,8 @@ export class MenuSystem {
             this.overlayElement.style.opacity = '1';
         }, 10);
 
-        // Update aria-expanded for accessibility
         const hamburgerBtn = document.getElementById('hamburger-btn');
-        if (hamburgerBtn) {
-            hamburgerBtn.setAttribute('aria-expanded', 'true');
-        }
+        if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
     }
 
     /**
@@ -449,17 +483,15 @@ export class MenuSystem {
             this.overlayElement.style.display = 'none';
         }, 300);
 
-        // Update aria-expanded for accessibility
         const hamburgerBtn = document.getElementById('hamburger-btn');
-        if (hamburgerBtn) {
-            hamburgerBtn.setAttribute('aria-expanded', 'false');
-        }
+        if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
     }
 
     /**
      * Hide current menu
      */
     hideMenu() {
+        document.body.classList.remove('has-sidebar');
         if (this.menuContainer) {
             this.menuContainer.innerHTML = '';
         }
@@ -502,141 +534,101 @@ export class MenuSystem {
         const style = document.createElement('style');
         style.id = 'menu-system-styles';
         style.textContent = `
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateX(-50%) translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(-50%) translateY(0);
-                }
-            }
-
             .nav-btn {
                 background: transparent;
                 border: none;
-                padding: 10px 16px;
+                padding: 10px 18px;
                 font-size: 15px;
                 cursor: pointer;
-                border-radius: 20px;
-                color: #86868b;
-                font-weight: 500;
-                transition: all 0.2s;
+                border-radius: 24px;
+                color: var(--purple-500);
+                font-weight: 600;
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
                 white-space: nowrap;
             }
 
-            .nav-btn:hover {
-                background: rgba(0, 0, 0, 0.05);
-            }
-
             .nav-btn.active {
-                background: var(--primary-purple, #7C3AED);
+                background: var(--purple-600);
                 color: white;
-                box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-            }
-
-            .nav-btn.danger {
-                color: #dc2626;
-            }
-
-            .nav-btn.danger:hover {
-                background: rgba(220, 38, 38, 0.1);
+                box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
             }
 
             .hamburger-btn {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                background: transparent;
-                border: none;
-                font-size: 16px;
-                font-weight: 600;
-                color: #1d1d1f;
+                gap: 10px;
+                background: var(--purple-100);
+                border: 1px solid var(--purple-200);
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--purple-700);
                 cursor: pointer;
-                padding: 8px 12px;
+                padding: 8px 16px;
                 border-radius: 20px;
-                transition: background 0.2s;
+                transition: all 0.2s;
             }
 
             .hamburger-btn:hover {
-                background: #f0f0f0;
-            }
-
-            .hamburger-icon {
-                font-size: 20px;
-            }
-
-            .user-info {
-                font-size: 13px;
-                color: #666;
-                font-weight: 500;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 200px;
-            }
-
-            .nav-actions {
-                display: flex;
-                align-items: center;
-            }
-
-            .nav-action-btn {
-                margin: 0 !important;
-                padding: 8px 16px !important;
-                font-size: 14px !important;
+                background: var(--purple-200);
             }
 
             .drawer-item {
                 width: 100%;
                 text-align: left;
-                padding: 15px 25px;
+                padding: 14px 20px;
                 background: transparent;
                 border: none;
-                font-size: 16px;
-                color: #333;
+                font-size: 15px;
+                color: var(--purple-900);
+                font-weight: 500;
                 cursor: pointer;
-                border-left: 4px solid transparent;
+                border-radius: 12px;
                 transition: all 0.2s;
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .item-icon {
+                font-size: 18px;
             }
 
             .drawer-item:hover {
-                background: #f5f5f7;
-                border-left-color: var(--primary-purple, #7C3AED);
+                background: rgba(124, 58, 237, 0.05);
             }
 
             .drawer-item.active {
-                background: rgba(124, 58, 237, 0.1);
-                color: var(--primary-purple, #7C3AED);
-                border-left-color: var(--primary-purple, #7C3AED);
-                font-weight: 600;
+                background: var(--purple-600);
+                color: white;
+                font-weight: 700;
+                box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
             }
 
-            @media (max-width: 600px) {
-                .user-info {
+            @media (min-width: 1024px) {
+                .hamburger-btn {
                     display: none;
                 }
-
                 .laerer-nav {
-                    justify-content: space-between;
+                    padding-left: 300px !important;
                 }
-
-                #nav-drawer {
-                    width: 85vw !important;
+                .nav-items {
+                    left: 0 !important;
                 }
-
-                .bottom-nav {
-                    width: 90% !important;
-                    padding: 6px 8px !important;
+                .hamburger-overlay {
+                    display: none !important;
                 }
+            }
 
-                .nav-btn {
-                    padding: 8px 12px !important;
-                    font-size: 13px !important;
+            @media (max-width: 1023px) {
+                .header-logo {
+                    display: none !important;
                 }
             }
         `;
+
+        document.head.appendChild(style);
+    }
 
         document.head.appendChild(style);
     }

@@ -22,10 +22,16 @@
     --accent-cyan:   hsl(195, 90%, 55%);
     --accent-pink:   hsl(320, 85%, 65%);
 
+    /* ── Gradienter ── */
+    --gradient-purple: linear-gradient(135deg, hsl(258, 80%, 52%) 0%, hsl(270, 85%, 60%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(43, 95%, 55%) 0%, hsl(38, 100%, 50%) 100%);
+    --gradient-dark: linear-gradient(170deg, hsl(258, 80%, 14%) 0%, hsl(258, 70%, 8%) 100%);
+
     /* ── Glassmorphism overflater ── */
     --glass-white: rgba(255, 255, 255, 0.08);
     --glass-white-hover: rgba(255, 255, 255, 0.14);
     --glass-white-strong: rgba(255, 255, 255, 0.72);
+    --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(255, 255, 255, 0.18);
     --glass-border-strong: rgba(255, 255, 255, 0.45);
 
@@ -642,6 +648,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(139, 92, 246, 0.55);
+}
+
+.landing-eyebrow {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--purple-600);
+    margin-bottom: 16px;
+    display: inline-block;
 }
 
 /* ==================== RESPONSIVE ==================== */
