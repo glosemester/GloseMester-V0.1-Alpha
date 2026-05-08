@@ -235,7 +235,6 @@ export class FagStart {
         router.push(ROUTES.TEACHER_HOME);
     }
 }
-}
 
 // Make globally available
 window.FagStart = FagStart;
