@@ -6,7 +6,7 @@
 import {
     auth, db,
     signInWithEmailAndPassword, signOut, onAuthStateChanged,
-    signInWithPopup, GoogleAuthProvider,
+    signInWithPopup, googleProvider,
     collection, getDocs, getDoc, doc,
     query, where, orderBy, updateDoc, serverTimestamp
 } from '../src/core/auth/firebase-config.js';
@@ -187,7 +187,7 @@ class AdminApp {
         const btn = document.getElementById('google-login-btn');
         if (btn) { btn.disabled = true; btn.textContent = 'Venter…'; }
         try {
-            await signInWithPopup(auth, new GoogleAuthProvider());
+            await signInWithPopup(auth, googleProvider);
         } catch (err) {
             this.showFormError('auth-error', 'Google-innlogging feilet: ' + err.message);
             if (btn) { btn.disabled = false; }
