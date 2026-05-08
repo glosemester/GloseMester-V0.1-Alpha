@@ -450,6 +450,31 @@ body.teacher-mode .header-logo span:last-child {
     border-top: 1px solid var(--t-border);
 }
 
+/* ==================== TAB-KNAPPER (Lag prøve) ==================== */
+
+.t-tab-btn {
+    background: var(--t-card);
+    border: 2px solid var(--t-border);
+    border-radius: var(--t-radius);
+    padding: 20px 16px;
+    cursor: pointer;
+    text-align: center;
+    color: var(--t-muted);
+    font-family: var(--t-font-body);
+    transition: all 0.18s var(--t-ease);
+}
+
+.t-tab-btn:hover {
+    border-color: var(--t-amber-border);
+    color: var(--t-text);
+}
+
+.t-tab-btn.t-tab-active {
+    border-color: var(--t-amber);
+    background: var(--t-amber-dim);
+    color: var(--t-text);
+}
+
 /* ==================== KNAPPER ==================== */
 
 .t-btn {

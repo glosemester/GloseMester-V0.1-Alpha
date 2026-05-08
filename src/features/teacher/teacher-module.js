@@ -234,7 +234,6 @@ export class TeacherModule {
     renderCreateTest(prefill = null) {
         const isEdit = !!prefill;
         const v = prefill || {};
-
         const existingWords = (v.words || []).map(w => `${w.s} = ${w.e}`).join('\n');
 
         this._setContent(`
@@ -245,47 +244,63 @@ export class TeacherModule {
                 <div class="t-page-title">${isEdit ? 'Rediger prøve' : 'Lag ny prøve'}</div>
             </div>
 
-            <div class="t-card" style="max-width:640px;">
-                <form class="t-form" id="create-test-form">
-                    <div class="t-form-group">
-                        <label class="t-label" for="test-title">Prøvetittel</label>
-                        <input class="t-input" id="test-title" type="text"
-                            placeholder="F.eks. «Ukeprøve — Klasse 5B»"
-                            value="${this._esc(v.title || '')}" required />
-                    </div>
+            ${!isEdit ? `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:640px;margin-bottom:28px;">
+                <button id="tab-custom" class="t-tab-btn t-tab-active">
+                    <div style="font-size:22px;margin-bottom:6px;">✏️</div>
+                    <div style="font-weight:700;font-size:15px;">Egne gloser</div>
+                    <div style="font-size:12px;color:var(--t-muted);margin-top:3px;">Skriv inn dine egne ord</div>
+                </button>
+                <button id="tab-standard" class="t-tab-btn">
+                    <div style="font-size:22px;margin-bottom:6px;">📚</div>
+                    <div style="font-weight:700;font-size:15px;">Ferdige prøver</div>
+                    <div style="font-size:12px;color:var(--t-muted);margin-top:3px;">Bruk standardinnhold</div>
+                </button>
+            </div>
+            ` : ''}
 
-                    <div class="t-form-group">
-                        <label class="t-label" for="test-words">Glose-par — norsk = engelsk, én per linje</label>
-                        <textarea class="t-input" id="test-words" rows="12"
-                            placeholder="hund = dog&#10;katt = cat&#10;bil = car&#10;hus = house&#10;bok = book"
-                            style="resize:vertical;font-family:var(--t-font-mono);font-size:14px;line-height:1.7;">${this._esc(existingWords)}</textarea>
-                        <div style="font-size:12px;color:var(--t-muted);margin-top:6px;">Minst 4 par kreves. Format: <code style="color:var(--t-amber);">norsk = engelsk</code></div>
-                    </div>
+            <div id="panel-custom" style="max-width:640px;">
+                <div class="t-card">
+                    <form class="t-form" id="create-test-form">
+                        <div class="t-form-group">
+                            <label class="t-label" for="test-title">Prøvetittel</label>
+                            <input class="t-input" id="test-title" type="text"
+                                placeholder="F.eks. «Ukeprøve — Klasse 5B»"
+                                value="${this._esc(v.title || '')}" required />
+                        </div>
+                        <div class="t-form-group">
+                            <label class="t-label" for="test-words">Glose-par — norsk = engelsk, én per linje</label>
+                            <textarea class="t-input" id="test-words" rows="10"
+                                placeholder="hund = dog&#10;katt = cat&#10;bil = car&#10;hus = house&#10;bok = book"
+                                style="resize:vertical;font-family:var(--t-font-mono);font-size:14px;line-height:1.7;">${this._esc(existingWords)}</textarea>
+                            <div style="font-size:12px;color:var(--t-muted);margin-top:6px;">Minst 4 par. Format: <code style="color:var(--t-amber);">norsk = engelsk</code></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div class="t-form-group">
+                                <label class="t-label" for="test-questions">Antall spørsmål</label>
+                                <input class="t-input" id="test-questions" type="number" min="4" max="50" value="${v.questions || 10}" />
+                            </div>
+                            <div class="t-form-group">
+                                <label class="t-label" for="test-time">Tidsbegrensning (min, 0=ingen)</label>
+                                <input class="t-input" id="test-time" type="number" min="0" max="120" value="${v.timeLimit || 0}" />
+                            </div>
+                        </div>
+                        <div class="t-form-group">
+                            <label class="t-checkbox-row">
+                                <input class="t-checkbox" id="test-shuffle" type="checkbox" ${v.shuffle !== false ? 'checked' : ''} />
+                                <span class="t-checkbox-label">Bland rekkefølgen på spørsmålene</span>
+                            </label>
+                        </div>
+                        <button class="t-btn t-btn-primary t-btn-lg" type="submit" style="width:100%;">
+                            ${isEdit ? '💾 Lagre endringer' : '✨ Opprett prøve'}
+                        </button>
+                        ${isEdit ? `<input type="hidden" id="edit-test-id" value="${v.id}" />` : ''}
+                    </form>
+                </div>
+            </div>
 
-                    <div class="t-form-group">
-                        <label class="t-label" for="test-questions">Antall spørsmål</label>
-                        <input class="t-input" id="test-questions" type="number"
-                            min="4" max="50" value="${v.questions || 10}" required />
-                    </div>
-
-                    <div class="t-form-group">
-                        <label class="t-label" for="test-time">Tidsbegrensning (minutter, 0 = ingen)</label>
-                        <input class="t-input" id="test-time" type="number"
-                            min="0" max="120" value="${v.timeLimit || 0}" />
-                    </div>
-
-                    <div class="t-form-group">
-                        <label class="t-checkbox-row">
-                            <input class="t-checkbox" id="test-shuffle" type="checkbox" ${v.shuffle !== false ? 'checked' : ''} />
-                            <span class="t-checkbox-label">Bland rekkefølgen på spørsmålene</span>
-                        </label>
-                    </div>
-
-                    <button class="t-btn t-btn-primary t-btn-lg" type="submit" style="width:100%;">
-                        ${isEdit ? '💾 Lagre endringer' : '✨ Opprett prøve'}
-                    </button>
-                    ${isEdit ? `<input type="hidden" id="edit-test-id" value="${v.id}" />` : ''}
-                </form>
+            <div id="panel-standard" style="max-width:780px;display:none;">
+                <div id="standard-list"><div class="loading" style="padding:40px;text-align:center;color:var(--t-muted);">Laster prøver…</div></div>
             </div>
         `);
 
@@ -296,6 +311,92 @@ export class TeacherModule {
             e.preventDefault();
             isEdit ? this.handleEditTest() : this.handleCreateTest();
         });
+
+        if (!isEdit) {
+            const tabCustom   = document.getElementById('tab-custom');
+            const tabStandard = document.getElementById('tab-standard');
+            const panelCustom = document.getElementById('panel-custom');
+            const panelStd    = document.getElementById('panel-standard');
+
+            tabCustom.addEventListener('click', () => {
+                tabCustom.classList.add('t-tab-active');
+                tabStandard.classList.remove('t-tab-active');
+                panelCustom.style.display = '';
+                panelStd.style.display = 'none';
+            });
+
+            tabStandard.addEventListener('click', () => {
+                tabStandard.classList.add('t-tab-active');
+                tabCustom.classList.remove('t-tab-active');
+                panelCustom.style.display = 'none';
+                panelStd.style.display = '';
+                this._loadStandardTests();
+            });
+        }
+    }
+
+    async _loadStandardTests() {
+        const container = document.getElementById('standard-list');
+        if (!container) return;
+        try {
+            const snap = await getDocs(collection(db, 'standardprover'));
+            if (snap.empty) {
+                container.innerHTML = `<div style="text-align:center;color:var(--t-muted);padding:40px;">Ingen ferdige prøver tilgjengelig ennå.</div>`;
+                return;
+            }
+            const cards = snap.docs.map(d => {
+                const data = d.data();
+                const antall = (data.ordliste || []).length;
+                return `
+                    <div class="t-card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px;">
+                        <div>
+                            <div style="font-weight:700;font-size:15px;color:var(--t-text);">${this._esc(data.tittel || data.title || 'Uten tittel')}</div>
+                            <div style="font-size:13px;color:var(--t-muted);margin-top:3px;">${antall} glose-par${data.nivaa ? ' · ' + data.nivaa : ''}</div>
+                        </div>
+                        <button class="t-btn t-btn-primary" data-std-id="${d.id}">Bruk denne →</button>
+                    </div>`;
+            }).join('');
+            container.innerHTML = cards;
+            container.querySelectorAll('[data-std-id]').forEach(btn => {
+                btn.addEventListener('click', () => this._useStandardTest(btn.dataset.stdId, snap));
+            });
+        } catch (e) {
+            container.innerHTML = `<div style="color:var(--t-danger);padding:20px;">Feil ved lasting: ${e.message}</div>`;
+        }
+    }
+
+    async _useStandardTest(docId, snap) {
+        const d = snap.docs.find(d => d.id === docId);
+        if (!d) return;
+        const data = d.data();
+        const kode = this._generateCode();
+        try {
+            const docRef = await addDoc(collection(db, 'prover'), {
+                kode,
+                fag: data.fag || 'gloser',
+                tittel: data.tittel || data.title,
+                ordliste: data.ordliste || [],
+                antallSporsmal: data.antallSporsmal || (data.ordliste || []).length,
+                tidsbegrensning: 0,
+                bland: true,
+                opprettet_av: this.user?.uid || 'ukjent',
+                opprettetAvNavn: this.userName,
+                opprettetDato: serverTimestamp(),
+                fraStandard: docId
+            });
+            const test = {
+                id: docRef.id, code: kode,
+                title: data.tittel || data.title,
+                questions: data.antallSporsmal || (data.ordliste || []).length,
+                timeLimit: 0, shuffle: true,
+                words: data.ordliste || [],
+                createdAt: new Date().toISOString(), results: []
+            };
+            this.tests.push(test);
+            this.navigate('test-success', { test });
+        } catch (e) {
+            visToast('Feil ved oppretting: ' + e.message, 'error');
+        }
     }
 
     // ==================== PRØVEDETALJER ====================
