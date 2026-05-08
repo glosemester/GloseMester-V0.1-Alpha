@@ -519,7 +519,7 @@ export class TeacherModule {
                 antallSporsmal: Math.min(questions, ordliste.length),
                 tidsbegrensning: timeLimit,
                 bland: shuffle,
-                opprettetAv: this.user?.uid || 'ukjent',
+                opprettet_av: this.user?.uid || 'ukjent',
                 opprettetAvNavn: this.userName,
                 opprettetDato: serverTimestamp()
             });
@@ -712,7 +712,7 @@ export class TeacherModule {
     async loadTests() {
         if (!this.user) { this.tests = []; return; }
         try {
-            const q = query(collection(db, 'prover'), where('opprettetAv', '==', this.user.uid));
+            const q = query(collection(db, 'prover'), where('opprettet_av', '==', this.user.uid));
             const snap = await getDocs(q);
             this.tests = snap.docs.map(d => {
                 const data = d.data();
