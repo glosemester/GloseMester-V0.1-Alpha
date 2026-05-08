@@ -3,8 +3,8 @@
    Ground-up rebuild — mørk editorial design
    ============================================ */
 
-import { menuSystem } from '../core/navigation/menu-system.js';
-import { visToast } from '../core/utils/feedback.js';
+import { menuSystem } from '../../core/navigation/menu-system.js';
+import { visToast } from '../../core/utils/feedback.js';
 
 const LEVEL_NAMES = {
     niva1: 'Nivå 1 — Grunnleggende',
