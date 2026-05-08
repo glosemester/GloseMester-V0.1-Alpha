@@ -54,7 +54,7 @@ class Router {
      * Get current route info
      */
     getCurrentRoute() {
-        const hash = window.location.hash.slice(1) || '/';
+        const hash = decodeURIComponent(window.location.hash.slice(1) || '/');
         const [path, queryString] = hash.split('?');
         const params = new URLSearchParams(queryString);
 
