@@ -984,9 +984,8 @@ export class GloseMester extends FagModul {
 // Export singleton instance
 export const glosemester = new GloseMester();
 
-// Make globally available (for debugging)
+// Make singleton globally available — do NOT overwrite window.GloseMester (that's the app state object)
 if (typeof window !== 'undefined') {
-    window.GloseMester = GloseMester;
     window.glosemester = glosemester;
 }
 
