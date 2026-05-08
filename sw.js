@@ -1,7 +1,6 @@
-// SERVICE WORKER - GloseMester v2.6.0-UX
-// Oppdatert: Fjernet MatteMester/NorskMester, oppgradert UX
-const APP_VERSION = 'v2.6.0-UX';
-const CACHE_NAME = 'glosemester-v2.6.0-ux';
+// SERVICE WORKER - GloseMester v2.7.0
+const APP_VERSION = 'v2.7.0';
+const CACHE_NAME = 'glosemester-v2.7.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
