@@ -590,6 +590,41 @@ export class MenuSystem {
                 box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
             }
 
+            .drawer-header {
+                padding: 20px 20px 16px;
+                border-bottom: 1px solid rgba(0,0,0,0.06);
+                margin-bottom: 12px;
+            }
+
+            .drawer-header-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--purple-400, #7C3AED);
+                opacity: 0.7;
+                margin-bottom: 4px;
+            }
+
+            .drawer-header-name {
+                font-size: 17px;
+                font-weight: 700;
+                color: var(--purple-900, #1e1b4b);
+            }
+
+            .drawer-section {
+                padding: 4px 12px;
+            }
+
+            .drawer-item-logout {
+                color: #EF4444;
+                margin-top: 8px;
+            }
+
+            .drawer-item-logout:hover {
+                background: rgba(239, 68, 68, 0.08);
+            }
+
             @media (min-width: 1024px) {
                 .hamburger-btn {
                     display: none;

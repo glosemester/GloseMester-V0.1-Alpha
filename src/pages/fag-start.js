@@ -4,7 +4,7 @@
    GloseMester v2.6
    ============================================ */
 
-import { router } from '../core/navigation/router.js';
+import { router, ROUTES } from '../core/navigation/router.js';
 import { krevInnlogging } from '../core/auth/auth-service.js';
 import { hentProveMedKode, startQuiz } from '../shared/quiz/quiz-engine.js';
 import { visToast } from '../core/utils/feedback.js';
