@@ -5,17 +5,16 @@
 
 import { menuSystem } from '../../core/navigation/menu-system.js';
 import { visToast } from '../../core/utils/feedback.js';
-
-const LEVEL_NAMES = {
-    niva1: 'Nivå 1 — Grunnleggende',
-    niva2: 'Nivå 2 — Elementær',
-    niva3: 'Nivå 3 — Middels',
-    niva4: 'Nivå 4 — Avansert'
-};
+import {
+    db,
+    collection, addDoc, getDocs, doc, deleteDoc, updateDoc,
+    query, where, serverTimestamp
+} from '../../core/auth/firebase-config.js';
 
 export class TeacherModule {
     constructor() {
         this.userName = 'Lærer';
+        this.user = null;
         this.isAdmin = false;
         this.tests = [];
         this.currentView = null;
@@ -25,10 +24,11 @@ export class TeacherModule {
 
     async init(options = {}) {
         this.userName = options.userName || options.user?.displayName || 'Lærer';
+        this.user = options.user || null;
         this.isAdmin = options.isAdmin || false;
 
         document.body.classList.add('teacher-mode');
-        this.loadTests();
+        await this.loadTests();
         this._buildMenu();
 
         const hasOnboarded = localStorage.getItem('mester_onboarding_done');
@@ -235,6 +235,8 @@ export class TeacherModule {
         const isEdit = !!prefill;
         const v = prefill || {};
 
+        const existingWords = (v.words || []).map(w => `${w.s} = ${w.e}`).join('\n');
+
         this._setContent(`
             <button class="t-btn-back" id="back-btn">Tilbake</button>
 
@@ -243,7 +245,7 @@ export class TeacherModule {
                 <div class="t-page-title">${isEdit ? 'Rediger prøve' : 'Lag ny prøve'}</div>
             </div>
 
-            <div class="t-card" style="max-width:600px;">
+            <div class="t-card" style="max-width:640px;">
                 <form class="t-form" id="create-test-form">
                     <div class="t-form-group">
                         <label class="t-label" for="test-title">Prøvetittel</label>
@@ -253,19 +255,17 @@ export class TeacherModule {
                     </div>
 
                     <div class="t-form-group">
-                        <label class="t-label" for="test-level">Nivå</label>
-                        <select class="t-select" id="test-level" required>
-                            <option value="">— Velg nivå —</option>
-                            ${Object.entries(LEVEL_NAMES).map(([k, n]) =>
-                                `<option value="${k}" ${v.level === k ? 'selected' : ''}>${n}</option>`
-                            ).join('')}
-                        </select>
+                        <label class="t-label" for="test-words">Glose-par — norsk = engelsk, én per linje</label>
+                        <textarea class="t-input" id="test-words" rows="12"
+                            placeholder="hund = dog&#10;katt = cat&#10;bil = car&#10;hus = house&#10;bok = book"
+                            style="resize:vertical;font-family:var(--t-font-mono);font-size:14px;line-height:1.7;">${this._esc(existingWords)}</textarea>
+                        <div style="font-size:12px;color:var(--t-muted);margin-top:6px;">Minst 4 par kreves. Format: <code style="color:var(--t-amber);">norsk = engelsk</code></div>
                     </div>
 
                     <div class="t-form-group">
                         <label class="t-label" for="test-questions">Antall spørsmål</label>
                         <input class="t-input" id="test-questions" type="number"
-                            min="5" max="50" value="${v.questions || 10}" required />
+                            min="4" max="50" value="${v.questions || 10}" required />
                     </div>
 
                     <div class="t-form-group">
@@ -491,61 +491,92 @@ export class TeacherModule {
 
     // ==================== HANDLERS ====================
 
-    handleCreateTest() {
+    async handleCreateTest() {
         const title     = document.getElementById('test-title')?.value.trim();
-        const level     = document.getElementById('test-level')?.value;
+        const wordsRaw  = document.getElementById('test-words')?.value || '';
         const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
         const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
         const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
 
-        if (!title || !level) {
-            visToast('⚠️ Fyll ut tittel og nivå', 'warning');
+        if (!title) { visToast('⚠️ Fyll ut prøvetittel', 'warning'); return; }
+
+        const ordliste = this._parseWords(wordsRaw);
+        if (ordliste.length < 4) {
+            visToast('⚠️ Du trenger minst 4 glose-par (norsk = engelsk)', 'warning');
             return;
         }
 
-        const test = {
-            id: Date.now().toString(),
-            code: this._generateCode(),
-            fag: 'gloser',
-            title, level, questions, timeLimit, shuffle,
-            createdAt: new Date().toISOString(),
-            createdBy: this.userName,
-            results: []
-        };
+        const btn = document.querySelector('#create-test-form [type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Lagrer…'; }
 
-        this.tests.push(test);
-        this.saveTests();
-        this.navigate('test-success', { test });
+        const kode = this._generateCode();
+        try {
+            const docRef = await addDoc(collection(db, 'prover'), {
+                kode,
+                fag: 'gloser',
+                tittel: title,
+                ordliste,
+                antallSporsmal: Math.min(questions, ordliste.length),
+                tidsbegrensning: timeLimit,
+                bland: shuffle,
+                opprettetAv: this.user?.uid || 'ukjent',
+                opprettetAvNavn: this.userName,
+                opprettetDato: serverTimestamp()
+            });
+
+            const test = {
+                id: docRef.id, code: kode, title, questions: Math.min(questions, ordliste.length),
+                timeLimit, shuffle, words: ordliste,
+                createdAt: new Date().toISOString(), results: []
+            };
+            this.tests.push(test);
+            this.navigate('test-success', { test });
+        } catch (e) {
+            visToast('Feil ved lagring: ' + e.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '✨ Opprett prøve'; }
+        }
     }
 
-    handleEditTest() {
+    async handleEditTest() {
         const id        = document.getElementById('edit-test-id')?.value;
         const title     = document.getElementById('test-title')?.value.trim();
-        const level     = document.getElementById('test-level')?.value;
+        const wordsRaw  = document.getElementById('test-words')?.value || '';
         const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
         const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
         const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
 
-        if (!title || !level) {
-            visToast('⚠️ Fyll ut tittel og nivå', 'warning');
-            return;
-        }
+        if (!title) { visToast('⚠️ Fyll ut tittel', 'warning'); return; }
+
+        const ordliste = this._parseWords(wordsRaw);
+        if (ordliste.length < 4) { visToast('⚠️ Minst 4 glose-par kreves', 'warning'); return; }
 
         const idx = this.tests.findIndex(t => t.id === id);
         if (idx === -1) { visToast('Fant ikke prøven', 'error'); return; }
 
-        this.tests[idx] = { ...this.tests[idx], title, level, questions, timeLimit, shuffle };
-        this.saveTests();
-        visToast('✅ Prøve oppdatert', 'success');
-        this.navigate('test-details', { testId: id });
+        try {
+            await updateDoc(doc(db, 'prover', id), {
+                tittel: title, ordliste,
+                antallSporsmal: Math.min(questions, ordliste.length),
+                tidsbegrensning: timeLimit, bland: shuffle
+            });
+            this.tests[idx] = { ...this.tests[idx], title, questions: Math.min(questions, ordliste.length), timeLimit, shuffle, words: ordliste };
+            visToast('✅ Prøve oppdatert', 'success');
+            this.navigate('test-details', { testId: id });
+        } catch (e) {
+            visToast('Feil ved lagring: ' + e.message, 'error');
+        }
     }
 
-    handleDeleteTest(testId) {
+    async handleDeleteTest(testId) {
         if (!confirm('Er du sikker på at du vil slette denne prøven?')) return;
-        this.tests = this.tests.filter(t => t.id !== testId);
-        this.saveTests();
-        visToast('🗑️ Prøve slettet', 'info');
-        this.navigate(this.currentView === 'test-details' ? 'my-tests' : this.currentView || 'my-tests');
+        try {
+            await deleteDoc(doc(db, 'prover', testId));
+            this.tests = this.tests.filter(t => t.id !== testId);
+            visToast('🗑️ Prøve slettet', 'info');
+            this.navigate('my-tests');
+        } catch (e) {
+            visToast('Feil ved sletting: ' + e.message, 'error');
+        }
     }
 
     _shareTest(testId) {
@@ -637,15 +668,30 @@ export class TeacherModule {
     _generateQR(containerId, url) {
         const el = document.getElementById(containerId);
         if (!el) return;
-        if (typeof QRCode !== 'undefined') {
+        if (typeof window.QRCode !== 'undefined') {
             try {
-                new QRCode(el, { text: url, width: 160, height: 160, colorDark: '#1F2937', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+                new window.QRCode(el, { text: url, width: 160, height: 160, colorDark: '#1F2937', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M });
             } catch {
                 el.innerHTML = `<div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;color:var(--t-amber);font-family:var(--t-font-mono);font-size:20px;">${url.split('prove=')[1]}</div>`;
             }
         } else {
             el.innerHTML = `<div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;color:var(--t-amber);font-family:var(--t-font-mono);font-size:20px;">${url.split('prove=')[1]}</div>`;
         }
+    }
+
+    _parseWords(raw) {
+        if (!raw) return [];
+        return raw.split('\n')
+            .map(l => l.trim())
+            .filter(l => l.includes('=') || l.includes('\t'))
+            .map(l => {
+                const sep = l.includes('=') ? '=' : '\t';
+                const [left, ...rest] = l.split(sep);
+                const s = left?.trim();
+                const e = rest.join(sep).trim();
+                return (s && e) ? { s, e } : null;
+            })
+            .filter(Boolean);
     }
 
     _calcAvgScore() {
@@ -663,15 +709,29 @@ export class TeacherModule {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    loadTests() {
+    async loadTests() {
+        if (!this.user) { this.tests = []; return; }
         try {
-            const raw = localStorage.getItem('mester_teacher_tests');
-            this.tests = raw ? JSON.parse(raw) : [];
-        } catch { this.tests = []; }
-    }
-
-    saveTests() {
-        try { localStorage.setItem('mester_teacher_tests', JSON.stringify(this.tests)); } catch {}
+            const q = query(collection(db, 'prover'), where('opprettetAv', '==', this.user.uid));
+            const snap = await getDocs(q);
+            this.tests = snap.docs.map(d => {
+                const data = d.data();
+                return {
+                    id: d.id,
+                    code: data.kode,
+                    title: data.tittel,
+                    questions: data.antallSporsmal || 10,
+                    timeLimit: data.tidsbegrensning || 0,
+                    shuffle: data.bland ?? true,
+                    words: data.ordliste || [],
+                    createdAt: data.opprettetDato?.toDate?.()?.toISOString() || new Date().toISOString(),
+                    results: []
+                };
+            });
+        } catch (e) {
+            console.error('loadTests error:', e);
+            this.tests = [];
+        }
     }
 
     goHome() { window.location.href = '/'; }
