@@ -287,16 +287,6 @@ export class TeacherModule {
                             </div>
                             <button class="t-btn-add-word" id="add-word-btn" type="button">+ Legg til ord</button>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                            <div class="t-form-group">
-                                <label class="t-label" for="test-questions">Antall spørsmål</label>
-                                <input class="t-input" id="test-questions" type="number" min="4" max="50" value="${v.questions || 10}" />
-                            </div>
-                            <div class="t-form-group">
-                                <label class="t-label" for="test-time">Tidsbegrensning (min, 0=ingen)</label>
-                                <input class="t-input" id="test-time" type="number" min="0" max="120" value="${v.timeLimit || 0}" />
-                            </div>
-                        </div>
                         <div class="t-form-group">
                             <label class="t-checkbox-row">
                                 <input class="t-checkbox" id="test-shuffle" type="checkbox" ${v.shuffle !== false ? 'checked' : ''} />
@@ -621,10 +611,8 @@ export class TeacherModule {
     // ==================== HANDLERS ====================
 
     async handleCreateTest() {
-        const title     = document.getElementById('test-title')?.value.trim();
-        const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
-        const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
-        const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
+        const title   = document.getElementById('test-title')?.value.trim();
+        const shuffle = document.getElementById('test-shuffle')?.checked ?? true;
 
         if (!title) { visToast('⚠️ Fyll ut prøvetittel', 'warning'); return; }
 
@@ -633,6 +621,9 @@ export class TeacherModule {
             visToast('⚠️ Du trenger minst 4 glose-par', 'warning');
             return;
         }
+
+        const questions = ordliste.length;
+        const timeLimit = 0;
 
         const btn = document.querySelector('#create-test-form [type="submit"]');
         if (btn) { btn.disabled = true; btn.textContent = 'Lagrer…'; }
@@ -667,16 +658,17 @@ export class TeacherModule {
     }
 
     async handleEditTest() {
-        const id        = document.getElementById('edit-test-id')?.value;
-        const title     = document.getElementById('test-title')?.value.trim();
-        const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
-        const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
-        const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
+        const id      = document.getElementById('edit-test-id')?.value;
+        const title   = document.getElementById('test-title')?.value.trim();
+        const shuffle = document.getElementById('test-shuffle')?.checked ?? true;
 
         if (!title) { visToast('⚠️ Fyll ut tittel', 'warning'); return; }
 
         const ordliste = this._collectWords();
         if (ordliste.length < 4) { visToast('⚠️ Minst 4 glose-par kreves', 'warning'); return; }
+
+        const questions = ordliste.length;
+        const timeLimit = 0;
 
         const idx = this.tests.findIndex(t => t.id === id);
         if (idx === -1) { visToast('Fant ikke prøven', 'error'); return; }

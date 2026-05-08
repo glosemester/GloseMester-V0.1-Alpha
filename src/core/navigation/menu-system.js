@@ -480,7 +480,16 @@ export class MenuSystem {
         if (this.menuContainer) {
             this.menuContainer.innerHTML = '';
         }
-        this.closeHamburger();
+        if (this.drawerElement) {
+            this.drawerElement.innerHTML = '';
+            // setProperty with 'important' overrides the @media left:0 !important rule
+            this.drawerElement.style.setProperty('left', '-100%', 'important');
+        }
+        if (this.overlayElement) {
+            this.overlayElement.style.opacity = '0';
+            this.overlayElement.style.display = 'none';
+        }
+        this.hamburgerOpen = false;
         this.currentMenu = null;
     }
 
