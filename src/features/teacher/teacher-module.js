@@ -238,7 +238,9 @@ export class TeacherModule {
     renderCreateTest(prefill = null) {
         const isEdit = !!prefill;
         const v = prefill || {};
-        const existingWords = (v.words || []).map(w => `${w.s} = ${w.e}`).join('\n');
+        const initialWords = v.words?.length > 0
+            ? v.words
+            : [{s:'',e:''},{s:'',e:''},{s:'',e:''},{s:'',e:''}];
 
         this._setContent(`
             <button class="t-btn-back" id="back-btn">Tilbake</button>
@@ -273,11 +275,17 @@ export class TeacherModule {
                                 value="${this._esc(v.title || '')}" required />
                         </div>
                         <div class="t-form-group">
-                            <label class="t-label" for="test-words">Glose-par — norsk = engelsk, én per linje</label>
-                            <textarea class="t-input" id="test-words" rows="10"
-                                placeholder="hund = dog&#10;katt = cat&#10;bil = car&#10;hus = house&#10;bok = book"
-                                style="resize:vertical;font-family:var(--t-font-mono);font-size:14px;line-height:1.7;">${this._esc(existingWords)}</textarea>
-                            <div style="font-size:12px;color:var(--t-muted);margin-top:6px;">Minst 4 par. Format: <code style="color:var(--t-amber);">norsk = engelsk</code></div>
+                            <label class="t-label">Gloser</label>
+                            <div class="t-word-list-header">
+                                <span class="t-word-col-label">Norsk</span>
+                                <span></span>
+                                <span class="t-word-col-label">Engelsk</span>
+                                <span></span>
+                            </div>
+                            <div id="words-list" class="t-word-list">
+                                ${initialWords.map(w => this._wordRowHTML(w.s, w.e)).join('')}
+                            </div>
+                            <button class="t-btn-add-word" id="add-word-btn" type="button">+ Legg til ord</button>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                             <div class="t-form-group">
@@ -314,6 +322,21 @@ export class TeacherModule {
         document.getElementById('create-test-form')?.addEventListener('submit', (e) => {
             e.preventDefault();
             isEdit ? this.handleEditTest() : this.handleCreateTest();
+        });
+
+        document.getElementById('words-list')?.addEventListener('click', (e) => {
+            const btn = e.target.closest('.t-word-remove');
+            if (btn) btn.closest('.t-word-row').remove();
+        });
+
+        document.getElementById('add-word-btn')?.addEventListener('click', () => {
+            const list = document.getElementById('words-list');
+            if (!list) return;
+            const row = document.createElement('div');
+            row.className = 't-word-row';
+            row.innerHTML = this._wordRowHTML();
+            list.appendChild(row);
+            row.querySelector('.t-word-no')?.focus();
         });
 
         if (!isEdit) {
@@ -391,6 +414,7 @@ export class TeacherModule {
             const test = {
                 id: docRef.id, code: kode,
                 title: data.tittel || data.title,
+                level: data.fag || 'eget',
                 questions: data.antallSporsmal || (data.ordliste || []).length,
                 timeLimit: 0, shuffle: true,
                 words: data.ordliste || [],
@@ -598,16 +622,15 @@ export class TeacherModule {
 
     async handleCreateTest() {
         const title     = document.getElementById('test-title')?.value.trim();
-        const wordsRaw  = document.getElementById('test-words')?.value || '';
         const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
         const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
         const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
 
         if (!title) { visToast('⚠️ Fyll ut prøvetittel', 'warning'); return; }
 
-        const ordliste = this._parseWords(wordsRaw);
+        const ordliste = this._collectWords();
         if (ordliste.length < 4) {
-            visToast('⚠️ Du trenger minst 4 glose-par (norsk = engelsk)', 'warning');
+            visToast('⚠️ Du trenger minst 4 glose-par', 'warning');
             return;
         }
 
@@ -630,7 +653,8 @@ export class TeacherModule {
             });
 
             const test = {
-                id: docRef.id, code: kode, title, questions: Math.min(questions, ordliste.length),
+                id: docRef.id, code: kode, title, level: 'eget',
+                questions: Math.min(questions, ordliste.length),
                 timeLimit, shuffle, words: ordliste,
                 createdAt: new Date().toISOString(), results: []
             };
@@ -645,14 +669,13 @@ export class TeacherModule {
     async handleEditTest() {
         const id        = document.getElementById('edit-test-id')?.value;
         const title     = document.getElementById('test-title')?.value.trim();
-        const wordsRaw  = document.getElementById('test-words')?.value || '';
         const questions = parseInt(document.getElementById('test-questions')?.value) || 10;
         const timeLimit = parseInt(document.getElementById('test-time')?.value) || 0;
         const shuffle   = document.getElementById('test-shuffle')?.checked ?? true;
 
         if (!title) { visToast('⚠️ Fyll ut tittel', 'warning'); return; }
 
-        const ordliste = this._parseWords(wordsRaw);
+        const ordliste = this._collectWords();
         if (ordliste.length < 4) { visToast('⚠️ Minst 4 glose-par kreves', 'warning'); return; }
 
         const idx = this.tests.findIndex(t => t.id === id);
@@ -784,6 +807,23 @@ export class TeacherModule {
         }
     }
 
+    _wordRowHTML(s = '', e = '') {
+        return `<div class="t-word-row">
+            <input class="t-input t-word-no" type="text" placeholder="Norsk" value="${this._esc(s)}" />
+            <span class="t-word-sep">→</span>
+            <input class="t-input t-word-en" type="text" placeholder="Engelsk" value="${this._esc(e)}" />
+            <button class="t-word-remove" type="button" title="Fjern">✕</button>
+        </div>`;
+    }
+
+    _collectWords() {
+        return Array.from(document.querySelectorAll('.t-word-row')).map(row => {
+            const s = row.querySelector('.t-word-no')?.value.trim();
+            const e = row.querySelector('.t-word-en')?.value.trim();
+            return (s && e) ? { s, e } : null;
+        }).filter(Boolean);
+    }
+
     _parseWords(raw) {
         if (!raw) return [];
         return raw.split('\n')
@@ -823,13 +863,14 @@ export class TeacherModule {
                 const data = d.data();
                 return {
                     id: d.id,
-                    code: data.kode,
-                    title: data.tittel,
-                    questions: data.antallSporsmal || 10,
-                    timeLimit: data.tidsbegrensning || 0,
-                    shuffle: data.bland ?? true,
-                    words: data.ordliste || [],
-                    createdAt: data.opprettetDato?.toDate?.()?.toISOString() || new Date().toISOString(),
+                    code: data.kode || data.code || '',
+                    title: data.tittel || data.title || 'Uten tittel',
+                    level: data.level || data.fag || 'eget',
+                    questions: data.antallSporsmal || data.questions || 10,
+                    timeLimit: data.tidsbegrensning ?? data.timeLimit ?? 0,
+                    shuffle: data.bland ?? data.shuffle ?? true,
+                    words: data.ordliste || data.words || [],
+                    createdAt: data.opprettetDato?.toDate?.()?.toISOString() || data.createdAt || new Date().toISOString(),
                     results: []
                 };
             });
@@ -839,7 +880,11 @@ export class TeacherModule {
         }
     }
 
-    goHome() { window.location.href = '/'; }
+    goHome() {
+        document.body.classList.remove('teacher-mode', 'has-sidebar');
+        menuSystem.hideMenu();
+        window.router.push('/');
+    }
 
     logout() {
         if (confirm('Er du sikker på at du vil logge ut?')) {

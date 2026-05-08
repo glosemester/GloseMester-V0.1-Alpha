@@ -645,6 +645,97 @@ body.teacher-mode .header-logo span:last-child {
     font-weight: 500;
 }
 
+/* ==================== GLOSE-PAR EDITOR ==================== */
+
+.t-word-list-header {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr 36px;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.t-word-col-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--t-muted);
+}
+
+.t-word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.t-word-row {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr 36px;
+    gap: 8px;
+    align-items: center;
+}
+
+.t-word-row .t-input {
+    padding: 9px 12px;
+    font-size: 14px;
+}
+
+.t-word-sep {
+    text-align: center;
+    color: var(--t-muted);
+    font-size: 13px;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.t-word-remove {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--t-radius-sm);
+    color: var(--t-muted-2);
+    font-size: 15px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    line-height: 1;
+}
+
+.t-word-remove:hover {
+    color: var(--t-danger);
+    background: var(--t-danger-dim);
+    border-color: rgba(239,68,68,0.2);
+}
+
+.t-btn-add-word {
+    width: 100%;
+    justify-content: center;
+    border: 1px dashed rgba(255,255,255,0.12);
+    color: var(--t-muted);
+    background: transparent;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--t-radius-sm);
+    cursor: pointer;
+    font-family: var(--t-font-body);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.t-btn-add-word:hover {
+    border-color: var(--t-amber-border);
+    color: var(--t-amber);
+    background: var(--t-amber-dim);
+}
+
 /* ==================== SØKEFELT ==================== */
 
 .t-search-bar {
