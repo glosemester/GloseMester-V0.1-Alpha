@@ -13,6 +13,7 @@ import {
     getAvailableLevels
 } from './vocabulary-data.js';
 import { kortSystem } from '../../core/kort/kort-system.js';
+import { menuSystem } from '../../core/navigation/menu-system.js';
 import { visToast, vibrer, lesOpp } from '../../core/utils/feedback.js';
 import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits } from '../../core/utils/storage.js';
 import { practiceLimiter, cardLimiter } from '../../core/utils/rate-limiter.js';
@@ -46,6 +47,9 @@ export class GloseMester extends FagModul {
 
         // Load available levels
         this.levels = getAvailableLevels();
+
+        // Initialize navigation menu
+        menuSystem.init();
 
         // Render UI
         this.renderPracticeUI();
@@ -166,6 +170,14 @@ export class GloseMester extends FagModul {
                 this.startPractice(level);
             });
         });
+
+        // Show bottom navigation
+        menuSystem.showMenu('oving', {
+            onPractice: () => this.renderPracticeUI(),
+            onCollection: () => this.renderGallery(),
+            onGalleri: () => this.renderGallery(),
+            onQuit: () => window.router.push('/')
+        });
     }
 
     /**
@@ -272,6 +284,9 @@ export class GloseMester extends FagModul {
     renderQuizUI() {
         const container = document.getElementById('app');
         if (!container) return;
+
+        // Hide bottom nav during quiz (quit button is in quiz header)
+        menuSystem.hideMenu();
 
         const metadata = getLevelMetadata(this.currentLevel);
 
@@ -735,12 +750,8 @@ export class GloseMester extends FagModul {
         }
 
         try {
-            const kort = await kortSystem.getRandomKort('gloser', this.currentLevel);
-
-            if (kort) {
-                // Show kort reward popup
-                this.showKortPopup(kort);
-            }
+            // handleQuizCompletion(10, 10) = 100% score → picks rarity → saves to localStorage → shows popup
+            await kortSystem.handleQuizCompletion(10, 10, 'gloser', this.currentLevel);
         } catch (error) {
             console.error('Error getting kort reward:', error);
         }
@@ -803,6 +814,33 @@ export class GloseMester extends FagModul {
             }
         `;
         document.head.appendChild(style);
+    }
+
+    /**
+     * Show kort gallery (mine kort)
+     */
+    renderGallery() {
+        const container = document.getElementById('app');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div style="padding: 20px 20px 100px 20px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
+                    <h2 style="margin: 0;">🃏 Mine Kort</h2>
+                </div>
+                <div id="app-gallery"></div>
+            </div>
+        `;
+
+        kortSystem.createGallery('app-gallery');
+
+        menuSystem.showMenu('oving', {
+            onPractice: () => this.renderPracticeUI(),
+            onCollection: () => this.renderGallery(),
+            onGalleri: () => this.renderGallery(),
+            onQuit: () => window.router.push('/')
+        });
     }
 
     /**
@@ -875,6 +913,14 @@ export class GloseMester extends FagModul {
                 </div>
             </div>
         `;
+
+        // Restore bottom nav on results screen
+        menuSystem.showMenu('oving', {
+            onPractice: () => this.renderPracticeUI(),
+            onCollection: () => this.renderGallery(),
+            onGalleri: () => this.renderGallery(),
+            onQuit: () => window.router.push('/')
+        });
 
         // Attach event listeners
         const practiceAgainBtn = document.getElementById('practice-again');
