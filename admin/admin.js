@@ -234,11 +234,14 @@ class AdminApp {
                 <button class="admin-btn-primary" id="confirm-setup-btn" style="width:100%">Bekreft og gå videre →</button>
             `;
 
-            if (typeof QRCode !== 'undefined') {
-                new QRCode(document.getElementById('qr-container'), {
+            if (typeof window.QRCode !== 'undefined') {
+                new window.QRCode(document.getElementById('qr-container'), {
                     text: data.otpauthUrl, width: 180, height: 180,
                     colorDark: '#0F172A', colorLight: '#FFFFFF'
                 });
+            } else {
+                document.getElementById('qr-container').innerHTML =
+                    `<p style="color:var(--muted);font-size:12px;text-align:center;">QR-kode ikke tilgjengelig — bruk manuell kode over</p>`;
             }
 
             document.getElementById('confirm-setup-btn').addEventListener('click', () =>
@@ -267,6 +270,7 @@ class AdminApp {
                     <div id="totp-error" class="error-msg" style="display:none;"></div>
                     <button class="admin-btn-primary" id="verify-btn" style="width:100%;margin-bottom:8px;">Bekreft →</button>
                     <button class="admin-btn-ghost" id="signout-btn" style="justify-content:center;">← Logg ut</button>
+                    <button class="admin-btn-ghost" id="reset-totp-btn" style="justify-content:center;font-size:12px;color:var(--muted);margin-top:4px;">Nullstill 2FA-oppsett</button>
                 </div>
             </div>
         `;
@@ -275,6 +279,7 @@ class AdminApp {
         document.getElementById('verify-btn').addEventListener('click', () => this.handleTotpVerify(input.value, 'verify-btn'));
         input.addEventListener('keydown', e => e.key === 'Enter' && this.handleTotpVerify(input.value, 'verify-btn'));
         document.getElementById('signout-btn').addEventListener('click', () => this.handleSignOut());
+        document.getElementById('reset-totp-btn').addEventListener('click', () => this.resetTotp());
         input.focus();
     }
 
@@ -307,6 +312,21 @@ class AdminApp {
             this.showFormError('totp-error', 'Feil: ' + err.message);
             if (btn) { btn.disabled = false; btn.textContent = 'Bekreft →'; }
         }
+    }
+
+    async resetTotp() {
+        if (!confirm('Nullstill 2FA? Du må skanne en ny QR-kode etterpå.')) return;
+        try {
+            const idToken = await this.user.getIdToken();
+            await fetch('/.netlify/functions/admin-totp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'reset', idToken })
+            });
+        } catch (e) { /* ignore */ }
+        // Clear local secret so setup runs again
+        this.userData = { ...this.userData, totp_secret: null };
+        this.navigate('totp-setup');
     }
 
     async handleSignOut() {
