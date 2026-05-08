@@ -613,8 +613,8 @@ export class TeacherModule {
             });
         };
 
-        render();
         document.body.appendChild(overlay);
+        render();
     }
 
     // ==================== HELPERS ====================
