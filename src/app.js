@@ -49,8 +49,25 @@ async function initApp() {
         onAuthStateChanged(auth, handleAuthChange);
         await initPWA();
 
-        // 3. Handle initial route — etter Feide-login: gå til lærerdashboard
-        if (feideResult) {
+        // 3. Handle initial route
+        const proveKode = new URLSearchParams(window.location.search).get('prove');
+        if (proveKode) {
+            // QR-kode ble skannet — rydd URL og start prøven direkte
+            window.history.replaceState({}, '', window.location.pathname);
+            try {
+                const { hentProveMedKode, startQuiz } = await import('./shared/quiz/quiz-engine.js');
+                const prove = await hentProveMedKode(proveKode.toUpperCase());
+                if (prove) {
+                    await startQuiz(prove);
+                } else {
+                    visToast(`Fant ingen prøve med kode "${proveKode}".`, 'error');
+                    router.push(ROUTES.LANDING);
+                }
+            } catch (e) {
+                console.error('QR-prøve feil:', e);
+                router.push(ROUTES.LANDING);
+            }
+        } else if (feideResult) {
             router.push(ROUTES.TEACHER_HOME);
         } else {
             router.handleRoute();

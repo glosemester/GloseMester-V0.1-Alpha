@@ -174,12 +174,20 @@ export class FagStart {
                     id="prove-code-input"
                     class="input-field"
                     placeholder="ABC123"
-                    style="font-size: 24px; font-weight: 800; letter-spacing: 4px; text-align: center; margin-bottom: 24px; text-transform: uppercase;"
+                    style="font-size: 24px; font-weight: 800; letter-spacing: 4px; text-align: center; margin-bottom: 12px; text-transform: uppercase;"
                     maxlength="8"
                     autocomplete="off"
                 />
+                <div id="qr-scan-area" style="display:none; margin-bottom:12px;">
+                    <video id="qr-video" playsinline muted style="width:100%; border-radius:12px; background:#000; max-height:220px; object-fit:cover;"></video>
+                    <p style="font-size:12px; color:#6B7280; text-align:center; margin-top:6px;">Pek kameraet mot QR-koden</p>
+                </div>
+                <button id="scan-qr-btn" onclick="window.FagStart.toggleQRScan('${fagType}')"
+                    style="width:100%; padding:10px; background:rgba(124,58,237,0.08); border:1px dashed rgba(124,58,237,0.3); border-radius:10px; color:#7C3AED; font-weight:600; font-size:14px; cursor:pointer; margin-bottom:16px;">
+                    📷 Scan QR-kode
+                </button>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="document.getElementById('prove-modal').remove()" style="flex: 1;">
+                    <button class="btn btn-secondary" onclick="window.FagStart.closeProveModal()" style="flex: 1;">
                         Avbryt
                     </button>
                     <button id="prove-start-btn" onclick="window.FagStart.submitProveCode('${fagType}')" class="btn btn-primary" style="flex: 2;">
@@ -225,6 +233,73 @@ export class FagStart {
             visToast('Kunne ikke hente prøven.', 'error');
             if (btn) { btn.disabled = false; btn.textContent = 'Start prøve'; }
         }
+    }
+
+    static closeProveModal() {
+        FagStart.stopQRScan();
+        document.getElementById('prove-modal')?.remove();
+    }
+
+    static async toggleQRScan(fagType) {
+        const scanArea = document.getElementById('qr-scan-area');
+        const btn = document.getElementById('scan-qr-btn');
+        if (!scanArea) return;
+
+        if (scanArea.style.display !== 'none') {
+            FagStart.stopQRScan();
+            return;
+        }
+
+        if (!('BarcodeDetector' in window)) {
+            visToast('QR-scanning støttes ikke i denne nettleseren — skriv inn koden manuelt', 'warning');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            const video = document.getElementById('qr-video');
+            if (!video) { stream.getTracks().forEach(t => t.stop()); return; }
+
+            video.srcObject = stream;
+            await video.play();
+            window._qrStream = stream;
+            scanArea.style.display = 'block';
+            if (btn) btn.textContent = '⏹ Stopp skanning';
+
+            const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+            const scan = async () => {
+                if (!window._qrStream) return;
+                try {
+                    const codes = await detector.detect(video);
+                    if (codes.length > 0) {
+                        let kode = codes[0].rawValue;
+                        try { kode = new URL(kode).searchParams.get('prove') || kode; } catch {}
+                        FagStart.stopQRScan();
+                        const input = document.getElementById('prove-code-input');
+                        if (input) input.value = kode.toUpperCase();
+                        FagStart.submitProveCode(fagType);
+                        return;
+                    }
+                } catch {}
+                requestAnimationFrame(scan);
+            };
+            video.addEventListener('loadeddata', () => requestAnimationFrame(scan), { once: true });
+        } catch (e) {
+            visToast('Klarte ikke åpne kamera: ' + e.message, 'error');
+        }
+    }
+
+    static stopQRScan() {
+        if (window._qrStream) {
+            window._qrStream.getTracks().forEach(t => t.stop());
+            window._qrStream = null;
+        }
+        const video = document.getElementById('qr-video');
+        if (video) video.srcObject = null;
+        const scanArea = document.getElementById('qr-scan-area');
+        if (scanArea) scanArea.style.display = 'none';
+        const btn = document.getElementById('scan-qr-btn');
+        if (btn) btn.textContent = '📷 Scan QR-kode';
     }
 
     /**
