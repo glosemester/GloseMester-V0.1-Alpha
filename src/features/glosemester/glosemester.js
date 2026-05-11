@@ -13,6 +13,7 @@ import {
     getAvailableLevels
 } from './vocabulary-data.js';
 import { kortSystem } from '../../core/kort/kort-system.js';
+import { EASTER_EGG_KORT } from '../../core/kort/kort-data.js';
 import { menuSystem } from '../../core/navigation/menu-system.js';
 import { visToast, vibrer, lesOpp } from '../../core/utils/feedback.js';
 import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits } from '../../core/utils/storage.js';
@@ -635,6 +636,9 @@ export class GloseMester extends FagModul {
             const currentXP = getTotalCorrect('gloser');
             saveTotalCorrect(currentXP + 1, 'gloser');
 
+            // 🥚 Easter egg — 1/20 000 sjanse per riktig svar
+            this.sjekkEasterEgg();
+
             // Show success feedback
             const feedback = document.getElementById('feedback');
             if (feedback) {
@@ -704,6 +708,9 @@ export class GloseMester extends FagModul {
             this.sessionCorrect++;
             localStorage.setItem('kortProgress', this.sessionCorrect);
             this.dailyCorrect++;
+
+            // 🥚 Easter egg — 1/20 000 sjanse per riktig svar
+            this.sjekkEasterEgg();
 
             // ✅ Save XP to storage
             const currentXP = getTotalCorrect('gloser');
@@ -847,6 +854,66 @@ export class GloseMester extends FagModul {
         } catch (error) {
             console.error('Error getting kort reward:', error);
         }
+    }
+
+    /**
+     * Easter egg — 1/20 000 sjanse per riktig svar
+     */
+    sjekkEasterEgg() {
+        if (localStorage.getItem('easteregg_funnet')) return;
+        if (Math.random() > 1 / 20000) return;
+        this.visEasterEggPopup();
+    }
+
+    visEasterEggPopup() {
+        localStorage.setItem('easteregg_funnet', JSON.stringify({ dato: Date.now() }));
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; inset: 0; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 99999; animation: egFadeIn 1.2s ease forwards;
+        `;
+
+        overlay.innerHTML = `
+            <style>
+                @keyframes egFadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes egGlow {
+                    0%, 100% { text-shadow: 0 0 20px #FFD700, 0 0 60px #FFD700; }
+                    50% { text-shadow: 0 0 60px #FFD700, 0 0 120px #FFA500; }
+                }
+                @keyframes egFloat {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-12px); }
+                }
+                .eg-title { animation: egGlow 2s ease-in-out infinite; }
+                .eg-img { animation: egFloat 3s ease-in-out infinite; }
+            </style>
+            <div style="text-align:center; padding:40px; max-width:360px; color:#fff;">
+                <div style="font-size:56px; margin-bottom:16px; letter-spacing:8px;">✦ ✦ ✦</div>
+                <img class="eg-img" src="images/branding/easter-egg.png" alt="Hemmelig kort"
+                     style="width:200px; height:280px; border-radius:20px;
+                            box-shadow:0 0 60px #FFD700, 0 0 120px rgba(255,215,0,0.4);
+                            margin-bottom:28px; object-fit:cover;" />
+                <h1 class="eg-title" style="font-size:26px; font-weight:900; margin-bottom:12px; color:#FFD700;">
+                    Du fant det hemmelige kortet
+                </h1>
+                <p style="font-size:15px; color:rgba(255,255,255,0.7); margin-bottom:8px; font-style:italic;">
+                    Sjansen var 1 av 20 000.
+                </p>
+                <p style="font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:36px;">
+                    Det er knapt noen andre som har sett dette.
+                </p>
+                <button id="eg-close-btn"
+                    style="background:#FFD700; color:#000; border:none; border-radius:50px;
+                           padding:14px 40px; font-size:16px; font-weight:800; cursor:pointer;">
+                    Lukk
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        overlay.querySelector('#eg-close-btn').addEventListener('click', () => overlay.remove());
     }
 
     /**

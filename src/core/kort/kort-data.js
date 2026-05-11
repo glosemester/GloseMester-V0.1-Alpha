@@ -270,6 +270,20 @@ export const kortData = [
     ...guder
 ];
 
+// ==================== EASTER EGG ====================
+// Ikke del av kortData — vises aldri i noe galleri
+// Sjanse: 1/20 000 per riktig svar
+export const EASTER_EGG_KORT = {
+    id: 'easter_egg_øyvind',
+    name: '???',
+    image: 'images/branding/easter-egg.png',
+    category: 'hemmelig',
+    rarity: 'legendary',
+    fag: 'gloser',
+    secret: true,
+    beskrivelse: 'Du fant noe som nesten ingen har sett...'
+};
+
 // Compatibility export (for old code)
 export const cardsData = kortData;
 
