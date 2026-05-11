@@ -226,7 +226,7 @@ body.teacher-mode .header-logo span:last-child {
 /* ==================== MAIN CONTENT ==================== */
 
 .teacher-content {
-    padding: 36px 32px 80px;
+    padding: 80px 32px 80px;
     max-width: 1100px;
     animation: t-fade-in 0.3s var(--t-ease);
 }

@@ -641,6 +641,9 @@ export class MenuSystem {
                 .laerer-nav {
                     padding-left: 300px !important;
                 }
+                body.has-sidebar #app {
+                    margin-left: 280px;
+                }
                 .nav-items {
                     left: 0 !important;
                 }
