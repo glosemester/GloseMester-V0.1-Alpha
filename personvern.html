@@ -165,15 +165,15 @@
     <div class="container">
         <h1>🛡️ Personvernerklæring</h1>
         <p><strong>GloseMester v2.6.0</strong></p>
-        <p><em>Sist oppdatert: 23. februar 2026</em></p>
+        <p><em>Sist oppdatert: 11. mai 2026</em></p>
 
         <div class="highlight-box">
             <h3>📌 Kort oppsummert:</h3>
             <ul>
-                <li>✅ <strong>100% anonymt for elever</strong> - vi vet ikke hvem eleven er</li>
-                <li>✅ <strong>Lokal lagring</strong> - elevers data lagres kun på deres enhet</li>
-                <li>✅ <strong>Feide-innlogging</strong> - sikker autentisering for lærere</li>
-                <li>✅ <strong>GDPR-compliant</strong> - full etterlevelse av personvernforordningen</li>
+                <li>✅ <strong>Minimalt for elever</strong> — kun fornavn og testresultat lagres ved lærerstyrte prøver</li>
+                <li>✅ <strong>Lokal lagring</strong> — kortsamling og fremdrift lagres kun på elevens enhet</li>
+                <li>✅ <strong>Google-innlogging</strong> — sikker autentisering for lærere</li>
+                <li>✅ <strong>GDPR-compliant</strong> — full etterlevelse av personvernforordningen</li>
                 <li>💳 <strong>Betaling:</strong> Stripe brukes for sikker kortbetaling. Faktura for skolepakker</li>
             </ul>
         </div>
@@ -205,7 +205,7 @@
         <p>GloseMester er en Progressiv Web App (PWA) som gjør læring av engelske gloser om til en
             skattejakt gjennom gamification. Tjenesten er delt i to nivåer:</p>
         <ul>
-            <li><strong>For elever:</strong> En anonym øvingsplattform som lagrer progresjon lokalt. Ingen innlogging kreves.</li>
+            <li><strong>For elever:</strong> Ingen innlogging kreves. Ved fri øving lagres kun data lokalt i nettleseren. Ved lærerstyrte prøver oppgir eleven frivillig et fornavn som lagres sammen med testresultatet.</li>
             <li><strong>For lærere:</strong> Et administrasjonsverktøy for å lage prøver, dele via QR-koder, se statistikk og
                 administrere innhold. Innlogging med Feide, Google eller e-post.</li>
         </ul>
@@ -213,9 +213,9 @@
         <h2>3. Hvilke personopplysninger behandles?</h2>
 
         <div class="success-box">
-            <h3>✅ FOR ELEVER: ANONYM BRUK</h3>
-            <p>GloseMester krever <strong>ingen innlogging</strong> for elever. Vi lagrer ingen personopplysninger om
-                elever på våre servere.</p>
+            <h3>✅ FOR ELEVER: MINIMALT FOTAVTRYKK</h3>
+            <p>GloseMester krever <strong>ingen innlogging</strong> for elever. Ved fri øving lagres ingen opplysninger på våre servere.</p>
+            <p>Ved <strong>lærerstyrte prøver</strong> oppgir eleven selv et fornavn før prøven starter. Fornavnet lagres i vår database (Google Cloud / Firebase, EU) sammen med testresultatet, slik at læreren kan se hvem som svarte hva. <strong>Behandlingsgrunnlag: berettiget interesse (pedagogisk vurdering), jf. GDPR art. 6 nr. 1 f.</strong></p>
         </div>
 
         <h3>3.1 Data som lagres lokalt (kun på elevens enhet):</h3>
@@ -226,21 +226,41 @@
                 <th>Lagringssted</th>
             </tr>
             <tr>
-                <td>Samling av kort</td>
+                <td>Kortsamling</td>
                 <td>Spillmekanikk og belønning</td>
                 <td>localStorage (nettleser)</td>
             </tr>
             <tr>
-                <td>Progresjon</td>
-                <td>Huske hvor langt eleven kom</td>
-                <td>localStorage (nettleser)</td>
-            </tr>
-            <tr>
-                <td>Lagrede prøver</td>
-                <td>Gjenta prøver uten ny kode</td>
+                <td>Kortprogresjon (0–10 teller)</td>
+                <td>Huske fremgang mot neste kort</td>
                 <td>localStorage (nettleser)</td>
             </tr>
         </table>
+
+        <h3>3.1b Data som lagres ved lærerstyrte prøver (Firestore):</h3>
+        <table>
+            <tr>
+                <th>Data</th>
+                <th>Formål</th>
+                <th>Lagringssted</th>
+            </tr>
+            <tr>
+                <td>Fornavn (oppgitt av eleven selv)</td>
+                <td>Identifisere resultater i lærerdashbordet</td>
+                <td>Google Cloud / Firebase (EU)</td>
+            </tr>
+            <tr>
+                <td>Testresultat (antall riktige, prosent)</td>
+                <td>Pedagogisk tilbakemelding til lærer</td>
+                <td>Google Cloud / Firebase (EU)</td>
+            </tr>
+            <tr>
+                <td>Tidspunkt for gjennomføring</td>
+                <td>Sortering og statistikk</td>
+                <td>Google Cloud / Firebase (EU)</td>
+            </tr>
+        </table>
+        <p><strong>Merk:</strong> Det lagres ikke e-post, fødselsdato eller andre identifiserende opplysninger for elever. Fornavnet er oppgitt frivillig og kan være et kallenavn.</p>
 
         <h3>3.2 Data for lærere og betalende brukere:</h3>
         <p>For lærere som logger inn (via Feide, Google eller E-post) lagres følgende:</p>

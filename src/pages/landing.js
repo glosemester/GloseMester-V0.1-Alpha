@@ -101,10 +101,17 @@ export class Landing {
                     </button>
                 </div>
 
+                <!-- For skoler / Vil du vite mer -->
+                <div style="text-align:center;margin:8px auto 0;padding:0 20px;">
+                    <a href="/for-skoler.html" style="display:inline-block;color:hsl(258,15%,45%);font-size:14px;text-decoration:none;padding:8px 0;border-bottom:1px dashed hsl(258,15%,70%);">
+                        🏫 Er du lærer eller skole? Se priser og funksjoner →
+                    </a>
+                </div>
+
                 <!-- Footer -->
                 <footer class="landing-footer">
                     <p>© 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
-                    <p><a href="/personvern.html">Personvern</a></p>
+                    <p><a href="/personvern.html">Personvern</a> · <a href="/for-skoler.html">For skoler</a></p>
                 </footer>
             </div>
         `;
