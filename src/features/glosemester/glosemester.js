@@ -32,7 +32,7 @@ export class GloseMester extends FagModul {
         this.direction = 'en'; // 'en' = Norwegian->English, 'no' = English->Norwegian
         this.correctAnswers = 0;
         this.totalQuestions = 0;
-        this.sessionCorrect = 0; // Correct answers in current continuous session (for kort rewards)
+        this.sessionCorrect = parseInt(localStorage.getItem('kortProgress') || '0', 10); // Persists across sessions
         this.dailyCorrect = 0; // Correct answers today (for "X riktige i dag" counter)
     }
 
@@ -538,6 +538,7 @@ export class GloseMester extends FagModul {
 
         if (isCorrect) {
             this.sessionCorrect++;
+            localStorage.setItem('kortProgress', this.sessionCorrect);
             this.correctAnswers++;
             this.totalQuestions++;
             this.dailyCorrect++;
@@ -613,6 +614,7 @@ export class GloseMester extends FagModul {
         // If correct, increment session correct and check for kort reward
         if (result.isCorrect) {
             this.sessionCorrect++;
+            localStorage.setItem('kortProgress', this.sessionCorrect);
             this.dailyCorrect++;
 
             // ✅ Save XP to storage
@@ -750,8 +752,10 @@ export class GloseMester extends FagModul {
         }
 
         try {
-            // handleQuizCompletion(10, 10) = 100% score → picks rarity → saves to localStorage → shows popup
             await kortSystem.handleQuizCompletion(10, 10, 'gloser', this.currentLevel);
+            // Reset persistent progress counter after card awarded
+            localStorage.setItem('kortProgress', '0');
+            this.sessionCorrect = 0;
         } catch (error) {
             console.error('Error getting kort reward:', error);
         }

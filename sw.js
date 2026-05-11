@@ -1,6 +1,6 @@
-// SERVICE WORKER - GloseMester v2.12.0
-const APP_VERSION = 'v2.12.0';
-const CACHE_NAME = 'glosemester-v2.12.0';
+// SERVICE WORKER - GloseMester v2.13.0
+const APP_VERSION = 'v2.13.0';
+const CACHE_NAME = 'glosemester-v2.13.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -132,19 +132,18 @@ const ASSETS_TO_CACHE = [
 // INSTALL - Cache assets
 self.addEventListener('install', (e) => {
   console.log(`[SW] Installerer ${APP_VERSION}`);
-  // VIKTIG: Ikke skipWaiting() her — la klienten bestemme via SKIP_WAITING melding
-  // Dette gir klienten tid til å vise "Oppdater nå"-popup
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
     await Promise.all(ASSETS_TO_CACHE.map(async url => {
       try {
-        // cache: 'no-store' sikrer at vi henter ferskeste versjon fra server
         const res = await fetch(url, { cache: 'no-store' });
         if (res.ok) await cache.put(url, res.clone());
       } catch (err) {
         console.warn(`[SW] Kunne ikke cache: ${url}`, err);
       }
     }));
+    // Ta over umiddelbart — ingen grunn til å vente siden det ikke finnes update-popup UI
+    self.skipWaiting();
   })());
 });
 

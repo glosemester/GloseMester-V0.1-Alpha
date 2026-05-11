@@ -179,7 +179,14 @@ export class KortReward {
     static getUserCollection() {
         try {
             const samlingStr = localStorage.getItem('kortSamling');
-            return samlingStr ? JSON.parse(samlingStr) : [];
+            if (!samlingStr) return [];
+            const samling = JSON.parse(samlingStr);
+            // Hydrate stored cards against current kortData to pick up corrected image paths
+            const kortMap = new Map(kortData.map(k => [k.id, k]));
+            return samling.map(stored => {
+                const current = kortMap.get(stored.id);
+                return current ? { ...stored, image: current.image, name: current.name, category: current.category } : stored;
+            });
         } catch (error) {
             console.error('Error loading collection:', error);
             return [];
