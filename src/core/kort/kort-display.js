@@ -240,17 +240,44 @@ export class KortGalleri {
      * @param {string} kortId - Kort ID
      */
     showKortModal(kortId) {
-        // TODO: Implement modal view
-        console.log('Show modal for kort:', kortId);
-
-        // For now, just show an alert
         const samling = KortReward.getUserCollection();
         const kort = samling.find(k => k.id === kortId);
+        if (!kort) return;
 
-        if (kort) {
-            const count = KortReward.getKortCount(kortId);
-            alert(`${kort.name}\n\nKategori: ${kort.category}\nSjeldenhet: ${kort.rarity}\nAntall: ${count}`);
-        }
+        const config = RARITY_CONFIG[kort.rarity] || { farge: '#7C3AED', emoji: '🃏', tekst: kort.rarity };
+        const count = KortReward.getKortCount(kortId);
+
+        const existing = document.getElementById('kort-detail-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'kort-detail-modal';
+        modal.style.cssText = `
+            position:fixed;inset:0;background:rgba(0,0,0,0.85);
+            display:flex;align-items:center;justify-content:center;
+            z-index:10000;padding:20px;cursor:pointer;
+        `;
+        modal.innerHTML = `
+            <div style="background:white;border-radius:24px;padding:32px 24px;max-width:360px;width:100%;text-align:center;cursor:default;position:relative;" onclick="event.stopPropagation()">
+                <button id="close-detail-modal" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#666;line-height:1;">✕</button>
+                <img src="${kort.image}" alt="${kort.name}"
+                    style="width:100%;max-width:280px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.25);margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;">
+                <h2 style="margin:0 0 4px;font-size:22px;color:#1d1d1f;">${kort.name}</h2>
+                <p style="margin:0 0 12px;color:#666;font-size:14px;text-transform:capitalize;">${kort.category}</p>
+                <span style="display:inline-block;background:${config.farge};color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:${count > 1 ? '10px' : '0'}">
+                    ${config.emoji} ${config.tekst}
+                </span>
+                ${count > 1 ? `<p style="margin:0;font-size:13px;color:#888;">Du har ${count} av dette kortet</p>` : ''}
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        modal.querySelector('#close-detail-modal').addEventListener('click', () => modal.remove());
+        document.addEventListener('keydown', function esc(e) {
+            if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); }
+        });
+
+        document.body.appendChild(modal);
     }
 
     /**
