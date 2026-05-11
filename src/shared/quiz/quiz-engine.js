@@ -53,19 +53,44 @@ export async function startQuiz(prove, containerSelector = '#app') {
                       document.querySelector(containerSelector);
     if (!container) return;
 
-    // Bygg spørsmålsliste
+    // Be eleven oppgi navn (lagres i sessionStorage for resultater)
+    await new Promise(resolve => {
+        const cached = sessionStorage.getItem('elevNavn');
+        if (cached) { resolve(); return; }
+
+        container.innerHTML = `
+            <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--background,#F5F3FF);">
+                <div style="background:white;border-radius:24px;padding:40px 32px;max-width:400px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(124,58,237,0.10);">
+                    <div style="font-size:52px;margin-bottom:12px;">📝</div>
+                    <h2 style="font-family:'Outfit',system-ui;font-size:24px;font-weight:800;color:#1F2937;margin-bottom:6px;">${prove.tittel || 'Prøve'}</h2>
+                    <p style="color:#6B7280;font-size:15px;margin-bottom:24px;">Hva heter du?</p>
+                    <input id="elev-navn-input" type="text" placeholder="Fornavn" autocomplete="given-name"
+                        style="width:100%;padding:14px 16px;font-size:18px;font-weight:600;text-align:center;border:2px solid #e5e7eb;border-radius:14px;outline:none;margin-bottom:16px;" />
+                    <button id="elev-navn-btn"
+                        style="width:100%;padding:14px;background:#7C3AED;color:white;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;">
+                        🚀 Start prøven
+                    </button>
+                </div>
+            </div>`;
+
+        const input = container.querySelector('#elev-navn-input');
+        const btn   = container.querySelector('#elev-navn-btn');
+        input?.focus();
+
+        const start = () => {
+            const navn = input?.value.trim();
+            if (navn) sessionStorage.setItem('elevNavn', navn);
+            resolve();
+        };
+        btn?.addEventListener('click', start);
+        input?.addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+    });
+
     const sporsmal = byggSporsmalsliste(prove);
-
     const quizState = {
-        prove,
-        sporsmal,
-        currentIndex: 0,
-        riktige: 0,
-        svar: [],        // [{ sporsmal, brukersvar, riktig: bool }]
-        startTid: Date.now()
+        prove, sporsmal, currentIndex: 0, riktige: 0,
+        svar: [], startTid: Date.now()
     };
-
-    // Vis første spørsmål
     visSporsmal(quizState, container);
 }
 
@@ -301,13 +326,15 @@ async function visResultat(state, container) {
  * Lagre resultater til Firestore `resultater`-collection
  */
 async function lagreResultat(prove, riktige, totalt, prosent, svar, tidSekunder) {
+    const elevNavn = sessionStorage.getItem('elevNavn') || null;
     await addDoc(collection(db, 'resultater'), {
-        prove_id: prove.id,
-        kode: prove.kode,
-        tittel: prove.tittel || '',
-        fag: prove.fag || 'ukjent',
-        elev_id: crypto.randomUUID(),   // Anonymt
-        poengsum: riktige,
+        prove_id:  prove.id,
+        kode:      prove.kode,
+        tittel:    prove.tittel || '',
+        fag:       prove.fag || 'ukjent',
+        elev_id:   crypto.randomUUID(),
+        elevNavn,
+        poengsum:  riktige,
         maksPoeng: totalt,
         prosent,
         svar,

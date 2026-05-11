@@ -866,9 +866,37 @@ export class TeacherModule {
                     results: []
                 };
             });
+            if (this.tests.length > 0) await this._loadResults();
         } catch (e) {
             console.error('loadTests error:', e);
             this.tests = [];
+        }
+    }
+
+    async _loadResults() {
+        const ids = this.tests.map(t => t.id);
+        // Firestore 'in' er begrenset til 30 — del opp ved behov
+        for (let i = 0; i < ids.length; i += 30) {
+            const chunk = ids.slice(i, i + 30);
+            try {
+                const snap = await getDocs(
+                    query(collection(db, 'resultater'), where('prove_id', 'in', chunk))
+                );
+                snap.docs.forEach(d => {
+                    const r = d.data();
+                    const test = this.tests.find(t => t.id === r.prove_id);
+                    if (!test) return;
+                    test.results.push({
+                        score:       r.prosent       ?? 0,
+                        correct:     r.poengsum      ?? 0,
+                        total:       r.maksPoeng     ?? 0,
+                        studentName: r.elevNavn      || 'Anonym',
+                        completedAt: r.tidspunkt?.toDate?.()?.toISOString() || new Date().toISOString()
+                    });
+                });
+            } catch (e) {
+                console.warn('_loadResults chunk feil:', e);
+            }
         }
     }
 
