@@ -564,7 +564,7 @@
         <div style="background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:24px;padding:36px 32px;text-align:center;color:white;box-shadow:0 8px 32px rgba(124,58,237,0.3);">
             <div style="font-size:36px;margin-bottom:10px;">🎁</div>
             <h2 style="margin:0 0 8px;font-size:24px;font-weight:800;">Gratis ut skoleåret 25/26</h2>
-            <p style="margin:0 0 24px;opacity:0.9;font-size:15px;">Full Premium-tilgang frem til 20. juni 2026 — helt gratis. Ingen kredittkort.</p>
+            <p style="margin:0 0 24px;opacity:0.9;font-size:15px;">Full Skolepakke-tilgang frem til 21. juli 2026 — helt gratis. Ingen kredittkort.</p>
 
             <div id="promo-innlogging" style="display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto;">
                 <div style="display:flex;gap:8px;">
@@ -580,8 +580,8 @@
 
             <div id="promo-suksess" style="display:none;">
                 <div style="font-size:48px;margin-bottom:12px;">🎉</div>
-                <h3 style="margin:0 0 8px;font-size:20px;">Premium aktivert!</h3>
-                <p style="margin:0 0 20px;opacity:0.9;">Du har gratis tilgang frem til 20. juni 2026.</p>
+                <h3 style="margin:0 0 8px;font-size:20px;">Skolepakke aktivert!</h3>
+                <p style="margin:0 0 20px;opacity:0.9;">Du har full Skolepakke-tilgang frem til 21. juli 2026.</p>
                 <a href="/#/lærer" style="display:inline-block;background:white;color:#7C3AED;font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;font-size:15px;">
                     Gå til lærerdashbordet →
                 </a>
@@ -945,7 +945,7 @@
         } from '/js/features/firebase.js';
 
         const GYLDIG_KODE = 'SMARTVALG2026';
-        const UTLOPER = new Date('2026-06-20T23:59:59');
+        const UTLOPER = new Date('2026-07-21T23:59:59');
 
         let innloggetBruker = null;
 
@@ -972,6 +972,7 @@
 
             btn.textContent = 'Logger inn…';
             btn.disabled = true;
+            feilDiv.style.display = 'none';
 
             try {
                 if (!innloggetBruker) {
@@ -982,14 +983,20 @@
                 const uid = innloggetBruker.uid;
                 const userRef = doc(db, 'users', uid);
 
+                // Gir skolepakke-tilgang — matcher sjekkAbonnement() i teacher.js linje 131:
+                // if (abo.status === 'active' || abo.type === 'skolepakke' ...)
                 await setDoc(userRef, {
-                    'abonnement.type': 'promo',
-                    'abonnement.promokode': GYLDIG_KODE,
-                    'abonnement.utloper': UTLOPER,
+                    abonnement: {
+                        type: 'skolepakke',
+                        status: 'active',
+                        promokode: GYLDIG_KODE,
+                        utloper: UTLOPER,
+                        aktivertAv: innloggetBruker.email,
+                        aktivertDato: new Date()
+                    },
                     'subscription.status': 'premium',
                     'subscription.plan': 'promo_skolear_2526',
                     'subscription.expiresAt': UTLOPER,
-                    'subscription.aktivertAv': innloggetBruker.email,
                     oppdatert: serverTimestamp()
                 }, { merge: true });
 
@@ -1006,9 +1013,12 @@
             }
         };
 
-        // Auto-fokus input hvis URL inneholder #promo
+        // Scroll til promo-seksjonen og fokuser input om URL inneholder #promo
         if (window.location.hash === '#promo') {
-            document.getElementById('promo-kode-input')?.focus();
+            setTimeout(() => {
+                document.getElementById('promo')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('promo-kode-input')?.focus();
+            }, 300);
         }
     </script>
 

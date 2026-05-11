@@ -1,6 +1,6 @@
-// SERVICE WORKER - GloseMester v2.18.0
-const APP_VERSION = 'v2.18.0';
-const CACHE_NAME = 'glosemester-v2.18.0';
+// SERVICE WORKER - GloseMester v2.19.0
+const APP_VERSION = 'v2.19.0';
+const CACHE_NAME = 'glosemester-v2.19.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
