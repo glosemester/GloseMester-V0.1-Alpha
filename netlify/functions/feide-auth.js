@@ -46,7 +46,7 @@ function erLaerer(userinfo, groupsData = null) {
 
 exports.handler = async (event) => {
     const headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://glosemester.no',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Content-Type': 'application/json'
     };

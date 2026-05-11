@@ -27,6 +27,10 @@ class AdminApp {
         this.userDocs = [null]; // page stack for pagination
     }
 
+    e(s) {
+        return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     async init() {
         document.getElementById('admin-root').innerHTML = '<div id="admin-app"><div id="admin-content"></div></div>';
 
@@ -82,7 +86,7 @@ class AdminApp {
                 <aside class="admin-sidebar">
                     <div class="sidebar-header">
                         <div class="sidebar-logo">⚙️ GloseMester Admin</div>
-                        <div class="sidebar-user">${this.userData?.displayName || this.user?.email || ''}</div>
+                        <div class="sidebar-user">${this.e(this.userData?.displayName || this.user?.email || '')}</div>
                     </div>
                     <nav class="sidebar-nav">
                         ${this.navItem('dashboard',  '📊', 'Dashbord')}
@@ -251,7 +255,7 @@ class AdminApp {
             document.getElementById('totp-token').focus();
 
         } catch (err) {
-            content.innerHTML = `<div class="error-msg">${err.message}</div>`;
+            content.innerHTML = `<div class="error-msg">${this.e(err.message)}</div>`;
         }
     }
 
@@ -392,8 +396,8 @@ class AdminApp {
             if (recentEl) recentEl.innerHTML = recent.map(d => {
                 const u = d.data();
                 return `<div class="list-item">
-                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.displayName || u.email || '—'}</span>
-                    <span class="badge badge-${u.abonnement?.type||'free'}">${u.abonnement?.type||'free'}</span>
+                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${this.e(u.displayName || u.email || '—')}</span>
+                    <span class="badge badge-${u.abonnement?.type||'free'}">${this.e(u.abonnement?.type||'free')}</span>
                 </div>`;
             }).join('') || '<p style="color:var(--muted);font-size:14px;">Ingen brukere</p>';
 
@@ -403,14 +407,14 @@ class AdminApp {
                 const items = pendingSnap.docs.slice(0,5);
                 pendingEl.innerHTML = items.map(d => `
                     <div class="list-item">
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.data().tittel||'—'}</span>
-                        <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveGlosebank('${d.id}', true)">Godkjenn</button>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${this.e(d.data().tittel||'—')}</span>
+                        <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveGlosebank('${this.e(d.id)}', true)">Godkjenn</button>
                     </div>`).join('') || '<p style="color:var(--muted);font-size:14px;">Ingen ventende 🎉</p>';
             }
 
         } catch (err) {
             const s = document.getElementById('dash-stats');
-            if (s) s.innerHTML = `<div class="error-msg">Feil ved lasting: ${err.message}</div>`;
+            if (s) s.innerHTML = `<div class="error-msg">Feil ved lasting: ${this.e(err.message)}</div>`;
         }
     }
 
@@ -494,14 +498,14 @@ class AdminApp {
                 const sub = u.abonnement?.type || u.subscription?.status || 'free';
                 const login = u.siste_innlogging?.toDate?.()?.toLocaleDateString('no-NO') || '—';
                 return `<tr>
-                    <td>${u.displayName || '—'}</td>
-                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">${u.email || '—'}</td>
-                    <td><span class="badge">${u.kilde||'—'}</span></td>
-                    <td><span class="badge badge-${u.rolle||'laerer'}">${u.rolle||'laerer'}</span></td>
-                    <td><span class="badge badge-${sub}">${sub}</span></td>
-                    <td style="white-space:nowrap;">${login}</td>
+                    <td>${this.e(u.displayName || '—')}</td>
+                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">${this.e(u.email || '—')}</td>
+                    <td><span class="badge">${this.e(u.kilde||'—')}</span></td>
+                    <td><span class="badge badge-${u.rolle||'laerer'}">${this.e(u.rolle||'laerer')}</span></td>
+                    <td><span class="badge badge-${sub}">${this.e(sub)}</span></td>
+                    <td style="white-space:nowrap;">${this.e(login)}</td>
                     <td>
-                        <select class="admin-select" onchange="window.adminApp.updateSubscription('${uid}', this.value)">
+                        <select class="admin-select" onchange="window.adminApp.updateSubscription('${this.e(uid)}', this.value)">
                             <option value="free"       ${sub==='free'?'selected':''}>Free</option>
                             <option value="premium"    ${sub==='premium'?'selected':''}>Premium</option>
                             <option value="skolepakke" ${sub==='skolepakke'?'selected':''}>Skolepakke</option>
@@ -518,7 +522,7 @@ class AdminApp {
             `;
 
         } catch (err) {
-            if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="error-msg">${err.message}</td></tr>`;
+            if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="error-msg">${this.e(err.message)}</td></tr>`;
         }
     }
 
@@ -568,16 +572,16 @@ class AdminApp {
                 const t = d.data();
                 const date = t.opprettet_dato?.toDate?.()?.toLocaleDateString('no-NO') || '—';
                 return `<tr>
-                    <td>${t.tittel||'—'}</td>
-                    <td><code class="code-badge">${t.code||'—'}</code></td>
-                    <td>${t.opprettet_av_epost||t.createdBy||'—'}</td>
-                    <td>${date}</td>
+                    <td>${this.e(t.tittel||'—')}</td>
+                    <td><code class="code-badge">${this.e(t.code||'—')}</code></td>
+                    <td>${this.e(t.opprettet_av_epost||t.createdBy||'—')}</td>
+                    <td>${this.e(date)}</td>
                     <td>${t.results?.length||t.antall_gjennomforinger||0}</td>
                     <td>${t.aktiv!==false?'✅':'❌'}</td>
                 </tr>`;
             }).join('') || '<tr><td colspan="6" class="empty">Ingen prøver</td></tr>';
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="6" class="error-msg">${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="error-msg">${this.e(err.message)}</td></tr>`;
         }
     }
 
@@ -627,20 +631,20 @@ class AdminApp {
                 return `<div class="admin-card glosebank-card" style="margin-bottom:14px;">
                     <div class="glosebank-header">
                         <div style="min-width:0;">
-                            <h3 style="margin:0 0 4px;">${g.tittel||'—'}</h3>
+                            <h3 style="margin:0 0 4px;">${this.e(g.tittel||'—')}</h3>
                             <p style="margin:0;color:var(--muted);font-size:13px;">
-                                ${g.opprettet_av_epost||'—'} · ${date} · ${g.ordliste?.length||0} ord
-                                ${g.nivå?`· ${g.nivå}`:''}${g.trinn?` · ${g.trinn}`:''}
+                                ${this.e(g.opprettet_av_epost||'—')} · ${this.e(date)} · ${g.ordliste?.length||0} ord
+                                ${g.nivå?`· ${this.e(g.nivå)}`:''}${g.trinn?` · ${this.e(g.trinn)}`:''}
                             </p>
-                            ${g.beskrivelse?`<p style="margin:6px 0 0;font-size:13px;color:#94A3B8;">${g.beskrivelse}</p>`:''}
+                            ${g.beskrivelse?`<p style="margin:6px 0 0;font-size:13px;color:#94A3B8;">${this.e(g.beskrivelse)}</p>`:''}
                         </div>
                         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">
-                            <span class="badge badge-${g.status||'pending'}">${g.status||'pending'}</span>
+                            <span class="badge badge-${g.status||'pending'}">${this.e(g.status||'pending')}</span>
                             ${g.status==='pending' ? `
-                                <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveGlosebank('${id}')">✅ Godkjenn</button>
-                                <button class="admin-btn-danger admin-btn-sm" onclick="window.adminApp.rejectGlosebank('${id}')">❌ Avvis</button>
+                                <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveGlosebank('${this.e(id)}')">✅ Godkjenn</button>
+                                <button class="admin-btn-danger admin-btn-sm" onclick="window.adminApp.rejectGlosebank('${this.e(id)}')">❌ Avvis</button>
                             ` : `
-                                <button class="admin-btn-secondary admin-btn-sm" onclick="window.adminApp.toggleGloseVisibility('${id}',${!g.synlig_for_kunder})">
+                                <button class="admin-btn-secondary admin-btn-sm" onclick="window.adminApp.toggleGloseVisibility('${this.e(id)}',${!g.synlig_for_kunder})">
                                     ${g.synlig_for_kunder?'🙈 Skjul':'👁 Vis'}
                                 </button>
                             `}
@@ -649,7 +653,7 @@ class AdminApp {
                 </div>`;
             }).join('');
         } catch (err) {
-            listEl.innerHTML = `<div class="error-msg">${err.message}</div>`;
+            listEl.innerHTML = `<div class="error-msg">${this.e(err.message)}</div>`;
         }
     }
 
@@ -718,16 +722,16 @@ class AdminApp {
                 const date = o.createdAt?.toDate?.()?.toLocaleDateString('no-NO') || '—';
                 const amt = o.amount ? `${(o.amount/100).toLocaleString('no-NO')} kr` : '—';
                 return `<tr>
-                    <td>${date}</td>
-                    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;">${o.userEmail||'—'}</td>
-                    <td>${o.plan||'—'}</td>
-                    <td style="font-weight:700;">${amt}</td>
-                    <td><span class="badge badge-${o.status||'pending'}">${o.status||'—'}</span></td>
-                    <td><code style="font-size:11px;color:var(--muted);">${(o.stripeSessionId||'').substring(0,22)}…</code></td>
+                    <td>${this.e(date)}</td>
+                    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;">${this.e(o.userEmail||'—')}</td>
+                    <td>${this.e(o.plan||'—')}</td>
+                    <td style="font-weight:700;">${this.e(amt)}</td>
+                    <td><span class="badge badge-${o.status||'pending'}">${this.e(o.status||'—')}</span></td>
+                    <td><code style="font-size:11px;color:var(--muted);">${this.e((o.stripeSessionId||'').substring(0,22))}…</code></td>
                 </tr>`;
             }).join('') || '<tr><td colspan="6" class="empty">Ingen betalinger</td></tr>';
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="6" class="error-msg">${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="error-msg">${this.e(err.message)}</td></tr>`;
         }
     }
 
@@ -756,27 +760,27 @@ class AdminApp {
                 return `<div class="admin-card" style="margin-bottom:14px;">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
                         <div>
-                            <h3 style="margin:0 0 6px;">${s.schoolName||'—'}</h3>
+                            <h3 style="margin:0 0 6px;">${this.e(s.schoolName||'—')}</h3>
                             <p style="margin:0 0 4px;color:var(--muted);font-size:13px;">
-                                Org.nr: ${s.orgNumber||'—'} · ${s.teacherCount||'?'} lærere · ${date}
+                                Org.nr: ${this.e(s.orgNumber||'—')} · ${this.e(s.teacherCount||'?')} lærere · ${this.e(date)}
                             </p>
                             <p style="margin:0;font-size:13px;">
-                                Kontakt: <strong>${s.contactPerson||'—'}</strong> — ${s.contactEmail||'—'}
-                                ${s.contactPhone?` · ${s.contactPhone}`:''}
+                                Kontakt: <strong>${this.e(s.contactPerson||'—')}</strong> — ${this.e(s.contactEmail||'—')}
+                                ${s.contactPhone?` · ${this.e(s.contactPhone)}`:''}
                             </p>
-                            ${s.message?`<p style="margin:8px 0 0;color:#94A3B8;font-size:13px;">"${s.message}"</p>`:''}
+                            ${s.message?`<p style="margin:8px 0 0;color:#94A3B8;font-size:13px;">"${this.e(s.message)}"</p>`:''}
                         </div>
                         <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-                            <span class="badge badge-${s.status||'pending'}">${s.status||'pending'}</span>
+                            <span class="badge badge-${s.status||'pending'}">${this.e(s.status||'pending')}</span>
                             ${s.status!=='approved'?`
-                                <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveSchool('${d.id}')">Godkjenn skolepakke</button>
+                                <button class="admin-btn-primary admin-btn-sm" onclick="window.adminApp.approveSchool('${this.e(d.id)}')">Godkjenn skolepakke</button>
                             `:''}
                         </div>
                     </div>
                 </div>`;
             }).join('');
         } catch (err) {
-            listEl.innerHTML = `<div class="error-msg">${err.message}</div>`;
+            listEl.innerHTML = `<div class="error-msg">${this.e(err.message)}</div>`;
         }
     }
 
@@ -846,7 +850,7 @@ class AdminApp {
 
         } catch (err) {
             const g = document.getElementById('stat-grid');
-            if (g) g.innerHTML = `<div class="error-msg">${err.message}</div>`;
+            if (g) g.innerHTML = `<div class="error-msg">${this.e(err.message)}</div>`;
         }
     }
 
