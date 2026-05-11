@@ -128,7 +128,8 @@ export class GloseMester extends FagModul {
                     <h1>📚 GloseMester</h1>
                     <p>Velg nivå for å begynne å øve</p>
                     <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
-                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Samling</button>
+                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Se dine kort</button>
+                        <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galleri</button>
                         <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
                     </div>
                 </header>
@@ -176,6 +177,7 @@ export class GloseMester extends FagModul {
         });
 
         document.getElementById('vis-samling-btn')?.addEventListener('click', () => this.renderGallery());
+        document.getElementById('vis-galleri-btn')?.addEventListener('click', () => this.renderAllKortGallery());
         document.getElementById('tilbake-btn')?.addEventListener('click', () => window.router.push('/'));
     }
 
@@ -829,12 +831,35 @@ export class GloseMester extends FagModul {
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
                     <h2 style="margin: 0;">🃏 Mine Kort</h2>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px; margin-left: auto;">🖼️ Galleri</button>
                 </div>
                 <div id="app-gallery"></div>
             </div>
         `;
 
         kortSystem.createGallery('app-gallery');
+    }
+
+    /**
+     * Show full kort gallery — all 152 cards, greyed out if not owned
+     */
+    renderAllKortGallery() {
+        const container = document.getElementById('app');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div style="padding: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
+                    <h2 style="margin: 0;">🖼️ Alle Kort</h2>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderGallery()" style="padding: 8px 16px; margin-left: auto;">🃏 Se dine kort</button>
+                </div>
+                <p style="margin: 0 0 20px; color: #888; font-size: 14px;">Øv for å vinne kortene du mangler!</p>
+                <div id="app-all-gallery"></div>
+            </div>
+        `;
+
+        kortSystem.createAllKortGallery('app-all-gallery');
     }
 
     /**

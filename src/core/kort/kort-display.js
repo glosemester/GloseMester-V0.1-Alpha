@@ -3,7 +3,7 @@
    UI for kort-visning og galleri
    ============================================ */
 
-import { RARITY_CONFIG } from './kort-data.js';
+import { RARITY_CONFIG, kortData } from './kort-data.js';
 import { KortReward } from './kort-reward.js';
 
 /**
@@ -278,6 +278,103 @@ export class KortGalleri {
         });
 
         document.body.appendChild(modal);
+    }
+
+    /**
+     * Render ALL 152 cards — greyed out with "Ikke vunnet" if not owned
+     */
+    renderAll() {
+        if (!this.container) {
+            console.error(`Container not found: ${this.containerId}`);
+            return;
+        }
+
+        const samling = KortReward.getUserCollection();
+        const ownedIds = new Set(samling.map(k => k.id));
+        const stats = KortReward.getCollectionStats();
+        const totalAvailable = kortData.length;
+
+        // Categories with labels
+        const categoryLabels = { biler: '🚗 Biler', dinosaurer: '🦕 Dinosaurer', dyr: '🐾 Dyr', guder: '⚡ Guder' };
+        const categoryOrder = ['biler', 'dinosaurer', 'dyr', 'guder'];
+
+        // Summary header
+        this.container.innerHTML = `
+            <div style="margin-bottom:20px;padding:16px;background:rgba(124,58,237,0.08);border-radius:16px;text-align:center;">
+                <span style="font-size:22px;font-weight:700;color:#7C3AED;">${stats.unique}</span>
+                <span style="color:#888;font-size:15px;"> / ${totalAvailable} unike kort vunnet</span>
+                <div style="margin-top:8px;background:#e5e7eb;border-radius:99px;height:8px;max-width:300px;margin-left:auto;margin-right:auto;">
+                    <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:8px;border-radius:99px;width:${Math.round((stats.unique / totalAvailable) * 100)}%;transition:width 0.4s;"></div>
+                </div>
+            </div>
+        `;
+
+        // Render by category
+        categoryOrder.forEach(cat => {
+            const cards = kortData.filter(k => k.category === cat);
+            const ownedInCat = cards.filter(k => ownedIds.has(k.id)).length;
+
+            this.container.insertAdjacentHTML('beforeend', `
+                <div style="margin-bottom:28px;">
+                    <h3 style="margin:0 0 12px;font-size:17px;color:#1d1d1f;">${categoryLabels[cat] || cat} <span style="font-size:13px;color:#888;font-weight:400;">${ownedInCat}/${cards.length}</span></h3>
+                    <div class="kort-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;">
+                        ${cards.map(kort => this.renderAllKortCard(kort, ownedIds.has(kort.id), samling.filter(k => k.id === kort.id).length)).join('')}
+                    </div>
+                </div>
+            `);
+        });
+
+        // Click listeners — only for owned cards
+        this.container.querySelectorAll('.kort-card[data-owned="true"]').forEach(card => {
+            card.addEventListener('click', () => this.showKortModal(card.dataset.kortId));
+        });
+    }
+
+    /**
+     * Render a single card in the "all cards" gallery
+     * @param {Object} kort - Card from kortData
+     * @param {boolean} owned - Whether user owns this card
+     * @param {number} count - How many copies owned
+     * @returns {string} HTML
+     */
+    renderAllKortCard(kort, owned, count) {
+        const config = RARITY_CONFIG[kort.rarity] || { farge: '#a1a1a1', emoji: '📦', tekst: kort.rarity };
+
+        if (owned) {
+            return `
+                <div class="kort-card" data-kort-id="${kort.id}" data-owned="true"
+                    style="cursor:pointer;position:relative;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.10);border:2px solid ${config.farge}30;transition:transform 0.15s,box-shadow 0.15s;"
+                    onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 18px rgba(0,0,0,0.15)'"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.10)'">
+                    <div style="aspect-ratio:2/3;position:relative;overflow:hidden;">
+                        <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                        <div style="position:absolute;top:5px;right:5px;background:${config.farge};color:white;padding:3px 6px;border-radius:5px;font-size:10px;font-weight:600;">${config.emoji}</div>
+                        ${count > 1 ? `<div style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,0.75);color:white;padding:2px 6px;border-radius:10px;font-size:11px;font-weight:700;">×${count}</div>` : ''}
+                    </div>
+                    <div style="padding:7px 5px;text-align:center;">
+                        <p style="margin:0;font-size:11px;font-weight:600;color:#1d1d1f;line-height:1.2;">${kort.name}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Not owned — greyed out, no click
+        return `
+            <div class="kort-card-locked" data-kort-id="${kort.id}" data-owned="false"
+                style="cursor:default;position:relative;border-radius:12px;overflow:hidden;background:#f3f4f6;border:2px solid #e5e7eb;">
+                <div style="aspect-ratio:2/3;position:relative;overflow:hidden;">
+                    <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;filter:grayscale(100%) brightness(0.6);" loading="lazy">
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);">
+                        <span style="font-size:20px;">🔒</span>
+                        <span style="color:white;font-size:10px;font-weight:700;margin-top:3px;text-align:center;padding:0 4px;">Ikke vunnet</span>
+                    </div>
+                    <div style="position:absolute;top:5px;right:5px;background:#9ca3af;color:white;padding:3px 6px;border-radius:5px;font-size:10px;font-weight:600;">${config.emoji}</div>
+                </div>
+                <div style="padding:7px 5px;text-align:center;">
+                    <p style="margin:0;font-size:11px;font-weight:600;color:#9ca3af;line-height:1.2;">${kort.name}</p>
+                </div>
+            </div>
+        `;
     }
 
     /**

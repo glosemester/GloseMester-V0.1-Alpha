@@ -83,6 +83,17 @@ export class KortSystem {
     }
 
     /**
+     * Create gallery showing all 152 cards — greyed out if not owned
+     * @param {string} containerId - Container element ID
+     * @returns {KortGalleri} - Gallery instance
+     */
+    createAllKortGallery(containerId) {
+        const gallery = new KortGalleri(containerId);
+        gallery.renderAll();
+        return gallery;
+    }
+
+    /**
      * Get user statistics
      * @returns {Object} - User stats
      */
