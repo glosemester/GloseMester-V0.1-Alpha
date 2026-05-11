@@ -243,6 +243,59 @@ export class KortReward {
     }
 
     /**
+     * Remove N copies of a kort from localStorage collection
+     * @param {string} kortId - Kort ID to remove
+     * @param {number} count - How many copies to remove
+     * @returns {number} - How many were actually removed
+     */
+    static removeKort(kortId, count = 1) {
+        try {
+            const samlingStr = localStorage.getItem('kortSamling');
+            if (!samlingStr) return 0;
+            const samling = JSON.parse(samlingStr);
+            let removed = 0;
+            const newSamling = samling.filter(k => {
+                if (k.id === kortId && removed < count) {
+                    removed++;
+                    return false;
+                }
+                return true;
+            });
+            localStorage.setItem('kortSamling', JSON.stringify(newSamling));
+            return removed;
+        } catch (error) {
+            console.error('Error removing kort:', error);
+            return 0;
+        }
+    }
+
+    /**
+     * Pant 2 dubletter av kortId → få 1 tilfeldig nytt kort
+     * Krever at du har minst 3 kopier (beholder 1 etter pantet)
+     * @param {string} kortId - Kort ID to pant
+     * @returns {Object|null} - New kort won, or null if not enough duplicates
+     */
+    static panteKort(kortId) {
+        const count = this.getKortCount(kortId);
+        if (count < 3) return null;
+
+        // Fjern 2 kopier
+        this.removeKort(kortId, 2);
+
+        // Trekk tilfeldig nytt kort — ekskluder kortId for å unngå å få samme tilbake
+        const pool = kortData.filter(k => k.id !== kortId);
+        const rarity = this.calculateRarity(85); // Standard odds
+        let rarityPool = pool.filter(k => k.rarity === rarity);
+        if (rarityPool.length === 0) rarityPool = pool;
+
+        const newKort = rarityPool[Math.floor(Math.random() * rarityPool.length)];
+        this.awardKort(newKort);
+
+        console.log(`♻️ Panted 2× ${kortId} → won ${newKort.name} (${newKort.rarity})`);
+        return newKort;
+    }
+
+    /**
      * Clear all kort (for testing/reset)
      * @returns {boolean} - Success
      */

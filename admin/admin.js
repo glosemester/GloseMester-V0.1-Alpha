@@ -96,6 +96,7 @@ class AdminApp {
                         ${this.navItem('payments',    '💳', 'Betalinger')}
                         ${this.navItem('schools',     '🏫', 'Skolepakker')}
                         ${this.navItem('stats',       '📈', 'Statistikk')}
+                        ${this.navItem('kort',        '🃏', 'Kort-galleri')}
                     </nav>
                     <div class="sidebar-footer">
                         <button class="admin-btn-ghost" id="admin-logout">🚪 Logg ut</button>
@@ -124,6 +125,7 @@ class AdminApp {
             case 'payments':    this.renderPayments(content); break;
             case 'schools':     this.renderSchools(content); break;
             case 'stats':       this.renderStats(content); break;
+            case 'kort':        this.renderKortGalleri(content); break;
         }
     }
 
@@ -887,6 +889,68 @@ class AdminApp {
                     <button class="admin-btn-ghost" style="justify-content:center;" onclick="window.location.reload()">Prøv igjen</button>
                 </div>
             </div>`;
+    }
+
+    renderKortGalleri(el) {
+        const RARITY_CONFIG = {
+            common:    { tekst: 'Vanlig',       farge: '#a1a1a1', emoji: '📦' },
+            rare:      { tekst: 'Sjelden',      farge: '#0071e3', emoji: '✨' },
+            epic:      { tekst: 'Episk',        farge: '#8e44ad', emoji: '💎' },
+            legendary: { tekst: 'Legendarisk',  farge: '#f1c40f', emoji: '🌟' }
+        };
+        const CAT_LABELS = { biler: '🚗 Biler', dinosaurer: '🦕 Dinosaurer', dyr: '🐾 Dyr', guder: '⚡ Guder' };
+        const CAT_ORDER  = ['biler','dinosaurer','dyr','guder'];
+
+        // kortData importeres fra window (injisert av admin/index.html) eller inline
+        // Bygg inline siden admin er isolert fra SPA-bundle
+        const kortData = window.__adminKortData || [];
+        const totalKort = kortData.length;
+
+        if (totalKort === 0) {
+            el.innerHTML = `<div class="admin-page"><h2>🃏 Kort-galleri</h2>
+                <p style="color:var(--muted)">Laster kortdata…</p></div>`;
+            // Retry etter 800ms (modules er async)
+            setTimeout(() => this.renderKortGalleri(el), 800);
+            return;
+        }
+
+        const stats = {
+            legendary: kortData.filter(k=>k.rarity==='legendary').length,
+            epic:      kortData.filter(k=>k.rarity==='epic').length,
+            rare:      kortData.filter(k=>k.rarity==='rare').length,
+            common:    kortData.filter(k=>k.rarity==='common').length,
+        };
+
+        let html = `<div class="admin-page">
+            <h2>🃏 Kort-galleri — Alle ${totalKort} kort</h2>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 24px;">
+                <span style="background:#f1c40f;color:#333;padding:5px 14px;border-radius:99px;font-weight:700;font-size:13px;">🌟 ${stats.legendary} Legendary</span>
+                <span style="background:#8e44ad;color:white;padding:5px 14px;border-radius:99px;font-weight:700;font-size:13px;">💎 ${stats.epic} Epic</span>
+                <span style="background:#0071e3;color:white;padding:5px 14px;border-radius:99px;font-weight:700;font-size:13px;">✨ ${stats.rare} Rare</span>
+                <span style="background:#a1a1a1;color:white;padding:5px 14px;border-radius:99px;font-weight:700;font-size:13px;">📦 ${stats.common} Common</span>
+            </div>`;
+
+        CAT_ORDER.forEach(cat => {
+            const cards = kortData.filter(k => k.category === cat);
+            html += `<h3 style="margin:24px 0 12px;font-size:16px;">${CAT_LABELS[cat]} <span style="color:var(--muted);font-weight:400;font-size:13px;">${cards.length} kort</span></h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:8px;">`;
+            cards.forEach(k => {
+                const cfg = RARITY_CONFIG[k.rarity] || RARITY_CONFIG.common;
+                html += `<div style="border-radius:10px;overflow:hidden;background:#fff;border:2px solid ${cfg.farge}40;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+                    <div style="aspect-ratio:2/3;position:relative;overflow:hidden;">
+                        <img src="/${k.image}" alt="${k.name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                        <div style="position:absolute;top:4px;right:4px;background:${cfg.farge};color:${k.rarity==='legendary'?'#333':'white'};padding:2px 5px;border-radius:4px;font-size:9px;font-weight:700;">${cfg.emoji}</div>
+                    </div>
+                    <div style="padding:5px;text-align:center;">
+                        <p style="margin:0;font-size:10px;font-weight:600;color:#1d1d1f;line-height:1.2;">${k.name}</p>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
     }
 
     showToast(msg, type = 'success') {

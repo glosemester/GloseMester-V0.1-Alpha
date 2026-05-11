@@ -11,6 +11,11 @@
 <body>
     <div id="admin-root"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Injiser kortData fra SPA-bundlen slik at admin-galleriet kan bruke den -->
+    <script type="module">
+        import { kortData } from '/src/core/kort/kort-data.js';
+        window.__adminKortData = kortData;
+    </script>
     <script type="module" src="/admin/admin.js"></script>
 </body>
 </html>

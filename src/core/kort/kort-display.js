@@ -190,20 +190,102 @@ export class KortGalleri {
      */
     renderKortCards(kortList) {
         const gridHtml = `
-            <div class="kort-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+            <div class="kort-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;">
                 ${kortList.map(kort => this.renderKortCard(kort)).join('')}
             </div>
         `;
 
         this.container.insertAdjacentHTML('beforeend', gridHtml);
 
-        // Attach click listeners
+        // Zoom on card click (not on pante-btn)
         this.container.querySelectorAll('.kort-card').forEach(card => {
             card.addEventListener('click', (e) => {
+                if (e.target.closest('.pante-btn')) return;
                 const kortId = e.currentTarget.dataset.kortId;
                 this.showKortModal(kortId);
             });
         });
+
+        // Pante-knapp listeners
+        this.container.querySelectorAll('.pante-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const kortId = btn.dataset.panteId;
+                this.visPanteBekreftelse(kortId);
+            });
+        });
+    }
+
+    /**
+     * Vis bekreftelsesdialog for panting
+     * @param {string} kortId
+     */
+    visPanteBekreftelse(kortId) {
+        const samling = KortReward.getUserCollection();
+        const kort = samling.find(k => k.id === kortId);
+        if (!kort) return;
+
+        const count = KortReward.getKortCount(kortId);
+        const config = RARITY_CONFIG[kort.rarity] || {};
+
+        const existing = document.getElementById('pante-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'pante-modal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:10001;padding:20px;';
+        modal.innerHTML = `
+            <div style="background:white;border-radius:24px;padding:32px 24px;max-width:340px;width:100%;text-align:center;" onclick="event.stopPropagation()">
+                <div style="font-size:40px;margin-bottom:8px;">♻️</div>
+                <h3 style="margin:0 0 6px;font-size:20px;color:#1d1d1f;">Pant dubletter?</h3>
+                <p style="margin:0 0 16px;font-size:14px;color:#666;">
+                    Du har <strong>${count}×</strong> ${kort.name}.<br>
+                    Pant <strong>2 kopier</strong> → få <strong>1 tilfeldig nytt kort</strong>.
+                </p>
+                <img src="${kort.image}" alt="${kort.name}"
+                    style="width:100px;border-radius:12px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button id="pante-bekreft-btn"
+                        style="padding:13px;background:#22c55e;color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">
+                        ✅ Ja, pant 2 kopier
+                    </button>
+                    <button onclick="document.getElementById('pante-modal').remove()"
+                        style="padding:13px;background:#f5f5f7;color:#666;border:none;border-radius:12px;font-size:15px;cursor:pointer;">
+                        Avbryt
+                    </button>
+                </div>
+                <p style="margin:12px 0 0;font-size:12px;color:#aaa;">Du beholder 1 kopi av ${kort.name}</p>
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        document.body.appendChild(modal);
+
+        document.getElementById('pante-bekreft-btn').addEventListener('click', () => {
+            modal.remove();
+            this.gjennomforPanting(kortId);
+        });
+    }
+
+    /**
+     * Gjennomfør panting: fjern 2, vis gevinst-popup, gjenrender galleri
+     * @param {string} kortId
+     */
+    gjennomforPanting(kortId) {
+        const nyttKort = KortReward.panteKort(kortId);
+        if (!nyttKort) return;
+
+        // Vis gevinst-popup for det nye kortet
+        visGevinstPopup(nyttKort);
+
+        // Gjenrender galleriet etter at popup lukkes
+        const observeClose = setInterval(() => {
+            if (!document.querySelector('.kort-win-modal')) {
+                clearInterval(observeClose);
+                this.container.innerHTML = '';
+                this.render();
+            }
+        }, 500);
     }
 
     /**
@@ -213,6 +295,7 @@ export class KortGalleri {
      */
     renderKortCard(kort) {
         const config = RARITY_CONFIG[kort.rarity];
+        const kanPante = kort.count >= 3;
 
         return `
             <div class="kort-card rarity-${kort.rarity}" data-kort-id="${kort.id}" style="cursor: pointer; position: relative;">
@@ -227,9 +310,15 @@ export class KortGalleri {
                         </div>
                     ` : ''}
                 </div>
-                <div class="kort-info" style="padding: 12px 8px; text-align: center;">
+                <div class="kort-info" style="padding: 8px 8px 4px; text-align: center;">
                     <h4 style="margin: 0 0 4px 0; font-size: 15px; color: #1d1d1f;">${kort.name}</h4>
-                    <p style="margin: 0; font-size: 12px; color: #666; text-transform: capitalize;">${kort.category}</p>
+                    <p style="margin: 0 0 6px; font-size: 12px; color: #666; text-transform: capitalize;">${kort.category}</p>
+                    ${kanPante ? `
+                        <button class="pante-btn" data-pante-id="${kort.id}"
+                            style="width:100%;padding:6px 0;background:#f0fdf4;border:1.5px solid #22c55e;color:#15803d;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+                            ♻️ Pant 2 dubletter
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `;
