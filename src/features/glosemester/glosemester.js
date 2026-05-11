@@ -35,6 +35,7 @@ export class GloseMester extends FagModul {
         this.totalQuestions = 0;
         this.sessionCorrect = parseInt(localStorage.getItem('kortProgress') || '0', 10); // Persists across sessions
         this.dailyCorrect = 0; // Correct answers today (for "X riktige i dag" counter)
+        this.innstillinger = { vibrasjon: true, lydfeedback: true, visTips: true };
     }
 
     // ==================== REQUIRED METHODS ====================
@@ -52,8 +53,14 @@ export class GloseMester extends FagModul {
         // Initialize navigation menu
         menuSystem.init();
 
+        // Load user settings
+        this.applyInnstillinger();
+
         // Render UI
         this.renderPracticeUI();
+
+        // Show onboarding for first-time users
+        this.sjekkOnboarding();
 
         this.initialized = true;
         console.log('✅ GloseMester initialized');
@@ -131,6 +138,7 @@ export class GloseMester extends FagModul {
                     <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
                         <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Se dine kort</button>
                         <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galleri</button>
+                        <button id="innstillinger-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">⚙️ Innstillinger</button>
                         <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
                     </div>
                 </header>
@@ -268,6 +276,7 @@ export class GloseMester extends FagModul {
 
         document.getElementById('vis-samling-btn')?.addEventListener('click', () => this.renderGallery());
         document.getElementById('vis-galleri-btn')?.addEventListener('click', () => this.renderAllKortGallery());
+        document.getElementById('innstillinger-btn')?.addEventListener('click', () => this.visInnstillinger());
         document.getElementById('tilbake-btn')?.addEventListener('click', () => window.router.push('/'));
     }
 
@@ -669,7 +678,7 @@ export class GloseMester extends FagModul {
             this.totalQuestions++;
 
             // Wrong answer - vibrate and show popup
-            vibrer(200);
+            if (this.innstillinger.vibrasjon) vibrer(200);
 
             const correctAnswer = this.direction === 'en' ? correctWord.e : correctWord.s;
             this.showWrongAnswerPopup(correctAnswer);
@@ -737,7 +746,7 @@ export class GloseMester extends FagModul {
             }, 800);
         } else {
             // Wrong answer - vibrate and show error popup
-            vibrer(200);
+            if (this.innstillinger.vibrasjon) vibrer(200);
             this.showWrongAnswerPopup(result.correctAnswer);
         }
     }
@@ -768,6 +777,9 @@ export class GloseMester extends FagModul {
 
         // Update credits/XP progress
         this.updateCreditsProgress();
+
+        // Check if feedback prompt should be shown
+        this.sjekkTilbakemelding();
     }
 
     /**
@@ -914,6 +926,174 @@ export class GloseMester extends FagModul {
 
         document.body.appendChild(overlay);
         overlay.querySelector('#eg-close-btn').addEventListener('click', () => overlay.remove());
+    }
+
+    // ==================== ONBOARDING ====================
+
+    sjekkOnboarding() {
+        if (localStorage.getItem('gm_onboarding_done')) return;
+        this.visOnboarding();
+    }
+
+    visOnboarding() {
+        let steg = 0;
+        const steger = [
+            { ikon: '🎓', tittel: 'Velkommen til GloseMester!', tekst: 'Øv på gloser og vinn samlekort underveis. Gratis å starte!' },
+            { ikon: '🃏', tittel: 'Svar riktig — vinn kort', tekst: 'For hver 10 riktige svar vinner du et tilfeldig samlekort. Det finnes 152 kort fordelt på 6 kategorier!' },
+            { ikon: '🚀', tittel: 'Klar til å starte?', tekst: 'Velg et nivå og begynn å øve. Fremgangen din lagres mellom øktene.' }
+        ];
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+
+        const lukkModal = () => {
+            localStorage.setItem('gm_onboarding_done', '1');
+            overlay.remove();
+        };
+
+        const render = () => {
+            const s = steger[steg];
+            const dots = steger.map((_, i) => `<span style="width:8px;height:8px;border-radius:50%;background:${i === steg ? '#7C3AED' : '#ddd'};display:inline-block;"></span>`).join('');
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:28px;padding:36px 32px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="font-size:56px;margin-bottom:16px;">${s.ikon}</div>
+                    <h2 style="margin:0 0 12px;font-size:22px;color:#1d1d1f;font-weight:800;">${s.tittel}</h2>
+                    <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.5;">${s.tekst}</p>
+                    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:24px;">${dots}</div>
+                    <div style="display:flex;gap:10px;justify-content:center;">
+                        <button id="ob-skip" style="background:transparent;border:1.5px solid #ddd;border-radius:20px;padding:10px 20px;font-size:14px;color:#888;cursor:pointer;">Hopp over</button>
+                        <button id="ob-neste" style="background:#7C3AED;border:none;border-radius:20px;padding:10px 28px;font-size:14px;font-weight:700;color:white;cursor:pointer;">
+                            ${steg < steger.length - 1 ? 'Neste →' : 'Start nå 🚀'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            overlay.querySelector('#ob-skip').addEventListener('click', lukkModal);
+            overlay.querySelector('#ob-neste').addEventListener('click', () => {
+                if (steg < steger.length - 1) { steg++; render(); }
+                else lukkModal();
+            });
+        };
+
+        render();
+        document.body.appendChild(overlay);
+    }
+
+    // ==================== INNSTILLINGER ====================
+
+    applyInnstillinger() {
+        const lagret = localStorage.getItem('gm_innstillinger');
+        if (lagret) {
+            try { this.innstillinger = { ...this.innstillinger, ...JSON.parse(lagret) }; } catch {}
+        }
+    }
+
+    visInnstillinger() {
+        const s = this.innstillinger;
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+
+        const toggle = (key, label, desc) => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0;">
+                <div>
+                    <div style="font-weight:600;font-size:15px;color:#1d1d1f;">${label}</div>
+                    <div style="font-size:12px;color:#888;margin-top:2px;">${desc}</div>
+                </div>
+                <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px;">
+                    <input type="checkbox" data-key="${key}" ${s[key] ? 'checked' : ''}
+                        style="opacity:0;width:0;height:0;" />
+                    <span style="position:absolute;cursor:pointer;inset:0;background:${s[key] ? '#7C3AED' : '#ccc'};border-radius:24px;transition:0.3s;">
+                        <span style="position:absolute;height:18px;width:18px;left:${s[key] ? '23px' : '3px'};bottom:3px;background:white;border-radius:50%;transition:0.3s;"></span>
+                    </span>
+                </label>
+            </div>
+        `;
+
+        overlay.innerHTML = `
+            <div style="background:white;border-radius:24px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                <h2 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#1d1d1f;">⚙️ Innstillinger</h2>
+                <p style="margin:0 0 20px;font-size:13px;color:#888;">Tilpasse øvingen etter deg</p>
+                ${toggle('vibrasjon', 'Vibrasjon', 'Telefonen vibrerer ved feil svar')}
+                ${toggle('lydfeedback', 'Lydfeedback', 'Lydsignal ved riktig/feil (kommer snart)')}
+                ${toggle('visTips', 'Vis hint', 'Vis hjelpetekst under spørsmålet')}
+                <div style="display:flex;gap:10px;margin-top:24px;">
+                    <button id="inn-avbryt" style="flex:1;background:transparent;border:1.5px solid #ddd;border-radius:20px;padding:12px;font-size:14px;color:#666;cursor:pointer;">Avbryt</button>
+                    <button id="inn-lagre" style="flex:1;background:#7C3AED;border:none;border-radius:20px;padding:12px;font-size:14px;font-weight:700;color:white;cursor:pointer;">Lagre</button>
+                </div>
+            </div>
+        `;
+
+        overlay.querySelector('#inn-avbryt').addEventListener('click', () => overlay.remove());
+        overlay.querySelector('#inn-lagre').addEventListener('click', () => {
+            overlay.querySelectorAll('input[data-key]').forEach(inp => {
+                this.innstillinger[inp.dataset.key] = inp.checked;
+            });
+            localStorage.setItem('gm_innstillinger', JSON.stringify(this.innstillinger));
+            overlay.remove();
+            visToast('✅ Innstillinger lagret', 'success');
+        });
+
+        // Rerender toggle visuals on change
+        overlay.querySelectorAll('input[data-key]').forEach(inp => {
+            inp.addEventListener('change', () => {
+                const span = inp.nextElementSibling;
+                const knob = span.querySelector('span');
+                if (inp.checked) { span.style.background = '#7C3AED'; knob.style.left = '23px'; }
+                else { span.style.background = '#ccc'; knob.style.left = '3px'; }
+            });
+        });
+
+        document.body.appendChild(overlay);
+    }
+
+    // ==================== TILBAKEMELDING ====================
+
+    sjekkTilbakemelding() {
+        if (localStorage.getItem('gm_feedback_gitt')) return;
+        const xp = getTotalCorrect('gloser');
+        if (xp >= 50) this.visTilbakemeldingModal();
+    }
+
+    visTilbakemeldingModal() {
+        localStorage.setItem('gm_feedback_gitt', JSON.stringify({ dato: Date.now(), stjerner: 0 }));
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+
+        overlay.innerHTML = `
+            <div style="background:white;border-radius:28px;padding:36px 28px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <div style="font-size:40px;margin-bottom:12px;">⭐</div>
+                <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1d1d1f;">Hva synes du om GloseMester?</h2>
+                <p style="margin:0 0 20px;font-size:14px;color:#888;">Din mening hjelper oss!</p>
+                <div id="stjerne-rad" style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;font-size:36px;cursor:pointer;">
+                    <span data-s="1">☆</span>
+                    <span data-s="2">☆</span>
+                    <span data-s="3">☆</span>
+                    <span data-s="4">☆</span>
+                    <span data-s="5">☆</span>
+                </div>
+                <button id="fb-hopp" style="background:transparent;border:none;font-size:13px;color:#aaa;cursor:pointer;text-decoration:underline;">Hopp over</button>
+            </div>
+        `;
+
+        const rad = overlay.querySelector('#stjerne-rad');
+        rad.querySelectorAll('span').forEach(s => {
+            s.addEventListener('click', () => {
+                const n = parseInt(s.dataset.s);
+                rad.querySelectorAll('span').forEach((sp, i) => { sp.textContent = i < n ? '★' : '☆'; });
+                localStorage.setItem('gm_feedback_gitt', JSON.stringify({ dato: Date.now(), stjerner: n }));
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'app_feedback', { stars: n, xp_total: getTotalCorrect('gloser') });
+                }
+                setTimeout(() => {
+                    overlay.remove();
+                    visToast('Takk for tilbakemeldingen! 🙏', 'success');
+                }, 600);
+            });
+        });
+
+        overlay.querySelector('#fb-hopp').addEventListener('click', () => overlay.remove());
+        document.body.appendChild(overlay);
     }
 
     /**
