@@ -139,6 +139,7 @@ export class GloseMester extends FagModul {
                         <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Se dine kort</button>
                         <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galleri</button>
                         <button id="innstillinger-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">⚙️ Innstillinger</button>
+                        <a href="mailto:kontakt@glosemester.no?subject=Hjelp%20med%20GloseMester" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;">❓ Hjelp</a>
                         <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
                     </div>
                 </header>
