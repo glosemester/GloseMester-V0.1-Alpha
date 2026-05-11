@@ -127,6 +127,10 @@ export class GloseMester extends FagModul {
                 <header class="fag-header">
                     <h1>📚 GloseMester</h1>
                     <p>Velg nivå for å begynne å øve</p>
+                    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Samling</button>
+                        <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
+                    </div>
                 </header>
 
                 <div class="level-grid">
@@ -171,13 +175,8 @@ export class GloseMester extends FagModul {
             });
         });
 
-        // Show bottom navigation
-        menuSystem.showMenu('oving', {
-            onPractice: () => this.renderPracticeUI(),
-            onCollection: () => this.renderGallery(),
-            onGalleri: () => this.renderGallery(),
-            onQuit: () => window.router.push('/')
-        });
+        document.getElementById('vis-samling-btn')?.addEventListener('click', () => this.renderGallery());
+        document.getElementById('tilbake-btn')?.addEventListener('click', () => window.router.push('/'));
     }
 
     /**
@@ -285,8 +284,6 @@ export class GloseMester extends FagModul {
         const container = document.getElementById('app');
         if (!container) return;
 
-        // Hide bottom nav during quiz (quit button is in quiz header)
-        menuSystem.hideMenu();
 
         const metadata = getLevelMetadata(this.currentLevel);
 
@@ -828,7 +825,7 @@ export class GloseMester extends FagModul {
         if (!container) return;
 
         container.innerHTML = `
-            <div style="padding: 20px 20px 100px 20px;">
+            <div style="padding: 20px;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
                     <h2 style="margin: 0;">🃏 Mine Kort</h2>
@@ -838,13 +835,6 @@ export class GloseMester extends FagModul {
         `;
 
         kortSystem.createGallery('app-gallery');
-
-        menuSystem.showMenu('oving', {
-            onPractice: () => this.renderPracticeUI(),
-            onCollection: () => this.renderGallery(),
-            onGalleri: () => this.renderGallery(),
-            onQuit: () => window.router.push('/')
-        });
     }
 
     /**
@@ -917,14 +907,6 @@ export class GloseMester extends FagModul {
                 </div>
             </div>
         `;
-
-        // Restore bottom nav on results screen
-        menuSystem.showMenu('oving', {
-            onPractice: () => this.renderPracticeUI(),
-            onCollection: () => this.renderGallery(),
-            onGalleri: () => this.renderGallery(),
-            onQuit: () => window.router.push('/')
-        });
 
         // Attach event listeners
         const practiceAgainBtn = document.getElementById('practice-again');
