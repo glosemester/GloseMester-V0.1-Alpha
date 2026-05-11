@@ -70,8 +70,28 @@ export class Landing {
                     </div>
                 </div>
 
+                <!-- Elev: Skriv inn prøvekode -->
+                <div style="text-align: center; margin: 24px auto 0; max-width: 400px; padding: 0 20px; position: relative; z-index: 1;">
+                    <p style="font-size: 14px; color: hsl(258, 15%, 45%); margin-bottom: 10px;">Har du fått en prøvekode fra læreren?</p>
+                    <div style="display: flex; gap: 8px;">
+                        <input
+                            id="prove-kode-input"
+                            type="text"
+                            placeholder="Skriv inn kode (f.eks. ABC123)"
+                            maxlength="6"
+                            autocomplete="off"
+                            autocapitalize="characters"
+                            style="flex:1; padding: 12px 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border: 2px solid hsl(258, 40%, 88%); border-radius: 14px; outline: none; text-align: center;"
+                        />
+                        <button id="prove-kode-btn" class="btn btn-primary" style="padding: 12px 18px; border-radius: 14px; white-space: nowrap;">
+                            🚀 Start
+                        </button>
+                    </div>
+                    <p id="prove-kode-feil" style="display:none; color:#dc2626; font-size:13px; margin-top:8px;"></p>
+                </div>
+
                 <!-- PWA Install Button -->
-                <div style="text-align: center; margin: 32px auto 0; max-width: 400px; padding: 0 20px; position: relative; z-index: 1;">
+                <div style="text-align: center; margin: 16px auto 0; max-width: 400px; padding: 0 20px; position: relative; z-index: 1;">
                     <button
                         id="pwa-install-btn"
                         class="btn btn-secondary"
@@ -103,8 +123,51 @@ export class Landing {
             if (e.key === 'Enter' || e.key === ' ') navigate();
         });
         startBtn?.addEventListener('click', (e) => {
-            e.stopPropagation(); // card-click håndterer det
+            e.stopPropagation();
             navigate();
+        });
+
+        // Prøvekode-input for elever
+        const kodeInput = document.getElementById('prove-kode-input');
+        const kodeBtn   = document.getElementById('prove-kode-btn');
+        const kodeFeil  = document.getElementById('prove-kode-feil');
+
+        const startMedKode = async () => {
+            const kode = kodeInput.value.trim().toUpperCase();
+            if (kode.length < 4) {
+                kodeFeil.textContent = 'Skriv inn prøvekoden du fikk fra læreren.';
+                kodeFeil.style.display = 'block';
+                return;
+            }
+            kodeBtn.disabled = true;
+            kodeBtn.textContent = '⏳ Leter...';
+            kodeFeil.style.display = 'none';
+            try {
+                const { hentProveMedKode, startQuiz } = await import('../shared/quiz/quiz-engine.js');
+                const prove = await hentProveMedKode(kode);
+                if (prove) {
+                    await startQuiz(prove);
+                } else {
+                    kodeFeil.textContent = `Fant ingen prøve med kode "${kode}". Sjekk at du har skrevet riktig.`;
+                    kodeFeil.style.display = 'block';
+                    kodeBtn.disabled = false;
+                    kodeBtn.textContent = '🚀 Start';
+                }
+            } catch (err) {
+                console.error('Prøvekode-feil:', err);
+                kodeFeil.textContent = 'Noe gikk galt. Sjekk nettforbindelsen og prøv igjen.';
+                kodeFeil.style.display = 'block';
+                kodeBtn.disabled = false;
+                kodeBtn.textContent = '🚀 Start';
+            }
+        };
+
+        kodeBtn?.addEventListener('click', startMedKode);
+        kodeInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') startMedKode();
+        });
+        kodeInput?.addEventListener('input', () => {
+            kodeInput.value = kodeInput.value.toUpperCase();
         });
     }
 }
