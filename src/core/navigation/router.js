@@ -184,13 +184,9 @@ export const ROUTES = {
 export function isProtectedRoute(path) {
     const protectedRoutes = [
         ROUTES.STUDENT_HOME,
-        ROUTES.TEACHER_HOME,
         ROUTES.PRACTICE,
         ROUTES.QUIZ,
         ROUTES.GALLERY,
-        ROUTES.CREATE_TEST,
-        ROUTES.MY_TESTS,
-        ROUTES.ANALYTICS,
         ROUTES.PROFILE
     ];
 
