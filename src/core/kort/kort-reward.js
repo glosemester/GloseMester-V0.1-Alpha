@@ -16,7 +16,7 @@ export class KortReward {
      * @param {string} fagType - 'gloser', 'matte', or 'norsk'
      * @returns {Object|null} - Won kort or null
      */
-    static checkWinCondition(correctCount, totalQuestions, fagType = 'gloser') {
+    static checkWinCondition(correctCount, totalQuestions, fagType = 'gloser', nivå = null) {
         const percentage = Math.round((correctCount / totalQuestions) * 100);
 
         // Win condition: 80% or higher
@@ -31,7 +31,7 @@ export class KortReward {
         const rarity = this.calculateRarity(percentage);
 
         // Get random kort
-        const kort = this.getRandomKort(rarity, fagType);
+        const kort = this.getRandomKort(rarity, fagType, nivå);
 
         return kort;
     }

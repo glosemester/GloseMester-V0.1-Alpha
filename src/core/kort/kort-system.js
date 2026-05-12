@@ -49,7 +49,7 @@ export class KortSystem {
         console.log(`🎮 Quiz completed: ${correctCount}/${totalQuestions} (${Math.round((correctCount/totalQuestions)*100)}%)`);
 
         // Check win condition
-        const kort = KortReward.checkWinCondition(correctCount, totalQuestions, fagType);
+        const kort = KortReward.checkWinCondition(correctCount, totalQuestions, fagType, nivå);
 
         if (!kort) {
             console.log('❌ No kort won this time');
