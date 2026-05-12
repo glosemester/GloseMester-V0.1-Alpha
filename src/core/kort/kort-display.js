@@ -197,20 +197,12 @@ export class KortGalleri {
 
         this.container.insertAdjacentHTML('beforeend', gridHtml);
 
-        // Zoom on card click (not on pante-btn or trade-btn)
+        // Zoom on card click (not on pante-btn)
         this.container.querySelectorAll('.kort-card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.pante-btn') || e.target.closest('.trade-btn')) return;
+                if (e.target.closest('.pante-btn')) return;
                 const kortId = e.currentTarget.dataset.kortId;
                 this.showKortModal(kortId);
-            });
-        });
-
-        // Trade-knapp listeners
-        this.container.querySelectorAll('.trade-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.tradeSystem?.openTradeCreator(btn.dataset.tradeId);
             });
         });
 
@@ -321,10 +313,6 @@ export class KortGalleri {
                 <div class="kort-info" style="padding: 8px 8px 4px; text-align: center;">
                     <h4 style="margin: 0 0 4px 0; font-size: 15px; color: #1d1d1f;">${kort.name}</h4>
                     <p style="margin: 0 0 6px; font-size: 12px; color: #666; text-transform: capitalize;">${kort.category}</p>
-                    <button class="trade-btn" data-trade-id="${kort.id}"
-                        style="width:100%;padding:6px 0;background:#f5f0ff;border:1.5px solid #7C3AED;color:#7C3AED;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:4px;">
-                        🔄 Bytt kort
-                    </button>
                     ${kanPante ? `
                         <button class="pante-btn" data-pante-id="${kort.id}"
                             style="width:100%;padding:6px 0;background:#f0fdf4;border:1.5px solid #22c55e;color:#15803d;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">

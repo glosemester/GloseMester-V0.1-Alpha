@@ -51,6 +51,152 @@ class TradeSystem {
         return id;
     }
 
+    // ── Trade hub ─────────────────────────────────────────────
+
+    openTradeHub() {
+        document.getElementById('trade-modal')?.remove();
+
+        const tokens = parseInt(localStorage.getItem('gm_trade_tokens') || '0', 10);
+        const earned = parseInt(localStorage.getItem('gm_trade_tokens_earned') || '0', 10);
+        const intervals = [35, 40, 45];
+        let prevThreshold = 0;
+        for (let i = 0; i < earned; i++) prevThreshold += i < intervals.length ? intervals[i] : 50;
+        const nextInterval = earned < intervals.length ? intervals[earned] : 50;
+        const user = window.brukerNavn || localStorage.getItem('aktiv_bruker') || 'Spiller';
+        const totalXP = parseInt(localStorage.getItem(`mester_xp_gloser_${user}`) || '0', 10);
+        const xpSinceLast = Math.max(0, totalXP - prevThreshold);
+        const pct = Math.min(100, Math.round((xpSinceLast / nextInterval) * 100));
+        const mangler = Math.max(0, nextInterval - xpSinceLast);
+
+        const modal = document.createElement('div');
+        modal.id = 'trade-modal';
+        modal.className = 'trade-overlay';
+        modal.innerHTML = `
+            <div class="trade-modal" onclick="event.stopPropagation()">
+                <div class="trade-header">
+                    <h2>🔄 Kortbytte</h2>
+                    <button class="trade-close-btn" id="trade-close">✕</button>
+                </div>
+
+                <!-- Token-status -->
+                <div style="background:#f9f5ff;border-radius:16px;padding:14px 16px;margin-bottom:20px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <span style="font-size:13px;font-weight:700;color:#7C3AED;">Trade-tokens</span>
+                        <span style="font-size:18px;font-weight:900;color:${tokens > 0 ? '#15803d' : '#7C3AED'};">
+                            ${tokens > 0 ? `✅ ${tokens} klar` : `${xpSinceLast} / ${nextInterval}`}
+                        </span>
+                    </div>
+                    <div style="background:#e9d5ff;border-radius:99px;height:8px;overflow:hidden;">
+                        <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:100%;width:${pct}%;transition:width 0.4s;"></div>
+                    </div>
+                    <p style="margin:7px 0 0;font-size:12px;color:#888;text-align:center;">
+                        ${tokens > 0
+                            ? `Du har ${tokens} trade${tokens !== 1 ? 's' : ''} — bruk dem til å opprette byttehandler`
+                            : `${mangler} riktige svar til neste trade-token`}
+                    </p>
+                </div>
+
+                <!-- To valg -->
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <button id="hub-create-btn" class="trade-btn-primary" style="display:flex;align-items:center;gap:12px;padding:16px 20px;text-align:left;" ${tokens <= 0 ? 'disabled' : ''}>
+                        <span style="font-size:28px;flex-shrink:0;">📤</span>
+                        <div>
+                            <div style="font-size:15px;">Opprett byttehandel</div>
+                            <div style="font-size:12px;opacity:0.8;font-weight:400;margin-top:2px;">
+                                ${tokens > 0 ? `Bruker 1 av ${tokens} trade-token` : 'Trenger en trade-token'}
+                            </div>
+                        </div>
+                    </button>
+                    <button id="hub-respond-btn" class="trade-btn-secondary" style="display:flex;align-items:center;gap:12px;padding:16px 20px;text-align:left;">
+                        <span style="font-size:28px;flex-shrink:0;">📥</span>
+                        <div>
+                            <div style="font-size:15px;color:#1d1d1f;font-weight:700;">Skriv inn byttkode</div>
+                            <div style="font-size:12px;color:#888;font-weight:400;margin-top:2px;">Du har fått en kode fra en venn</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        document.body.appendChild(modal);
+        document.getElementById('trade-close').addEventListener('click', () => modal.remove());
+
+        document.getElementById('hub-create-btn').addEventListener('click', () => {
+            if (tokens <= 0) return;
+            modal.remove();
+            this._velgEgetKort();
+        });
+
+        document.getElementById('hub-respond-btn').addEventListener('click', () => {
+            modal.remove();
+            this._visTradeOnboarding(() => this._visResponderModal(''));
+        });
+    }
+
+    /** Vis brukerens egne kort for å velge hva de vil gi bort */
+    _velgEgetKort() {
+        document.getElementById('trade-modal')?.remove();
+
+        const samling = KortReward.getUserCollection();
+        if (samling.length === 0) {
+            visToast('Du har ingen kort å bytte bort ennå', 'warning');
+            return;
+        }
+
+        // Grupper og sorter — nyeste/duplikater øverst
+        const grouped = {};
+        samling.forEach(k => {
+            if (!grouped[k.id]) grouped[k.id] = { ...k, count: 0 };
+            grouped[k.id].count++;
+        });
+        const sorted = Object.values(grouped).sort((a, b) => b.count - a.count);
+
+        const modal = document.createElement('div');
+        modal.id = 'trade-modal';
+        modal.className = 'trade-overlay';
+        modal.innerHTML = `
+            <div class="trade-modal" onclick="event.stopPropagation()">
+                <div class="trade-header">
+                    <h2>📤 Velg kort å gi bort</h2>
+                    <button class="trade-close-btn" id="trade-close">✕</button>
+                </div>
+                <p class="trade-picker-hint">Klikk på kortet du vil tilby i bytte:</p>
+                <div class="trade-picker-grid">
+                    ${sorted.map(k => {
+                        const config = RARITY_CONFIG[k.rarity] || { farge: '#888', emoji: '📦' };
+                        const locked = !!localStorage.getItem(`gm_trade_lock_${k.id}`);
+                        return `
+                            <div class="trade-pick-card ${locked ? 'trade-pick-disabled' : ''}" data-kort-id="${k.id}" title="${locked ? 'Allerede i handel' : k.name}">
+                                <div class="trade-pick-img-wrap">
+                                    <img src="${k.image}" alt="${k.name}" loading="lazy">
+                                    <span class="trade-pick-rarity" style="background:${config.farge}">${config.emoji}</span>
+                                    ${k.count > 1 ? `<div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.7);color:white;font-size:10px;font-weight:700;padding:2px 5px;border-radius:6px;">×${k.count}</div>` : ''}
+                                    ${locked ? '<div class="trade-pick-self-label">I handel</div>' : ''}
+                                </div>
+                                <p class="trade-pick-name">${k.name}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        document.body.appendChild(modal);
+        document.getElementById('trade-close').addEventListener('click', () => modal.remove());
+
+        modal.querySelectorAll('.trade-pick-card:not(.trade-pick-disabled)').forEach(card => {
+            card.addEventListener('click', () => {
+                const kortId = card.dataset.kortId;
+                const offered = samling.find(k => k.id === kortId);
+                if (!offered) return;
+                modal.remove();
+                this._visTradeOnboarding(() => this._renderKortPicker(offered));
+            });
+        });
+    }
+
     // ── Trade onboarding ───────────────────────────────────────
 
     _visTradeOnboarding(callback) {
@@ -159,13 +305,6 @@ class TradeSystem {
     // ── Elev A: Opprett trade ──────────────────────────────────
 
     openTradeCreator(offeredKortId) {
-        // Sjekk token-balanse
-        const tokens = parseInt(localStorage.getItem('gm_trade_tokens') || '0', 10);
-        if (tokens <= 0) {
-            this._visIngenTokenerModal();
-            return;
-        }
-
         const samling = KortReward.getUserCollection();
         const offered = samling.find(k => k.id === offeredKortId);
         if (!offered) { visToast('Fant ikke kortet i samlingen din', 'error'); return; }

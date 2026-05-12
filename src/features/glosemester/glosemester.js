@@ -1309,14 +1309,11 @@ export class GloseMester extends FagModul {
 
         container.innerHTML = `
             <div style="padding: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
-                    <h2 style="margin: 0;">🃏 Mine Kort</h2>
-                    <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px; margin-left: auto;">🖼️ Galleri</button>
-                </div>
-                <div class="trade-responder-bar">
-                    <input id="gallery-trade-input" type="text" placeholder="Byttkode" maxlength="6" autocomplete="off" autocapitalize="characters">
-                    <button id="gallery-trade-btn">🔄 Bytt kort</button>
+                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">🃏 Mine Kort</h2>
+                    <button id="gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">🔄 Bytt</button>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px;">🖼️ Galleri</button>
                 </div>
                 <div id="app-gallery"></div>
             </div>
@@ -1324,17 +1321,9 @@ export class GloseMester extends FagModul {
 
         kortSystem.createGallery('app-gallery');
 
-        const tradeInput = document.getElementById('gallery-trade-input');
-        const tradeBtn = document.getElementById('gallery-trade-btn');
-        if (tradeInput && tradeBtn) {
-            tradeInput.addEventListener('input', () => {
-                tradeInput.value = tradeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            });
-            tradeBtn.addEventListener('click', () => {
-                const kode = tradeInput.value.trim().toUpperCase();
-                window.tradeSystem?.openTradeResponder(kode);
-            });
-        }
+        document.getElementById('gallery-trade-hub-btn')?.addEventListener('click', () => {
+            window.tradeSystem?.openTradeHub();
+        });
     }
 
     /**
@@ -1346,10 +1335,11 @@ export class GloseMester extends FagModul {
 
         container.innerHTML = `
             <div style="padding: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
-                    <h2 style="margin: 0;">🖼️ Alle Kort</h2>
-                    <button class="btn btn-secondary" onclick="window.glosemester.renderGallery()" style="padding: 8px 16px; margin-left: auto;">🃏 Se dine kort</button>
+                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">🖼️ Alle Kort</h2>
+                    <button id="all-gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">🔄 Bytt</button>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderGallery()" style="padding: 8px 16px;">🃏 Se dine kort</button>
                 </div>
                 <p style="margin: 0 0 20px; color: #888; font-size: 14px;">Øv for å vinne kortene du mangler!</p>
                 <div id="app-all-gallery"></div>
@@ -1357,6 +1347,10 @@ export class GloseMester extends FagModul {
         `;
 
         kortSystem.createAllKortGallery('app-all-gallery');
+
+        document.getElementById('all-gallery-trade-hub-btn')?.addEventListener('click', () => {
+            window.tradeSystem?.openTradeHub();
+        });
     }
 
     /**
