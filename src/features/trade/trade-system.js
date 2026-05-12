@@ -51,6 +51,111 @@ class TradeSystem {
         return id;
     }
 
+    // ── Trade onboarding ───────────────────────────────────────
+
+    _visTradeOnboarding(callback) {
+        if (localStorage.getItem('gm_trade_onboarding_done')) { callback(); return; }
+
+        const steger = [
+            {
+                ikon: '🃏',
+                tittel: 'Bytt kort med venner!',
+                tekst: 'Har du dubletter du ikke trenger? Bytt med en venn og få et kort du mangler i samlingen din!',
+                illustrasjon: `
+                    <div class="trade-ob-swap">
+                        <div class="trade-ob-card-mini">🦕<span>Ditt kort</span></div>
+                        <div class="trade-ob-arrows">⇌</div>
+                        <div class="trade-ob-card-mini">🚗<span>Vennens kort</span></div>
+                    </div>`
+            },
+            {
+                ikon: '📤',
+                tittel: 'Slik sender du et tilbud',
+                tekst: 'Velg kortet du vil gi bort og kortet du ønsker i retur. Du får en 6-tegns kode — del den med vennen din!',
+                illustrasjon: `
+                    <div class="trade-ob-flow">
+                        <div class="trade-ob-step-item">
+                            <span class="trade-ob-step-num">1</span>
+                            <span>Velg kort å gi</span>
+                        </div>
+                        <span class="trade-ob-flow-arrow">→</span>
+                        <div class="trade-ob-step-item">
+                            <span class="trade-ob-step-num">2</span>
+                            <span>Velg kort å få</span>
+                        </div>
+                        <span class="trade-ob-flow-arrow">→</span>
+                        <div class="trade-ob-step-item trade-ob-step-highlight">
+                            <span class="trade-ob-code-preview">X4KQ2R</span>
+                            <span>Del koden</span>
+                        </div>
+                    </div>`
+            },
+            {
+                ikon: '📥',
+                tittel: 'Slik godtar du et tilbud',
+                tekst: 'Har du fått en kode fra en venn? Skriv den inn i «Mine Kort», se hva du kan få, og godta hvis du er fornøyd!',
+                illustrasjon: `
+                    <div class="trade-ob-flow">
+                        <div class="trade-ob-step-item">
+                            <span class="trade-ob-step-num">1</span>
+                            <span>Skriv inn kode</span>
+                        </div>
+                        <span class="trade-ob-flow-arrow">→</span>
+                        <div class="trade-ob-step-item">
+                            <span class="trade-ob-step-num">2</span>
+                            <span>Se tilbudet</span>
+                        </div>
+                        <span class="trade-ob-flow-arrow">→</span>
+                        <div class="trade-ob-step-item trade-ob-step-highlight">
+                            <span class="trade-ob-step-num" style="background:#22c55e">✓</span>
+                            <span>Godta!</span>
+                        </div>
+                    </div>`
+            }
+        ];
+
+        let aktivtSteg = 0;
+
+        const modal = document.createElement('div');
+        modal.id = 'trade-ob-modal';
+        modal.className = 'trade-overlay';
+
+        const oppdater = () => {
+            const s = steger[aktivtSteg];
+            const erSiste = aktivtSteg === steger.length - 1;
+            modal.innerHTML = `
+                <div class="trade-modal trade-ob-modal" onclick="event.stopPropagation()">
+                    <button class="trade-ob-skip" id="trade-ob-skip">Hopp over</button>
+                    <div class="trade-ob-ikon">${s.ikon}</div>
+                    <h2 class="trade-ob-tittel">${s.tittel}</h2>
+                    <p class="trade-ob-tekst">${s.tekst}</p>
+                    ${s.illustrasjon}
+                    <div class="trade-ob-dots">
+                        ${steger.map((_, i) => `<span class="trade-ob-dot ${i === aktivtSteg ? 'active' : ''}"></span>`).join('')}
+                    </div>
+                    <button id="trade-ob-neste" class="trade-btn-primary" style="width:100%">
+                        ${erSiste ? '🚀 Start byttet!' : 'Neste →'}
+                    </button>
+                </div>
+            `;
+
+            modal.querySelector('#trade-ob-skip').addEventListener('click', fullfør);
+            modal.querySelector('#trade-ob-neste').addEventListener('click', () => {
+                if (erSiste) fullfør();
+                else { aktivtSteg++; oppdater(); }
+            });
+        };
+
+        const fullfør = () => {
+            localStorage.setItem('gm_trade_onboarding_done', '1');
+            modal.remove();
+            callback();
+        };
+
+        oppdater();
+        document.body.appendChild(modal);
+    }
+
     // ── Elev A: Opprett trade ──────────────────────────────────
 
     openTradeCreator(offeredKortId) {
@@ -63,7 +168,7 @@ class TradeSystem {
             return;
         }
 
-        this._renderKortPicker(offered);
+        this._visTradeOnboarding(() => this._renderKortPicker(offered));
     }
 
     _renderKortPicker(offered) {
@@ -381,6 +486,10 @@ class TradeSystem {
     // ── Elev B: Godta trade ────────────────────────────────────
 
     openTradeResponder(code = '') {
+        this._visTradeOnboarding(() => this._visResponderModal(code));
+    }
+
+    _visResponderModal(code = '') {
         document.getElementById('trade-modal')?.remove();
 
         const modal = document.createElement('div');

@@ -254,6 +254,134 @@
 }
 .trade-code-input:focus { border-color: #7C3AED; }
 
+/* ── Trade onboarding ──────────────────────────────────────── */
+
+.trade-ob-modal {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.trade-ob-skip {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.15s;
+}
+.trade-ob-skip:hover { color: #555; }
+
+.trade-ob-ikon {
+    font-size: 52px;
+    margin-bottom: 12px;
+    line-height: 1;
+}
+.trade-ob-tittel {
+    margin: 0 0 10px;
+    font-size: 22px;
+    color: #1d1d1f;
+}
+.trade-ob-tekst {
+    font-size: 15px;
+    color: #555;
+    margin: 0 0 20px;
+    line-height: 1.5;
+}
+
+/* Swap illustrasjon (steg 1) */
+.trade-ob-swap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.trade-ob-card-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: #f9f5ff;
+    border: 2px solid #d8b4fe;
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 28px;
+}
+.trade-ob-card-mini span { font-size: 11px; color: #7C3AED; font-weight: 600; }
+.trade-ob-arrows { font-size: 26px; color: #7C3AED; }
+
+/* Flyt-illustrasjon (steg 2 og 3) */
+.trade-ob-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.trade-ob-step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #555;
+    font-weight: 600;
+    max-width: 80px;
+    text-align: center;
+}
+.trade-ob-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #7C3AED;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.trade-ob-step-highlight .trade-ob-step-num { background: #7C3AED; }
+.trade-ob-code-preview {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #7C3AED;
+    background: #f9f5ff;
+    border: 1.5px solid #d8b4fe;
+    border-radius: 6px;
+    padding: 4px 7px;
+    width: 70px;
+    text-align: center;
+}
+.trade-ob-flow-arrow { font-size: 18px; color: #c4b5fd; align-self: flex-start; margin-top: 6px; }
+
+/* Punkt-indikator */
+.trade-ob-dots {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 20px;
+}
+.trade-ob-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    transition: background 0.2s, transform 0.2s;
+}
+.trade-ob-dot.active {
+    background: #7C3AED;
+    transform: scale(1.25);
+}
+
 /* "Bytt kort" inline trigger in gallery */
 .trade-responder-bar {
     display: flex;
