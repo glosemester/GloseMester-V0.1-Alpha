@@ -47,51 +47,51 @@ export class FagStart {
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
 
                     <!-- Øv Selv -->
-                    <div class="playful-card purple" data-role="elev" style="text-align: center;">
+                    <div class="playful-card purple" data-role="elev" onclick="window.FagStart.startOvSelv('${fagType}')"
+                         style="text-align: center; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s, box-shadow 0.15s;"
+                         onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">✨</span>
                         <div class="icon-large">🧠</div>
                         <h2 style="font-size: 28px; margin: 0 0 12px 0;">Øv Selv</h2>
                         <p style="margin-bottom: 24px; opacity: 0.95;">Velg nivå og samle kort</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Alle nivåer tilgjengelig</li>
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Samle kort ved god score</li>
                         </ul>
-                        <button class="btn btn-primary" onclick="window.FagStart.startOvSelv('${fagType}')" style="width: 100%;">
-                            🚀 Start øving
-                        </button>
+                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
                     </div>
 
                     <!-- Prøve -->
-                    <div class="playful-card purple" data-role="prove" style="text-align: center; opacity: 0.9; border-style: dashed;">
+                    <div class="playful-card purple" data-role="prove" onclick="window.FagStart.startProve('${fagType}')"
+                         style="text-align: center; opacity: 0.9; border-style: dashed; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s;"
+                         onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">⭐</span>
                         <div class="icon-large">📝</div>
                         <h2 style="font-size: 28px; margin: 0 0 12px 0;">${fagConfig.proveNavn}</h2>
                         <p style="margin-bottom: 24px; opacity: 0.95;">Har du prøvekode?</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Få prøvekode fra lærer</li>
                             <li style="padding: 10px 0; opacity: 0.95;">✅ Resultat sendes til lærer</li>
                         </ul>
-                        <button class="btn btn-secondary" onclick="window.FagStart.startProve('${fagType}')" style="width: 100%;">
-                            🎯 Ta prøve
-                        </button>
+                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
                     </div>
 
                     <!-- Lærer -->
-                    <div class="playful-card gold" data-role="larer" style="text-align: center;">
+                    <div class="playful-card gold" data-role="larer" onclick="window.FagStart.startLarer('${fagType}')"
+                         style="text-align: center; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s;"
+                         onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">🌟</span>
                         <div class="icon-large">🎓</div>
                         <h2 style="font-size: 28px; margin: 0 0 12px 0;">Lærer</h2>
                         <p style="margin-bottom: 24px;">Lag prøver og følg elever</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; text-align: left;">
+                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
                             <li style="padding: 10px 0;">✅ Lag egne prøver</li>
                             <li style="padding: 10px 0;">✅ Se elevresultater</li>
                             <li style="padding: 10px 0;">✅ Del med QR-kode</li>
                         </ul>
-                        <button class="btn btn-gold" onclick="window.FagStart.startLarer('${fagType}')" style="width: 100%;">
-                            👩‍🏫 Logg inn
-                        </button>
+                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
                     </div>
                 </div>
 
