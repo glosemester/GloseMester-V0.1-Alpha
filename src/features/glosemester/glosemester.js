@@ -181,7 +181,7 @@ export class GloseMester extends FagModul {
                 <div style="max-width:700px;margin:36px auto 0;padding:0 16px 40px;">
 
                     <!-- Fremgang mot neste kort -->
-                    <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
+                    <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                             <span style="font-weight:700;font-size:15px;color:#1d1d1f;">🎯 Fremgang mot neste kort</span>
                             <span style="font-size:14px;font-weight:700;color:#7C3AED;">${kortProgress}/10 riktige</span>
@@ -191,6 +191,9 @@ export class GloseMester extends FagModul {
                         </div>
                         <p style="margin:10px 0 0;font-size:13px;color:#888;">Svar riktig på 10 gloser i rad (eller over tid) — da vinner du et tilfeldig samlekort!</p>
                     </div>
+
+                    <!-- Fremgang mot neste trade-token -->
+                    ${this._renderTradeProgressCard()}
 
                     <!-- Slik fungerer det -->
                     <div style="background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
@@ -398,6 +401,7 @@ export class GloseMester extends FagModul {
                         <div class="quiz-stats">
                             <span id="quiz-progress">0 / ${this.currentWords.length}</span>
                             <span id="daily-correct" style="font-weight: bold; color: var(--accent-blue);">0 riktige i dag</span>
+                            <span id="trade-token-badge" style="background:#f5f0ff;border:1.5px solid #d8b4fe;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;color:#7C3AED;display:none;">🔄 0 trades</span>
                         </div>
                     </div>
                     <div class="direction-toggle">
@@ -416,6 +420,9 @@ export class GloseMester extends FagModul {
 
                     <!-- 10-box progress tracker -->
                     <div id="kort-progress" class="kort-progress-container"></div>
+
+                    <!-- Trade token progress -->
+                    <div id="trade-progress" style="margin-bottom:8px;"></div>
 
                     <div class="question-container">
                         <div id="question-word" class="question-word"></div>
@@ -665,6 +672,9 @@ export class GloseMester extends FagModul {
                 this.awardDiamondBonus();
             }
 
+            // 🔄 Check for trade token
+            this._sjekkTradeToken(newXP);
+
             // Check for kort reward
             if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
                 await this.handleKortReward();
@@ -735,6 +745,9 @@ export class GloseMester extends FagModul {
                 this.awardDiamondBonus();
             }
 
+            // 🔄 Check for trade token
+            this._sjekkTradeToken(newXP);
+
             // Check for kort reward every 10 correct answers
             if (this.sessionCorrect > 0 && this.sessionCorrect % 10 === 0) {
                 await this.handleKortReward();
@@ -778,6 +791,9 @@ export class GloseMester extends FagModul {
 
         // Update credits/XP progress
         this.updateCreditsProgress();
+
+        // Update trade token progress
+        this.updateTradeProgress();
 
         // Check if feedback prompt should be shown
         this.sjekkTilbakemelding();
@@ -867,6 +883,134 @@ export class GloseMester extends FagModul {
         } catch (error) {
             console.error('Error getting kort reward:', error);
         }
+    }
+
+    // ── Trade token system ─────────────────────────────────────
+
+    _getTradeTokens() {
+        return parseInt(localStorage.getItem('gm_trade_tokens') || '0', 10);
+    }
+
+    _getTradeTokensEarned() {
+        return parseInt(localStorage.getItem('gm_trade_tokens_earned') || '0', 10);
+    }
+
+    /** Returnerer neste kumulative XP-grense for å tjene en token */
+    _calcTradeThreshold(tokensEarned) {
+        const intervals = [35, 40, 45]; // deretter 50 for alltid
+        let total = 0;
+        for (let i = 0; i <= tokensEarned; i++) {
+            total += i < intervals.length ? intervals[i] : 50;
+        }
+        return total;
+    }
+
+    _sjekkTradeToken(newXP) {
+        const earned = this._getTradeTokensEarned();
+        const threshold = this._calcTradeThreshold(earned);
+        if (newXP >= threshold) {
+            const current = this._getTradeTokens();
+            localStorage.setItem('gm_trade_tokens_earned', earned + 1);
+            localStorage.setItem('gm_trade_tokens', current + 1);
+            this._visTradeTokenTjent(current + 1);
+        }
+    }
+
+    _visTradeTokenTjent(tokens) {
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+            background:linear-gradient(135deg,#7C3AED,#A78BFA);
+            color:white;border-radius:20px;padding:14px 24px;
+            font-weight:700;font-size:15px;z-index:9998;
+            box-shadow:0 8px 32px rgba(124,58,237,0.4);
+            white-space:nowrap;opacity:0;
+            transition:opacity 0.3s,transform 0.3s;
+        `;
+        popup.textContent = `🔄 Trade-token tjent! Du har ${tokens} trade${tokens !== 1 ? 's' : ''}`;
+        document.body.appendChild(popup);
+        requestAnimationFrame(() => {
+            popup.style.opacity = '1';
+            popup.style.transform = 'translateX(-50%) translateY(0)';
+        });
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            popup.style.transform = 'translateX(-50%) translateY(-10px)';
+            setTimeout(() => popup.remove(), 400);
+        }, 3200);
+    }
+
+    /** Render trade-progress-kortet på nivåvalg-skjermen */
+    _renderTradeProgressCard() {
+        const tokens = this._getTradeTokens();
+        const earned = this._getTradeTokensEarned();
+        const totalXP = getTotalCorrect('gloser');
+        const nextThreshold = this._calcTradeThreshold(earned);
+        const prevThreshold = earned === 0 ? 0 : this._calcTradeThreshold(earned - 1);
+        const xpSinceLast = Math.max(0, totalXP - prevThreshold);
+        const xpNeeded = nextThreshold - prevThreshold;
+        const pct = Math.min(100, Math.round((xpSinceLast / xpNeeded) * 100));
+        const mangler = Math.max(0, xpNeeded - xpSinceLast);
+
+        return `
+            <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <span style="font-weight:700;font-size:15px;color:#1d1d1f;">🔄 Fremgang mot neste trade</span>
+                    <span style="font-size:14px;font-weight:700;color:#7C3AED;">${xpSinceLast} / ${xpNeeded}</span>
+                </div>
+                <div style="background:#f0e9ff;border-radius:99px;height:12px;overflow:hidden;">
+                    <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:12px;border-radius:99px;width:${pct}%;transition:width 0.4s;"></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                    <p style="margin:0;font-size:13px;color:#888;">${mangler > 0 ? `${mangler} riktige svar til neste trade-token` : 'Du kan hente en ny token nå!'}</p>
+                    ${tokens > 0 ? `<span style="background:#f0fdf4;border:1.5px solid #22c55e;border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;color:#15803d;">🔄 ${tokens} klar</span>` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    /** Oppdater trade-progress i quiz-visning */
+    updateTradeProgress() {
+        const container = document.getElementById('trade-progress');
+        const badge = document.getElementById('trade-token-badge');
+        const tokens = this._getTradeTokens();
+        const earned = this._getTradeTokensEarned();
+        const totalXP = getTotalCorrect('gloser');
+        const nextThreshold = this._calcTradeThreshold(earned);
+        const prevThreshold = earned === 0 ? 0 : this._calcTradeThreshold(earned - 1);
+        const xpSinceLast = Math.max(0, totalXP - prevThreshold);
+        const xpNeeded = nextThreshold - prevThreshold;
+        const pct = Math.min(100, Math.round((xpSinceLast / xpNeeded) * 100));
+
+        if (badge) {
+            if (tokens > 0) {
+                badge.textContent = `🔄 ${tokens} trade${tokens !== 1 ? 's' : ''}`;
+                badge.style.display = 'inline';
+                badge.style.background = '#f0fdf4';
+                badge.style.borderColor = '#22c55e';
+                badge.style.color = '#15803d';
+            } else {
+                badge.textContent = `🔄 ${xpSinceLast}/${xpNeeded}`;
+                badge.style.display = 'inline';
+                badge.style.background = '#f5f0ff';
+                badge.style.borderColor = '#d8b4fe';
+                badge.style.color = '#7C3AED';
+            }
+        }
+
+        if (!container) return;
+        container.innerHTML = `
+            <div style="padding:10px 12px;background:rgba(124,58,237,0.07);border-radius:14px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;font-weight:700;color:#7C3AED;">
+                    <span>🔄 Mot neste trade-token</span>
+                    <span>${xpSinceLast} / ${xpNeeded}</span>
+                </div>
+                <div style="background:rgba(216,180,254,0.4);border-radius:99px;height:8px;overflow:hidden;">
+                    <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:100%;width:${pct}%;transition:width 0.4s;"></div>
+                </div>
+                ${tokens > 0 ? `<div style="margin-top:5px;font-size:11px;color:#15803d;font-weight:700;text-align:right;">✅ ${tokens} trade${tokens !== 1 ? 's' : ''} klar til bruk</div>` : ''}
+            </div>
+        `;
     }
 
     /**

@@ -159,6 +159,13 @@ class TradeSystem {
     // ── Elev A: Opprett trade ──────────────────────────────────
 
     openTradeCreator(offeredKortId) {
+        // Sjekk token-balanse
+        const tokens = parseInt(localStorage.getItem('gm_trade_tokens') || '0', 10);
+        if (tokens <= 0) {
+            this._visIngenTokenerModal();
+            return;
+        }
+
         const samling = KortReward.getUserCollection();
         const offered = samling.find(k => k.id === offeredKortId);
         if (!offered) { visToast('Fant ikke kortet i samlingen din', 'error'); return; }
@@ -169,6 +176,71 @@ class TradeSystem {
         }
 
         this._visTradeOnboarding(() => this._renderKortPicker(offered));
+    }
+
+    _visIngenTokenerModal() {
+        document.getElementById('trade-modal')?.remove();
+
+        const earned = parseInt(localStorage.getItem('gm_trade_tokens_earned') || '0', 10);
+        const intervals = [35, 40, 45];
+        let prevThreshold = 0;
+        for (let i = 0; i < earned; i++) prevThreshold += i < intervals.length ? intervals[i] : 50;
+        const nextInterval = earned < intervals.length ? intervals[earned] : 50;
+        const nextThreshold = prevThreshold + nextInterval;
+
+        // Les XP fra localStorage direkte (ingen import nødvendig)
+        const user = window.brukerNavn || localStorage.getItem('aktiv_bruker') || 'Spiller';
+        const totalXP = parseInt(localStorage.getItem(`mester_xp_gloser_${user}`) || '0', 10);
+        const xpSinceLast = Math.max(0, totalXP - prevThreshold);
+        const mangler = Math.max(0, nextThreshold - totalXP);
+        const pct = Math.min(100, Math.round((xpSinceLast / nextInterval) * 100));
+
+        const modal = document.createElement('div');
+        modal.id = 'trade-modal';
+        modal.className = 'trade-overlay';
+        modal.innerHTML = `
+            <div class="trade-modal" style="text-align:center;" onclick="event.stopPropagation()">
+                <div class="trade-header" style="justify-content:center;position:relative;">
+                    <h2>🔄 Ingen trade-tokens</h2>
+                    <button class="trade-close-btn" id="trade-close" style="position:absolute;right:0;">✕</button>
+                </div>
+                <div style="font-size:52px;margin-bottom:12px;">📚</div>
+                <p style="font-size:15px;color:#555;margin:0 0 20px;line-height:1.5;">
+                    Du trenger en <strong>trade-token</strong> for å bytte kort.<br>
+                    Tokens tjenes ved å svare riktig på gloser!
+                </p>
+                <div style="background:#f9f5ff;border-radius:16px;padding:18px;margin-bottom:20px;text-align:left;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;font-weight:700;color:#7C3AED;">
+                        <span>Fremgang mot neste token</span>
+                        <span>${xpSinceLast} / ${nextInterval}</span>
+                    </div>
+                    <div style="background:#e9d5ff;border-radius:99px;height:12px;overflow:hidden;margin-bottom:10px;">
+                        <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:100%;width:${pct}%;transition:width 0.4s;"></div>
+                    </div>
+                    <p style="margin:0;font-size:13px;color:#7C3AED;font-weight:700;text-align:center;">
+                        ${mangler > 0 ? `${mangler} riktige svar til neste trade-token` : '🎉 Du er klar — øv litt til!'}
+                    </p>
+                </div>
+                <div style="background:#fafafa;border-radius:14px;padding:14px;margin-bottom:20px;text-align:left;font-size:13px;color:#555;">
+                    <div style="font-weight:700;color:#1d1d1f;margin-bottom:8px;">📈 Slik tjener du trades:</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                        <span>✅ Første trade: <strong>35 riktige svar</strong></span>
+                        <span>✅ Andre trade: <strong>40 riktige svar til</strong></span>
+                        <span>✅ Tredje trade: <strong>45 riktige svar til</strong></span>
+                        <span>✅ Deretter: <strong>50 riktige svar</strong> hver gang</span>
+                    </div>
+                </div>
+                <button id="trade-go-practice" class="trade-btn-primary" style="width:100%;">📚 Øv nå!</button>
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        document.body.appendChild(modal);
+        document.getElementById('trade-close').addEventListener('click', () => modal.remove());
+        document.getElementById('trade-go-practice').addEventListener('click', () => {
+            modal.remove();
+            window.glosemester?.renderPracticeUI?.();
+        });
     }
 
     _renderKortPicker(offered) {
@@ -289,6 +361,10 @@ class TradeSystem {
     async createTrade(offeredKortData, requestedKortData) {
         const deviceId = this._getDeviceId();
         const code = this._generateCode();
+
+        // Trekk 1 trade-token (sjekket allerede i openTradeCreator)
+        const currentTokens = parseInt(localStorage.getItem('gm_trade_tokens') || '0', 10);
+        localStorage.setItem('gm_trade_tokens', Math.max(0, currentTokens - 1));
 
         localStorage.setItem(`gm_trade_lock_${offeredKortData.id}`, '1');
 
