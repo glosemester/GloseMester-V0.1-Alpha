@@ -5,7 +5,7 @@
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
-import { krevInnlogging } from '../core/auth/auth-service.js';
+
 import { hentProveMedKode, startQuiz } from '../shared/quiz/quiz-engine.js';
 import { visToast } from '../core/utils/feedback.js';
 
@@ -30,9 +30,25 @@ export class FagStart {
         container.innerHTML = `
             <div class="fag-start-page blob-bg" style="min-height: 100vh; padding: 20px;">
                 <!-- Header -->
-                <div style="text-align: center; margin-bottom: 30px; position: relative;">
-                    <button class="btn btn-secondary" onclick="window.router.back()" style="position: absolute; left: 0; top: 0;">
-                        ← Tilbake
+                <div style="margin-bottom: 30px; position: relative; height: 44px;">
+                    <button onclick="window.router.back()" style="
+                        position: absolute; left: 0; top: 0;
+                        display: flex; align-items: center; gap: 8px;
+                        background: rgba(255,255,255,0.25);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border: 1px solid rgba(255,255,255,0.45);
+                        border-radius: 50px;
+                        padding: 10px 20px;
+                        font-size: 14px; font-weight: 600;
+                        color: hsl(258, 40%, 30%);
+                        cursor: pointer;
+                        box-shadow: 0 2px 12px rgba(124,58,237,0.12);
+                        transition: transform 0.15s, box-shadow 0.15s;
+                    "
+                    onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(124,58,237,0.2)'"
+                    onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(124,58,237,0.12)'">
+                        <span style="font-size:16px;">←</span> Tilbake
                     </button>
                 </div>
 
@@ -204,7 +220,7 @@ export class FagStart {
      * Submit prove code — henter prøve fra Firestore og starter quiz
      * @param {string} fagType - Fag type
      */
-    static async submitProveCode(fagType) {
+    static async submitProveCode(_fagType) {
         const input = document.getElementById('prove-code-input');
         const code = input?.value.trim().toUpperCase();
 
@@ -306,7 +322,7 @@ export class FagStart {
      * Start Lærer mode — krev innlogging og last lærermodul
      * @param {string} fagType - Fag type
      */
-    static async startLarer(fagType) {
+    static async startLarer(_fagType) {
         router.push(ROUTES.TEACHER_HOME);
     }
 }
