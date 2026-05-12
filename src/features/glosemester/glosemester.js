@@ -146,22 +146,19 @@ export class GloseMester extends FagModul {
                 <div class="level-grid">
         `;
 
-        const levelIcons = { niva1: '🌱', niva2: '📗', niva3: '🔥', niva4: '🚀' };
-
         this.levels.forEach(level => {
             const metadata = getLevelMetadata(level);
             const wordCount = getWordCountForLevel(level);
-            const icon = levelIcons[level] || '📚';
 
             html += `
                 <div class="level-card" data-level="${level}">
                     <div class="level-header">
-                        <h3>${icon} ${metadata.name}</h3>
+                        <h3>${metadata.name}</h3>
                         <span class="level-badge">${metadata.description}</span>
                     </div>
                     <div class="level-stats">
                         <span class="word-count">${wordCount} ord</span>
-                        ${metadata.hasImages ? '<span class="has-images">🖼️ Med bilder</span>' : ''}
+                        ${metadata.hasImages ? '<span class="has-images">Med bilder</span>' : ''}
                     </div>
                     <button class="start-practice-btn" data-level="${level}">
                         Start øving →
@@ -170,99 +167,12 @@ export class GloseMester extends FagModul {
             `;
         });
 
-        const kortProgress = parseInt(localStorage.getItem('kortProgress') || '0', 10);
-        const progressPct = Math.round((kortProgress / 10) * 100);
-
         html += `
                 </div>
 
-                <!-- Slik vinner du kort -->
-                <div style="max-width:700px;margin:36px auto 0;padding:0 16px 40px;">
-
-                    <!-- Fremgang mot neste kort -->
-                    <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                            <span style="font-weight:700;font-size:15px;color:#1d1d1f;">Fremgang mot neste kort</span>
-                            <span style="font-size:14px;font-weight:700;color:#7C3AED;">${kortProgress}/10 riktige</span>
-                        </div>
-                        <div style="background:#f0e9ff;border-radius:99px;height:12px;overflow:hidden;">
-                            <div style="background:linear-gradient(90deg,#7C3AED,#A78BFA);height:12px;border-radius:99px;width:${progressPct}%;transition:width 0.4s;"></div>
-                        </div>
-                        <p style="margin:10px 0 0;font-size:13px;color:#888;">Svar riktig på 10 gloser i rad (eller over tid) — da vinner du et tilfeldig samlekort!</p>
-                    </div>
-
-                    <!-- Fremgang mot neste trade-token -->
+                <!-- Fremgang -->
+                <div style="max-width:700px;margin:24px auto 0;padding:0 16px 40px;">
                     ${this._renderTradeProgressCard()}
-
-                    <!-- Slik fungerer det -->
-                    <div style="background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
-                        <h3 style="margin:0 0 16px;font-size:17px;color:#1d1d1f;">Slik vinner du samlekort</h3>
-                        <div style="display:flex;flex-direction:column;gap:12px;">
-                            <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</span>
-                                <div><strong style="color:#1d1d1f;">Svar riktig</strong> — for hvert riktige svar fyller fremgangslinjen seg</div>
-                            </div>
-                            <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</span>
-                                <div><strong style="color:#1d1d1f;">10 riktige</strong> — og du vinner et tilfeldig kort. Fremgangen lagres mellom øktene!</div>
-                            </div>
-                            <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</span>
-                                <div><strong style="color:#1d1d1f;">Sjeldenhet</strong> — du kan vinne alt fra Vanlig til Legendarisk</div>
-                            </div>
-                            <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">4</span>
-                                <div><strong style="color:#1d1d1f;">Dubletter</strong> — pant 2 kopier mot et nytt tilfeldig kort</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kort-kategorier -->
-                    <div style="background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
-                        <h3 style="margin:0 0 6px;font-size:17px;color:#1d1d1f;">152 samlekort</h3>
-                        <p style="margin:0 0 16px;font-size:13px;color:#888;">Fordelt på 4 kategorier med 38 kort i hver — og <strong>flere legges til fortløpende!</strong></p>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                            <div style="background:#f5f0ff;border-radius:14px;padding:14px;text-align:center;">
-                                <div style="font-size:28px;margin-bottom:4px;">🚗</div>
-                                <div style="font-weight:700;font-size:14px;color:#1d1d1f;">Biler</div>
-                                <div style="font-size:12px;color:#888;margin-top:3px;">Fra VW Golf til LaFerrari</div>
-                            </div>
-                            <div style="background:#f5f0ff;border-radius:14px;padding:14px;text-align:center;">
-                                <div style="font-size:28px;margin-bottom:4px;">🦕</div>
-                                <div style="font-weight:700;font-size:14px;color:#1d1d1f;">Dinosaurer</div>
-                                <div style="font-size:12px;color:#888;margin-top:3px;">Fra Compsognathus til Indominus Rex</div>
-                            </div>
-                            <div style="background:#f5f0ff;border-radius:14px;padding:14px;text-align:center;">
-                                <div style="font-size:28px;margin-bottom:4px;">🐾</div>
-                                <div style="font-weight:700;font-size:14px;color:#1d1d1f;">Dyr</div>
-                                <div style="font-size:12px;color:#888;margin-top:3px;">Fra Hamster til den legendariske Føniks</div>
-                            </div>
-                            <div style="background:#f5f0ff;border-radius:14px;padding:14px;text-align:center;">
-                                <div style="font-size:28px;margin-bottom:4px;">⚡</div>
-                                <div style="font-weight:700;font-size:14px;color:#1d1d1f;">Guder</div>
-                                <div style="font-size:12px;color:#888;margin-top:3px;">Norrøne og greske guder — inkl. Midgardsormen</div>
-                            </div>
-                        </div>
-
-                        <!-- Sjeldenhetsnivåer -->
-                        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-                            <span style="background:#a1a1a1;color:white;border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;">📦 Vanlig</span>
-                            <span style="background:#0071e3;color:white;border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;">✨ Sjelden</span>
-                            <span style="background:#8e44ad;color:white;border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;">💎 Episk</span>
-                            <span style="background:#f1c40f;color:#333;border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;">🌟 Legendarisk</span>
-                        </div>
-                    </div>
-
-                    <!-- Registreringslenke -->
-                    <div style="text-align:center;padding:20px 16px;background:linear-gradient(135deg,#7C3AED,#A78BFA);border-radius:20px;color:white;">
-                        <div style="font-size:22px;margin-bottom:8px;">🎓</div>
-                        <h3 style="margin:0 0 6px;font-size:16px;font-weight:700;">Er du lærer eller skole?</h3>
-                        <p style="margin:0 0 14px;font-size:13px;opacity:0.9;">Lag egne prøver, del med QR-kode og se resultater i dashbordet</p>
-                        <a href="/for-skoler.html" style="display:inline-block;background:white;color:#7C3AED;font-weight:700;font-size:14px;padding:10px 24px;border-radius:99px;text-decoration:none;">
-                            Se priser og registrer deg →
-                        </a>
-                    </div>
-
                 </div>
             </div>
 
