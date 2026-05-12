@@ -1,6 +1,6 @@
-// SERVICE WORKER - GloseMester v2.27.0
-const APP_VERSION = 'v2.27.0';
-const CACHE_NAME = 'glosemester-v2.27.0';
+// SERVICE WORKER - GloseMester v2.28.0
+const APP_VERSION = 'v2.28.0';
+const CACHE_NAME = 'glosemester-v2.28.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -55,6 +55,10 @@ const ASSETS_TO_CACHE = [
 
   // Teacher
   './src/features/teacher/teacher-module.js',
+
+  // Trade system
+  './src/features/trade/trade-system.js',
+  './src/features/trade/trade-styles.css',
 
   // ========================================
   // V2.0 FAGMODULER

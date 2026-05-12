@@ -9,6 +9,7 @@ import { handleFeideCallback } from './core/auth/auth-service.js';
 import { visToast } from './core/utils/feedback.js'; // Load feedback utilities globally
 import { pwaInstaller } from './core/pwa/installer.js';
 import { createIOSPopup } from './core/pwa/ios-popup.js';
+import { tradeSystem } from './features/trade/trade-system.js';
 
 /**
  * Global app state
@@ -48,6 +49,7 @@ async function initApp() {
         // 2. Initialize async features
         onAuthStateChanged(auth, handleAuthChange);
         await initPWA();
+        tradeSystem.init();
 
         // 3. Handle initial route
         const proveKode = new URLSearchParams(window.location.search).get('prove');

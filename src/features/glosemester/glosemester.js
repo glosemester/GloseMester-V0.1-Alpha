@@ -1165,16 +1165,32 @@ export class GloseMester extends FagModul {
 
         container.innerHTML = `
             <div style="padding: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
                     <h2 style="margin: 0;">🃏 Mine Kort</h2>
                     <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px; margin-left: auto;">🖼️ Galleri</button>
+                </div>
+                <div class="trade-responder-bar">
+                    <input id="gallery-trade-input" type="text" placeholder="Byttkode" maxlength="6" autocomplete="off" autocapitalize="characters">
+                    <button id="gallery-trade-btn">🔄 Bytt kort</button>
                 </div>
                 <div id="app-gallery"></div>
             </div>
         `;
 
         kortSystem.createGallery('app-gallery');
+
+        const tradeInput = document.getElementById('gallery-trade-input');
+        const tradeBtn = document.getElementById('gallery-trade-btn');
+        if (tradeInput && tradeBtn) {
+            tradeInput.addEventListener('input', () => {
+                tradeInput.value = tradeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            });
+            tradeBtn.addEventListener('click', () => {
+                const kode = tradeInput.value.trim().toUpperCase();
+                window.tradeSystem?.openTradeResponder(kode);
+            });
+        }
     }
 
     /**
