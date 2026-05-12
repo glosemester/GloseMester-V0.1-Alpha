@@ -52,70 +52,66 @@ export class FagStart {
                     </button>
                 </div>
 
-                <!-- Hero Banner -->
-                <div class="hero-section" style="background: ${fagConfig.gradient}; border-radius: var(--radius-xl, 50px); margin-bottom: 50px;">
-                    <div class="icon-large">${fagConfig.emoji}</div>
-                    <h1>${fagConfig.name}</h1>
-                    <p>${fagConfig.description}</p>
+                <!-- Hero Banner — kompakt -->
+                <div class="hero-section" style="background: ${fagConfig.gradient}; border-radius: var(--radius-xl, 50px); margin-bottom: 24px; padding: 28px 20px 22px;">
+                    <h1 style="font-size: clamp(26px, 5vw, 42px); margin-bottom: 6px;">${fagConfig.emoji} ${fagConfig.name}</h1>
+                    <p style="margin: 0; font-size: 15px;">${fagConfig.description}</p>
                 </div>
 
                 <!-- Role Cards Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 4px;">
 
                     <!-- Øv Selv -->
                     <div class="playful-card purple" data-role="elev" onclick="window.FagStart.startOvSelv('${fagType}')"
-                         style="text-align: center; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s, box-shadow 0.15s;"
+                         style="text-align: center; cursor: pointer; position: relative; padding: 20px 20px 40px; transition: transform 0.15s, box-shadow 0.15s;"
                          onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">✨</span>
-                        <div class="icon-large">🧠</div>
-                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">Øv Selv</h2>
-                        <p style="margin-bottom: 24px; opacity: 0.95;">Velg nivå og samle kort</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Alle nivåer tilgjengelig</li>
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Samle kort ved god score</li>
+                        <div style="font-size: 40px; margin-bottom: 8px;">🧠</div>
+                        <h2 style="font-size: 22px; margin: 0 0 8px 0;">Øv Selv</h2>
+                        <p style="margin-bottom: 14px; opacity: 0.95; font-size: 14px;">Velg nivå og samle kort</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Ingen pålogging nødvendig</li>
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Alle nivåer tilgjengelig</li>
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Samle kort ved god score</li>
                         </ul>
-                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
+                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 20px; line-height: 1;">↓</div>
                     </div>
 
                     <!-- Prøve -->
                     <div class="playful-card purple" data-role="prove" onclick="window.FagStart.startProve('${fagType}')"
-                         style="text-align: center; opacity: 0.9; border-style: dashed; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s;"
+                         style="text-align: center; cursor: pointer; position: relative; padding: 20px 20px 40px; transition: transform 0.15s;"
                          onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">⭐</span>
-                        <div class="icon-large">📝</div>
-                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">${fagConfig.proveNavn}</h2>
-                        <p style="margin-bottom: 24px; opacity: 0.95;">Har du prøvekode?</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Ingen pålogging nødvendig</li>
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Få prøvekode fra lærer</li>
-                            <li style="padding: 10px 0; opacity: 0.95;">✅ Resultat sendes til lærer</li>
+                        <div style="font-size: 40px; margin-bottom: 8px;">📝</div>
+                        <h2 style="font-size: 22px; margin: 0 0 8px 0;">${fagConfig.proveNavn}</h2>
+                        <p style="margin-bottom: 14px; opacity: 0.95; font-size: 14px;">Har du prøvekode?</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Ingen pålogging nødvendig</li>
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Få prøvekode fra lærer</li>
+                            <li style="padding: 5px 0; opacity: 0.95; font-size: 14px;">✅ Resultat sendes til lærer</li>
                         </ul>
-                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
+                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 20px; line-height: 1;">↓</div>
                     </div>
 
                     <!-- Lærer -->
                     <div class="playful-card gold" data-role="larer" onclick="window.FagStart.startLarer('${fagType}')"
-                         style="text-align: center; cursor: pointer; position: relative; padding-bottom: 48px; transition: transform 0.15s;"
+                         style="text-align: center; cursor: pointer; position: relative; padding: 20px 20px 40px; transition: transform 0.15s;"
                          onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
                         <span class="doodle doodle-star">🌟</span>
-                        <div class="icon-large">🎓</div>
-                        <h2 style="font-size: 28px; margin: 0 0 12px 0;">Lærer</h2>
-                        <p style="margin-bottom: 24px;">Lag prøver og følg elever</p>
-                        <ul style="list-style: none; padding: 0; margin: 0 0 0 0; text-align: left;">
-                            <li style="padding: 10px 0;">✅ Lag egne prøver</li>
-                            <li style="padding: 10px 0;">✅ Se elevresultater</li>
-                            <li style="padding: 10px 0;">✅ Del med QR-kode</li>
+                        <div style="font-size: 40px; margin-bottom: 8px;">🎓</div>
+                        <h2 style="font-size: 22px; margin: 0 0 8px 0;">Lærer</h2>
+                        <p style="margin-bottom: 14px; font-size: 14px;">Lag prøver og følg elever</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            <li style="padding: 5px 0; font-size: 14px;">✅ Lag egne prøver</li>
+                            <li style="padding: 5px 0; font-size: 14px;">✅ Se elevresultater</li>
+                            <li style="padding: 5px 0; font-size: 14px;">✅ Del med QR-kode</li>
                         </ul>
-                        <div style="position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 22px; line-height: 1;">↓</div>
+                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 20px; line-height: 1;">↓</div>
                     </div>
                 </div>
 
-                <!-- Wave Divider -->
-                <div class="wave-divider" style="margin-top: 60px;"></div>
-
-                <footer style="text-align: center; padding: 40px 20px; color: var(--text-secondary, #6B7280);">
-                    <p style="font-size: 14px;">&copy; 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
+                <footer style="text-align: center; padding: 24px 20px 32px; color: var(--text-secondary, #6B7280);">
+                    <p style="font-size: 13px;">&copy; 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
                 </footer>
             </div>
         `;
