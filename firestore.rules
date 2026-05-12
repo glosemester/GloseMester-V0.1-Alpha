@@ -75,17 +75,9 @@ service cloud.firestore {
       allow create: if
         request.resource.data.status == 'pending' &&
         request.resource.data.code is string &&
-        request.resource.data.code.size() == 6 &&
-        request.resource.data.initiatorDevice is string &&
-        request.resource.data.responderDevice == null;
+        request.resource.data.initiatorDevice is string;
       allow update: if
-        (resource.data.status == 'pending' || resource.data.status == 'accepted') &&
-        request.resource.data.code == resource.data.code &&
-        request.resource.data.initiatorDevice == resource.data.initiatorDevice &&
-        request.resource.data.offeredKortId == resource.data.offeredKortId &&
-        !(resource.data.status == 'pending' &&
-          request.resource.data.status == 'accepted' &&
-          request.resource.data.responderDevice == resource.data.initiatorDevice);
+        resource.data.status in ['pending', 'accepted'];
       allow delete: if false;
     }
 
