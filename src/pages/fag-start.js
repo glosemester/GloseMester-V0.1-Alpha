@@ -52,11 +52,39 @@ export class FagStart {
                     </button>
                 </div>
 
-                <!-- Hero Banner — kompakt -->
-                <div class="hero-section" style="background: ${fagConfig.gradient}; border-radius: var(--radius-xl, 50px); margin-bottom: 24px; padding: 28px 20px 22px;">
-                    <h1 style="font-size: clamp(26px, 5vw, 42px); margin-bottom: 6px;">${fagConfig.emoji} ${fagConfig.name}</h1>
-                    <p style="margin: 0; font-size: 15px;">${fagConfig.description}</p>
+                <!-- Hero Banner — kun tittel -->
+                <div style="
+                    background: ${fagConfig.gradient};
+                    border-radius: var(--radius-xl, 50px);
+                    margin-bottom: 0;
+                    padding: 22px 24px 20px;
+                    text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- Subtle shine -->
+                    <div style="position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:70%;height:180%;background:radial-gradient(ellipse,rgba(255,255,255,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+                    <h1 style="
+                        font-size: clamp(24px, 5vw, 40px);
+                        font-weight: 900;
+                        color: white;
+                        margin: 0;
+                        text-shadow: 0 2px 16px rgba(0,0,0,0.18);
+                        letter-spacing: -0.5px;
+                        position: relative;
+                    ">${fagConfig.emoji} ${fagConfig.name}</h1>
                 </div>
+
+                <!-- Tagline under hero -->
+                <p style="
+                    text-align: center;
+                    font-size: 15px;
+                    color: hsl(258, 25%, 45%);
+                    margin: 14px auto 22px;
+                    max-width: 460px;
+                    padding: 0 16px;
+                    line-height: 1.5;
+                ">${fagConfig.description}</p>
 
                 <!-- Role Cards Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 4px;">
