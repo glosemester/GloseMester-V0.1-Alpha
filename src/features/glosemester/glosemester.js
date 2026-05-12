@@ -138,7 +138,6 @@ export class GloseMester extends FagModul {
                     <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
                         <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Se dine kort</button>
                         <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galleri</button>
-                        <button id="innstillinger-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">⚙️ Innstillinger</button>
                         <a href="mailto:kontakt@glosemester.no?subject=Hjelp%20med%20GloseMester" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;">❓ Hjelp</a>
                         <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
                     </div>
@@ -266,6 +265,17 @@ export class GloseMester extends FagModul {
 
                 </div>
             </div>
+
+            <!-- Floating settings gear -->
+            <button id="innstillinger-fab" aria-label="Innstillinger" style="
+                position:fixed;bottom:24px;right:20px;z-index:200;
+                width:44px;height:44px;border-radius:50%;border:none;
+                background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);
+                box-shadow:0 2px 10px rgba(0,0,0,0.12);
+                font-size:20px;cursor:pointer;
+                display:flex;align-items:center;justify-content:center;
+                transition:transform .15s,box-shadow .15s;
+            ">⚙️</button>
         `;
 
         container.innerHTML = html;
@@ -280,8 +290,13 @@ export class GloseMester extends FagModul {
 
         document.getElementById('vis-samling-btn')?.addEventListener('click', () => this.renderGallery());
         document.getElementById('vis-galleri-btn')?.addEventListener('click', () => this.renderAllKortGallery());
-        document.getElementById('innstillinger-btn')?.addEventListener('click', () => this.visInnstillinger());
         document.getElementById('tilbake-btn')?.addEventListener('click', () => window.router.push('/'));
+        const fab = document.getElementById('innstillinger-fab');
+        if (fab) {
+            fab.addEventListener('click', () => this.visInnstillinger());
+            fab.addEventListener('mouseenter', () => { fab.style.transform = 'scale(1.1)'; fab.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)'; });
+            fab.addEventListener('mouseleave', () => { fab.style.transform = ''; fab.style.boxShadow = '0 2px 10px rgba(0,0,0,0.12)'; });
+        }
     }
 
     /**
