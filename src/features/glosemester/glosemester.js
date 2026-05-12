@@ -183,7 +183,7 @@ export class GloseMester extends FagModul {
                     <!-- Fremgang mot neste kort -->
                     <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                            <span style="font-weight:700;font-size:15px;color:#1d1d1f;">🎯 Fremgang mot neste kort</span>
+                            <span style="font-weight:700;font-size:15px;color:#1d1d1f;">Fremgang mot neste kort</span>
                             <span style="font-size:14px;font-weight:700;color:#7C3AED;">${kortProgress}/10 riktige</span>
                         </div>
                         <div style="background:#f0e9ff;border-radius:99px;height:12px;overflow:hidden;">
@@ -197,30 +197,30 @@ export class GloseMester extends FagModul {
 
                     <!-- Slik fungerer det -->
                     <div style="background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
-                        <h3 style="margin:0 0 16px;font-size:17px;color:#1d1d1f;">🃏 Slik vinner du samlekort</h3>
+                        <h3 style="margin:0 0 16px;font-size:17px;color:#1d1d1f;">Slik vinner du samlekort</h3>
                         <div style="display:flex;flex-direction:column;gap:12px;">
                             <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="font-size:22px;flex-shrink:0;">✅</span>
+                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</span>
                                 <div><strong style="color:#1d1d1f;">Svar riktig</strong> — for hvert riktige svar fyller fremgangslinjen seg</div>
                             </div>
                             <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="font-size:22px;flex-shrink:0;">🔟</span>
+                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</span>
                                 <div><strong style="color:#1d1d1f;">10 riktige</strong> — og du vinner et tilfeldig kort. Fremgangen lagres mellom øktene!</div>
                             </div>
                             <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="font-size:22px;flex-shrink:0;">🌟</span>
-                                <div><strong style="color:#1d1d1f;">Sjeldenhet avgjøres av flaks</strong> — du kan vinne alt fra Vanlig til det legendariske</div>
+                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</span>
+                                <div><strong style="color:#1d1d1f;">Sjeldenhet</strong> — du kan vinne alt fra Vanlig til Legendarisk</div>
                             </div>
                             <div style="display:flex;align-items:flex-start;gap:12px;">
-                                <span style="font-size:22px;flex-shrink:0;">♻️</span>
-                                <div><strong style="color:#1d1d1f;">Dubletter</strong> — bytt mot 💎 diamanter og bruk dem til å handle sjeldne kort</div>
+                                <span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#7C3AED;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">4</span>
+                                <div><strong style="color:#1d1d1f;">Dubletter</strong> — pant 2 kopier mot et nytt tilfeldig kort</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Kort-kategorier -->
                     <div style="background:white;border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
-                        <h3 style="margin:0 0 6px;font-size:17px;color:#1d1d1f;">🎴 152 samlekort å vinne</h3>
+                        <h3 style="margin:0 0 6px;font-size:17px;color:#1d1d1f;">152 samlekort</h3>
                         <p style="margin:0 0 16px;font-size:13px;color:#888;">Fordelt på 4 kategorier med 38 kort i hver — og <strong>flere legges til fortløpende!</strong></p>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                             <div style="background:#f5f0ff;border-radius:14px;padding:14px;text-align:center;">
@@ -824,7 +824,7 @@ export class GloseMester extends FagModul {
         container.innerHTML = `
             <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: var(--radius-md, 20px);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-dark, #1F2937);">
-                    <span>🎁 MOT NYTT KORT:</span>
+                    <span>NESTE KORT:</span>
                     <span>${filledBoxes} / 10</span>
                 </div>
                 <div class="progress-boxes" style="display: flex; gap: 6px;">
@@ -848,7 +848,7 @@ export class GloseMester extends FagModul {
         container.innerHTML = `
             <div style="padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: var(--radius-md, 20px);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 600; color: var(--text-dark, #1F2937);">
-                    <span>💎 Mot neste bonuspoeng (100 xp)</span>
+                    <span>Mot neste bonuspoeng (100 xp)</span>
                     <span>${currentProgress} / 100</span>
                 </div>
                 <div class="yellow-track" style="width: 100%; background: rgba(229, 229, 234, 0.6); border-radius: 10px; height: 10px; overflow: hidden;">
@@ -955,7 +955,7 @@ export class GloseMester extends FagModul {
         return `
             <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <span style="font-weight:700;font-size:15px;color:#1d1d1f;">🔄 Fremgang mot neste trade</span>
+                    <span style="font-weight:700;font-size:15px;color:#1d1d1f;">Fremgang mot neste trade</span>
                     <span style="font-size:14px;font-weight:700;color:#7C3AED;">${xpSinceLast} / ${xpNeeded}</span>
                 </div>
                 <div style="background:#f0e9ff;border-radius:99px;height:12px;overflow:hidden;">
@@ -1002,7 +1002,7 @@ export class GloseMester extends FagModul {
         container.innerHTML = `
             <div style="padding:10px 12px;background:rgba(124,58,237,0.07);border-radius:14px;margin-bottom:8px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;font-weight:700;color:#7C3AED;">
-                    <span>🔄 Mot neste trade-token</span>
+                    <span>Mot neste trade</span>
                     <span>${xpSinceLast} / ${xpNeeded}</span>
                 </div>
                 <div style="background:rgba(216,180,254,0.4);border-radius:99px;height:8px;overflow:hidden;">

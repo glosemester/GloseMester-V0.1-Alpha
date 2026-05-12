@@ -139,7 +139,7 @@ export class FagStart {
                 </div>
 
                 <footer style="text-align: center; padding: 24px 20px 32px; color: var(--text-secondary, #6B7280);">
-                    <p style="font-size: 13px;">&copy; 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
+                    <p style="font-size: 13px;">&copy; 2026 GloseMester</p>
                 </footer>
             </div>
         `;

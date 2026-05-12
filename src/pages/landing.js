@@ -90,7 +90,7 @@ export class Landing {
 
                 <!-- Footer -->
                 <footer class="landing-footer">
-                    <p>© 2026 GloseMester. Laget med ❤️ for norske elever og lærere.</p>
+                    <p>© 2026 GloseMester</p>
                     <p><a href="/personvern.html">Personvern</a> · <a href="/for-skoler.html">For skoler</a></p>
                 </footer>
             </div>
