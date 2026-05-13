@@ -59,7 +59,7 @@ export class KortGalleri {
     renderEmptyState() {
         this.container.innerHTML = `
             <div class="kort-empty-state" style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
+                <div style="font-size: 64px; margin-bottom: 20px;">🃏</div>
                 <h3 style="color: #1d1d1f; margin-bottom: 10px;">Ingen kort ennå</h3>
                 <p style="color: #666;">Øv mer for å vinne kort til samlingen din!</p>
             </div>
@@ -85,19 +85,19 @@ export class KortGalleri {
                     </div>
                     <div class="stat-box rarity-legendary">
                         <span class="stat-value">${stats.byRarity.legendary || 0}</span>
-                        <span class="stat-label">🌟 Legendary</span>
+                        <span class="stat-label">Legendary</span>
                     </div>
                     <div class="stat-box rarity-epic">
                         <span class="stat-value">${stats.byRarity.epic || 0}</span>
-                        <span class="stat-label">💎 Epic</span>
+                        <span class="stat-label">Epic</span>
                     </div>
                     <div class="stat-box rarity-rare">
                         <span class="stat-value">${stats.byRarity.rare || 0}</span>
-                        <span class="stat-label">✨ Rare</span>
+                        <span class="stat-label">Rare</span>
                     </div>
                     <div class="stat-box rarity-common">
                         <span class="stat-value">${stats.byRarity.common || 0}</span>
-                        <span class="stat-label">📦 Common</span>
+                        <span class="stat-label">Common</span>
                     </div>
                 </div>
             </div>
@@ -236,7 +236,7 @@ export class KortGalleri {
         modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:10001;padding:20px;';
         modal.innerHTML = `
             <div style="background:white;border-radius:24px;padding:32px 24px;max-width:340px;width:100%;text-align:center;" onclick="event.stopPropagation()">
-                <div style="font-size:40px;margin-bottom:8px;">♻️</div>
+                <div style="font-size:40px;margin-bottom:8px;">🔄</div>
                 <h3 style="margin:0 0 6px;font-size:20px;color:#1d1d1f;">Pant dubletter?</h3>
                 <p style="margin:0 0 16px;font-size:14px;color:#666;">
                     Du har <strong>${count}×</strong> ${kort.name}.<br>
@@ -302,7 +302,7 @@ export class KortGalleri {
                 <div class="kort-image-container" style="aspect-ratio: 2/3; background: #f5f5f5; border-radius: 12px; overflow: hidden; position: relative;">
                     <img src="${kort.image}" alt="${kort.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                     <div class="kort-rarity-badge" style="position: absolute; top: 8px; right: 8px; background: ${config.farge}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
-                        ${config.emoji} ${config.tekst}
+                        ${config.tekst}
                     </div>
                     ${kort.count > 1 ? `
                         <div class="kort-count-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; border-radius: 50%; font-size: 12px; font-weight: 700;">
@@ -316,7 +316,7 @@ export class KortGalleri {
                     ${kanPante ? `
                         <button class="pante-btn" data-pante-id="${kort.id}"
                             style="width:100%;padding:6px 0;background:#f0fdf4;border:1.5px solid #22c55e;color:#15803d;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
-                            ♻️ Pant 2 dubletter
+                            Pant 2 dubletter
                         </button>
                     ` : ''}
                 </div>
@@ -354,7 +354,7 @@ export class KortGalleri {
                 <h2 style="margin:0 0 4px;font-size:22px;color:#1d1d1f;">${kort.name}</h2>
                 <p style="margin:0 0 12px;color:#666;font-size:14px;text-transform:capitalize;">${kort.category}</p>
                 <span style="display:inline-block;background:${config.farge};color:white;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:${count > 1 ? '10px' : '0'}">
-                    ${config.emoji} ${config.tekst}
+                    ${config.tekst}
                 </span>
                 ${count > 1 ? `<p style="margin:0;font-size:13px;color:#888;">Du har ${count} av dette kortet</p>` : ''}
             </div>
@@ -384,7 +384,7 @@ export class KortGalleri {
         const totalAvailable = kortData.length;
 
         // Categories with labels
-        const categoryLabels = { biler: '🚗 Biler', dinosaurer: '🦕 Dinosaurer', dyr: '🐾 Dyr', guder: '⚡ Guder' };
+        const categoryLabels = { biler: 'Biler', dinosaurer: 'Dinosaurer', dyr: 'Dyr', guder: 'Guder' };
         const categoryOrder = ['biler', 'dinosaurer', 'dyr', 'guder'];
 
         // Summary header
@@ -437,7 +437,7 @@ export class KortGalleri {
                     onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.10)'">
                     <div style="aspect-ratio:2/3;position:relative;overflow:hidden;">
                         <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
-                        <div style="position:absolute;top:5px;right:5px;background:${config.farge};color:white;padding:3px 6px;border-radius:5px;font-size:10px;font-weight:600;">${config.emoji}</div>
+                        <div style="position:absolute;top:5px;right:5px;background:${config.farge};color:white;padding:3px 6px;border-radius:5px;font-size:10px;font-weight:600;">${config.tekst}</div>
                         ${count > 1 ? `<div style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,0.75);color:white;padding:2px 6px;border-radius:10px;font-size:11px;font-weight:700;">×${count}</div>` : ''}
                     </div>
                     <div style="padding:7px 5px;text-align:center;">

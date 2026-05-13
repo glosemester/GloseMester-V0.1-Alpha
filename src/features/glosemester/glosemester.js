@@ -133,11 +133,11 @@ export class GloseMester extends FagModul {
         let html = `
             <div class="glosemester-container">
                 <header class="fag-header">
-                    <h1>📚 GloseMester</h1>
+                    <h1>GloseMester</h1>
                     <p>Velg nivå for å begynne å øve</p>
                     <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
-                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🃏 Se dine kort</button>
-                        <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">🖼️ Galleri</button>
+                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">Mine kort</button>
+                        <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">Galleri</button>
                         <a href="mailto:kontakt@glosemester.no?subject=Hjelp%20med%20GloseMester" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;">❓ Hjelp</a>
                         <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
                     </div>
@@ -1236,9 +1236,9 @@ export class GloseMester extends FagModul {
             <div style="padding: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
-                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">🃏 Mine Kort</h2>
-                    <button id="gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">🔄 Bytt</button>
-                    <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px;">🖼️ Galleri</button>
+                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">Mine Kort</h2>
+                    <button id="gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">Bytt</button>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderAllKortGallery()" style="padding: 8px 16px;">Galleri</button>
                 </div>
                 <div id="app-gallery"></div>
             </div>
@@ -1262,9 +1262,9 @@ export class GloseMester extends FagModul {
             <div style="padding: 20px;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="window.glosemester.renderPracticeUI()" style="padding: 8px 16px;">← Tilbake</button>
-                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">🖼️ Alle Kort</h2>
-                    <button id="all-gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">🔄 Bytt</button>
-                    <button class="btn btn-secondary" onclick="window.glosemester.renderGallery()" style="padding: 8px 16px;">🃏 Se dine kort</button>
+                    <h2 style="margin: 0; flex: 1; white-space: nowrap;">Alle Kort</h2>
+                    <button id="all-gallery-trade-hub-btn" class="btn" style="padding: 8px 16px; background:#7C3AED; color:white; border:none; border-radius:20px; font-weight:700; cursor:pointer;">Bytt</button>
+                    <button class="btn btn-secondary" onclick="window.glosemester.renderGallery()" style="padding: 8px 16px;">Mine kort</button>
                 </div>
                 <p style="margin: 0 0 20px; color: #888; font-size: 14px;">Øv for å vinne kortene du mangler!</p>
                 <div id="app-all-gallery"></div>
