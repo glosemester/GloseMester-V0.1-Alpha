@@ -296,16 +296,18 @@ export class KortGalleri {
     renderKortCard(kort) {
         const config = RARITY_CONFIG[kort.rarity];
         const kanPante = kort.count >= 3;
+        const frameStyle = _rarityFrameStyle(kort.rarity, config.farge);
 
         return `
-            <div class="kort-card rarity-${kort.rarity}" data-kort-id="${kort.id}" style="cursor: pointer; position: relative;">
-                <div class="kort-image-container" style="aspect-ratio: 2/3; background: #f5f5f5; border-radius: 12px; overflow: hidden; position: relative;">
-                    <img src="${kort.image}" alt="${kort.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-                    <div class="kort-rarity-badge" style="position: absolute; top: 8px; right: 8px; background: ${config.farge}; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+            <div class="kort-card rarity-${kort.rarity}" data-kort-id="${kort.id}" style="cursor:pointer;position:relative;border-radius:14px;${frameStyle}">
+                <div class="kort-image-container" style="aspect-ratio:2/3;border-radius:11px;overflow:hidden;position:relative;">
+                    <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                    <div class="kort-rarity-badge" style="position:absolute;top:8px;right:8px;background:${config.farge};color:white;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;">
                         ${config.tekst}
                     </div>
+                    ${kort.rarity === 'legendary' ? `<div style="position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,215,0,0.1) 50%,transparent 65%);animation:kw-shimmer 2.2s ease-in-out infinite;pointer-events:none;"></div>` : ''}
                     ${kort.count > 1 ? `
-                        <div class="kort-count-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: white; padding: 4px 8px; border-radius: 50%; font-size: 12px; font-weight: 700;">
+                        <div class="kort-count-badge" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.8);color:white;padding:4px 8px;border-radius:50%;font-size:12px;font-weight:700;">
                             ×${kort.count}
                         </div>
                     ` : ''}
@@ -427,17 +429,19 @@ export class KortGalleri {
      * @returns {string} HTML
      */
     renderAllKortCard(kort, owned, count) {
-        const config = RARITY_CONFIG[kort.rarity] || { farge: '#a1a1a1', emoji: '📦', tekst: kort.rarity };
+        const config = RARITY_CONFIG[kort.rarity] || { farge: '#a1a1a1', tekst: kort.rarity };
 
         if (owned) {
+            const frameStyle = _rarityFrameStyle(kort.rarity, config.farge);
             return `
                 <div class="kort-card" data-kort-id="${kort.id}" data-owned="true"
-                    style="cursor:pointer;position:relative;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.10);border:2px solid ${config.farge}30;transition:transform 0.15s,box-shadow 0.15s;"
-                    onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 18px rgba(0,0,0,0.15)'"
-                    onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.10)'">
-                    <div style="aspect-ratio:2/3;position:relative;overflow:hidden;">
+                    style="cursor:pointer;position:relative;border-radius:13px;${frameStyle}transition:transform 0.15s;"
+                    onmouseover="this.style.transform='translateY(-3px)'"
+                    onmouseout="this.style.transform=''">
+                    <div style="aspect-ratio:2/3;position:relative;overflow:hidden;border-radius:10px;">
                         <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
                         <div style="position:absolute;top:5px;right:5px;background:${config.farge};color:white;padding:3px 6px;border-radius:5px;font-size:10px;font-weight:600;">${config.tekst}</div>
+                        ${kort.rarity === 'legendary' ? `<div style="position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,215,0,0.1) 50%,transparent 65%);animation:kw-shimmer 2.2s ease-in-out infinite;pointer-events:none;"></div>` : ''}
                         ${count > 1 ? `<div style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,0.75);color:white;padding:2px 6px;border-radius:10px;font-size:11px;font-weight:700;">×${count}</div>` : ''}
                     </div>
                     <div style="padding:7px 5px;text-align:center;">
@@ -488,73 +492,219 @@ export class KortGalleri {
  * Show kort win popup
  * @param {Object} kort - Won kort
  */
+function _rarityFrameStyle(rarity, farge) {
+    switch (rarity) {
+        case 'legendary':
+            return `border:3px solid ${farge};box-shadow:0 0 18px ${farge}bb,0 0 42px ${farge}44,inset 0 0 0 1px rgba(255,230,100,0.25);`;
+        case 'epic':
+            return `border:3px solid ${farge};box-shadow:0 0 14px ${farge}99,0 0 30px ${farge}33,inset 0 0 0 1px rgba(192,132,252,0.2);`;
+        case 'rare':
+            return `border:2px solid ${farge};box-shadow:0 0 10px ${farge}77,inset 0 0 0 1px rgba(96,165,250,0.15);`;
+        default:
+            return `border:2px solid #c8c8c8;box-shadow:0 2px 8px rgba(0,0,0,0.12);`;
+    }
+}
+
 export function visGevinstPopup(kort) {
-    const config = RARITY_CONFIG[kort.rarity];
+    const config = RARITY_CONFIG[kort.rarity] || RARITY_CONFIG.common;
+    const isLegendary = kort.rarity === 'legendary';
+    const isEpic      = kort.rarity === 'epic';
+    const isRare      = kort.rarity === 'rare';
 
-    // Create modal
-    const modal = document.createElement('div');
-    modal.className = 'kort-win-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        animation: fadeIn 0.3s ease;
-    `;
+    // Inject keyframes once
+    if (!document.getElementById('kortwin-kf')) {
+        const s = document.createElement('style');
+        s.id = 'kortwin-kf';
+        s.textContent = `
+            @keyframes kw-in        { from{opacity:0} to{opacity:1} }
+            @keyframes kw-down      { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+            @keyframes kw-up        { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+            @keyframes kw-appear    { 0%{opacity:0;transform:scale(0.25)} 70%{transform:scale(1.05)} 100%{opacity:1;transform:scale(1)} }
+            @keyframes kw-flip      { from{transform:rotateY(0deg)} to{transform:rotateY(180deg)} }
+            @keyframes kw-aura      { 0%{opacity:0;transform:scale(0.4)} 50%{opacity:1} 100%{opacity:0;transform:scale(2.2)} }
+            @keyframes kw-particle  { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0)} }
+            @keyframes kw-rays      { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+            @keyframes kw-flash     { 0%{opacity:0} 30%{opacity:0.35} 100%{opacity:0} }
+            @keyframes kw-shimmer   { 0%{transform:translateX(-120%) skewX(-12deg)} 100%{transform:translateX(220%) skewX(-12deg)} }
+            @keyframes kw-pulse     { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+        `;
+        document.head.appendChild(s);
+    }
 
-    modal.innerHTML = `
-        <div class="kort-win-content" style="background: white; border-radius: 20px; padding: 40px; max-width: 400px; text-align: center; animation: scaleIn 0.3s ease;">
-            <div style="font-size: 64px; margin-bottom: 20px;">${config.emoji}</div>
-            <h2 style="color: ${config.farge}; margin: 0 0 10px 0;">Du vant et kort!</h2>
-            <div style="margin: 20px 0;">
-                <img src="${kort.image}" alt="${kort.name}" style="width: 200px; height: 300px; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+    const rarityColors = {
+        common:    ['#c0c0c0','#e0e0e0','#a0a0a0','#d5d5d5'],
+        rare:      ['#0071e3','#60a5fa','#3b82f6','#93c5fd','#bfdbfe'],
+        epic:      ['#9333ea','#c084fc','#a855f7','#d8b4fe','#e9d5ff'],
+        legendary: ['#f59e0b','#fde68a','#fbbf24','#fcd34d','#f97316','#fffbeb']
+    };
+    const colors = rarityColors[kort.rarity] || rarityColors.common;
+
+    // Rarity-specific glow sizes
+    const glowSize  = isLegendary ? '36px' : isEpic ? '24px' : isRare ? '16px' : '8px';
+    const glowSize2 = isLegendary ? '70px' : isEpic ? '50px' : '0px';
+    const borderW   = isLegendary ? '4px' : '3px';
+    const textColor = isLegendary ? '#1a0a00' : 'white';
+
+    // Particles (22 pieces)
+    const particles = Array.from({length: 22}, (_, i) => {
+        const angle = (i / 22) * 360 + Math.random() * 16;
+        const dist  = 110 + Math.random() * 130;
+        const px    = Math.cos(angle * Math.PI / 180) * dist;
+        const py    = Math.sin(angle * Math.PI / 180) * dist;
+        const size  = 5 + Math.random() * 10;
+        const color = colors[i % colors.length];
+        const round = Math.random() > 0.45 ? '50%' : '3px';
+        const delay = (0.06 + Math.random() * 0.08).toFixed(3);
+        return `<div style="position:absolute;left:50%;top:50%;width:${size}px;height:${size}px;
+            margin:${-size/2}px 0 0 ${-size/2}px;border-radius:${round};background:${color};
+            --px:${px}px;--py:${py}px;
+            animation:kw-particle 0.9s ease-out ${delay}s both;
+            pointer-events:none;opacity:0;"></div>`;
+    }).join('');
+
+    // Legendary rays
+    const rays = isLegendary ? `
+        <div style="position:absolute;inset:0;overflow:hidden;opacity:0;animation:kw-in 0.6s ease 0.15s forwards;">
+            <div style="position:absolute;top:50%;left:50%;width:220%;height:220%;margin:-110% 0 0 -110%;
+                background:conic-gradient(from 0deg,
+                    transparent 0deg, rgba(245,158,11,0.45) 8deg, transparent 18deg,
+                    transparent 38deg, rgba(245,158,11,0.3)  48deg, transparent 58deg,
+                    transparent 78deg, rgba(245,158,11,0.4)  88deg, transparent 98deg,
+                    transparent 118deg,rgba(245,158,11,0.25) 128deg,transparent 138deg,
+                    transparent 158deg,rgba(245,158,11,0.45) 168deg,transparent 178deg,
+                    transparent 198deg,rgba(245,158,11,0.35) 208deg,transparent 218deg,
+                    transparent 238deg,rgba(245,158,11,0.4)  248deg,transparent 258deg,
+                    transparent 278deg,rgba(245,158,11,0.3)  288deg,transparent 298deg,
+                    transparent 318deg,rgba(245,158,11,0.45) 328deg,transparent 338deg,
+                    transparent 358deg);
+                animation:kw-rays 12s linear infinite;"></div>
+        </div>` : '';
+
+    const flash = isLegendary ? `<div style="position:absolute;inset:0;background:white;pointer-events:none;
+        animation:kw-flash 0.55s ease 0.08s both;"></div>` : '';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'kortwin-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;z-index:10010;animation:kw-in 0.35s ease both;overflow:hidden;';
+
+    overlay.innerHTML = `
+        ${rays}${flash}
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding:24px 20px;max-width:360px;width:100%;text-align:center;">
+
+            <p style="color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+                margin:0 0 20px;animation:kw-down 0.35s ease 0.25s both;">Nytt samlekort!</p>
+
+            <!-- Card 3D scene -->
+            <div style="position:relative;width:190px;height:285px;perspective:900px;margin-bottom:22px;">
+
+                <!-- Aura burst (fires when flip completes) -->
+                <div id="kortwin-aura" style="position:absolute;inset:-40px;border-radius:50%;
+                    background:radial-gradient(circle,${config.farge}70 0%,transparent 65%);
+                    opacity:0;pointer-events:none;"></div>
+
+                <!-- Particles (hidden until flip) -->
+                <div id="kortwin-particles" style="position:absolute;inset:0;pointer-events:none;">
+                    ${particles}
+                </div>
+
+                <!-- Flipper — back starts facing user -->
+                <div id="kortwin-flipper" style="width:190px;height:285px;transform-style:preserve-3d;
+                    animation:kw-appear 0.55s cubic-bezier(.34,1.56,.64,1) 0.4s both;">
+
+                    <!-- BACK -->
+                    <div style="position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;
+                        background:linear-gradient(135deg,#1e1b4b 0%,#312e81 45%,#4c1d95 65%,#1e1b4b 100%);
+                        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+                        box-shadow:0 0 28px ${config.farge}88,0 10px 40px rgba(0,0,0,0.6);overflow:hidden;">
+                        <div style="position:absolute;inset:0;background:linear-gradient(110deg,transparent 38%,rgba(255,255,255,0.07) 50%,transparent 62%);animation:kw-shimmer 2.2s ease-in-out infinite;"></div>
+                        <div style="font-size:56px;opacity:0.65;user-select:none;">🃏</div>
+                        <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:2px;font-weight:700;">GLOSEMESTER</div>
+                    </div>
+
+                    <!-- FRONT (starts hidden — rotated away) -->
+                    <div style="position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;
+                        transform:rotateY(180deg);overflow:hidden;
+                        border:${borderW} solid ${config.farge};
+                        box-shadow:0 0 ${glowSize} ${config.farge}cc,0 0 ${glowSize2} ${config.farge}44,0 10px 40px rgba(0,0,0,0.6),inset 0 0 0 1px rgba(255,255,255,0.18);">
+                        <img src="${kort.image}" alt="${kort.name}" style="width:100%;height:100%;object-fit:cover;display:block;">
+                        ${isLegendary ? `<div style="position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,215,0,0.13) 50%,transparent 65%);animation:kw-shimmer 1.9s ease-in-out infinite;pointer-events:none;"></div>` : ''}
+                    </div>
+                </div>
             </div>
-            <h3 style="margin: 15px 0 5px 0; color: #1d1d1f;">${kort.name}</h3>
-            <p style="margin: 0 0 10px 0; color: #666; text-transform: capitalize;">${kort.category}</p>
-            <div style="display: inline-block; background: ${config.farge}; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; margin-bottom: 20px;">
+
+            <!-- Navn -->
+            <h2 id="kortwin-name" style="margin:0 0 6px;font-size:24px;font-weight:900;color:white;opacity:0;">
+                ${kort.name}
+            </h2>
+
+            <!-- Sjeldenhet -->
+            <span id="kortwin-rarity" style="display:inline-block;background:${config.farge};color:${textColor};
+                padding:5px 18px;border-radius:99px;font-size:13px;font-weight:700;margin-bottom:22px;opacity:0;">
                 ${config.tekst}
-            </div>
-            <button onclick="this.closest('.kort-win-modal').remove()" class="btn-primary" style="width: 100%; padding: 14px; font-size: 16px;">
-                Lukk
+            </span>
+
+            <!-- Fortsett -->
+            <button id="kortwin-close" style="background:${config.farge};color:${textColor};border:none;
+                border-radius:99px;padding:13px 44px;font-size:16px;font-weight:700;cursor:pointer;
+                opacity:0;transition:transform 0.15s,opacity 0.15s;">
+                Fortsett →
             </button>
         </div>
     `;
 
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+    document.body.appendChild(overlay);
+
+    // JS-driven sequence after card appears
+    const flipper = overlay.querySelector('#kortwin-flipper');
+    const aura    = overlay.querySelector('#kortwin-aura');
+    const name    = overlay.querySelector('#kortwin-name');
+    const rarity  = overlay.querySelector('#kortwin-rarity');
+    const btn     = overlay.querySelector('#kortwin-close');
+
+    // Flip after 1.3s (appear completes ~0.95s)
+    setTimeout(() => {
+        if (!flipper) return;
+        flipper.style.transition = 'transform 0.65s cubic-bezier(0.4,0,0.2,1)';
+        flipper.style.transform  = 'rotateY(180deg)';
+    }, 1300);
+
+    // Aura + particles fire as flip completes
+    setTimeout(() => {
+        if (aura) { aura.style.animation = 'kw-aura 0.85s ease-out forwards'; }
+        overlay.querySelectorAll('#kortwin-particles div').forEach(p => {
+            p.style.opacity = '1';
+        });
+    }, 1800);
+
+    // Show name
+    setTimeout(() => {
+        if (name) { name.style.animation = 'kw-up 0.4s ease forwards'; }
+    }, 2050);
+
+    // Show rarity badge
+    setTimeout(() => {
+        if (rarity) { rarity.style.animation = 'kw-up 0.4s ease forwards'; }
+    }, 2200);
+
+    // Show button
+    setTimeout(() => {
+        if (btn) {
+            btn.style.animation = 'kw-up 0.4s ease forwards, kw-pulse 2s ease-in-out 1s infinite';
         }
-        @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
+    }, 2400);
 
-    // Add to DOM
-    document.body.appendChild(modal);
+    // Close logic
+    const close = () => {
+        overlay.style.animation = 'kw-in 0.25s ease reverse forwards';
+        setTimeout(() => overlay.remove(), 260);
+    };
 
-    // Play sound and confetti (if available)
-    if (typeof window.spillLyd === 'function') {
-        window.spillLyd('fanfare');
-    }
+    btn?.addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    setTimeout(close, 9000);
 
-    if (typeof window.lagConfetti === 'function') {
-        window.lagConfetti();
-    }
-
-    // Vibrate (if supported)
     if (navigator.vibrate) {
-        navigator.vibrate([100, 50, 100]);
+        navigator.vibrate(isLegendary ? [60,40,120,40,200] : [100, 50, 100]);
     }
 }
 
