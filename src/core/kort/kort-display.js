@@ -661,9 +661,11 @@ export function visGevinstPopup(kort) {
     const rarity  = overlay.querySelector('#kortwin-rarity');
     const btn     = overlay.querySelector('#kortwin-close');
 
-    // Flip after 1.3s (appear completes ~0.95s)
+    // Flip after 1.3s — must clear the CSS animation first or it overrides the JS transform
     setTimeout(() => {
         if (!flipper) return;
+        flipper.style.animation = 'none';   // stop kw-appear fill from overriding
+        void flipper.offsetWidth;           // force reflow so transition picks up from current state
         flipper.style.transition = 'transform 0.65s cubic-bezier(0.4,0,0.2,1)';
         flipper.style.transform  = 'rotateY(180deg)';
     }, 1300);
