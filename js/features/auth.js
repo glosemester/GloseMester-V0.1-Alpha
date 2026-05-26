@@ -3,20 +3,21 @@
    ============================================ */
 
 import { visToast } from '../ui/helpers.js';
-import { 
-    auth, 
-    googleProvider, 
-    signInWithPopup, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
+import {
+    auth,
+    googleProvider,
+    signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
     signOut,
-    db,       
-    setDoc,   
+    db,
+    setDoc,
     updateDoc,
     getDoc,
     doc,
     onAuthStateChanged,
-    signInWithCustomToken
+    signInWithCustomToken,
+    serverTimestamp
 } from './firebase.js';
 
 import { oppdaterProveliste } from './saved-tests.js';
@@ -301,12 +302,20 @@ async function oppdaterBrukerIFirestore(user, navn, kilde, emailOverride = null)
         await setDoc(userDocRef, {
             email: emailOverride || user.email,
             navn: navn || "Ukjent Bruker",
+            displayName: navn || "Ukjent Bruker",
             rolle: "laerer",
             kilde: kilde,
-            opprettet: new Date(),
-            abonnement: { status: "free", start_dato: new Date() },
-            personvernGodtatt: false
+            opprettet: serverTimestamp(),
+            abonnement: { type: "free", status: "free", start_dato: serverTimestamp() },
+            personvernGodtatt: false,
+            siste_innlogging: serverTimestamp()
         });
+    } else {
+        // Oppdater innloggingstidspunkt og displayName på hver innlogging
+        const updates = { siste_innlogging: serverTimestamp() };
+        const data = userSnap.data();
+        if (!data.displayName && navn) updates.displayName = navn;
+        await updateDoc(userDocRef, updates);
     }
 }
 
