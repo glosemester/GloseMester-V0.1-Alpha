@@ -504,46 +504,160 @@ export async function eksporterMinData() {
             }
         }
 
-        // 4. Bygg dataeksport
-        const dataExport = {
-            metadata: {
-                eksportert: new Date().toISOString(),
-                bruker_id: user.uid,
-                format_versjon: "1.0.0",
-                beskrivelse: "GloseMester brukerdata eksport (GDPR Artikkel 20)"
-            },
-            brukerprofil: {
-                uid: user.uid,
-                email: user.email,
-                navn: brukerData?.navn || null,
-                opprettet: brukerData?.createdAt?.toDate?.()?.toISOString() || null,
-                abonnement: brukerData?.abonnement || null,
-                subscription: brukerData?.subscription || null,
-                proverOpprettet: brukerData?.proverOpprettet || 0
-            },
-            prover: prover,
-            resultater: resultater,
-            diktat_sett: diktatSett,
-            glosebank: glosebankData,
-            statistikk: {
-                totalt_prover: prover.length,
-                totalt_ord: prover.reduce((sum, p) => sum + (p.ordliste?.length || 0), 0),
-                totalt_resultater: resultater.length,
-                totalt_diktat: diktatSett.length,
-                totalt_glosebank: glosebankData.length
-            },
-            lokal_lagring: localStorageData
-        };
+        // 4. Bygg lesbar HTML-eksport
+        const datoNå = new Date();
+        const datoFormatert = datoNå.toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+        const datoFilnavn = datoNå.toISOString().slice(0, 10);
 
-        // 5. Last ned som JSON
-        const blob = new Blob([JSON.stringify(dataExport, null, 2)], {
-            type: 'application/json;charset=utf-8'
-        });
+        const abType = brukerData?.abonnement?.type || brukerData?.subscription?.type || 'free';
+        const abonnementTekst = { free: 'Gratis', premium: 'Premium', skolepakke: 'Skolepakke' }[abType] || abType;
+        const rolleTekst = brukerData?.rolle === 'laerer' ? 'Lærer' : brukerData?.rolle === 'elev' ? 'Elev' : 'Ukjent';
+        const kildeTekst = { google: 'Google', feide: 'Feide', email: 'E-post/passord' }[brukerData?.kilde] || 'Ukjent';
 
+        function norskDato(isoStr) {
+            if (!isoStr) return '—';
+            try {
+                return new Date(isoStr).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+            } catch { return isoStr; }
+        }
+
+        function lagProveHtml(prove) {
+            const tittel = prove.tittel || prove.navn || 'Uten tittel';
+            const dato = norskDato(prove.opprettet_dato);
+            const ord = prove.ordliste || [];
+            const radHtml = ord.map(o => {
+                const norsk = o.norsk || o.ord || o.word || '';
+                const fremmed = o.fremmedord || o.oversettelse || o.translation || o.engelsk || '';
+                return `<tr><td style="padding:6px 12px;border-bottom:1px solid #f3f4f6;">${escHtml(norsk)}</td><td style="padding:6px 12px;border-bottom:1px solid #f3f4f6;color:#7c3aed;">${escHtml(fremmed)}</td></tr>`;
+            }).join('');
+            return `
+            <div style="margin-bottom:24px;background:#fafaff;border:1px solid #e9d8fd;border-radius:12px;overflow:hidden;">
+                <div style="padding:14px 18px;background:#7c3aed;color:white;">
+                    <strong>${escHtml(tittel)}</strong>
+                    <span style="float:right;opacity:0.8;font-size:13px;">${dato}</span>
+                </div>
+                ${ord.length > 0 ? `
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                    <thead><tr>
+                        <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:12px;background:#f5f0ff;">Norsk</th>
+                        <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:12px;background:#f5f0ff;">Fremmedspråk</th>
+                    </tr></thead>
+                    <tbody>${radHtml}</tbody>
+                </table>` : '<p style="padding:12px 18px;color:#9ca3af;font-size:14px;">Ingen ord registrert.</p>'}
+            </div>`;
+        }
+
+        function escHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        const proverHtml = prover.length > 0
+            ? prover.map(lagProveHtml).join('')
+            : '<p style="color:#9ca3af;">Du har ikke opprettet noen prøver ennå.</p>';
+
+        const glosebankHtml = glosebankData.length > 0
+            ? `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+                <thead><tr>
+                    <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:12px;background:#f5f0ff;">Norsk</th>
+                    <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:12px;background:#f5f0ff;">Fremmedspråk</th>
+                    <th style="padding:8px 12px;text-align:left;color:#6b7280;font-weight:600;font-size:12px;background:#f5f0ff;">Emne</th>
+                </tr></thead>
+                <tbody>${glosebankData.map(g => `<tr>
+                    <td style="padding:6px 12px;border-bottom:1px solid #f3f4f6;">${escHtml(g.norsk || g.ord || '')}</td>
+                    <td style="padding:6px 12px;border-bottom:1px solid #f3f4f6;color:#7c3aed;">${escHtml(g.fremmedord || g.oversettelse || '')}</td>
+                    <td style="padding:6px 12px;border-bottom:1px solid #f3f4f6;color:#9ca3af;">${escHtml(g.emne || g.kategori || '—')}</td>
+                </tr>`).join('')}</tbody>
+               </table>`
+            : '<p style="color:#9ca3af;">Ingen ord i glosebanken.</p>';
+
+        const diktatHtml = diktatSett.length > 0
+            ? diktatSett.map(d => `<div style="margin-bottom:12px;padding:14px 18px;background:#fafaff;border:1px solid #e9d8fd;border-radius:10px;">
+                <strong>${escHtml(d.tittel || 'Uten tittel')}</strong>
+                <span style="float:right;color:#9ca3af;font-size:13px;">${norskDato(d.opprettet_dato)}</span>
+              </div>`).join('')
+            : '<p style="color:#9ca3af;">Ingen diktat-sett opprettet.</p>';
+
+        const html = `<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mine data fra GloseMester – ${datoFormatert}</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 32px 20px; color: #1f2937; background: #fff; }
+  h1 { color: #7c3aed; margin-bottom: 4px; }
+  h2 { color: #374151; border-bottom: 2px solid #e9d8fd; padding-bottom: 8px; margin-top: 40px; }
+  .info-boks { background: #f5f0ff; border-left: 4px solid #7c3aed; padding: 16px 20px; border-radius: 8px; margin: 20px 0; }
+  .profil-rad { display: flex; gap: 8px; margin-bottom: 8px; }
+  .profil-label { font-weight: 600; min-width: 160px; color: #6b7280; }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+  .stat-kort { background: #f5f0ff; border-radius: 10px; padding: 16px 20px; text-align: center; min-width: 100px; }
+  .stat-tall { font-size: 28px; font-weight: 800; color: #7c3aed; }
+  .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+
+<h1>📚 Mine data fra GloseMester</h1>
+<p style="color:#6b7280;">Lastet ned ${datoFormatert} · GDPR artikkel 20 – rett til dataportabilitet</p>
+
+<div class="info-boks">
+  <strong>Hva er denne filen?</strong><br>
+  Dette dokumentet inneholder all informasjon GloseMester har lagret om deg. Du kan lagre filen trygt på din egen enhet, sende den til en annen tjeneste, eller bruke den som dokumentasjon. Ingen personopplysninger deles med uvedkommende.
+</div>
+
+<h2>👤 Min profil</h2>
+<div class="profil-rad"><span class="profil-label">Navn:</span><span>${escHtml(brukerData?.displayName || brukerData?.navn || user.displayName || '—')}</span></div>
+<div class="profil-rad"><span class="profil-label">E-postadresse:</span><span>${escHtml(user.email || brukerData?.email || '—')}</span></div>
+<div class="profil-rad"><span class="profil-label">Brukertype:</span><span>${rolleTekst}</span></div>
+<div class="profil-rad"><span class="profil-label">Abonnement:</span><span>${abonnementTekst}</span></div>
+<div class="profil-rad"><span class="profil-label">Innloggingsmetode:</span><span>${kildeTekst}</span></div>
+<div class="profil-rad"><span class="profil-label">Konto opprettet:</span><span>${norskDato(brukerData?.opprettetDato?.toDate?.()?.toISOString?.() || null)}</span></div>
+
+<h2>📊 Statistikk</h2>
+<div class="stats">
+  <div class="stat-kort"><div class="stat-tall">${prover.length}</div><div class="stat-label">Prøver opprettet</div></div>
+  <div class="stat-kort"><div class="stat-tall">${prover.reduce((s, p) => s + (p.ordliste?.length || 0), 0)}</div><div class="stat-label">Ord totalt</div></div>
+  <div class="stat-kort"><div class="stat-tall">${resultater.length}</div><div class="stat-label">Resultater</div></div>
+  <div class="stat-kort"><div class="stat-tall">${glosebankData.length}</div><div class="stat-label">Ord i glosebanken</div></div>
+  <div class="stat-kort"><div class="stat-tall">${diktatSett.length}</div><div class="stat-label">Diktat-sett</div></div>
+</div>
+
+<h2>📝 Mine prøver (${prover.length})</h2>
+${proverHtml}
+
+<h2>📖 Min glosebank (${glosebankData.length} ord)</h2>
+${glosebankHtml}
+
+<h2>🎤 Mine diktat-sett (${diktatSett.length})</h2>
+${diktatHtml}
+
+<h2>ℹ️ Hva GloseMester lagrer – og hvorfor</h2>
+<div class="info-boks">
+  <p><strong>Vi lagrer kun det som er nødvendig for å gi deg tjenesten:</strong></p>
+  <ul style="margin:8px 0;padding-left:20px;line-height:2;">
+    <li><strong>Navn og e-post</strong> – for å identifisere kontoen din og sende deg informasjon</li>
+    <li><strong>Prøver og ordlister</strong> – innholdet du har laget i GloseMester</li>
+    <li><strong>Innloggingsmetode</strong> – om du bruker Google, Feide eller e-post</li>
+    <li><strong>Abonnementsinformasjon</strong> – for å gi deg riktig tilgang</li>
+  </ul>
+  <p>Vi selger ikke data til tredjeparter. Du kan når som helst slette all data under «Innstillinger → Slett min konto».</p>
+  <p style="margin-bottom:0;">Spørsmål? Kontakt oss på <a href="mailto:kontakt@glosemester.no" style="color:#7c3aed;">kontakt@glosemester.no</a></p>
+</div>
+
+<p style="color:#d1d5db;font-size:12px;margin-top:40px;text-align:center;">
+  Generert automatisk av GloseMester · ${datoFormatert}
+</p>
+
+</body>
+</html>`;
+
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `glosemester_data_${user.uid}_${Date.now()}.json`;
+        a.download = `minedata-glosemester-${datoFilnavn}.html`;
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();

@@ -5,7 +5,7 @@
 
 import { router, ROUTES, isProtectedRoute } from './core/navigation/router.js';
 import { auth, onAuthStateChanged } from './core/auth/firebase-config.js';
-import { handleFeideCallback } from './core/auth/auth-service.js';
+import { handleFeideCallback, initMobilFeideCallback } from './core/auth/auth-service.js';
 import { visToast } from './core/utils/feedback.js'; // Load feedback utilities globally
 import { pwaInstaller } from './core/pwa/installer.js';
 import { createIOSPopup } from './core/pwa/ios-popup.js';
@@ -37,7 +37,25 @@ async function initApp() {
     try {
         console.log('%c🚀 GloseMester v2.6.0 - Initializing...', 'color: #7C3AED; font-size: 16px; font-weight: bold;');
 
-        // 0. Handle Feide OAuth callback — Feide sender ?code= til rot-URL etter autentisering
+        // 0a. Sett opp mobil Feide-callback (lytter på appUrlOpen fra Capacitor)
+        initMobilFeideCallback();
+
+        // 0b. Lyt på Feide-innlogging fra mobil (custom URL-skjema)
+        document.addEventListener('feide-innlogging-ok', async (e) => {
+            const { userData } = e.detail || {};
+            if (userData) {
+                window.GloseMester.bruker = {
+                    ...window.GloseMester.bruker,
+                    ...userData
+                };
+            }
+            router.push(ROUTES.HJEM);
+        });
+        document.addEventListener('feide-innlogging-feil', (e) => {
+            visToast('Feide-innlogging feilet. Prøv igjen.', 'error');
+        });
+
+        // 0c. Handle Feide OAuth callback (web) — Feide sender ?code= til rot-URL etter autentisering
         const feideResult = await handleFeideCallback().catch(err => {
             visToast(err.message, 'error');
             return null;
@@ -71,7 +89,14 @@ async function initApp() {
                 router.push(ROUTES.LANDING);
             }
         } else if (feideResult) {
-            router.push(ROUTES.TEACHER_HOME);
+            // Web Feide-innlogging fullført — lagre brukerdata og gå til hjemskjermen
+            if (feideResult.userData) {
+                window.GloseMester.bruker = {
+                    ...window.GloseMester.bruker,
+                    ...feideResult.userData
+                };
+            }
+            router.push(ROUTES.HJEM);
         } else {
             router.handleRoute();
         }
@@ -94,8 +119,24 @@ function setupRoutes() {
 
     // ==================== LANDING PAGE ====================
     router.register(ROUTES.LANDING, async () => {
+        // Hvis brukeren allerede er innlogget, send til hjemskjermen
+        if (auth.currentUser) {
+            router.replace(ROUTES.HJEM);
+            return;
+        }
         await import('./pages/landing.js');
         window.Landing.render();
+    });
+
+    // ==================== HJEM (innlogget bruker) ====================
+    router.register(ROUTES.HJEM, async () => {
+        if (!auth.currentUser) {
+            router.replace(ROUTES.LANDING);
+            return;
+        }
+        const { Velkomst } = await import('./pages/velkomst.js');
+        appHeader.hide();
+        await Velkomst.render();
     });
 
     // ==================== GLOSEMESTER ====================
@@ -172,10 +213,16 @@ function handleAuthChange(user) {
         console.log('✅ User logged in:', user.email);
         window.GloseMester.bruker = user;
         loadUserData(user.uid);
+
+        // Send innlogget bruker til hjemskjermen ved oppstart (landing-siden er for utloggede)
+        const currentRoute = router.getCurrentRoute();
+        if (currentRoute && (currentRoute.path === '/' || currentRoute.path === ROUTES.LANDING || currentRoute.path === ROUTES.LOGIN)) {
+            router.replace(ROUTES.HJEM);
+        }
     } else {
         console.log('❌ User logged out');
         window.GloseMester.bruker = null;
-        
+
         const currentRoute = router.getCurrentRoute();
         if (currentRoute && isProtectedRoute(currentRoute.path)) {
             router.push(ROUTES.LANDING);
@@ -210,7 +257,7 @@ async function loadUserData(userId) {
  */
 function _updateAppHeader(path) {
     const teacherPaths = [ROUTES.TEACHER_HOME, ROUTES.CREATE_TEST, ROUTES.MY_TESTS, ROUTES.ANALYTICS, ROUTES.STANDARD_TESTS, ROUTES.GLOSEBANK];
-    const hiddenPaths  = [ROUTES.LANDING, ROUTES.LOGIN, '/'];
+    const hiddenPaths  = [ROUTES.LANDING, ROUTES.LOGIN, ROUTES.HJEM, '/'];
 
     if (hiddenPaths.includes(path) || teacherPaths.some(p => path.startsWith(p))) {
         appHeader.hide();

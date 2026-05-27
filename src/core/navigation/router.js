@@ -156,6 +156,7 @@ export const ROUTES = {
     LANDING: '/',
     LOGIN: '/login',
     ROLE_SELECT: '/velg-rolle',
+    HJEM: '/hjem',
 
     // Fag-routes
     GLOSEMESTER: '/gloser',

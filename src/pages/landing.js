@@ -4,6 +4,7 @@
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
+import { visLoginModal } from '../core/auth/auth-service.js';
 
 /**
  * Landing page - Fagvelger (kun GloseMester)
@@ -81,8 +82,19 @@ export class Landing {
                     </button>
                 </div>
 
+                <!-- Logg inn-knapp -->
+                <div style="text-align:center;margin:20px auto 0;max-width:400px;padding:0 20px;">
+                    <button id="logg-inn-btn" style="
+                        width:100%;padding:14px;
+                        background:white;border:2px solid hsl(258,70%,70%);
+                        border-radius:14px;font-size:15px;font-weight:700;
+                        color:#7c3aed;cursor:pointer;
+                        box-shadow:0 2px 12px rgba(124,58,237,0.1);
+                    ">🎓 Logg inn som lærer</button>
+                </div>
+
                 <!-- For skoler / Vil du vite mer -->
-                <div style="text-align:center;margin:8px auto 0;padding:0 20px;">
+                <div style="text-align:center;margin:16px auto 0;padding:0 20px;">
                     <a href="/for-skoler.html" style="display:inline-block;color:hsl(258,15%,45%);font-size:14px;text-decoration:none;padding:8px 0;border-bottom:1px dashed hsl(258,15%,70%);">
                         🏫 Er du lærer eller skole? Se priser og funksjoner →
                     </a>
@@ -102,6 +114,7 @@ export class Landing {
     static attachEventListeners() {
         const gloserCard = document.getElementById('fag-gloser');
         const startBtn   = document.getElementById('start-glosemester-btn');
+        const loggInnBtn = document.getElementById('logg-inn-btn');
 
         const navigate = () => router.push(ROUTES.GLOSEMESTER);
 
@@ -114,6 +127,14 @@ export class Landing {
             navigate();
         });
 
+        loggInnBtn?.addEventListener('click', async () => {
+            try {
+                await visLoginModal();
+                router.push(ROUTES.HJEM);
+            } catch {
+                // Bruker avbrøt innlogging
+            }
+        });
     }
 }
 
