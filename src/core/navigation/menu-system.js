@@ -1,699 +1,314 @@
 /* ============================================
-   MENU-SYSTEM.JS - GloseMester v2.6
-   Bottom navigation and hamburger menu
+   MENU-SYSTEM.JS — GloseMester v3.0
+   TabBar (elev/øving) + Sidebar (lærer)
+   Stiler: src/styles/menu.css
    ============================================ */
 
-/**
- * MenuSystem - Manages bottom navigation and hamburger menu
- */
+/* ── SVG-ikoner (Lucide-stil, inline) ── */
+const ICO_PRACTICE  = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`;
+const ICO_CARDS     = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`;
+const ICO_TROPHY    = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2"/><rect x="6" y="18" width="12" height="4"/><line x1="12" y1="13" x2="12" y2="18"/></svg>`;
+const ICO_USER      = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+const ICO_QUIT      = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+const ICO_DASHBOARD = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`;
+const ICO_CLIPBOARD = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>`;
+const ICO_PLUS      = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
+const ICO_CHART     = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`;
+const ICO_HOME      = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+const ICO_LOGOUT    = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`;
+const ICO_SWITCH    = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`;
+const ICO_MENU      = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
+const ICO_MINSIDE   = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
 export class MenuSystem {
     constructor() {
         this.currentMenu = null;
-        this.activeRole = null;
         this.hamburgerOpen = false;
         this.menuContainer = null;
         this.drawerElement = null;
         this.overlayElement = null;
     }
 
-    /**
-     * Initialize menu system
-     */
     init() {
-        console.log('📱 Initializing MenuSystem...');
-
-        // Create menu container
-        this.createMenuContainer();
-
-        // Create hamburger overlay and drawer
-        this.createHamburgerElements();
-
-        console.log('✅ MenuSystem initialized');
+        this._ensureContainer();
+        this._ensureDrawerElements();
     }
 
-    /**
-     * Create menu container element
-     */
-    createMenuContainer() {
-        // Check if container already exists
-        let container = document.getElementById('mester-menu-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'mester-menu-container';
-            container.style.cssText = `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 2000;
-                pointer-events: none;
-            `;
-            document.body.appendChild(container);
-        }
-        this.menuContainer = container;
-    }
-
-    /**
-     * Create hamburger drawer and overlay
-     */
-    createHamburgerElements() {
-        // Overlay
-        if (!document.getElementById('hamburger-overlay')) {
-            const overlay = document.createElement('div');
-            overlay.id = 'hamburger-overlay';
-            overlay.className = 'hamburger-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(2px);
-                z-index: 3500;
-                display: none;
-                opacity: 0;
-                transition: opacity 0.3s;
-            `;
-            overlay.addEventListener('click', () => this.closeHamburger());
-            document.body.appendChild(overlay);
-            this.overlayElement = overlay;
-        }
-
-        // Drawer
-        if (!document.getElementById('nav-drawer')) {
-            const drawer = document.createElement('div');
-            drawer.id = 'nav-drawer';
-            drawer.className = 'nav-items';
-            drawer.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: -100%;
-                width: 280px;
-                height: 100vh;
-                background: white;
-                box-shadow: 2px 0 20px rgba(0,0,0,0.2);
-                z-index: 4000;
-                display: flex;
-                flex-direction: column;
-                padding: 80px 0 20px 0;
-                transition: left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-                overflow-y: auto;
-            `;
-            document.body.appendChild(drawer);
-            this.drawerElement = drawer;
-        }
-    }
-
-    /**
-     * Show menu for specific role/context
-     * @param {string} type - 'elev', 'oving', 'laerer'
-     * @param {Object} options - Menu options
-     */
+    /** Vis meny for en gitt kontekst */
     showMenu(type, options = {}) {
         this.hideMenu();
-
         this.currentMenu = type;
-        this.activeRole = type;
 
-        if (type === 'elev') {
-            this.showElevMenu(options);
-        } else if (type === 'oving') {
-            this.showOvingMenu(options);
-        } else if (type === 'laerer') {
-            this.showLaererMenu(options);
-        }
+        if (type === 'elev')   this.showElevMenu(options);
+        else if (type === 'oving')  this.showOvingMenu(options);
+        else if (type === 'laerer') this.showLaererMenu(options);
     }
 
-    /**
-     * Show elev menu (bottom nav)
-     * @param {Object} options
-     */
-    showElevMenu(options = {}) {
-        const { onHome, onKort, onGalleri, onLogout } = options;
+    /* ─── ELEV-MENY ─── */
+    showElevMenu(opts = {}) {
+        const { onHome, onKort, onGalleri } = opts;
 
-        const nav = document.createElement('nav');
-        nav.id = 'elev-meny';
-        nav.className = 'bottom-nav elev-nav';
-        nav.style.cssText = `
-            display: flex;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 8px 12px;
-            border-radius: 50px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            align-items: center;
-            gap: 10px;
-            width: max-content;
-            pointer-events: auto;
-            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        `;
+        const tabBar = this._buildTabBar([
+            { id: 'home',    icon: ICO_PRACTICE, label: 'Øv',        onClick: onHome },
+            { id: 'kort',    icon: ICO_CARDS,    label: 'Mine Kort', onClick: onKort },
+            { id: 'galleri', icon: ICO_TROPHY,   label: 'Galleri',   onClick: onGalleri },
+        ], 'home');
 
-        nav.innerHTML = `
-            <button class="nav-btn" data-action="home">
-                🏠 Hjem
-            </button>
-            <button class="nav-btn" data-action="kort">
-                🃏 Mine Kort
-            </button>
-            <button class="nav-btn" data-action="galleri">
-                🏆 Galleri
-            </button>
-            <button class="nav-btn danger" data-action="logout">
-                🚪 Logg ut
-            </button>
-        `;
-
-        // Add styles
-        this.addMenuStyles();
-
-        // Event listeners
-        const buttons = nav.querySelectorAll('.nav-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const action = btn.dataset.action;
-
-                // Remove active from all
-                buttons.forEach(b => b.classList.remove('active'));
-                // Add active to clicked
-                btn.classList.add('active');
-
-                // Call handlers
-                if (action === 'home' && onHome) onHome();
-                else if (action === 'kort' && onKort) onKort();
-                else if (action === 'galleri' && onGalleri) onGalleri();
-                else if (action === 'logout' && onLogout) onLogout();
-            });
-        });
-
-        this.menuContainer.appendChild(nav);
+        this.menuContainer.appendChild(tabBar);
+        document.body.classList.add('has-tabbar');
     }
 
-    /**
-     * Show øving menu (bottom nav)
-     * @param {Object} options
-     */
-    showOvingMenu(options = {}) {
-        const { onPractice, onCollection, onGalleri, onQuit } = options;
+    /* ─── ØVING-MENY ─── */
+    showOvingMenu(opts = {}) {
+        const { onPractice, onCollection, onGalleri, onQuit } = opts;
 
-        const nav = document.createElement('nav');
-        nav.id = 'oving-meny';
-        nav.className = 'bottom-nav oving-nav';
-        nav.style.cssText = `
-            display: flex;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 8px 12px;
-            border-radius: 50px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            align-items: center;
-            gap: 10px;
-            width: max-content;
-            pointer-events: auto;
-            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        `;
+        const tabBar = this._buildTabBar([
+            { id: 'practice',   icon: ICO_PRACTICE, label: 'Øv',     onClick: onPractice },
+            { id: 'collection', icon: ICO_CARDS,    label: 'Samling', onClick: onCollection },
+            { id: 'galleri',    icon: ICO_TROPHY,   label: 'Galleri', onClick: onGalleri },
+            { id: 'quit',       icon: ICO_QUIT,     label: 'Avslutt', onClick: onQuit, danger: true },
+        ], 'practice');
 
-        nav.innerHTML = `
-            <button class="nav-btn active" data-action="practice">
-                📚 Øv
-            </button>
-            <button class="nav-btn" data-action="collection">
-                🃏 Samling
-            </button>
-            <button class="nav-btn" data-action="galleri">
-                🏆 Galleri
-            </button>
-            <button class="nav-btn danger" data-action="quit">
-                ❌ Avslutt
-            </button>
-        `;
-
-        // Add styles
-        this.addMenuStyles();
-
-        // Event listeners
-        const buttons = nav.querySelectorAll('.nav-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const action = btn.dataset.action;
-
-                // Remove active from all
-                buttons.forEach(b => b.classList.remove('active'));
-                // Add active to clicked
-                btn.classList.add('active');
-
-                // Call handlers
-                if (action === 'practice' && onPractice) onPractice();
-                else if (action === 'collection' && onCollection) onCollection();
-                else if (action === 'galleri' && onGalleri) onGalleri();
-                else if (action === 'quit' && onQuit) onQuit();
-            });
-        });
-
-        this.menuContainer.appendChild(nav);
+        this.menuContainer.appendChild(tabBar);
+        document.body.classList.add('has-tabbar');
     }
 
-    /**
-     * Show lærer menu (sidebar + top bar)
-     * @param {Object} options
-     */
-    showLaererMenu(options = {}) {
-        const {
-            userName = 'Lærer',
-            onDashboard,
-            onMyTests,
-            onCreateTest,
-            onAnalytics,
-            onHome,
-            onLogout
-        } = options;
+    /* ─── LÆRER-MENY ─── */
+    showLaererMenu(opts = {}) {
+        const { userName = 'Lærer', onDashboard, onMyTests, onCreateTest, onAnalytics, onMinSide, onHome, onLogout } = opts;
 
-        // Add class to body for layout adjustment on desktop
         document.body.classList.add('has-sidebar');
 
-        // Top nav bar (mobile only or secondary actions)
-        const nav = document.createElement('nav');
-        nav.id = 'laerer-meny';
-        nav.className = 'top-nav laerer-nav glass-panel';
-        nav.style.cssText = `
-            display: flex;
-            background: var(--glass-bg, rgba(255, 255, 255, 0.7));
-            backdrop-filter: blur(16px);
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 2000;
-            align-items: center;
-            justify-content: space-between;
-            pointer-events: auto;
-        `;
-
-        nav.innerHTML = `
-            <button class="hamburger-btn" id="hamburger-btn" aria-label="Åpne meny" aria-expanded="false">
-                <span class="hamburger-icon">☰</span>
-                <span class="hamburger-text">Meny</span>
+        // Topbar (mobil) + tittel på desktop
+        const topbar = document.createElement('nav');
+        topbar.id = 'teacher-topbar';
+        topbar.innerHTML = `
+            <button class="t-topbar-hamburger" id="topbar-hamburger" aria-label="Åpne meny" aria-expanded="false">
+                ${ICO_MENU} Meny
             </button>
-
-            <div class="header-logo" style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 24px;">🎓</span>
-                <span style="font-family: var(--font-heading); font-weight: 800; font-size: 18px; background: var(--gradient-purple); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GloseMester</span>
-            </div>
-
-            <div class="nav-actions">
-                <button class="btn-primary nav-action-btn" id="home-btn" style="padding: 8px 16px; font-size: 13px;">
-                    🏠 Hjem
-                </button>
-            </div>
+            <span class="t-topbar-logo">GloseMester</span>
+            <button class="t-topbar-home" id="topbar-home">
+                ${ICO_HOME} Hjem
+            </button>
         `;
 
-        // Add styles
-        this.addMenuStyles();
+        topbar.querySelector('#topbar-hamburger').addEventListener('click', () => this.toggleHamburger());
+        topbar.querySelector('#topbar-home').addEventListener('click', () => onHome?.());
 
-        // Populate drawer
-        this.populateDrawer({
-            userName,
-            onDashboard,
-            onMyTests,
-            onCreateTest,
-            onAnalytics,
-            onLogout
-        });
+        this.menuContainer.appendChild(topbar);
 
-        // Event listeners
-        const hamburgerBtn = nav.querySelector('#hamburger-btn');
-        hamburgerBtn.addEventListener('click', () => this.toggleHamburger());
+        // Sidebar-innhold
+        this._populateLaererDrawer({ userName, onDashboard, onMyTests, onCreateTest, onAnalytics, onMinSide, onLogout, onHome });
 
-        const homeBtn = nav.querySelector('#home-btn');
-        if (homeBtn && onHome) {
-            homeBtn.addEventListener('click', onHome);
+        // Desktop: sidebar alltid synlig
+        if (window.innerWidth >= 1024) {
+            setTimeout(() => { this.drawerElement.style.left = '0'; }, 50);
         }
-
-        this.menuContainer.appendChild(nav);
     }
 
-    /**
-     * Populate hamburger drawer with menu items
-     * @param {Object} options
-     */
-    populateDrawer(options) {
-        const {
-            userName,
-            onDashboard,
-            onMyTests,
-            onCreateTest,
-            onAnalytics,
-            onLogout
-        } = options;
+    _populateLaererDrawer({ userName, onDashboard, onMyTests, onCreateTest, onAnalytics, onMinSide, onLogout, onHome }) {
+        const initials = (userName || 'L').slice(0, 2).toUpperCase();
 
-        this.drawerElement.className = 'nav-items';
-        this.drawerElement.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: -100%;
-            width: 280px;
-            height: 100vh;
-            z-index: 4000;
-            display: flex;
-            flex-direction: column;
-            padding: 40px 0 20px 0;
-            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow-y: auto;
-        `;
+        const navItems = [
+            { id: 'dashboard',   icon: ICO_DASHBOARD, label: 'Oversikt',    onClick: onDashboard },
+            { id: 'my-tests',    icon: ICO_CLIPBOARD, label: 'Mine prøver', onClick: onMyTests },
+            { id: 'create-test', icon: ICO_PLUS,      label: 'Lag prøve',   onClick: onCreateTest },
+            { id: 'analytics',   icon: ICO_CHART,     label: 'Analyser',    onClick: onAnalytics },
+            { id: 'min-side',    icon: ICO_MINSIDE,   label: 'Min side',    onClick: onMinSide },
+        ];
 
         this.drawerElement.innerHTML = `
-            <div class="drawer-header">
-                <div class="drawer-header-label">Lærerportal</div>
-                <div class="drawer-header-name">${userName}</div>
-            </div>
+            <div class="t-sidebar-inner">
+                <div class="t-sidebar-logo">
+                    <div class="t-sidebar-logo-mark">GloseMester</div>
+                    <div class="t-sidebar-logo-sub">Lærerportal</div>
+                </div>
 
-            <div class="drawer-section">
-                <button class="drawer-item active" data-action="dashboard">
-                    <span class="item-icon">📊</span> Dashboard
-                </button>
-                <button class="drawer-item" data-action="my-tests">
-                    <span class="item-icon">📝</span> Mine prøver
-                </button>
-                <button class="drawer-item" data-action="create-test">
-                    <span class="item-icon">➕</span> Lag prøve
-                </button>
-                <button class="drawer-item" data-action="analytics">
-                    <span class="item-icon">📈</span> Analyser
-                </button>
-            </div>
+                <nav class="t-sidebar-nav" id="sidebar-nav">
+                    ${navItems.map(item => `
+                        <button class="drawer-item${item.id === 'dashboard' ? ' active' : ''}" data-action="${item.id}">
+                            ${item.icon}
+                            ${item.label}
+                        </button>
+                    `).join('')}
+                </nav>
 
-            <button class="drawer-item drawer-item-logout" data-action="logout">
-                <span class="item-icon">🚪</span> Logg ut
-            </button>
+                <div class="t-sidebar-footer">
+                    <div class="t-sidebar-user">
+                        <div class="t-user-avatar">${initials}</div>
+                        <div class="t-user-name">${userName}</div>
+                    </div>
+                    <button class="t-role-switch" id="sidebar-role-switch">
+                        ${ICO_SWITCH} Bytt til elevmodus
+                    </button>
+                    <button class="drawer-item logout" data-action="logout">
+                        ${ICO_LOGOUT} Logg ut
+                    </button>
+                </div>
+            </div>
         `;
 
-        // Event listeners
-        const items = this.drawerElement.querySelectorAll('.drawer-item');
+        // Klikkhandlere
+        const items = this.drawerElement.querySelectorAll('.drawer-item:not(.logout)');
+        const callbacks = { dashboard: onDashboard, 'my-tests': onMyTests, 'create-test': onCreateTest, analytics: onAnalytics, 'min-side': onMinSide };
+
         items.forEach(item => {
             item.addEventListener('click', () => {
-                const action = item.dataset.action;
-
-                // Update active state
                 items.forEach(i => i.classList.remove('active'));
-                if (action !== 'logout') {
-                    item.classList.add('active');
-                }
-
-                // Close drawer only on mobile
-                if (window.innerWidth < 1024) {
-                    this.closeHamburger();
-                }
-
-                // Call handlers
-                if (action === 'dashboard' && onDashboard) onDashboard();
-                else if (action === 'my-tests' && onMyTests) onMyTests();
-                else if (action === 'create-test' && onCreateTest) onCreateTest();
-                else if (action === 'analytics' && onAnalytics) onAnalytics();
-                else if (action === 'logout' && onLogout) onLogout();
+                item.classList.add('active');
+                if (window.innerWidth < 1024) this.closeHamburger();
+                callbacks[item.dataset.action]?.();
             });
         });
 
-        // Show drawer immediately on desktop
-        if (window.innerWidth >= 1024) {
-            setTimeout(() => { this.drawerElement.style.left = '0'; }, 100);
+        this.drawerElement.querySelector('[data-action="logout"]')
+            ?.addEventListener('click', () => { if (window.innerWidth < 1024) this.closeHamburger(); onLogout?.(); });
+
+        this.drawerElement.querySelector('#sidebar-role-switch')
+            ?.addEventListener('click', () => { if (window.innerWidth < 1024) this.closeHamburger(); onHome?.(); });
+    }
+
+    /* ─── BYGG TAB BAR ─── */
+    _buildTabBar(tabs, activeId) {
+        const existing = document.getElementById('tab-bar');
+        if (existing) existing.remove();
+
+        const tabBar = document.createElement('nav');
+        tabBar.id = 'tab-bar';
+        tabBar.setAttribute('role', 'tablist');
+
+        tabBar.innerHTML = tabs.map(tab => `
+            <button
+                class="tab-btn${tab.id === activeId ? ' active' : ''}${tab.danger ? ' tab-danger' : ''}"
+                data-tab="${tab.id}"
+                role="tab"
+                aria-selected="${tab.id === activeId}"
+                aria-label="${tab.label}"
+            >
+                ${tab.icon}
+                <span class="tab-btn-label">${tab.label}</span>
+            </button>
+        `).join('');
+
+        tabBar.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBar.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+                tabs.find(t => t.id === btn.dataset.tab)?.onClick?.();
+            });
+        });
+
+        return tabBar;
+    }
+
+    setActive(itemId) {
+        // Tab bar
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            const isActive = btn.dataset.tab === itemId;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+        });
+        // Sidebar
+        document.querySelectorAll('.drawer-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.action === itemId);
+        });
+    }
+
+    setBadge(tabId, count) {
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (!btn) return;
+        btn.querySelector('.tab-badge')?.remove();
+        if (count > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'tab-badge';
+            badge.textContent = count > 99 ? '99+' : String(count);
+            btn.appendChild(badge);
         }
     }
 
-    /**
-     * Toggle hamburger menu
-     */
     toggleHamburger() {
-        if (this.hamburgerOpen) {
-            this.closeHamburger();
-        } else {
-            this.openHamburger();
-        }
+        this.hamburgerOpen ? this.closeHamburger() : this.openHamburger();
     }
 
-    /**
-     * Open hamburger menu
-     */
     openHamburger() {
         this.hamburgerOpen = true;
         this.drawerElement.style.left = '0';
         this.overlayElement.style.display = 'block';
-        setTimeout(() => {
-            this.overlayElement.style.opacity = '1';
-        }, 10);
-
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => { this.overlayElement.style.opacity = '1'; });
+        document.getElementById('topbar-hamburger')?.setAttribute('aria-expanded', 'true');
     }
 
-    /**
-     * Close hamburger menu
-     */
     closeHamburger() {
         this.hamburgerOpen = false;
-        this.drawerElement.style.left = '-100%';
+        if (window.innerWidth < 1024) this.drawerElement.style.left = '-100%';
         this.overlayElement.style.opacity = '0';
-        setTimeout(() => {
-            this.overlayElement.style.display = 'none';
-        }, 300);
-
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
+        setTimeout(() => { this.overlayElement.style.display = 'none'; }, 300);
+        document.getElementById('topbar-hamburger')?.setAttribute('aria-expanded', 'false');
     }
 
-    /**
-     * Hide current menu
-     */
     hideMenu() {
-        document.body.classList.remove('has-sidebar');
-        if (this.menuContainer) {
-            this.menuContainer.innerHTML = '';
-        }
+        document.body.classList.remove('has-sidebar', 'has-tabbar');
+        if (this.menuContainer) this.menuContainer.innerHTML = '';
         if (this.drawerElement) {
             this.drawerElement.innerHTML = '';
-            // setProperty with 'important' overrides the @media left:0 !important rule
             this.drawerElement.style.setProperty('left', '-100%', 'important');
         }
         if (this.overlayElement) {
             this.overlayElement.style.opacity = '0';
             this.overlayElement.style.display = 'none';
         }
+        document.getElementById('tab-bar')?.remove();
         this.hamburgerOpen = false;
         this.currentMenu = null;
     }
 
-    /**
-     * Set active menu item
-     * @param {string} itemId - ID of menu item
-     */
-    setActive(itemId) {
-        // For bottom nav
-        const navBtns = document.querySelectorAll('.nav-btn');
-        navBtns.forEach(btn => {
-            if (btn.dataset.action === itemId) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-
-        // For drawer
-        const drawerItems = document.querySelectorAll('.drawer-item');
-        drawerItems.forEach(item => {
-            if (item.dataset.action === itemId) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
+    _ensureContainer() {
+        let c = document.getElementById('mester-menu-container');
+        if (!c) {
+            c = document.createElement('div');
+            c.id = 'mester-menu-container';
+            c.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:2000;pointer-events:none;';
+            document.body.appendChild(c);
+        }
+        this.menuContainer = c;
     }
 
-    /**
-     * Add menu styles to document
-     */
-    addMenuStyles() {
-        if (document.getElementById('menu-system-styles')) return;
+    _ensureDrawerElements() {
+        // Overlay
+        let overlay = document.getElementById('hamburger-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'hamburger-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);z-index:3500;display:none;opacity:0;transition:opacity 0.3s;';
+            overlay.addEventListener('click', () => this.closeHamburger());
+            document.body.appendChild(overlay);
+        }
+        this.overlayElement = overlay;
 
-        const style = document.createElement('style');
-        style.id = 'menu-system-styles';
-        style.textContent = `
-            .nav-btn {
-                background: transparent;
-                border: none;
-                padding: 10px 18px;
-                font-size: 15px;
-                cursor: pointer;
-                border-radius: 24px;
-                color: var(--purple-500);
-                font-weight: 600;
-                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-                white-space: nowrap;
-            }
-
-            .nav-btn.active {
-                background: var(--purple-600);
-                color: white;
-                box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-            }
-
-            .hamburger-btn {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                background: var(--purple-100);
-                border: 1px solid var(--purple-200);
-                font-size: 14px;
-                font-weight: 700;
-                color: var(--purple-700);
-                cursor: pointer;
-                padding: 8px 16px;
-                border-radius: 20px;
-                transition: all 0.2s;
-            }
-
-            .hamburger-btn:hover {
-                background: var(--purple-200);
-            }
-
-            .drawer-item {
-                width: 100%;
-                text-align: left;
-                padding: 14px 20px;
-                background: transparent;
-                border: none;
-                font-size: 15px;
-                color: var(--purple-900);
-                font-weight: 500;
-                cursor: pointer;
-                border-radius: 12px;
-                transition: all 0.2s;
-                margin-bottom: 4px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .item-icon {
-                font-size: 18px;
-            }
-
-            .drawer-item:hover {
-                background: rgba(124, 58, 237, 0.05);
-            }
-
-            .drawer-item.active {
-                background: var(--purple-600);
-                color: white;
-                font-weight: 700;
-                box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-            }
-
-            .drawer-header {
-                padding: 20px 20px 16px;
-                border-bottom: 1px solid rgba(0,0,0,0.06);
-                margin-bottom: 12px;
-            }
-
-            .drawer-header-label {
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                color: var(--purple-400, #7C3AED);
-                opacity: 0.7;
-                margin-bottom: 4px;
-            }
-
-            .drawer-header-name {
-                font-size: 17px;
-                font-weight: 700;
-                color: var(--purple-900, #1e1b4b);
-            }
-
-            .drawer-section {
-                padding: 4px 12px;
-            }
-
-            .drawer-item-logout {
-                color: #EF4444;
-                margin-top: 8px;
-            }
-
-            .drawer-item-logout:hover {
-                background: rgba(239, 68, 68, 0.08);
-            }
-
-            @media (min-width: 1024px) {
-                .hamburger-btn {
-                    display: none;
-                }
-                .laerer-nav {
-                    padding-left: 300px !important;
-                }
-                body.has-sidebar #app {
-                    margin-left: 280px;
-                }
-                .nav-items {
-                    left: 0 !important;
-                }
-                .hamburger-overlay {
-                    display: none !important;
-                }
-            }
-
-            @media (max-width: 1023px) {
-                .header-logo {
-                    display: none !important;
-                }
-            }
-        `;
-
-        document.head.appendChild(style);
+        // Drawer
+        let drawer = document.getElementById('nav-drawer');
+        if (!drawer) {
+            drawer = document.createElement('div');
+            drawer.id = 'nav-drawer';
+            drawer.className = 'nav-items';
+            drawer.style.cssText = 'position:fixed;top:0;left:-100%;width:var(--sidebar-width,280px);height:100vh;z-index:4000;display:flex;flex-direction:column;transition:left 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;';
+            document.body.appendChild(drawer);
+        }
+        this.drawerElement = drawer;
     }
 
-    /**
-     * Destroy menu system
-     */
     destroy() {
         this.hideMenu();
-
-        if (this.menuContainer) {
-            this.menuContainer.remove();
-        }
-
-        if (this.drawerElement) {
-            this.drawerElement.remove();
-        }
-
-        if (this.overlayElement) {
-            this.overlayElement.remove();
-        }
-
-        const styles = document.getElementById('menu-system-styles');
-        if (styles) {
-            styles.remove();
-        }
+        this.menuContainer?.remove();
+        this.drawerElement?.remove();
+        this.overlayElement?.remove();
     }
 }
 
-// Export singleton instance
 export const menuSystem = new MenuSystem();
-
-// Make globally available
-if (typeof window !== 'undefined') {
-    window.MenuSystem = MenuSystem;
-    window.menuSystem = menuSystem;
-}
-
-console.log('📱 MenuSystem module loaded');
+window.menuSystem = menuSystem;
+window.MenuSystem = MenuSystem;

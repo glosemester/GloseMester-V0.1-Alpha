@@ -4,14 +4,15 @@
    ============================================ */
 
 import { menuSystem } from '../../core/navigation/menu-system.js';
+import { appHeader } from '../../core/navigation/app-header.js';
 import { visToast } from '../../core/utils/feedback.js';
 
 const LEVEL_NAMES = {
     niva1: 'Nivå 1', niva2: 'Nivå 2', niva3: 'Nivå 3', niva4: 'Nivå 4', eget: 'Egne gloser'
 };
 import {
-    db,
-    collection, addDoc, getDocs, doc, deleteDoc, updateDoc,
+    auth, db,
+    collection, addDoc, getDocs, doc, getDoc, deleteDoc, updateDoc,
     query, where, serverTimestamp
 } from '../../core/auth/firebase-config.js';
 
@@ -52,9 +53,12 @@ export class TeacherModule {
             onMyTests:   () => this.navigate('my-tests'),
             onCreateTest:() => this.navigate('create-test'),
             onAnalytics: () => this.navigate('analytics'),
+            onMinSide:   () => this.navigate('min-side'),
             onHome:      () => this.goHome(),
             onLogout:    () => this.logout()
         });
+        // Skjul elev-header når vi er i lærermodus
+        appHeader.hide();
     }
 
     // ==================== NAVIGATION ====================
@@ -62,11 +66,22 @@ export class TeacherModule {
     navigate(view, params = {}) {
         this.currentView = view;
 
+        const viewTitles = {
+            'dashboard':    'Oversikt',
+            'my-tests':     'Mine prøver',
+            'create-test':  'Lag prøve',
+            'analytics':    'Analyser',
+            'min-side':     'Min side',
+            'test-details': 'Prøvedetaljer',
+            'edit-test':    'Rediger prøve',
+        };
+
         const viewMap = {
             'dashboard':    () => this.renderDashboard(),
             'my-tests':     () => this.renderMyTests(),
             'create-test':  () => this.renderCreateTest(),
             'analytics':    () => this.renderAnalytics(),
+            'min-side':     () => this.renderMinSide(),
         };
 
         if (viewMap[view]) {
@@ -78,6 +93,13 @@ export class TeacherModule {
             this.renderEditTest(params.testId);
         } else if (view === 'test-success') {
             this.renderTestSuccess(params.test);
+        }
+
+        // Oppdater topbar-tittel på desktop
+        const topbar = document.getElementById('teacher-topbar');
+        if (topbar) {
+            const logoEl = topbar.querySelector('.t-topbar-logo');
+            if (logoEl) logoEl.textContent = viewTitles[view] || 'GloseMester';
         }
     }
 
@@ -606,6 +628,190 @@ export class TeacherModule {
 
         document.querySelectorAll('.t-analytics-row[data-test-id]').forEach(row =>
             row.addEventListener('click', () => this.navigate('test-details', { testId: row.dataset.testId })));
+    }
+
+    // ==================== MIN SIDE ====================
+
+    async renderMinSide() {
+        const user = auth.currentUser || this.user;
+
+        this._setContent(`
+            <div class="t-page-header">
+                <div class="t-eyebrow">Konto</div>
+                <div class="t-page-title">Min side</div>
+            </div>
+            <div id="minside-loading" style="color:var(--t-muted);padding:20px 0;">Laster kontoinformasjon…</div>
+            <div id="minside-content" style="display:none;">
+                <div class="t-card" style="margin-bottom:20px;">
+                    <div style="font-size:13px;color:var(--t-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;">Profil</div>
+                    <div style="font-size:17px;font-weight:600;color:var(--t-text);margin-bottom:8px;" id="ms-name">—</div>
+                    <div style="font-size:14px;color:var(--t-muted);" id="ms-email">—</div>
+                    <div style="font-size:11px;color:var(--t-muted);margin-top:4px;font-family:var(--t-font-mono);" id="ms-uid">—</div>
+                </div>
+
+                <div class="t-card" style="margin-bottom:20px;">
+                    <div style="font-size:13px;color:var(--t-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">Abonnement</div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <span id="ms-status-badge" style="padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(255,255,255,0.08);color:var(--t-muted);">Gratis</span>
+                        <span id="ms-plan-text" style="font-size:14px;color:var(--t-text);">Gratisversjon</span>
+                    </div>
+                    <div style="margin-top:12px;font-size:13px;color:var(--t-muted);" id="ms-expiry"></div>
+                    <div style="margin-top:16px;" id="ms-upgrade-wrap">
+                        <a href="/oppgrader.html" style="display:inline-block;padding:10px 20px;background:var(--t-accent);color:var(--t-dark);border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Oppgrader til Premium →</a>
+                    </div>
+                </div>
+
+                <div class="t-card" style="margin-bottom:20px;">
+                    <div style="font-size:13px;color:var(--t-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">Kampanjekode</div>
+                    <div style="display:flex;gap:10px;max-width:420px;">
+                        <input type="text" id="ms-kampanje-input" placeholder="F.eks: BETA2026"
+                            style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--t-text);font-size:14px;" />
+                        <button id="ms-kampanje-btn"
+                            style="padding:10px 20px;background:var(--t-accent);color:var(--t-dark);border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap;">
+                            Aktiver
+                        </button>
+                    </div>
+                </div>
+
+                <div class="t-card" style="margin-bottom:20px;">
+                    <div style="font-size:13px;color:var(--t-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">Personvern & GDPR</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;max-width:340px;">
+                        <button id="ms-eksport-btn" class="t-btn t-btn-ghost" style="justify-content:flex-start;">
+                            📥 Last ned mine data
+                        </button>
+                        <button id="ms-slett-btn" class="t-btn t-btn-ghost" style="justify-content:flex-start;color:var(--t-danger);border-color:rgba(239,68,68,0.3);">
+                            🗑️ Slett min konto
+                        </button>
+                    </div>
+                    <div style="margin-top:10px;font-size:12px;color:var(--t-muted);">
+                        <a href="/personvern.html" style="color:var(--t-accent);text-decoration:none;">Personvernserklæring</a>
+                        &nbsp;·&nbsp;
+                        <a href="/vilkar.html" style="color:var(--t-accent);text-decoration:none;">Kjøpsvilkår</a>
+                    </div>
+                </div>
+
+                <div class="t-card">
+                    <div style="font-size:13px;color:var(--t-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Support</div>
+                    <div style="font-size:14px;color:var(--t-text);">
+                        <a href="mailto:kontakt@glosemester.no" style="color:var(--t-accent);text-decoration:none;">kontakt@glosemester.no</a>
+                        <span style="color:var(--t-muted);margin-left:12px;">Svar innen 2 virkedager</span>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        // Hent brukerdata fra Firestore
+        try {
+            let userData = {};
+            if (user?.uid) {
+                const snap = await getDoc(doc(db, 'users', user.uid));
+                if (snap.exists()) userData = snap.data();
+            }
+
+            document.getElementById('ms-name').textContent  = userData.navn || user?.displayName || this.userName;
+            document.getElementById('ms-email').textContent = userData.email || user?.email || '—';
+            document.getElementById('ms-uid').textContent   = user?.uid || '—';
+
+            const sub = userData.subscription || {};
+            const abo = userData.abonnement   || {};
+            const badge   = document.getElementById('ms-status-badge');
+            const planEl  = document.getElementById('ms-plan-text');
+            const expEl   = document.getElementById('ms-expiry');
+            const upgrEl  = document.getElementById('ms-upgrade-wrap');
+
+            if (sub.status === 'premium') {
+                badge.textContent = '⭐ Premium';
+                badge.style.background = 'rgba(16,185,129,0.15)';
+                badge.style.color = '#10B981';
+                planEl.textContent = sub.plan === 'premium_yearly' ? 'Premium Årlig' : 'Premium Månedlig';
+                if (sub.expiresAt?.toDate) expEl.textContent = 'Utløper: ' + sub.expiresAt.toDate().toLocaleDateString('no-NO');
+                upgrEl.style.display = 'none';
+            } else if (abo.status === 'active' || abo.type === 'skolepakke') {
+                badge.textContent = '🏫 Skolepakke';
+                badge.style.background = 'rgba(139,92,246,0.15)';
+                badge.style.color = '#A78BFA';
+                planEl.textContent = abo.beskrivelse || 'Skolepakke';
+                if (abo.utloper?.toDate) expEl.textContent = 'Utløper: ' + abo.utloper.toDate().toLocaleDateString('no-NO');
+                else expEl.textContent = 'Ubegrenset tilgang';
+                upgrEl.style.display = 'none';
+            }
+        } catch (e) {
+            console.warn('Min side: kunne ikke laste brukerdata', e);
+        }
+
+        document.getElementById('minside-loading').style.display = 'none';
+        document.getElementById('minside-content').style.display = '';
+
+        // Kampanjekode
+        document.getElementById('ms-kampanje-btn')?.addEventListener('click', () => this._aktiverKampanjekode());
+
+        // Eksporter data
+        document.getElementById('ms-eksport-btn')?.addEventListener('click', async () => {
+            try {
+                const snap = user?.uid ? await getDoc(doc(db, 'users', user.uid)) : null;
+                const userData = snap?.exists() ? snap.data() : {};
+                const eksport = { uid: user?.uid, email: user?.email, profil: userData, prover: this.tests, eksportertDato: new Date().toISOString() };
+                const blob = new Blob([JSON.stringify(eksport, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'glosemester-mine-data.json';
+                a.click();
+                visToast('✅ Data eksportert', 'success');
+            } catch (e) {
+                visToast('Feil ved eksport: ' + e.message, 'error');
+            }
+        });
+
+        // Slett konto
+        document.getElementById('ms-slett-btn')?.addEventListener('click', async () => {
+            if (!confirm('Er du helt sikker? Dette sletter PERMANENT all din data og kan ikke angres.')) return;
+            if (!confirm('Siste sjanse: bekreft kontosletting.')) return;
+            try {
+                if (user?.uid) await deleteDoc(doc(db, 'users', user.uid));
+                await user?.delete?.();
+                visToast('Konto slettet.', 'info');
+                this.goHome();
+            } catch (e) {
+                visToast('Feil: ' + e.message + '. Logg inn på nytt og prøv igjen.', 'error');
+            }
+        });
+    }
+
+    async _aktiverKampanjekode() {
+        const input = document.getElementById('ms-kampanje-input');
+        const kode = input?.value.trim().toUpperCase();
+        if (!kode) { visToast('Skriv inn en kampanjekode', 'warning'); return; }
+
+        const kampanjekoder = {
+            'BETA2026':   { type: 'premium',    dager: 90,  beskrivelse: 'Beta-testkode (90 dager)' },
+            'LANSERING':  { type: 'premium',    dager: 30,  beskrivelse: 'Lanseringskode (30 dager)' },
+            'TEST7':      { type: 'premium',    dager: 7,   beskrivelse: 'Testkode (7 dager)' },
+            'SKOLE2026':  { type: 'skolepakke', dager: 365, beskrivelse: 'Skolepakke (365 dager)' },
+            'SKOLEPILOT': { type: 'skolepakke', dager: 180, beskrivelse: 'Skolepilot (180 dager)' },
+            'SKOLETEST':  { type: 'skolepakke', dager: 30,  beskrivelse: 'Skoletest (30 dager)' }
+        };
+        const kampanje = kampanjekoder[kode];
+        if (!kampanje) { visToast('Ugyldig kampanjekode: ' + kode, 'error'); if (input) input.value = ''; return; }
+
+        const user = auth.currentUser || this.user;
+        if (!user?.uid) { visToast('Ikke innlogget', 'error'); return; }
+
+        try {
+            const utloper = new Date();
+            utloper.setDate(utloper.getDate() + kampanje.dager);
+            await updateDoc(doc(db, 'users', user.uid), {
+                'abonnement.type':           kampanje.type,
+                'abonnement.status':         'active',
+                'abonnement.utloper':        utloper,
+                'abonnement.kampanjekode':   kode,
+                'abonnement.sist_oppdatert': serverTimestamp()
+            });
+            visToast(`✅ ${kampanje.beskrivelse} aktivert!`, 'success');
+            if (input) input.value = '';
+            setTimeout(() => this.renderMinSide(), 800);
+        } catch (e) {
+            visToast('Feil ved aktivering: ' + e.message, 'error');
+        }
     }
 
     // ==================== HANDLERS ====================

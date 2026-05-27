@@ -52,6 +52,11 @@ export class GloseMester extends FagModul {
 
         // Initialize navigation menu
         menuSystem.init();
+        menuSystem.showMenu('elev', {
+            onHome:    () => this.renderPracticeUI(),
+            onKort:    () => this.renderCollection(),
+            onGalleri: () => this.renderAllKortGallery(),
+        });
 
         // Load user settings
         this.applyInnstillinger();

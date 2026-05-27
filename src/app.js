@@ -10,6 +10,7 @@ import { visToast } from './core/utils/feedback.js'; // Load feedback utilities 
 import { pwaInstaller } from './core/pwa/installer.js';
 import { createIOSPopup } from './core/pwa/ios-popup.js';
 import { tradeSystem } from './features/trade/trade-system.js';
+import { appHeader } from './core/navigation/app-header.js';
 
 /**
  * Global app state
@@ -159,6 +160,7 @@ function setupNavigationGuards() {
     router.afterEach((route) => {
         document.title = getPageTitle(route.path);
         window.scrollTo(0, 0);
+        _updateAppHeader(route.path);
     });
 }
 
@@ -201,6 +203,42 @@ async function loadUserData(userId) {
     } catch (error) {
         console.error('Error loading user data:', error);
     }
+}
+
+/**
+ * Oppdater AppHeader basert på rute (kun elev-sider)
+ */
+function _updateAppHeader(path) {
+    const teacherPaths = [ROUTES.TEACHER_HOME, ROUTES.CREATE_TEST, ROUTES.MY_TESTS, ROUTES.ANALYTICS, ROUTES.STANDARD_TESTS, ROUTES.GLOSEBANK];
+    const hiddenPaths  = [ROUTES.LANDING, ROUTES.LOGIN, '/'];
+
+    if (hiddenPaths.includes(path) || teacherPaths.some(p => path.startsWith(p))) {
+        appHeader.hide();
+        return;
+    }
+
+    const titles = {
+        [ROUTES.GLOSEMESTER]:       { title: 'GloseMester', showBack: false },
+        [ROUTES.PRACTICE]:          { title: 'Øv selv',     showBack: true  },
+        [ROUTES.QUIZ]:              { title: 'Prøve',       showBack: true  },
+        [ROUTES.GALLERY]:           { title: 'Galleri',     showBack: true  },
+        [ROUTES.PROFILE]:           { title: 'Min side',    showBack: true  },
+    };
+
+    const cfg = titles[path] || { title: 'GloseMester', showBack: true };
+    const user = window.GloseMester?.bruker;
+
+    appHeader.show({
+        ...cfg,
+        role: 'elev',
+        onLogout: async () => {
+            try {
+                const { loggUt } = await import('./core/auth/auth-service.js');
+                await loggUt();
+            } catch { router.push(ROUTES.LANDING); }
+        },
+        onSwitchRole: () => router.push(ROUTES.TEACHER_HOME),
+    });
 }
 
 /**

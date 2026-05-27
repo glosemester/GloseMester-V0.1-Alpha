@@ -228,15 +228,54 @@
     </div>
 
     <script type="module">
-        import { auth, db, doc, getDoc, onAuthStateChanged, signOut } from './js/features/firebase.js';
+        import { auth, db, doc, getDoc, updateDoc, serverTimestamp, onAuthStateChanged, signOut } from './js/features/firebase.js';
         import { visCookieInnstillinger, slettMinData, eksporterMinData } from './js/features/gdpr.js';
-        import { aktiverKampanjekode } from './js/app.js';
 
-        // Eksporter funksjoner til window-objektet
+        // Eksporter GDPR-funksjoner til window-objektet
         window.visCookieInnstillinger = visCookieInnstillinger;
         window.slettMinData = slettMinData;
         window.eksporterMinData = eksporterMinData;
-        window.aktiverKampanjekode = aktiverKampanjekode;
+
+        // Kampanjekode-aktivering (definert her siden js/app.js ikke eksporterer den)
+        window.aktiverKampanjekode = async function() {
+            const kodeElement = document.getElementById('kampanje-input');
+            if (!kodeElement) return;
+            const kode = kodeElement.value.trim().toUpperCase();
+            if (!kode) { alert('Skriv inn en kampanjekode'); return; }
+
+            const kampanjekoder = {
+                'BETA2026':   { type: 'premium',    dager: 90,  beskrivelse: 'Beta-testkode (90 dager)' },
+                'LANSERING':  { type: 'premium',    dager: 30,  beskrivelse: 'Lanseringskode (30 dager)' },
+                'TEST7':      { type: 'premium',    dager: 7,   beskrivelse: 'Testkode (7 dager)' },
+                'SKOLE2026':  { type: 'skolepakke', dager: 365, beskrivelse: 'Skolepakke (365 dager)' },
+                'SKOLEPILOT': { type: 'skolepakke', dager: 180, beskrivelse: 'Skolepilot (180 dager)' },
+                'SKOLETEST':  { type: 'skolepakke', dager: 30,  beskrivelse: 'Skoletest (30 dager)' }
+            };
+            const kampanje = kampanjekoder[kode];
+            if (!kampanje) { alert('Ugyldig kampanjekode: ' + kode); kodeElement.value = ''; return; }
+
+            const user = auth.currentUser;
+            if (!user) { alert('Du må være innlogget for å aktivere kampanjekode'); return; }
+
+            try {
+                const utloperDato = new Date();
+                utloperDato.setDate(utloperDato.getDate() + kampanje.dager);
+                const userRef = doc(db, 'users', user.uid);
+                await updateDoc(userRef, {
+                    'abonnement.type':           kampanje.type,
+                    'abonnement.status':         'active',
+                    'abonnement.utloper':        utloperDato,
+                    'abonnement.kampanjekode':   kode,
+                    'abonnement.sist_oppdatert': serverTimestamp()
+                });
+                alert(`✅ Kampanjekode aktivert!\n\n${kampanje.beskrivelse}\n\nDu har nå ${kampanje.type.toUpperCase()}-tilgang i ${kampanje.dager} dager.`);
+                kodeElement.value = '';
+                setTimeout(() => window.location.reload(), 2000);
+            } catch (err) {
+                console.error('Feil ved aktivering av kampanjekode:', err);
+                alert('Feil ved aktivering. Prøv igjen senere.');
+            }
+        };
 
         // Logg ut funksjon
         document.getElementById('logout-btn').addEventListener('click', async () => {
