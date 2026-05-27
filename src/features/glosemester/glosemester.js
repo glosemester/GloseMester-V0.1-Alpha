@@ -54,7 +54,7 @@ export class GloseMester extends FagModul {
         menuSystem.init();
         menuSystem.showMenu('elev', {
             onHome:    () => this.renderPracticeUI(),
-            onKort:    () => this.renderCollection(),
+            onKort:    () => this.renderGallery(),
             onGalleri: () => this.renderAllKortGallery(),
         });
 
@@ -140,12 +140,6 @@ export class GloseMester extends FagModul {
                 <header class="fag-header">
                     <h1>GloseMester</h1>
                     <p>Velg nivå for å begynne å øve</p>
-                    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
-                        <button id="vis-samling-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">Mine kort</button>
-                        <button id="vis-galleri-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">Galleri</button>
-                        <a href="mailto:kontakt@glosemester.no?subject=Hjelp%20med%20GloseMester" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;">❓ Hjelp</a>
-                        <button id="tilbake-btn" style="background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.5);color:white;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;cursor:pointer;">← Tilbake</button>
-                    </div>
                 </header>
 
                 <div class="level-grid">
@@ -203,9 +197,6 @@ export class GloseMester extends FagModul {
             });
         });
 
-        document.getElementById('vis-samling-btn')?.addEventListener('click', () => this.renderGallery());
-        document.getElementById('vis-galleri-btn')?.addEventListener('click', () => this.renderAllKortGallery());
-        document.getElementById('tilbake-btn')?.addEventListener('click', () => window.router.push('/'));
         const fab = document.getElementById('innstillinger-fab');
         if (fab) {
             fab.addEventListener('click', () => this.visInnstillinger());
