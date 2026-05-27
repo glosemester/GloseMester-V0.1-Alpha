@@ -1,7 +1,44 @@
 /* ============================================
    AUTH-SERVICE.JS - GloseMester v2.6
-   Google sign-in + Feide OAuth for lærere
+   Google sign-in + Feide OAuth for lærere og elever
    ============================================ */
+
+// Hjelper: er appen åpen som native Android/iOS-app?
+function erNativ() {
+    return !!(window.Capacitor?.isNativePlatform?.());
+}
+
+// Lytter på dype lenker (no.glosemester.app://auth?...) etter Feide-innlogging på mobil.
+// Kalles én gang ved oppstart av appen.
+export function initMobilFeideCallback() {
+    if (!erNativ()) return;
+    const { App } = window.Capacitor.Plugins;
+    if (!App) return;
+    App.addListener('appUrlOpen', async (data) => {
+        try {
+            const url = new URL(data.url);
+            if (url.protocol !== 'no.glosemester.app:') return;
+            const token = url.searchParams.get('token');
+            const rolle = url.searchParams.get('rolle');
+            const navn = url.searchParams.get('navn');
+            const feil = url.searchParams.get('error');
+            if (feil) {
+                console.error('Feide-innlogging feilet:', feil);
+                document.dispatchEvent(new CustomEvent('feide-innlogging-feil', { detail: { feil } }));
+                return;
+            }
+            if (!token) return;
+            const result = await signInWithCustomToken(auth, token);
+            const bruker = result.user;
+            const brukerData = await hentBrukerData(bruker.uid) || {};
+            document.dispatchEvent(new CustomEvent('feide-innlogging-ok', {
+                detail: { user: bruker, userData: brukerData, rolle, navn }
+            }));
+        } catch (err) {
+            console.error('Feil ved mobil Feide-callback:', err);
+        }
+    });
+}
 
 import {
     auth,
@@ -203,18 +240,33 @@ export function visLoginModal(melding = null) {
             }
         };
 
-        // Feide sign-in — redirect direkte til Feide OAuth (som i gammel versjon)
-        feideBtn.onclick = () => {
-            const redirectUri = window.location.origin + '/';
+        // Feide sign-in
+        feideBtn.onclick = async () => {
             const scope = 'openid userid-feide email userinfo-name groups-org groups-edu';
-            const authUrl =
-                `https://auth.dataporten.no/oauth/authorization` +
-                `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
-                `&response_type=code` +
-                `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-                `&scope=${encodeURIComponent(scope)}`;
-            sessionStorage.setItem('feideLoginProcess', 'true');
-            window.location.href = authUrl;
+
+            if (erNativ()) {
+                // Android: åpne Feide i Chrome Custom Tab, callback går via Netlify-funksjon
+                const redirectUri = 'https://glosemester.no/.netlify/functions/feide-mobile-auth';
+                const authUrl =
+                    `https://auth.dataporten.no/oauth/authorization` +
+                    `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
+                    `&response_type=code` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${encodeURIComponent(scope)}`;
+                const { Browser } = window.Capacitor.Plugins;
+                await Browser.open({ url: authUrl, windowName: '_self' });
+            } else {
+                // Web: vanlig redirect i nettleseren
+                const redirectUri = window.location.origin + '/';
+                const authUrl =
+                    `https://auth.dataporten.no/oauth/authorization` +
+                    `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
+                    `&response_type=code` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${encodeURIComponent(scope)}`;
+                sessionStorage.setItem('feideLoginProcess', 'true');
+                window.location.href = authUrl;
+            }
         };
     });
 }
