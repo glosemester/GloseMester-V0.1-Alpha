@@ -3,6 +3,18 @@
   publish = "."
 
 [[redirects]]
+  from = "/api/*"
+  to = "http://178.105.131.153/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/webhook/*"
+  to = "http://178.105.131.153/webhook/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
