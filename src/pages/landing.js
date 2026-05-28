@@ -103,7 +103,12 @@ export class Landing {
                 <!-- Footer -->
                 <footer class="landing-footer">
                     <p>© 2026 GloseMester</p>
-                    <p><a href="/personvern.html">Personvern</a> · <a href="/for-skoler.html">For skoler</a></p>
+                    <p>
+                        <a href="/faq.html">FAQ</a> ·
+                        <a href="/personvern.html">Personvern</a> ·
+                        <a href="/for-skoler.html">For skoler</a> ·
+                        <a href="/om-oss.html">Om oss</a>
+                    </p>
                 </footer>
             </div>
         `;
