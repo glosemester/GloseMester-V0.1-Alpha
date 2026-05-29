@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GloseMester — Stilguide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-primary:        #FF6B47;
+    --color-primary-hover:  #E85A38;
+    --color-primary-light:  #FFE8E3;
+    --color-secondary:      #4BAED4;
+    --color-secondary-hover:#3A9BBF;
+    --color-secondary-light:#E3F4FB;
+    --color-accent:         #FFB347;
+    --color-accent-light:   #FFF3E0;
+    --color-success:        #4CAF82;
+    --color-error:          #F45C5C;
+    --color-warning:        #FFB347;
+    --color-info:           #4BAED4;
+    --color-bg:             #FAFAF8;
+    --color-surface:        #FFFFFF;
+    --color-border:         #E8E5E0;
+    --color-text:           #1E1E2E;
+    --color-text-muted:     #6B7280;
+    --font-primary:         'Nunito', sans-serif;
+    --font-mono:            'JetBrains Mono', monospace;
+    --radius-sm:   6px;
+    --radius-md:   12px;
+    --radius-lg:   20px;
+    --radius-xl:   28px;
+    --radius-full: 999px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.10);
+    --shadow-lg:   0 8px 24px rgba(0,0,0,0.12);
+    --shadow-card: 0 2px 8px rgba(30,30,46,0.08);
+  }
+
+  [data-theme="dark"] {
+    --color-bg:          #1A1D2E;
+    --color-surface:     #242840;
+    --color-border:      #363A52;
+    --color-text:        #F0EEE9;
+    --color-text-muted:  #A0A8C0;
+    --shadow-card:       0 2px 8px rgba(0,0,0,0.30);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-primary);
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: background 0.3s, color 0.3s;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .sg-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .sg-logo {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .sg-logo span:first-child { color: var(--color-primary); }
+  .sg-logo span:last-child  { color: var(--color-text); }
+
+  .sg-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sg-badge {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+  }
+
+  .theme-toggle {
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .theme-toggle:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* ── LAYOUT ── */
+  .sg-nav {
+    position: fixed;
+    left: 0; top: 81px; bottom: 0;
+    width: 220px;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: 24px 0;
+    overflow-y: auto;
+  }
+
+  .sg-nav-section {
+    padding: 6px 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-top: 16px;
+  }
+
+  .sg-nav a {
+    display: block;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .sg-nav a:hover, .sg-nav a.active {
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  .sg-main {
+    margin-left: 220px;
+    padding: 48px 56px;
+    max-width: 960px;
+  }
+
+  /* ── SECTIONS ── */
+  .sg-section {
+    margin-bottom: 80px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .sg-section:nth-child(2) { animation-delay: 0.05s; }
+  .sg-section:nth-child(3) { animation-delay: 0.10s; }
+  .sg-section:nth-child(4) { animation-delay: 0.15s; }
+  .sg-section:nth-child(5) { animation-delay: 0.20s; }
+
+  .sg-section-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+  }
+
+  .sg-section h2 {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--color-text);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .sg-section-desc {
+    font-size: 16px;
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  /* ── COLOR SWATCHES ── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .color-swatch {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .color-swatch:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .color-swatch-preview {
+    height: 80px;
+    position: relative;
+  }
+
+  .color-swatch-preview .copy-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(0,0,0,0.2);
+  }
+  .color-swatch:hover .copy-hint { opacity: 1; }
+
+  .color-swatch-info {
+    background: var(--color-surface);
+    padding: 10px 12px;
+  }
+  .color-swatch-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+  .color-swatch-hex {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--color-text);
+    color: var(--color-bg);
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999;
+    pointer-events: none;
+  }
+  .copied-toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── TYPOGRAPHY ── */
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .type-row:last-child { border-bottom: none; }
+
+  .type-meta {
+    width: 140px;
+    flex-shrink: 0;
+  }
+  .type-label { font-size: 12px; font-weight: 700; color: var(--color-text-muted); }
+  .type-spec  { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); margin-top: 2px; }
+
+  .type-sample { flex: 1; color: var(--color-text); line-height: 1.2; }
+
+  /* ── BUTTONS ── */
+  .btn-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-primary);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    text-decoration: none;
+    line-height: 1;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(0.97); }
+
+  .btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(255,107,71,0.35);
+  }
+  .btn-primary:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 6px 20px rgba(255,107,71,0.45);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+  }
+  .btn-secondary:hover {
+    background: var(--color-secondary-light);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-muted);
+    border-color: var(--color-border);
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-text-muted);
+    color: var(--color-text);
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .btn-lg {
+    padding: 16px 32px;
+    font-size: 18px;
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    padding: 24px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .card p  { font-size: 14px; color: var(--color-text-muted); line-height: 1.5; margin-bottom: 16px; }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+
+  /* ── BADGES ── */
+  .badge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .badge-primary   { background: var(--color-primary-light);   color: var(--color-primary); }
+  .badge-secondary { background: var(--color-secondary-light); color: var(--color-secondary); }
+  .badge-accent    { background: var(--color-accent-light);    color: #C87800; }
+  .badge-success   { background: #E8F8F0; color: #2E7D56; }
+  .badge-error     { background: #FEE8E8; color: #C0292A; }
+  .badge-neutral   { background: var(--color-border); color: var(--color-text-muted); }
+
+  /* ── INPUTS ── */
+  .input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 400px;
+    margin-bottom: 32px;
+  }
+
+  .input-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .input-label { font-size: 14px; font-weight: 700; color: var(--color-text); }
+  .input-hint  { font-size: 13px; color: var(--color-text-muted); }
+  .input-error-msg { font-size: 13px; color: var(--color-error); }
+
+  .sg-input {
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 11px 16px;
+    font-family: var(--font-primary);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+    background: var(--color-surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    width: 100%;
+  }
+  .sg-input::placeholder { color: var(--color-text-muted); font-weight: 400; }
+  .sg-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(255,107,71,0.15);
+  }
+  .sg-input.error {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px rgba(244,92,92,0.12);
+  }
+  .sg-input.success {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 3px rgba(76,175,130,0.12);
+  }
+
+  /* ── PROGRESS / GAMIFICATION ── */
+  .progress-wrap {
+    margin-bottom: 32px;
+  }
+
+  .progress-row {
+    margin-bottom: 20px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label { font-size: 14px; font-weight: 700; }
+  .progress-value { font-size: 13px; font-weight: 800; color: var(--color-primary); }
+
+  .progress-track {
+    height: 12px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    transition: width 1s cubic-bezier(0.34,1.2,0.64,1);
+    position: relative;
+  }
+
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 40px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    from { opacity: 0; }
+    50%  { opacity: 1; }
+    to   { opacity: 0; }
+  }
+
+  .xp-card {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #FF8C6B 100%);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(255,107,71,0.35);
+  }
+
+  .xp-icon { font-size: 48px; line-height: 1; }
+
+  .xp-label { font-size: 13px; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; }
+  .xp-value { font-size: 40px; font-weight: 900; line-height: 1; }
+  .xp-sub   { font-size: 14px; opacity: 0.8; margin-top: 2px; }
+
+  .streak-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .streak-day {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--color-text-muted);
+    transition: all 0.2s;
+  }
+  .streak-day.done {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255,179,71,0.4);
+  }
+  .streak-day.today {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255,107,71,0.4);
+    transform: scale(1.1);
+  }
+
+  /* ── SPACING ── */
+  .spacing-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .spacing-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .spacing-block {
+    background: var(--color-primary-light);
+    border: 2px solid var(--color-primary);
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .spacing-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    min-width: 80px;
+  }
+
+  .spacing-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  /* ── RADIUS ── */
+  .radius-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .radius-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .radius-box {
+    width: 80px; height: 80px;
+    background: var(--color-secondary-light);
+    border: 3px solid var(--color-secondary);
+  }
+
+  .radius-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  /* ── TONE OF VOICE ── */
+  .tov-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .tov-card {
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 2px solid;
+  }
+  .tov-card.good  { background: #E8F8F0; border-color: var(--color-success); }
+  .tov-card.bad   { background: #FEE8E8; border-color: var(--color-error); }
+
+  .tov-header {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .tov-card.good .tov-header { color: #2E7D56; }
+  .tov-card.bad  .tov-header { color: #C0292A; }
+
+  .tov-message {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* ── SHADOWS ── */
+  .shadow-grid {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .shadow-item {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    width: 120px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--color-border);
+  }
+
+  .shadow-name { font-size: 12px; font-weight: 700; color: var(--color-text-muted); }
+
+  /* ── DIVIDER ── */
+  .sg-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: 32px 0;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--color-text);
+    color: #A8DAFF;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    overflow-x: auto;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .code-block .c-key   { color: #FF6B47; }
+  .code-block .c-val   { color: #4BAED4; }
+  .code-block .c-str   { color: #FFB347; }
+  .code-block .c-cmt   { color: #6B7280; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="copied-toast" id="toast">Kopiert! 📋</div>
+
+<!-- HEADER -->
+<header class="sg-header">
+  <div class="sg-logo">
+    <span>Glose</span><span>Mester</span>
+  </div>
+  <div class="sg-header-right">
+    <div class="sg-badge">Stilguide v1.0</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+      🌙 Mørkt tema
+    </button>
+  </div>
+</header>
+
+<!-- SIDEBAR NAV -->
+<nav class="sg-nav">
+  <div class="sg-nav-section">Identitet</div>
+  <a href="#colors" onclick="setActive(this)">🎨 Farger</a>
+  <a href="#typography" onclick="setActive(this)">📝 Typografi</a>
+  <a href="#spacing" onclick="setActive(this)">📐 Spacing & Radius</a>
+  <div class="sg-nav-section">Komponenter</div>
+  <a href="#buttons" onclick="setActive(this)">🔘 Knapper</a>
+  <a href="#badges" onclick="setActive(this)">🏷️ Badges</a>
+  <a href="#cards" onclick="setActive(this)">🃏 Kort</a>
+  <a href="#inputs" onclick="setActive(this)">✏️ Skjema</a>
+  <div class="sg-nav-section">Mønster</div>
+  <a href="#gamification" onclick="setActive(this)">⭐ Gamification</a>
+  <a href="#tov" onclick="setActive(this)">💬 Tone of Voice</a>
+  <a href="#shadows" onclick="setActive(this)">🌫️ Skygger</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="sg-main">
+
+  <!-- COLORS -->
+  <section class="sg-section" id="colors">
+    <div class="sg-section-title">Identitet</div>
+    <h2>Fargepalett</h2>
+    <p class="sg-section-desc">Klikk på en farge for å kopiere hex-koden. Korall er primærfargen — varm energi og motivasjon. Himmelblå bringer trygghet og informasjon.</p>
+
+    <div class="color-grid">
+      <div class="color-swatch" onclick="copyColor('#FF6B47', this)">
+        <div class="color-swatch-preview" style="background:#FF6B47">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Korall (Primær)</div>
+          <div class="color-swatch-hex">#FF6B47</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#4BAED4', this)">
+        <div class="color-swatch-preview" style="background:#4BAED4">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Himmelblå (Sekundær)</div>
+          <div class="color-swatch-hex">#4BAED4</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#FFB347', this)">
+        <div class="color-swatch-preview" style="background:#FFB347">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Amber (Aksent)</div>
+          <div class="color-swatch-hex">#FFB347</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#4CAF82', this)">
+        <div class="color-swatch-preview" style="background:#4CAF82">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Suksess</div>
+          <div class="color-swatch-hex">#4CAF82</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#F45C5C', this)">
+        <div class="color-swatch-preview" style="background:#F45C5C">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Feil</div>
+          <div class="color-swatch-hex">#F45C5C</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#FAFAF8', this)">
+        <div class="color-swatch-preview" style="background:#FAFAF8; border-bottom:1px solid #E8E5E0;">
+          <div class="copy-hint" style="color:rgba(30,30,46,0.6)">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Bakgrunn lys</div>
+          <div class="color-swatch-hex">#FAFAF8</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#1A1D2E', this)">
+        <div class="color-swatch-preview" style="background:#1A1D2E">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Bakgrunn mørk</div>
+          <div class="color-swatch-hex">#1A1D2E</div>
+        </div>
+      </div>
+      <div class="color-swatch" onclick="copyColor('#1E1E2E', this)">
+        <div class="color-swatch-preview" style="background:#1E1E2E">
+          <div class="copy-hint">Kopier</div>
+        </div>
+        <div class="color-swatch-info">
+          <div class="color-swatch-name">Tekst primær</div>
+          <div class="color-swatch-hex">#1E1E2E</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section class="sg-section" id="typography">
+    <div class="sg-section-title">Identitet</div>
+    <h2>Typografi</h2>
+    <p class="sg-section-desc">Nunito gjennom hele produktet. Runde bokstavformer signaliserer vennlighet og tilgjengelighet.</p>
+
+    <div style="margin-bottom: 32px;">
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">Display</div>
+          <div class="type-spec">40px / 900</div>
+        </div>
+        <div class="type-sample" style="font-size:40px;font-weight:900;">GloseMester 🎉</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">H1</div>
+          <div class="type-spec">32px / 800</div>
+        </div>
+        <div class="type-sample" style="font-size:32px;font-weight:800;">Dine gloseprøver</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">H2</div>
+          <div class="type-spec">24px / 700</div>
+        </div>
+        <div class="type-sample" style="font-size:24px;font-weight:700;">Nyeste resultater</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">H3</div>
+          <div class="type-spec">20px / 700</div>
+        </div>
+        <div class="type-sample" style="font-size:20px;font-weight:700;">Kapittel 4 — Dyr</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">Body large</div>
+          <div class="type-spec">18px / 500</div>
+        </div>
+        <div class="type-sample" style="font-size:18px;font-weight:500;line-height:1.6;">Gjennomsnittsskåre denne uken er 87 %. Bra jobbet, klassen! 📚</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">Body</div>
+          <div class="type-spec">16px / 400</div>
+        </div>
+        <div class="type-sample" style="font-size:16px;font-weight:400;line-height:1.6;color:var(--color-text-muted);">Legg til gloser ved å trykke på + nedenfor. Du kan importere fra tekstfil eller legge inn manuelt.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-label">Caption</div>
+          <div class="type-spec">12px / 500</div>
+        </div>
+        <div class="type-sample" style="font-size:12px;font-weight:500;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Sist oppdatert 2 min siden</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPACING & RADIUS -->
+  <section class="sg-section" id="spacing">
+    <div class="sg-section-title">Identitet</div>
+    <h2>Spacing & Radius</h2>
+    <p class="sg-section-desc">Konsistent spacing på tvers av alle komponenter. Bruk CSS-variablene — aldri hardkode pikselverdier.</p>
+
+    <div class="spacing-grid">
+      <div class="spacing-row">
+        <div class="spacing-label">--space-1</div>
+        <div class="spacing-block" style="width:4px;height:24px;"></div>
+        <div class="spacing-name">4px — Micro</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-2</div>
+        <div class="spacing-block" style="width:8px;height:24px;"></div>
+        <div class="spacing-name">8px — XSmall</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-3</div>
+        <div class="spacing-block" style="width:12px;height:24px;"></div>
+        <div class="spacing-name">12px — Small</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-4</div>
+        <div class="spacing-block" style="width:16px;height:24px;"></div>
+        <div class="spacing-name">16px — Medium</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-6</div>
+        <div class="spacing-block" style="width:24px;height:24px;"></div>
+        <div class="spacing-name">24px — Large (standard padding)</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-8</div>
+        <div class="spacing-block" style="width:32px;height:24px;"></div>
+        <div class="spacing-name">32px — XLarge</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-label">--space-12</div>
+        <div class="spacing-block" style="width:48px;height:24px;"></div>
+        <div class="spacing-name">48px — Section gap</div>
+      </div>
+    </div>
+
+    <div class="sg-divider"></div>
+
+    <div class="radius-grid">
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:6px;"></div>
+        <div class="radius-label">--radius-sm<br>6px</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:12px;"></div>
+        <div class="radius-label">--radius-md<br>12px</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:20px;"></div>
+        <div class="radius-label">--radius-lg<br>20px</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:28px;"></div>
+        <div class="radius-label">--radius-xl<br>28px</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:999px;"></div>
+        <div class="radius-label">--radius-full<br>999px (pille)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUTTONS -->
+  <section class="sg-section" id="buttons">
+    <div class="sg-section-title">Komponenter</div>
+    <h2>Knapper</h2>
+    <p class="sg-section-desc">Maks én primærknapp synlig per seksjon. Pilleform (border-radius: 999px) på alle knapper.</p>
+
+    <div class="btn-grid">
+      <button class="btn btn-primary">Start prøve ✨</button>
+      <button class="btn btn-secondary">Se resultater</button>
+      <button class="btn btn-ghost">Avbryt</button>
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn btn-primary btn-sm">Lagre</button>
+      <button class="btn btn-secondary btn-sm">Del</button>
+      <button class="btn btn-ghost btn-sm">Slett</button>
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn btn-primary btn-lg">Kom i gang 🚀</button>
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn btn-primary" disabled>Deaktivert</button>
+      <button class="btn btn-secondary" disabled>Deaktivert</button>
+    </div>
+  </section>
+
+  <!-- BADGES -->
+  <section class="sg-section" id="badges">
+    <div class="sg-section-title">Komponenter</div>
+    <h2>Badges & Tags</h2>
+    <p class="sg-section-desc">Brukes til status, kategorier og gamification-elementer. Alltid pillform.</p>
+
+    <div class="badge-grid">
+      <span class="badge badge-primary">🔥 Primær</span>
+      <span class="badge badge-secondary">ℹ️ Info</span>
+      <span class="badge badge-accent">⭐ Premium</span>
+      <span class="badge badge-success">✅ Godkjent</span>
+      <span class="badge badge-error">❌ Feil</span>
+      <span class="badge badge-neutral">Nøytral</span>
+      <span class="badge badge-primary">8. trinn</span>
+      <span class="badge badge-accent">🏆 Topp 3</span>
+      <span class="badge badge-success">42 gloser</span>
+      <span class="badge badge-secondary">Ny!</span>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="sg-section" id="cards">
+    <div class="sg-section-title">Komponenter</div>
+    <h2>Kort</h2>
+    <p class="sg-section-desc">Hovedelementet for å vise innhold. border-radius: 20px, subtil skygge og border.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon" style="background:var(--color-primary-light);">📚</div>
+        <h3>Kapittel 4 — Dyr</h3>
+        <p>32 gloser • Sist øvd for 2 dager siden</p>
+        <div class="card-meta">
+          <span class="badge badge-success">87% snitt</span>
+          <button class="btn btn-primary btn-sm">Øv nå</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:var(--color-secondary-light);">🌍</div>
+        <h3>Geografi — Europa</h3>
+        <p>48 gloser • Aldri øvd</p>
+        <div class="card-meta">
+          <span class="badge badge-neutral">Ikke startet</span>
+          <button class="btn btn-secondary btn-sm">Start</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:var(--color-accent-light);">🏆</div>
+        <h3>Standardprøve NB1</h3>
+        <p>Premium innhold • 60 gloser</p>
+        <div class="card-meta">
+          <span class="badge badge-accent">⭐ Premium</span>
+          <button class="btn btn-ghost btn-sm">Se mer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INPUTS -->
+  <section class="sg-section" id="inputs">
+    <div class="sg-section-title">Komponenter</div>
+    <h2>Skjemaelementer</h2>
+    <p class="sg-section-desc">Korall focus-ring, 2px border, runde hjørner. Feil vises alltid under feltet.</p>
+
+    <div class="input-grid">
+      <div class="input-wrap">
+        <label class="input-label">Prøvenavn</label>
+        <input class="sg-input" type="text" placeholder="F.eks. Kapittel 4 — Dyr">
+        <span class="input-hint">Navnet vises for elevene</span>
+      </div>
+      <div class="input-wrap">
+        <label class="input-label">Søk i glosebank</label>
+        <input class="sg-input" type="text" placeholder="Søk…" style="border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(255,107,71,0.15)">
+        <span class="input-hint">Focus-tilstand</span>
+      </div>
+      <div class="input-wrap">
+        <label class="input-label">E-post</label>
+        <input class="sg-input error" type="email" value="ugyldig-epost">
+        <span class="input-error-msg">⚠️ Ugyldig e-postadresse</span>
+      </div>
+      <div class="input-wrap">
+        <label class="input-label">Brukernavn</label>
+        <input class="sg-input success" type="text" value="oksvold">
+        <span style="font-size:13px;color:var(--color-success);">✅ Tilgjengelig!</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAMIFICATION -->
+  <section class="sg-section" id="gamification">
+    <div class="sg-section-title">Mønster</div>
+    <h2>Gamification</h2>
+    <p class="sg-section-desc">Fremgang, XP og streak er kjernen i motivasjonen. Bruk korall/amber-gradienter for poeng-elementer.</p>
+
+    <div class="xp-card">
+      <div class="xp-icon">⚡</div>
+      <div>
+        <div class="xp-label">Totalt XP</div>
+        <div class="xp-value">2 840</div>
+        <div class="xp-sub">+120 XP denne uken 🔥</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Kapittel 4 — Dyr</span>
+          <span class="progress-value">87%</span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" style="width:87%"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Geografi — Europa</span>
+          <span class="progress-value">42%</span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" style="width:42%"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-header">
+          <span class="progress-label">Standardprøve NB1</span>
+          <span class="progress-value">12%</span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" style="width:12%"></div></div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;font-weight:700;color:var(--color-text-muted);margin-bottom:12px;">🔥 Streak — 5 dager på rad</p>
+    <div class="streak-row">
+      <div class="streak-day done">M</div>
+      <div class="streak-day done">T</div>
+      <div class="streak-day done">O</div>
+      <div class="streak-day done">T</div>
+      <div class="streak-day today">F</div>
+      <div class="streak-day">L</div>
+      <div class="streak-day">S</div>
+    </div>
+  </section>
+
+  <!-- TONE OF VOICE -->
+  <section class="sg-section" id="tov">
+    <div class="sg-section-title">Mønster</div>
+    <h2>Tone of Voice</h2>
+    <p class="sg-section-desc">Alltid du/deg. Varm og direkte. Feire fremgang uten å overdrive.</p>
+
+    <div class="tov-grid">
+      <div class="tov-card good">
+        <div class="tov-header">✅ Slik</div>
+        <div class="tov-message">"Du har ikke lagt til gloser ennå 📚"</div>
+      </div>
+      <div class="tov-card bad">
+        <div class="tov-header">❌ Ikke slik</div>
+        <div class="tov-message">"Ingen data funnet i systemet."</div>
+      </div>
+      <div class="tov-card good">
+        <div class="tov-header">✅ Slik</div>
+        <div class="tov-message">"Lagret! 🎉"</div>
+      </div>
+      <div class="tov-card bad">
+        <div class="tov-header">❌ Ikke slik</div>
+        <div class="tov-message">"Operasjonen ble fullført."</div>
+      </div>
+      <div class="tov-card good">
+        <div class="tov-header">✅ Slik</div>
+        <div class="tov-message">"Noe gikk galt — prøv igjen?"</div>
+      </div>
+      <div class="tov-card bad">
+        <div class="tov-header">❌ Ikke slik</div>
+        <div class="tov-message">"En feil oppstod. Kode: 403."</div>
+      </div>
+      <div class="tov-card good">
+        <div class="tov-header">✅ Slik</div>
+        <div class="tov-message">"Hei! La oss lage din første gloseprøve."</div>
+      </div>
+      <div class="tov-card bad">
+        <div class="tov-header">❌ Ikke slik</div>
+        <div class="tov-message">"Velkommen til systemet. Konfigurer din konto."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHADOWS -->
+  <section class="sg-section" id="shadows">
+    <div class="sg-section-title">Mønster</div>
+    <h2>Skygger</h2>
+    <p class="sg-section-desc">Myke, subtile skygger. Sterkere skygge = høyere hierarki.</p>
+
+    <div class="shadow-grid">
+      <div>
+        <div class="shadow-item" style="box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+          <span class="shadow-name">sm</span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-muted);margin-top:8px;text-align:center;">--shadow-sm</div>
+      </div>
+      <div>
+        <div class="shadow-item" style="box-shadow:0 4px 12px rgba(0,0,0,0.10)">
+          <span class="shadow-name">md</span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-muted);margin-top:8px;text-align:center;">--shadow-md</div>
+      </div>
+      <div>
+        <div class="shadow-item" style="box-shadow:0 8px 24px rgba(0,0,0,0.12)">
+          <span class="shadow-name">lg</span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-muted);margin-top:8px;text-align:center;">--shadow-lg</div>
+      </div>
+      <div>
+        <div class="shadow-item" style="box-shadow:0 2px 8px rgba(30,30,46,0.08)">
+          <span class="shadow-name">card</span>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-muted);margin-top:8px;text-align:center;">--shadow-card</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+    document.getElementById('themeBtn').textContent = isDark ? '🌙 Mørkt tema' : '☀️ Lyst tema';
+  }
+
+  function copyColor(hex, el) {
+    navigator.clipboard.writeText(hex).catch(() => {});
+    const toast = document.getElementById('toast');
+    toast.textContent = `Kopiert ${hex} 📋`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function setActive(el) {
+    document.querySelectorAll('.sg-nav a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Highlight active nav on scroll
+  const sections = document.querySelectorAll('.sg-section');
+  const navLinks = document.querySelectorAll('.sg-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }, { passive: true });
+
+  // Animate progress bars on load
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+      const w = bar.style.width;
+      bar.style.width = '0';
+      setTimeout(() => bar.style.width = w, 300);
+    });
+  });
+</script>
+</body>
+</html>

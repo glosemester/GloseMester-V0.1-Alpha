@@ -1,150 +1,102 @@
 /* ============================================
    FAGVELGER — Startsiden i appen (utlogget)
-   Animert logo-header, ingen emoji
+   Animert logo: G dropper ned + GloseMester fader inn
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
 import { visLoginModal } from '../core/auth/auth-service.js';
 
-/* SVG-ikoner (ingen emoji) */
-const ICON_BOOK = `
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M4 6C4 4.9 4.9 4 6 4H14C15.1 4 16 4.9 16 6V26C16 26 13 24 10 24H6C4.9 24 4 23.1 4 22V6Z" fill="#FF6B47" opacity="0.15"/>
-  <path d="M28 6C28 4.9 27.1 4 26 4H18C16.9 4 16 4.9 16 6V26C16 26 19 24 22 24H26C27.1 24 28 23.1 28 22V6Z" fill="#FF6B47" opacity="0.25"/>
-  <path d="M6 4H14C15.1 4 16 4.9 16 6V26C13.5 24.5 10.5 24 8 24H6C4.9 24 4 23.1 4 22V6C4 4.9 4.9 4 6 4Z" stroke="#FF6B47" stroke-width="1.5" fill="none"/>
-  <path d="M26 4H18C16.9 4 16 4.9 16 6V26C18.5 24.5 21.5 24 24 24H26C27.1 24 28 23.1 28 22V6C28 4.9 27.1 4 26 4Z" stroke="#FFB347" stroke-width="1.5" fill="none"/>
-  <line x1="16" y1="6" x2="16" y2="26" stroke="#E85A38" stroke-width="1.5"/>
-  <line x1="8" y1="10" x2="14" y2="10" stroke="#FF6B47" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
-  <line x1="8" y1="14" x2="14" y2="14" stroke="#FF6B47" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-  <line x1="18" y1="10" x2="24" y2="10" stroke="#FFB347" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
-  <line x1="18" y1="14" x2="24" y2="14" stroke="#FFB347" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-</svg>`;
-
-const ICON_STAR = `
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M8 1L9.5 6H14.5L10.5 9L12 14L8 11L4 14L5.5 9L1.5 6H6.5L8 1Z" fill="#FFB347"/>
-</svg>`;
-
-const ICON_ROCKET = `
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2C12 2 7 6 7 13H17C17 6 12 2 12 2Z" fill="white" fill-opacity="0.9"/>
-  <path d="M9 13V16C9 17.1 9.9 18 11 18H13C14.1 18 15 17.1 15 16V13H9Z" fill="white" fill-opacity="0.7"/>
-  <circle cx="12" cy="9" r="2" fill="#FFB347"/>
-  <path d="M7 13C5.5 13 4 14.5 4 16L7 16V13Z" fill="white" fill-opacity="0.5"/>
-  <path d="M17 13C18.5 13 20 14.5 20 16H17V13Z" fill="white" fill-opacity="0.5"/>
-</svg>`;
-
-const ICON_SCHOOL = `
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3Z" fill="currentColor" opacity="0.8"/>
-  <path d="M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" fill="currentColor" opacity="0.5"/>
-</svg>`;
-
 const LOGO_CSS = `
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+
+.gm-page {
+  min-height: 100vh;
+  background: #FAFAF8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 60px;
+  font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
+}
+
+/* ── Logo-seksjon ── */
 .gm-hero {
   text-align: center;
   margin-bottom: 44px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.gm-icon-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 72px; height: 72px;
-  background: linear-gradient(145deg, #FFF5F2, #FFEEE8);
-  border-radius: 22px;
-  border: 1.5px solid rgba(255,107,71,0.2);
-  margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(255,107,71,0.15);
-  animation: iconBounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+.gm-bounce-g {
+  width: 140px;
+  height: auto;
+  transform-origin: bottom center;
+  animation: bounceInLand 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  filter: drop-shadow(0 8px 20px rgba(255,107,71,0.25));
+}
+
+@keyframes bounceInLand {
+  0%   { opacity: 0; transform: translateY(-420px) scaleY(1.1); }
+  60%  { opacity: 1; transform: translateY(0) scaleY(0.82) scaleX(1.1); }
+  75%  { transform: translateY(-48px) scaleY(1.08); }
+  88%  { transform: translateY(0) scaleY(0.96) scaleX(1.02); }
+  94%  { transform: translateY(-10px) scaleY(1.01); }
+  100% { transform: translateY(0) scaleY(1) scaleX(1); }
 }
 
 .gm-wordmark {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0;
   font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-  font-size: clamp(38px, 10vw, 56px);
+  font-size: clamp(36px, 9vw, 52px);
   font-weight: 900;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   line-height: 1;
-  margin-bottom: 6px;
-}
-
-.gm-word-glose {
-  color: #FF6B47;
-  display: inline-flex;
-}
-
-.gm-word-mester {
-  color: #1E1E2E;
-  display: inline-flex;
-}
-
-.gm-letter {
-  display: inline-block;
+  margin: 12px 0 0 0;
   opacity: 0;
-  transform: translateY(24px);
-  animation: letterUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--i) * 55ms + 200ms);
+  animation: textFadeUp 0.6s ease forwards;
+  animation-delay: 1.1s;
 }
 
-.gm-letter-drop {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(-20px);
-  animation: letterDrop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--i) * 55ms + 560ms);
-}
-
-.gm-underline-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
-  height: 3px;
-}
+.gm-wordmark-glose  { color: #FF6B47; }
+.gm-wordmark-mester { color: #1E1E2E; }
 
 .gm-underline {
-  width: 0;
   height: 3px;
+  width: 0;
   background: linear-gradient(90deg, #FF6B47, #FFB347);
   border-radius: 999px;
-  animation: lineGrow 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: 1.05s;
+  margin-top: 8px;
+  animation: lineGrow 0.45s ease forwards;
+  animation-delay: 1.55s;
 }
 
 .gm-tagline {
-  font-size: 15px;
-  color: #6B7280;
-  margin: 0;
-  letter-spacing: 0.01em;
+  font-size: 14px;
+  color: #9CA3AF;
+  letter-spacing: 0.04em;
+  margin: 10px 0 0 0;
   opacity: 0;
-  animation: taglineFade 0.6s ease forwards;
-  animation-delay: 1.2s;
+  animation: textFadeUp 0.5s ease forwards;
+  animation-delay: 1.75s;
 }
 
-@keyframes iconBounceIn {
-  from { opacity: 0; transform: scale(0.5); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes letterUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes letterDrop {
-  to { opacity: 1; transform: translateY(0); }
+@keyframes textFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes lineGrow {
-  to { width: 120px; }
+  to { width: 180px; }
 }
 
-@keyframes taglineFade {
-  to { opacity: 1; }
+/* ── Kort ── */
+.gm-cards {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .gm-card {
@@ -152,187 +104,200 @@ const LOGO_CSS = `
   border: 1px solid #E8E5E0;
   border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(30,30,46,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(30,30,46,0.07);
   position: relative;
   overflow: hidden;
   opacity: 0;
-  transform: translateY(16px);
-  animation: cardFadeUp 0.5s ease forwards;
+  transform: translateY(14px);
+  animation: cardIn 0.45s ease forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.gm-card:nth-child(1) { animation-delay: 1.85s; }
+.gm-card:nth-child(2) { animation-delay: 2.0s; }
+.gm-card:nth-child(3) { animation-delay: 2.15s; }
 
-.gm-card:nth-child(1) { animation-delay: 1.3s; }
-.gm-card:nth-child(2) { animation-delay: 1.45s; }
-.gm-card:nth-child(3) { animation-delay: 1.6s; }
-
-@keyframes cardFadeUp {
+@keyframes cardIn {
   to { opacity: 1; transform: translateY(0); }
 }
 
 .gm-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(255,107,71,0.14);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255,107,71,0.12);
 }
 
-.gm-card-topbar {
+.gm-card-stripe {
   position: absolute; top: 0; left: 0; right: 0; height: 4px;
   background: linear-gradient(90deg, #FF6B47, #FFB347);
   border-radius: 20px 20px 0 0;
 }
 
-.gm-btn-primary {
+.gm-fag-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.gm-fag-icon {
+  width: 46px; height: 46px;
+  background: linear-gradient(145deg, #FFE8E3, #FFF5F2);
+  border-radius: 13px;
+  border: 1.5px solid rgba(255,107,71,0.18);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.gm-fag-name {
+  font-size: 17px; font-weight: 800;
+  color: #1E1E2E; margin-bottom: 3px;
+}
+
+.gm-fag-meta {
+  font-size: 13px; color: #9CA3AF;
+}
+
+.gm-btn {
   width: 100%; padding: 14px;
-  background: #FF6B47;
-  color: white; border: none;
-  border-radius: 999px;
+  border: none; border-radius: 999px;
   font-family: 'Nunito', sans-serif;
   font-size: 15px; font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(255,107,71,0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
-.gm-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255,107,71,0.45);
-}
+.gm-btn:hover  { transform: translateY(-2px); }
+.gm-btn:active { transform: scale(0.98); }
 
-.gm-btn-secondary {
-  width: 100%; padding: 12px;
+.gm-btn-primary {
+  background: #FF6B47; color: #fff;
+  box-shadow: 0 4px 16px rgba(255,107,71,0.32);
+}
+.gm-btn-primary:hover { box-shadow: 0 8px 24px rgba(255,107,71,0.44); }
+
+.gm-btn-ghost {
   background: transparent;
   color: #FF6B47;
   border: 2px solid #FF6B47;
-  border-radius: 999px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 14px; font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease;
 }
-.gm-btn-secondary:hover { background: #FFE8E3; }
+.gm-btn-ghost:hover { background: #FFE8E3; }
 
 .gm-install-btn {
   display: none; width: 100%; padding: 12px;
-  background: #FFFFFF;
-  border: 1px solid #E8E5E0;
-  border-radius: 999px;
+  background: #FFFFFF; border: 1px solid #E8E5E0;
+  border-radius: 999px; cursor: pointer;
   font-family: 'Nunito', sans-serif;
-  font-size: 14px; font-weight: 600;
-  color: #6B7280; cursor: pointer;
-  transition: background 0.15s ease;
+  font-size: 14px; font-weight: 600; color: #9CA3AF;
 }
-.gm-install-btn:hover { background: #F5F5F3; }
+
+.gm-teacher-link {
+  margin-top: 28px; text-align: center;
+}
+.gm-teacher-link a {
+  font-size: 13px; font-weight: 600;
+  color: #9CA3AF; text-decoration: none;
+  border-bottom: 1px solid #E8E5E0; padding-bottom: 2px;
+}
+.gm-teacher-link a:hover { color: #6B7280; }
+
+footer.gm-footer {
+  margin-top: auto; padding-top: 48px;
+  text-align: center;
+  font-size: 12px; color: #C4C4C4;
+}
+footer.gm-footer a {
+  color: #C4C4C4; text-decoration: none; margin: 0 6px;
+}
+footer.gm-footer a:hover { color: #9CA3AF; }
 </style>
 `;
+
+/* SVG-ikoner */
+const BOOK_SVG = `<svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+  <path d="M6 4H14C15.1 4 16 4.9 16 6V26C13.5 24.5 10.5 24 8 24H6C4.9 24 4 23.1 4 22V6C4 4.9 4.9 4 6 4Z" stroke="#FF6B47" stroke-width="1.5" fill="rgba(255,107,71,0.08)"/>
+  <path d="M26 4H18C16.9 4 16 4.9 16 6V26C18.5 24.5 21.5 24 24 24H26C27.1 24 28 23.1 28 22V6C28 4.9 27.1 4 26 4Z" stroke="#FFB347" stroke-width="1.5" fill="rgba(255,179,71,0.08)"/>
+  <line x1="16" y1="6" x2="16" y2="26" stroke="#E85A38" stroke-width="1.5"/>
+  <line x1="8" y1="11" x2="14" y2="11" stroke="#FF6B47" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="8" y1="15" x2="13" y2="15" stroke="#FF6B47" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+  <line x1="18" y1="11" x2="24" y2="11" stroke="#FFB347" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="18" y1="15" x2="23" y2="15" stroke="#FFB347" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+</svg>`;
 
 export class Landing {
     static render() {
         const container = document.getElementById('app');
         if (!container) return;
 
-        const gloseLetters = 'Glose'.split('').map((l, i) =>
-            `<span class="gm-letter" style="--i:${i}">${l}</span>`
-        ).join('');
-
-        const mesterLetters = 'Mester'.split('').map((l, i) =>
-            `<span class="gm-letter-drop" style="--i:${i}">${l}</span>`
-        ).join('');
-
         container.innerHTML = `
             ${LOGO_CSS}
-            <div style="
-                min-height: 100vh;
-                background: #FAFAF8;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 48px 20px 60px;
-                font-family: 'Nunito', sans-serif;
-            ">
-                <!-- Animert logo-header -->
+            <div class="gm-page">
+
+                <!-- ── ANIMERT LOGO ── -->
                 <header class="gm-hero">
-                    <div class="gm-icon-wrap">
-                        ${ICON_BOOK}
-                    </div>
 
-                    <div class="gm-wordmark" aria-label="GloseMester">
-                        <span class="gm-word-glose">${gloseLetters}</span>
-                        <span class="gm-word-mester">${mesterLetters}</span>
-                    </div>
+                    <!-- Stor G som faller ned og spretter -->
+                    <svg class="gm-bounce-g" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M65,23 C60,20 53,20 48,25 C40,33 34,48 35,63 C36,73 42,80 50,79 C59,78 65,71 67,61 C69,51 64,48 56,48 C48,48 44,52 44,52"
+                              stroke="#FF6B47" stroke-width="6.5"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
 
-                    <div class="gm-underline-wrap">
-                        <div class="gm-underline"></div>
-                    </div>
+                    <!-- GloseMester -->
+                    <h1 class="gm-wordmark">
+                        <span class="gm-wordmark-glose">Glose</span><span class="gm-wordmark-mester">Mester</span>
+                    </h1>
 
-                    <p class="gm-tagline">Lær gloser · Samle kort · Bli mester</p>
+                    <!-- Underline tegner seg -->
+                    <div class="gm-underline"></div>
+
+                    <!-- Tagline -->
+                    <p class="gm-tagline">Lær gloser &middot; Samle kort &middot; Bli mester</p>
                 </header>
 
-                <!-- Innhold -->
-                <div style="width:100%; max-width:420px; display:flex; flex-direction:column; gap:14px;">
+                <!-- ── FAGKORT ── -->
+                <div class="gm-cards">
 
-                    <!-- Fagkort -->
                     <div class="gm-card">
-                        <div class="gm-card-topbar"></div>
-                        <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
-                            <div style="
-                                width:48px; height:48px;
-                                background: linear-gradient(145deg, #FFE8E3, #FFF5F2);
-                                border-radius:14px;
-                                border: 1.5px solid rgba(255,107,71,0.2);
-                                display:flex; align-items:center; justify-content:center;
-                                flex-shrink:0;
-                            ">${ICON_BOOK}</div>
+                        <div class="gm-card-stripe"></div>
+                        <div class="gm-fag-row">
+                            <div class="gm-fag-icon">${BOOK_SVG}</div>
                             <div>
-                                <div style="font-size:18px; font-weight:800; color:#1E1E2E; margin-bottom:3px;">GloseMester</div>
-                                <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:#6B7280;">
-                                    ${ICON_STAR}
-                                    Engelsk · 4 nivåer · 150+ samlekort
-                                </div>
+                                <div class="gm-fag-name">GloseMester</div>
+                                <div class="gm-fag-meta">Engelsk &middot; 4 nivåer &middot; 150+ samlekort</div>
                             </div>
                         </div>
-                        <button id="start-glosemester-btn" class="gm-btn-primary">
-                            ${ICON_ROCKET}
+                        <button id="start-glosemester-btn" class="gm-btn gm-btn-primary">
                             Start øving — gratis
                         </button>
                     </div>
 
-                    <!-- Logg inn -->
                     <div class="gm-card">
-                        <p style="font-size:14px; color:#6B7280; margin:0 0 12px; text-align:center;">
+                        <p style="font-size:14px; color:#9CA3AF; margin:0 0 12px; text-align:center;">
                             Logg inn for å lagre fremgang og XP
                         </p>
-                        <button id="logg-inn-btn" class="gm-btn-secondary">
+                        <button id="logg-inn-btn" class="gm-btn gm-btn-ghost">
                             Logg inn / Registrer
                         </button>
                     </div>
 
-                    <!-- PWA install -->
                     <button id="pwa-install-btn" class="gm-install-btn">
                         Installer app
                     </button>
                 </div>
 
-                <!-- Lærer-lenke -->
-                <div style="margin-top:32px; text-align:center;">
-                    <a href="/for-laerere.html" style="
-                        display:inline-flex; align-items:center; gap:6px;
-                        font-size:13px; font-weight:600;
-                        color:#6B7280; text-decoration:none;
-                        border-bottom:1px solid #E8E5E0; padding-bottom:2px;
-                    ">
-                        ${ICON_SCHOOL}
-                        Er du lærer? Se lærerdashboard →
-                    </a>
+                <!-- ── LÆRER-LENKE ── -->
+                <div class="gm-teacher-link">
+                    <a href="/for-laerere.html">Er du lærer? Se lærerdashboard →</a>
                 </div>
 
-                <!-- Footer -->
-                <footer style="margin-top:auto; padding-top:48px; text-align:center;">
-                    <p style="font-size:12px; color:#9CA3AF; margin:0 0 6px;">© 2026 GloseMester</p>
-                    <p style="font-size:12px; margin:0; display:flex; gap:12px; justify-content:center;">
-                        <a href="/personvern.html" style="color:#9CA3AF; text-decoration:none;">Personvern</a>
-                        <a href="/vilkar.html" style="color:#9CA3AF; text-decoration:none;">Vilkår</a>
-                        <a href="/om-oss.html" style="color:#9CA3AF; text-decoration:none;">Om oss</a>
+                <!-- ── FOOTER ── -->
+                <footer class="gm-footer">
+                    <p style="margin:0 0 6px;">© 2026 GloseMester</p>
+                    <p style="margin:0;">
+                        <a href="/personvern.html">Personvern</a>
+                        <a href="/vilkar.html">Vilkår</a>
+                        <a href="/om-oss.html">Om oss</a>
                     </p>
                 </footer>
+
             </div>
         `;
 
