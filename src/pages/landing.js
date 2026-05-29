@@ -164,7 +164,7 @@ export class Landing {
         document.getElementById('logg-inn-btn')
             ?.addEventListener('click', async () => {
                 try {
-                    await visLoginModal();
+                    await visLoginModal(null, 'elev');
                     router.push(ROUTES.HJEM);
                 } catch {
                     // Bruker avbrøt

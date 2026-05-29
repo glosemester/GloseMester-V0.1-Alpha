@@ -125,7 +125,7 @@ export async function hentBrukerData(uid) {
  * som løser seg når brukeren er innlogget.
  * @returns {Promise<{user, userData}>}
  */
-export function visLoginModal(melding = null) {
+export function visLoginModal(melding = null, rolle = 'laerer') {
     return new Promise((resolve, reject) => {
         // Fjern evt. eksisterende modal
         document.getElementById('auth-modal')?.remove();
@@ -157,13 +157,15 @@ export function visLoginModal(melding = null) {
                     cursor: pointer; color: #999; line-height: 1;
                 " aria-label="Lukk">✕</button>
 
-                <div style="font-size: 56px; margin-bottom: 12px;">🎓</div>
-                <h2 style="font-family: 'Outfit', system-ui; font-size: 24px; font-weight: 800; margin-bottom: 8px; color: #1F2937;">
-                    Logg inn som lærer
+                <div style="font-size: 56px; margin-bottom: 12px;">${rolle === 'laerer' ? '🎓' : '📚'}</div>
+                <h2 style="font-family: 'Nunito', system-ui; font-size: 24px; font-weight: 800; margin-bottom: 8px; color: #1E1E2E;">
+                    ${rolle === 'laerer' ? 'Logg inn som lærer' : 'Logg inn'}
                 </h2>
                 ${melding ? `<p style="color:#666;font-size:14px;margin-bottom:16px;">${melding}</p>` : ''}
                 <p style="color: #6B7280; font-size: 15px; margin-bottom: 28px;">
-                    Logg inn for å lage prøver, se resultater og dele med elever.
+                    ${rolle === 'laerer'
+                        ? 'Logg inn for å lage prøver, se resultater og dele med elever.'
+                        : 'Logg inn for å lagre fremgang, XP og samlekort.'}
                 </p>
 
                 <!-- Feide (primær) -->
