@@ -58,7 +58,7 @@
     padding: 10px 14px;
     margin-bottom: 16px;
 }
-.trade-offered-label { font-size: 13px; color: #7C3AED; font-weight: 600; white-space: nowrap; }
+.trade-offered-label { font-size: 13px; color: #FF6B47; font-weight: 600; white-space: nowrap; }
 .trade-mini-card { display: flex; align-items: center; gap: 8px; }
 .trade-mini-card img { width: 36px; height: 54px; object-fit: cover; border-radius: 6px; }
 .trade-mini-card span { font-size: 13px; font-weight: 600; color: #1d1d1f; }
@@ -84,7 +84,7 @@
     background: #f5f5f7;
 }
 .trade-pick-card:hover:not(.trade-pick-disabled) {
-    border-color: #7C3AED;
+    border-color: #FF6B47;
     transform: translateY(-2px);
 }
 .trade-pick-disabled { opacity: 0.4; cursor: not-allowed; }
@@ -151,7 +151,7 @@
     letter-spacing: 0.05em;
 }
 .trade-swap-name { font-size: 13px; font-weight: 600; color: #1d1d1f; margin: 0; }
-.trade-swap-arrow { font-size: 28px; color: #7C3AED; flex-shrink: 0; }
+.trade-swap-arrow { font-size: 28px; color: #FF6B47; flex-shrink: 0; }
 .trade-swap-missing-label { font-size: 11px; color: #ef4444; font-weight: 600; margin-top: 4px; }
 
 /* Trade code display */
@@ -161,7 +161,7 @@
     font-size: 38px;
     font-weight: 800;
     letter-spacing: 8px;
-    color: #7C3AED;
+    color: #FF6B47;
     background: #f9f5ff;
     border-radius: 16px;
     padding: 16px 20px;
@@ -170,8 +170,8 @@
 }
 .trade-copy-btn {
     background: none;
-    border: 1.5px solid #7C3AED;
-    color: #7C3AED;
+    border: 1.5px solid #FF6B47;
+    color: #FF6B47;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 13px;
@@ -211,7 +211,7 @@
 /* Buttons */
 .trade-btn-primary {
     padding: 13px;
-    background: #7C3AED;
+    background: #FF6B47;
     color: white;
     border: none;
     border-radius: 12px;
@@ -220,7 +220,7 @@
     cursor: pointer;
     transition: background 0.15s, opacity 0.15s;
 }
-.trade-btn-primary:hover:not(:disabled) { background: #6D28D9; }
+.trade-btn-primary:hover:not(:disabled) { background: #E85A38; }
 .trade-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .trade-btn-secondary {
@@ -248,11 +248,11 @@
     margin-bottom: 8px;
     outline: none;
     font-family: 'JetBrains Mono', 'Courier New', monospace;
-    color: #7C3AED;
+    color: #FF6B47;
     box-sizing: border-box;
     transition: border-color 0.15s;
 }
-.trade-code-input:focus { border-color: #7C3AED; }
+.trade-code-input:focus { border-color: #FF6B47; }
 
 /* ── Trade onboarding ──────────────────────────────────────── */
 
@@ -312,8 +312,8 @@
     padding: 14px 20px;
     font-size: 28px;
 }
-.trade-ob-card-mini span { font-size: 11px; color: #7C3AED; font-weight: 600; }
-.trade-ob-arrows { font-size: 26px; color: #7C3AED; }
+.trade-ob-card-mini span { font-size: 11px; color: #FF6B47; font-weight: 600; }
+.trade-ob-arrows { font-size: 26px; color: #FF6B47; }
 
 /* Flyt-illustrasjon (steg 2 og 3) */
 .trade-ob-flow {
@@ -339,7 +339,7 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: #7C3AED;
+    background: #FF6B47;
     color: white;
     font-size: 13px;
     font-weight: 700;
@@ -347,13 +347,13 @@
     align-items: center;
     justify-content: center;
 }
-.trade-ob-step-highlight .trade-ob-step-num { background: #7C3AED; }
+.trade-ob-step-highlight .trade-ob-step-num { background: #FF6B47; }
 .trade-ob-code-preview {
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 2px;
-    color: #7C3AED;
+    color: #FF6B47;
     background: #f9f5ff;
     border: 1.5px solid #d8b4fe;
     border-radius: 6px;
@@ -378,7 +378,7 @@
     transition: background 0.2s, transform 0.2s;
 }
 .trade-ob-dot.active {
-    background: #7C3AED;
+    background: #FF6B47;
     transform: scale(1.25);
 }
 
@@ -402,13 +402,13 @@
     padding: 8px 12px;
     outline: none;
     font-family: 'JetBrains Mono', 'Courier New', monospace;
-    color: #7C3AED;
+    color: #FF6B47;
     background: white;
     transition: border-color 0.15s;
 }
-.trade-responder-bar input:focus { border-color: #7C3AED; }
+.trade-responder-bar input:focus { border-color: #FF6B47; }
 .trade-responder-bar button {
-    background: #7C3AED;
+    background: #FF6B47;
     color: white;
     border: none;
     border-radius: 10px;
@@ -419,4 +419,4 @@
     white-space: nowrap;
     transition: background 0.15s;
 }
-.trade-responder-bar button:hover { background: #6D28D9; }
+.trade-responder-bar button:hover { background: #E85A38; }

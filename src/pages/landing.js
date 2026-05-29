@@ -1,119 +1,154 @@
 /* ============================================
-   LANDING PAGE - GloseMester Fagvelger
-   GloseMester v2.6
+   FAGVELGER — Startsiden i appen (utlogget)
+   Ingen marketing-hero. Ren fagvelger.
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
 import { visLoginModal } from '../core/auth/auth-service.js';
 
-/**
- * Landing page - Fagvelger (kun GloseMester)
- */
 export class Landing {
     static render() {
         const container = document.getElementById('app');
-
-        if (!container) {
-            console.error('App container not found');
-            return;
-        }
+        if (!container) return;
 
         container.innerHTML = `
-            <div class="landing-page blob-bg">
+            <div style="
+                min-height: 100vh;
+                background: var(--color-bg, #FAFAF8);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 40px 20px 60px;
+                font-family: var(--font-primary, 'Nunito', sans-serif);
+            ">
 
-                <!-- Navbar -->
-                <nav style="
-                    position: sticky; top: 0; z-index: 100;
-                    background: rgba(255,255,255,0.92);
-                    backdrop-filter: blur(12px);
-                    border-bottom: 1px solid rgba(124,58,237,0.12);
-                    padding: 0 20px;
-                    display: flex; align-items: center; justify-content: space-between;
-                    height: 56px;
-                ">
-                    <span style="font-family:'Nunito',system-ui;font-size:18px;font-weight:800;color:#FF6B47;">🎓 GloseMester</span>
-                    <div style="display:flex;gap:4px;align-items:center;">
-                        <a href="/for-skoler.html" style="padding:8px 12px;border-radius:99px;text-decoration:none;font-size:13px;font-weight:600;color:#6b7280;">For skoler</a>
-                        <a href="/faq.html" style="padding:8px 12px;border-radius:99px;text-decoration:none;font-size:13px;font-weight:600;color:#6b7280;">FAQ</a>
-                        <button id="logg-inn-btn" style="
-                            padding:8px 16px;background:#FF6B47;border:none;
-                            border-radius:99px;font-size:13px;font-weight:700;
-                            color:white;cursor:pointer;
-                        ">Logg inn</button>
-                    </div>
-                </nav>
+                <!-- Logo -->
+                <div style="text-align:center; margin-bottom: 40px;">
+                    <div style="font-size: 40px; margin-bottom: 12px;">📚</div>
+                    <h1 style="
+                        font-size: 32px; font-weight: 900;
+                        color: var(--color-text, #1E1E2E);
+                        margin: 0 0 6px 0; letter-spacing: -0.02em;
+                    ">
+                        <span style="color: var(--color-primary, #FF6B47);">Glose</span>Mester
+                    </h1>
+                    <p style="
+                        font-size: 15px; color: var(--color-text-muted, #6B7280);
+                        margin: 0;
+                    ">Lær gloser. Samle kort. Bli mester.</p>
+                </div>
 
-                <!-- Hero Header -->
-                <header class="landing-header" style="position: relative; z-index: 1;">
-                    <div class="landing-eyebrow">
-                        🎓 Læringsplattform for norske skoler
-                    </div>
-                    <h1>GloseMester</h1>
-                    <p>Lær engelske gloser, samle samlekort og mestre språket — på en morsom måte!</p>
-                </header>
+                <!-- Fagkort -->
+                <div style="width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px;">
 
-                <!-- Fag Grid — kun GloseMester -->
-                <div class="fag-grid single" style="position: relative; z-index: 1;">
-                    <div class="fag-card fag-card-active" id="fag-gloser" data-fag="gloser">
+                    <!-- GloseMester -->
+                    <div id="fag-gloser" style="
+                        background: var(--color-surface, #FFFFFF);
+                        border: 1px solid var(--color-border, #E8E5E0);
+                        border-radius: var(--radius-lg, 20px);
+                        padding: 28px 24px;
+                        cursor: pointer;
+                        box-shadow: var(--shadow-card, 0 2px 8px rgba(30,30,46,0.08));
+                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                        position: relative; overflow: hidden;
+                    "
+                    onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(255,107,71,0.15)'"
+                    onmouseleave="this.style.transform='';this.style.boxShadow='var(--shadow-card)'">
 
-                        <!-- Dekor-element -->
+                        <!-- Topstrek -->
                         <div style="
-                            position: absolute;
-                            top: -30px; right: -30px;
-                            width: 140px; height: 140px;
-                            border-radius: 50%;
-                            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
-                            pointer-events: none;
+                            position: absolute; top: 0; left: 0; right: 0; height: 4px;
+                            background: linear-gradient(90deg, #FF6B47, #FFB347);
+                            border-radius: 20px 20px 0 0;
                         "></div>
 
-                        <span class="fag-ikon">📚</span>
-
-                        <p>Samle over 150 unike samlekort, bygg din samling og lær gloser mens du spiller!</p>
-
-                        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; text-align: left;">
-                            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: hsl(258, 15%, 40%);">
-                                <span style="font-size: 18px;">🃏</span> 150+ unike samlekort (Biler, Dyr, Dinosaurer, Guder)
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: hsl(258, 15%, 40%);">
-                                <span style="font-size: 18px;">♻️</span> Panteordning — bytt dubletter mot diamanter
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: hsl(258, 15%, 40%);">
-                                <span style="font-size: 18px;">🎓</span> Lærerdashboard med QR-kodede prøver
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 14px;">
+                            <span style="font-size: 36px; line-height: 1;">📖</span>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 800; color: var(--color-text, #1E1E2E); margin-bottom: 2px;">GloseMester</div>
+                                <div style="font-size: 13px; color: var(--color-text-muted, #6B7280);">Engelsk · 4 nivåer · 150+ samlekort</div>
                             </div>
                         </div>
 
-                        <button class="btn btn-primary btn-lg" style="width: 100%;" id="start-glosemester-btn">
-                            🚀 Start øving — det er gratis
+                        <button id="start-glosemester-btn" style="
+                            width: 100%; padding: 14px;
+                            background: var(--color-primary, #FF6B47);
+                            color: white; border: none;
+                            border-radius: var(--radius-full, 999px);
+                            font-family: var(--font-primary, 'Nunito', sans-serif);
+                            font-size: 15px; font-weight: 700;
+                            cursor: pointer;
+                            box-shadow: 0 4px 16px rgba(255,107,71,0.35);
+                            transition: transform 0.2s ease, box-shadow 0.2s ease;
+                        "
+                        onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(255,107,71,0.45)'"
+                        onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(255,107,71,0.35)'">
+                            🚀 Start øving — gratis
                         </button>
                     </div>
-                </div>
 
-                <!-- PWA Install Button -->
-                <div style="text-align: center; margin: 16px auto 0; max-width: 400px; padding: 0 20px; position: relative; z-index: 1;">
-                    <button
-                        id="pwa-install-btn"
-                        class="btn btn-secondary"
-                        style="display: none; width: 100%;"
-                    >
-                        📲 Installer App
+                    <!-- Logg inn / Registrer -->
+                    <div style="
+                        background: var(--color-surface, #FFFFFF);
+                        border: 1px solid var(--color-border, #E8E5E0);
+                        border-radius: var(--radius-lg, 20px);
+                        padding: 20px 24px;
+                        box-shadow: var(--shadow-card, 0 2px 8px rgba(30,30,46,0.08));
+                        text-align: center;
+                    ">
+                        <p style="font-size: 14px; color: var(--color-text-muted, #6B7280); margin: 0 0 14px 0;">
+                            Logg inn for å lagre fremgang og XP
+                        </p>
+                        <button id="logg-inn-btn" style="
+                            width: 100%; padding: 12px;
+                            background: transparent;
+                            color: var(--color-primary, #FF6B47);
+                            border: 2px solid var(--color-primary, #FF6B47);
+                            border-radius: var(--radius-full, 999px);
+                            font-family: var(--font-primary, 'Nunito', sans-serif);
+                            font-size: 14px; font-weight: 700;
+                            cursor: pointer;
+                            transition: background 0.15s ease;
+                        "
+                        onmouseenter="this.style.background='var(--color-primary-light, #FFE8E3)'"
+                        onmouseleave="this.style.background='transparent'">
+                            Logg inn / Registrer
+                        </button>
+                    </div>
+
+                    <!-- PWA install -->
+                    <button id="pwa-install-btn" style="display:none; width:100%; padding:12px;
+                        background: var(--color-surface, #FFFFFF);
+                        border: 1px solid var(--color-border, #E8E5E0);
+                        border-radius: var(--radius-full, 999px);
+                        font-family: var(--font-primary, 'Nunito', sans-serif);
+                        font-size: 14px; font-weight: 600;
+                        color: var(--color-text-muted, #6B7280);
+                        cursor: pointer;">
+                        📲 Installer app
                     </button>
                 </div>
 
-                <!-- For skoler / Vil du vite mer -->
-                <div style="text-align:center;margin:16px auto 0;padding:0 20px;">
-                    <a href="/for-skoler.html" style="display:inline-block;color:hsl(258,15%,45%);font-size:14px;text-decoration:none;padding:8px 0;border-bottom:1px dashed hsl(258,15%,70%);">
-                        🏫 Er du lærer eller skole? Se priser og funksjoner →
-                    </a>
+                <!-- Lærer-lenke -->
+                <div style="margin-top: 32px; text-align: center;">
+                    <a href="/for-laerere.html" style="
+                        font-size: 13px; font-weight: 600;
+                        color: var(--color-text-muted, #6B7280);
+                        text-decoration: none;
+                        border-bottom: 1px solid var(--color-border, #E8E5E0);
+                        padding-bottom: 2px;
+                    ">🏫 Er du lærer? Se lærerdashboard →</a>
                 </div>
 
                 <!-- Footer -->
-                <footer class="landing-footer">
-                    <p>© 2026 GloseMester</p>
-                    <p>
-                        <a href="/faq.html">FAQ</a> ·
-                        <a href="/personvern.html">Personvern</a> ·
-                        <a href="/for-skoler.html">For skoler</a> ·
-                        <a href="/om-oss.html">Om oss</a>
+                <footer style="margin-top: auto; padding-top: 48px; text-align: center;">
+                    <p style="font-size: 12px; color: var(--color-text-muted, #6B7280); margin: 0 0 6px;">© 2026 GloseMester</p>
+                    <p style="font-size: 12px; margin: 0;">
+                        <a href="/personvern.html" style="color: var(--color-text-muted, #6B7280); text-decoration: none;">Personvern</a>
+                        &nbsp;·&nbsp;
+                        <a href="/vilkar.html" style="color: var(--color-text-muted, #6B7280); text-decoration: none;">Vilkår</a>
+                        &nbsp;·&nbsp;
+                        <a href="/om-oss.html" style="color: var(--color-text-muted, #6B7280); text-decoration: none;">Om oss</a>
                     </p>
                 </footer>
             </div>
@@ -123,21 +158,19 @@ export class Landing {
     }
 
     static attachEventListeners() {
-        const startBtn   = document.getElementById('start-glosemester-btn');
-        const loggInnBtn = document.getElementById('logg-inn-btn');
+        document.getElementById('start-glosemester-btn')
+            ?.addEventListener('click', () => router.push(ROUTES.GLOSEMESTER));
 
-        startBtn?.addEventListener('click', () => router.push(ROUTES.GLOSEMESTER));
-
-        loggInnBtn?.addEventListener('click', async () => {
-            try {
-                await visLoginModal();
-                router.push(ROUTES.HJEM);
-            } catch {
-                // Bruker avbrøt innlogging
-            }
-        });
+        document.getElementById('logg-inn-btn')
+            ?.addEventListener('click', async () => {
+                try {
+                    await visLoginModal();
+                    router.push(ROUTES.HJEM);
+                } catch {
+                    // Bruker avbrøt
+                }
+            });
     }
 }
 
-// Make globally available
 window.Landing = Landing;

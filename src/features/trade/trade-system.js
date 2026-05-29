@@ -202,7 +202,7 @@ class TradeSystem {
                 <div style="text-align:center;padding:12px 0 20px;">
                     <img src="${offered.image}" alt="${offered.name}"
                         style="width:120px;height:180px;object-fit:cover;border-radius:14px;
-                               box-shadow:0 8px 24px rgba(124,58,237,0.2);">
+                               box-shadow:0 8px 24px rgba(255,107,71,0.2);">
                     <p style="margin:12px 0 4px;font-size:18px;font-weight:800;color:#1d1d1f;">${offered.name}</p>
                     <p style="margin:0;font-size:13px;font-weight:600;color:${config.farge};">${config.emoji} ${RARITY_LABELS[offered.rarity] || offered.rarity}</p>
                 </div>
@@ -844,7 +844,7 @@ class TradeSystem {
                         <div style="animation:tradeAnim_flip 0.65s ease 0.95s both;transform-style:preserve-3d;">
                             <img src="${fikKort.image}" alt="${fikKort.name}"
                                 style="width:120px;height:180px;object-fit:cover;border-radius:14px;
-                                       box-shadow:0 8px 32px rgba(124,58,237,0.5),0 0 0 3px rgba(167,139,250,0.4);
+                                       box-shadow:0 8px 32px rgba(255,107,71,0.5),0 0 0 3px rgba(255,179,71,0.4);
                                        display:block;">
                         </div>
                         <span style="color:white;font-size:12px;font-weight:700;margin-top:8px;

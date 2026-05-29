@@ -41,13 +41,13 @@ export class FagStart {
                         border-radius: 50px;
                         padding: 10px 20px;
                         font-size: 14px; font-weight: 600;
-                        color: hsl(258, 40%, 30%);
+                        color: var(--color-text, #1E1E2E);
                         cursor: pointer;
-                        box-shadow: 0 2px 12px rgba(124,58,237,0.12);
+                        box-shadow: 0 2px 12px rgba(255,107,71,0.12);
                         transition: transform 0.15s, box-shadow 0.15s;
                     "
-                    onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(124,58,237,0.2)'"
-                    onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(124,58,237,0.12)'">
+                    onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,107,71,0.2)'"
+                    onmouseleave="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(255,107,71,0.12)'">
                         <span style="font-size:16px;">←</span> Tilbake
                     </button>
                 </div>
@@ -79,7 +79,7 @@ export class FagStart {
                 <p style="
                     text-align: center;
                     font-size: 15px;
-                    color: hsl(258, 25%, 45%);
+                    color: var(--color-text-muted, #6B7280);
                     margin: 14px auto 22px;
                     max-width: 460px;
                     padding: 0 16px;

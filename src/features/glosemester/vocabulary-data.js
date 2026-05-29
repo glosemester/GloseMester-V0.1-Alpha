@@ -18,32 +18,32 @@ export const vocabularyData = {
     "niva1": [
         // --- SUPERENKLE SUBSTANTIV MED BILDER (40 ord) ---
         // Dyr (10)
-        {s:"Hund",e:"Dog",image:"images/dyr/007-valp.png"},
-        {s:"Katt",e:"Cat",image:"images/dyr/006-kattunge.png"},
-        {s:"Hest",e:"Horse"},{s:"Ku",e:"Cow"},{s:"Gris",e:"Pig"},
-        {s:"Sau",e:"Sheep"},{s:"Fugl",e:"Bird"},{s:"Fisk",e:"Fish"},
-        {s:"Mus",e:"Mouse",image:"images/dyr/009-mus.png"},
-        {s:"And",e:"Duck",image:"images/dyr/008-and.png"},
+        {k:"dyr",s:"Hund",e:"Dog",image:"images/dyr/007-valp.png"},
+        {k:"dyr",s:"Katt",e:"Cat",image:"images/dyr/006-kattunge.png"},
+        {k:"dyr",s:"Hest",e:"Horse"},{k:"dyr",s:"Ku",e:"Cow"},{k:"dyr",s:"Gris",e:"Pig"},
+        {k:"dyr",s:"Sau",e:"Sheep"},{k:"dyr",s:"Fugl",e:"Bird"},{k:"dyr",s:"Fisk",e:"Fish"},
+        {k:"dyr",s:"Mus",e:"Mouse",image:"images/dyr/009-mus.png"},
+        {k:"dyr",s:"And",e:"Duck",image:"images/dyr/008-and.png"},
 
         // Familie (5)
-        {s:"Mor",e:"Mother"},{s:"Far",e:"Father"},{s:"Baby",e:"Baby"},
-        {s:"Gutt",e:"Boy"},{s:"Jente",e:"Girl"},
+        {k:"familie",s:"Mor",e:"Mother"},{k:"familie",s:"Far",e:"Father"},{k:"familie",s:"Baby",e:"Baby"},
+        {k:"familie",s:"Gutt",e:"Boy"},{k:"familie",s:"Jente",e:"Girl"},
 
         // Farger (8)
-        {s:"Rød",e:"Red"},{s:"Blå",e:"Blue"},{s:"Grønn",e:"Green"},
-        {s:"Gul",e:"Yellow"},{s:"Svart",e:"Black"},{s:"Hvit",e:"White"},
-        {s:"Rosa",e:"Pink"},{s:"Brun",e:"Brown"},
+        {k:"farge",s:"Rød",e:"Red"},{k:"farge",s:"Blå",e:"Blue"},{k:"farge",s:"Grønn",e:"Green"},
+        {k:"farge",s:"Gul",e:"Yellow"},{k:"farge",s:"Svart",e:"Black"},{k:"farge",s:"Hvit",e:"White"},
+        {k:"farge",s:"Rosa",e:"Pink"},{k:"farge",s:"Brun",e:"Brown"},
 
         // Tall (10)
-        {s:"En",e:"One"},{s:"To",e:"Two"},{s:"Tre",e:"Three"},
-        {s:"Fire",e:"Four"},{s:"Fem",e:"Five"},{s:"Seks",e:"Six"},
-        {s:"Syv",e:"Seven"},{s:"Åtte",e:"Eight"},{s:"Ni",e:"Nine"},{s:"Ti",e:"Ten"},
+        {k:"tall",s:"En",e:"One"},{k:"tall",s:"To",e:"Two"},{k:"tall",s:"Tre",e:"Three"},
+        {k:"tall",s:"Fire",e:"Four"},{k:"tall",s:"Fem",e:"Five"},{k:"tall",s:"Seks",e:"Six"},
+        {k:"tall",s:"Syv",e:"Seven"},{k:"tall",s:"Åtte",e:"Eight"},{k:"tall",s:"Ni",e:"Nine"},{k:"tall",s:"Ti",e:"Ten"},
 
         // Mat & Drikke (4)
-        {s:"Eple",e:"Apple"},{s:"Banan",e:"Banana"},{s:"Melk",e:"Milk"},{s:"Vann",e:"Water"},
+        {k:"mat",s:"Eple",e:"Apple"},{k:"mat",s:"Banan",e:"Banana"},{k:"mat",s:"Melk",e:"Milk"},{k:"mat",s:"Vann",e:"Water"},
 
         // Kropp (3)
-        {s:"Hode",e:"Head"},{s:"Hånd",e:"Hand"},{s:"Fot",e:"Foot"}
+        {k:"kropp",s:"Hode",e:"Head"},{k:"kropp",s:"Hånd",e:"Hand"},{k:"kropp",s:"Fot",e:"Foot"}
     ],
 
     "niva2": [

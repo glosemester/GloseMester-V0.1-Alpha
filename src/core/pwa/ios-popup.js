@@ -165,7 +165,7 @@ export function createIOSPopup() {
 
             <!-- Success message -->
             <div style="
-                background: rgba(124, 58, 237, 0.1);
+                background: rgba(255, 107, 71, 0.1);
                 padding: 12px;
                 border-radius: var(--radius-md, 20px);
                 margin-bottom: 20px;

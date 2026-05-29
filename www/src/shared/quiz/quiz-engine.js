@@ -70,8 +70,8 @@ export async function startQuiz(prove, containerSelector = '#app') {
             if (cached) { resolve(); return; }
 
             container.innerHTML = `
-                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--background,#F5F3FF);">
-                    <div style="background:white;border-radius:24px;padding:40px 32px;max-width:400px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(124,58,237,0.10);">
+                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--background,#FAFAF8);">
+                    <div style="background:white;border-radius:24px;padding:40px 32px;max-width:400px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(255,107,71,0.10);">
                         <div style="font-size:52px;margin-bottom:12px;">📝</div>
                         <h2 style="font-family:'Outfit',system-ui;font-size:24px;font-weight:800;color:#1F2937;margin-bottom:6px;">${prove.tittel || 'Prøve'}</h2>
                         <p style="color:#6B7280;font-size:15px;margin-bottom:24px;">Hva heter du?</p>
@@ -170,7 +170,7 @@ function visSporsmal(state, container) {
             </div>
 
             <!-- Spørsmålskort -->
-            <div class="playful-card" style="background:white; border-radius:24px; padding:36px 28px; text-align:center; box-shadow:0 8px 32px rgba(124,58,237,0.08);">
+            <div class="playful-card" style="background:white; border-radius:24px; padding:36px 28px; text-align:center; box-shadow:0 8px 32px rgba(255,107,71,0.08);">
                 <div style="font-size:13px; color:#9CA3AF; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">
                     ${fagLabel(prove.fag)} · Nivå ${prove.niva || '?'}
                 </div>

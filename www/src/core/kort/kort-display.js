@@ -396,7 +396,7 @@ export class KortGalleri {
 
         // Summary header
         this.container.innerHTML = `
-            <div style="margin-bottom:20px;padding:16px;background:rgba(124,58,237,0.08);border-radius:16px;text-align:center;">
+            <div style="margin-bottom:20px;padding:16px;background:rgba(255,107,71,0.08);border-radius:16px;text-align:center;">
                 <span style="font-size:22px;font-weight:700;color:#FF6B47;">${stats.unique}</span>
                 <span style="color:#888;font-size:15px;"> / ${totalAvailable} unike kort vunnet</span>
                 <div style="margin-top:8px;background:#e5e7eb;border-radius:99px;height:8px;max-width:300px;margin-left:auto;margin-right:auto;">

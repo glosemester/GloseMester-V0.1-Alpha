@@ -749,7 +749,7 @@ export class GloseMester extends FagModul {
         }
 
         container.innerHTML = `
-            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: var(--radius-md, 20px);">
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(255, 107, 71, 0.1); border-radius: var(--radius-md, 20px);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-dark, #1F2937);">
                     <span>NESTE KORT:</span>
                     <span>${filledBoxes} / 10</span>
@@ -853,7 +853,7 @@ export class GloseMester extends FagModul {
             background:linear-gradient(135deg,#FF6B47,#FFB347);
             color:white;border-radius:20px;padding:14px 24px;
             font-weight:700;font-size:15px;z-index:9998;
-            box-shadow:0 8px 32px rgba(124,58,237,0.4);
+            box-shadow:0 8px 32px rgba(255,107,71,0.4);
             white-space:nowrap;opacity:0;
             transition:opacity 0.3s,transform 0.3s;
         `;
@@ -883,7 +883,7 @@ export class GloseMester extends FagModul {
         const mangler = Math.max(0, xpNeeded - xpSinceLast);
 
         return `
-            <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(124,58,237,0.08);border:1.5px solid rgba(124,58,237,0.12);">
+            <div style="background:white;border-radius:20px;padding:20px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(255,107,71,0.08);border:1.5px solid rgba(255,107,71,0.12);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                     <span style="font-weight:700;font-size:15px;color:#1d1d1f;">Fremgang mot neste trade</span>
                     <span style="font-size:14px;font-weight:700;color:#FF6B47;">${xpSinceLast} / ${xpNeeded}</span>
@@ -930,7 +930,7 @@ export class GloseMester extends FagModul {
         if (totalXP < 20) { container.innerHTML = ''; return; }
 
         container.innerHTML = `
-            <div style="padding:10px 12px;background:rgba(124,58,237,0.07);border-radius:14px;margin-bottom:8px;">
+            <div style="padding:10px 12px;background:rgba(255,107,71,0.07);border-radius:14px;margin-bottom:8px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px;font-weight:700;color:#FF6B47;">
                     <span>♻️ Mot neste byttemønt</span>
                     <span>${xpSinceLast} / ${xpNeeded}</span>
