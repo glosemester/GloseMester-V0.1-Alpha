@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>Offline - GloseMester</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .offline-container {
+            max-width: 500px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .tips {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tips h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        .tips ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .tips li {
+            padding: 8px 0;
+            opacity: 0.9;
+        }
+
+        .tips li:before {
+            content: "✓ ";
+            color: #30d158;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .offline-icon {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon" role="img" aria-label="Offline ikon">📡</div>
+
+        <h1>Du er offline</h1>
+
+        <p>
+            Ingen internettforbindelse akkurat nå. Sjekk nettverket ditt og prøv igjen.
+        </p>
+
+        <button class="btn" onclick="window.location.reload()">
+            Prøv igjen
+        </button>
+
+        <div class="tips">
+            <h2>💡 Tips:</h2>
+            <ul>
+                <li>Sjekk Wi-Fi eller mobildata</li>
+                <li>Prøv å åpne en annen nettside</li>
+                <li>Noen funksjoner fungerer offline</li>
+                <li>Vi lagrer dine data lokalt</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Automatically retry when online
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+
+        // Show online status
+        if (navigator.onLine) {
+            document.body.innerHTML = `
+                <div class="offline-container">
+                    <div class="offline-icon">✅</div>
+                    <h1>Tilbake online!</h1>
+                    <p>Laster inn siden...</p>
+                </div>
+            `;
+            setTimeout(() => window.location.reload(), 1000);
+        }
+    </script>
+</body>
+</html>

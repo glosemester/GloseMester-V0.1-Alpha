@@ -1,0 +1,286 @@
+/* ============================================
+   STANDARDPRØVER CSS
+   v0.7.0-BETA
+   ============================================ */
+
+.standard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.standard-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.standard-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #1d1d1f;
+}
+
+.standard-header .undertekst {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Filter */
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding: 15px;
+  background: #f5f5f7;
+  border-radius: 12px;
+}
+
+.filter-container label {
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.filter-container select {
+  padding: 8px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+/* Nivå headers */
+.nivaa-header {
+  font-size: 1.2rem;
+  color: #0071e3;
+  margin: 30px 0 20px 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Standardprøve-kort */
+.standard-kort {
+  background: white;
+  border: 1px solid #d2d2d7;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.standard-kort:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.kort-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.kort-header h3 {
+  font-size: 1.2rem;
+  color: #1d1d1f;
+  margin: 0;
+}
+
+.vanskelighet {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.vanskelighet-lett {
+  background: #d1f4e0;
+  color: #0a7d3e;
+}
+
+.vanskelighet-middels {
+  background: #fff4d1;
+  color: #9d6c00;
+}
+
+.vanskelighet-vanskelig {
+  background: #ffd1d1;
+  color: #c41e3a;
+}
+
+.kort-metadata {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.kort-beskrivelse {
+  color: #1d1d1f;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.kort-stats {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f5f5f7;
+  border-radius: 8px;
+}
+
+.kort-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+/* Preview Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #1d1d1f;
+}
+
+/* Ordliste preview */
+.ordliste-preview {
+  background: #f5f5f7;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.ord-rad {
+  display: grid;
+  grid-template-columns: 30px 1fr 30px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.ord-nummer {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.ord-norsk {
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.ord-pil {
+  color: #0071e3;
+  text-align: center;
+}
+
+.ord-engelsk {
+  color: #666;
+}
+
+/* Oppgraderingsmelding */
+.oppgrader-melding {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f5f5f7;
+  border-radius: 12px;
+  margin-top: 30px;
+}
+
+.oppgrader-melding h2 {
+  color: #1d1d1f;
+  margin-bottom: 20px;
+}
+
+.oppgrader-melding ul {
+  list-style: none;
+  padding: 0;
+}
+
+.oppgrader-melding li {
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* Melding */
+.melding {
+  text-align: center;
+  padding: 40px;
+  background: #f5f5f7;
+  border-radius: 12px;
+  color: #666;
+}
+
+.melding.error {
+  background: #ffd1d1;
+  color: #c41e3a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .standard-container {
+    padding: 15px;
+  }
+
+  .kort-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .kort-actions {
+    flex-direction: column;
+  }
+
+  .kort-actions button {
+    width: 100%;
+  }
+
+  .ord-rad {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .ord-nummer,
+  .ord-pil {
+    display: none;
+  }
+}
