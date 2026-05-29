@@ -73,13 +73,47 @@
         }
 
         #loading-screen {
-            position: fixed; inset: 0; background: var(--background, #F5F3FF);
+            position: fixed; inset: 0; background: #FAFAF8;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 9999; transition: opacity 0.4s;
+            font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
         }
-        #loading-screen .logo { font-size: 72px; margin-bottom: 16px; animation: pulse 1.5s infinite; }
-        #loading-screen p { font-family: var(--font-heading, 'Outfit', system-ui); font-size: 20px; font-weight: 700; color: var(--primary-purple, #7C3AED); }
-        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        #loading-screen .ls-g {
+            width: 110px; height: auto;
+            transform-origin: bottom center;
+            animation: lsBounce 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            filter: drop-shadow(0 6px 16px rgba(255,107,71,0.28));
+        }
+        @keyframes lsBounce {
+            0%   { opacity: 0; transform: translateY(-320px) scaleY(1.1); }
+            60%  { opacity: 1; transform: translateY(0) scaleY(0.82) scaleX(1.1); }
+            75%  { transform: translateY(-36px) scaleY(1.08); }
+            88%  { transform: translateY(0) scaleY(0.96) scaleX(1.02); }
+            94%  { transform: translateY(-8px) scaleY(1.01); }
+            100% { transform: translateY(0) scaleY(1) scaleX(1); }
+        }
+        #loading-screen .ls-wordmark {
+            font-size: 32px; font-weight: 900;
+            letter-spacing: -0.025em; line-height: 1;
+            margin: 10px 0 0;
+            opacity: 0;
+            animation: lsFadeUp 0.5s ease forwards;
+            animation-delay: 0.9s;
+        }
+        #loading-screen .ls-glose  { color: #FF6B47; }
+        #loading-screen .ls-mester { color: #1E1E2E; }
+        #loading-screen .ls-underline {
+            height: 3px; width: 0;
+            background: linear-gradient(90deg, #FF6B47, #FFB347);
+            border-radius: 999px; margin-top: 6px;
+            animation: lsLine 0.4s ease forwards;
+            animation-delay: 1.3s;
+        }
+        @keyframes lsFadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes lsLine { to { width: 140px; } }
     </style>
 
     <!-- Google Analytics 4 -->
@@ -94,8 +128,15 @@
 <body>
     <!-- Loading screen -->
     <div id="loading-screen">
-        <div class="logo">🎓</div>
-        <p>GloseMester laster…</p>
+        <svg class="ls-g" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M65,23 C60,20 53,20 48,25 C40,33 34,48 35,63 C36,73 42,80 50,79 C59,78 65,71 67,61 C69,51 64,48 56,48 C48,48 44,52 44,52"
+                  stroke="#FF6B47" stroke-width="6.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="ls-wordmark">
+            <span class="ls-glose">Glose</span><span class="ls-mester">Mester</span>
+        </div>
+        <div class="ls-underline"></div>
     </div>
 
     <!-- Main SPA container -->

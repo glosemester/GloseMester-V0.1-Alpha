@@ -4,7 +4,7 @@
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
-import { visLoginModal } from '../core/auth/auth-service.js';
+import { visStartOvingModal } from '../core/auth/auth-service.js';
 
 const LOGO_CSS = `
 <style>
@@ -269,15 +269,6 @@ export class Landing {
                         </button>
                     </div>
 
-                    <div class="gm-card">
-                        <p style="font-size:14px; color:#9CA3AF; margin:0 0 12px; text-align:center;">
-                            Logg inn for å lagre fremgang og XP
-                        </p>
-                        <button id="logg-inn-btn" class="gm-btn gm-btn-ghost">
-                            Logg inn / Registrer
-                        </button>
-                    </div>
-
                     <button id="pwa-install-btn" class="gm-install-btn">
                         Installer app
                     </button>
@@ -306,14 +297,11 @@ export class Landing {
 
     static attachEventListeners() {
         document.getElementById('start-glosemester-btn')
-            ?.addEventListener('click', () => router.push(ROUTES.GLOSEMESTER));
-
-        document.getElementById('logg-inn-btn')
             ?.addEventListener('click', async () => {
                 try {
-                    await visLoginModal(null, 'elev');
-                    router.push(ROUTES.HJEM);
+                    await visStartOvingModal();
                 } catch { /* avbrøt */ }
+                router.push(ROUTES.GLOSEMESTER);
             });
     }
 }

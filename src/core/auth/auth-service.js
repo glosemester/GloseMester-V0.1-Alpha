@@ -330,4 +330,129 @@ export async function handleFeideCallback() {
     return { user, userData };
 }
 
+/**
+ * Vis "Start øving"-modal: Feide-innlogging eller fortsett som gjest.
+ * @returns {Promise<{user, userData}|null>} null = gjest, objekt = innlogget
+ */
+export function visStartOvingModal() {
+    return new Promise((resolve, reject) => {
+        document.getElementById('start-oving-modal')?.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'start-oving-modal';
+        modal.style.cssText = `
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 24px;
+                padding: 36px 28px 28px;
+                max-width: 380px;
+                width: 92%;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+                text-align: center;
+                position: relative;
+                font-family: 'Nunito', system-ui, sans-serif;
+            ">
+                <button id="so-close-btn" style="
+                    position: absolute; top: 14px; right: 14px;
+                    background: none; border: none; font-size: 20px;
+                    cursor: pointer; color: #bbb; line-height: 1;
+                " aria-label="Lukk">✕</button>
+
+                <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="margin: 0 auto 14px; display:block;">
+                    <rect width="52" height="52" rx="16" fill="#FFE8E3"/>
+                    <path d="M14 14H24C24.55 14 25 14.45 25 15V37C22.9 35.8 20.4 35.5 18 35.5H14C13.45 35.5 13 35.05 13 34.5V15C13 14.45 13.45 14 14 14Z" stroke="#FF6B47" stroke-width="1.6" fill="rgba(255,107,71,0.08)"/>
+                    <path d="M38 14H28C27.45 14 27 14.45 27 15V37C29.1 35.8 31.6 35.5 34 35.5H38C38.55 35.5 39 35.05 39 34.5V15C39 14.45 38.55 14 38 14Z" stroke="#FFB347" stroke-width="1.6" fill="rgba(255,179,71,0.08)"/>
+                    <line x1="25" y1="15" x2="25" y2="37" stroke="#E85A38" stroke-width="1.5"/>
+                </svg>
+
+                <h2 style="font-size: 22px; font-weight: 800; color: #1E1E2E; margin: 0 0 8px;">Klar til å øve?</h2>
+                <p style="font-size: 14px; color: #6B7280; margin: 0 0 24px; line-height: 1.5;">
+                    Logg inn for å lagre fremgang og XP,<br>eller øv gratis som gjest.
+                </p>
+
+                <button id="so-feide-btn" style="
+                    width: 100%; padding: 14px 20px;
+                    background: #1c4b82; border: none;
+                    border-radius: 14px; font-size: 15px; font-weight: 700;
+                    cursor: pointer; color: white; display: flex;
+                    align-items: center; justify-content: center; gap: 10px;
+                    transition: all 0.2s; box-shadow: 0 4px 14px rgba(28,75,130,0.35);
+                    font-family: 'Nunito', system-ui, sans-serif;
+                    margin-bottom: 10px;
+                ">
+                    🏫 Logg inn med Feide
+                </button>
+
+                <button id="so-gjest-btn" style="
+                    width: 100%; padding: 13px 20px;
+                    background: transparent;
+                    border: 2px solid #FF6B47;
+                    border-radius: 14px; font-size: 15px; font-weight: 700;
+                    cursor: pointer; color: #FF6B47;
+                    transition: all 0.2s;
+                    font-family: 'Nunito', system-ui, sans-serif;
+                ">
+                    Fortsett som gjest
+                </button>
+
+                <p id="so-feil" style="color:#ef4444;font-size:13px;margin-top:14px;display:none;"></p>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const feideBtn = modal.querySelector('#so-feide-btn');
+        const gjestBtn = modal.querySelector('#so-gjest-btn');
+
+        feideBtn.onmouseenter = () => { feideBtn.style.background = '#163d6a'; };
+        feideBtn.onmouseleave = () => { feideBtn.style.background = '#1c4b82'; };
+        gjestBtn.onmouseenter = () => { gjestBtn.style.background = '#FFE8E3'; };
+        gjestBtn.onmouseleave = () => { gjestBtn.style.background = 'transparent'; };
+
+        modal.querySelector('#so-close-btn').onclick = () => {
+            modal.remove();
+            reject(new Error('Avbrutt'));
+        };
+        modal.onclick = (e) => { if (e.target === modal) { modal.remove(); reject(new Error('Avbrutt')); } };
+
+        feideBtn.onclick = async () => {
+            const scope = 'openid userid-feide email userinfo-name groups-org groups-edu';
+            if (erNativ()) {
+                const redirectUri = 'https://glosemester.no/.netlify/functions/feide-mobile-auth';
+                const authUrl =
+                    `https://auth.dataporten.no/oauth/authorization` +
+                    `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
+                    `&response_type=code` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${encodeURIComponent(scope)}`;
+                const { Browser } = window.Capacitor.Plugins;
+                await Browser.open({ url: authUrl, windowName: '_self' });
+            } else {
+                const redirectUri = window.location.origin + '/';
+                const authUrl =
+                    `https://auth.dataporten.no/oauth/authorization` +
+                    `?client_id=82131d17-cccd-48da-8397-4e9d70434d4d` +
+                    `&response_type=code` +
+                    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+                    `&scope=${encodeURIComponent(scope)}`;
+                sessionStorage.setItem('feideLoginProcess', 'true');
+                window.location.href = authUrl;
+            }
+        };
+
+        gjestBtn.onclick = () => {
+            modal.remove();
+            resolve(null);
+        };
+    });
+}
+
 export { auth, onAuthStateChanged };
