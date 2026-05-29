@@ -29,65 +29,57 @@ const LOGO_CSS = `
   align-items: center;
 }
 
-.gm-bounce-g {
-  width: 140px;
+/* ── Calligrafisk G — tegner seg som håndskrift ── */
+.gm-draw-g {
+  width: 150px;
   height: auto;
-  transform-origin: bottom center;
-  animation: bounceInLand 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  filter: drop-shadow(0 8px 20px rgba(255,107,71,0.25));
+  overflow: visible;
+  filter: drop-shadow(0 4px 12px rgba(255,107,71,0.18));
 }
 
-@keyframes bounceInLand {
-  0%   { opacity: 0; transform: translateY(-420px) scaleY(1.1); }
-  60%  { opacity: 1; transform: translateY(0) scaleY(0.82) scaleX(1.1); }
-  75%  { transform: translateY(-48px) scaleY(1.08); }
-  88%  { transform: translateY(0) scaleY(0.96) scaleX(1.02); }
-  94%  { transform: translateY(-10px) scaleY(1.01); }
-  100% { transform: translateY(0) scaleY(1) scaleX(1); }
+.gm-draw-g .gm-g-path {
+  stroke: #FF6B47;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: drawG 1.5s ease-in-out forwards;
 }
 
+@keyframes drawG {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── Wordmark: spasert store bokstaver ── */
 .gm-wordmark {
   font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-  font-size: clamp(36px, 9vw, 52px);
-  font-weight: 900;
-  letter-spacing: -0.025em;
+  font-size: clamp(18px, 5vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #FF6B47;
   line-height: 1;
-  margin: 12px 0 0 0;
+  margin: 18px 0 0 0;
   opacity: 0;
-  animation: textFadeUp 0.6s ease forwards;
-  animation-delay: 1.1s;
-}
-
-.gm-wordmark-glose  { color: #FF6B47; }
-.gm-wordmark-mester { color: #1E1E2E; }
-
-.gm-underline {
-  height: 3px;
-  width: 0;
-  background: linear-gradient(90deg, #FF6B47, #FFB347);
-  border-radius: 999px;
-  margin-top: 8px;
-  animation: lineGrow 0.45s ease forwards;
-  animation-delay: 1.55s;
+  animation: textFadeUp 0.7s ease forwards;
+  animation-delay: 1.4s;
 }
 
 .gm-tagline {
-  font-size: 14px;
-  color: #9CA3AF;
-  letter-spacing: 0.04em;
+  font-size: 13px;
+  color: #B0A99F;
+  letter-spacing: 0.06em;
   margin: 10px 0 0 0;
   opacity: 0;
   animation: textFadeUp 0.5s ease forwards;
-  animation-delay: 1.75s;
+  animation-delay: 1.9s;
 }
 
 @keyframes textFadeUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes lineGrow {
-  to { width: 180px; }
 }
 
 /* ── Kort ── */
@@ -112,9 +104,9 @@ const LOGO_CSS = `
   animation: cardIn 0.45s ease forwards;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.gm-card:nth-child(1) { animation-delay: 1.85s; }
-.gm-card:nth-child(2) { animation-delay: 2.0s; }
-.gm-card:nth-child(3) { animation-delay: 2.15s; }
+.gm-card:nth-child(1) { animation-delay: 2.0s; }
+.gm-card:nth-child(2) { animation-delay: 2.15s; }
+.gm-card:nth-child(3) { animation-delay: 2.3s; }
 
 @keyframes cardIn {
   to { opacity: 1; transform: translateY(0); }
@@ -233,20 +225,21 @@ export class Landing {
                 <!-- ── ANIMERT LOGO ── -->
                 <header class="gm-hero">
 
-                    <!-- Stor G som faller ned og spretter -->
-                    <svg class="gm-bounce-g" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M65,23 C60,20 53,20 48,25 C40,33 34,48 35,63 C36,73 42,80 50,79 C59,78 65,71 67,61 C69,51 64,48 56,48 C48,48 44,52 44,52"
-                              stroke="#FF6B47" stroke-width="6.5"
-                              stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Calligrafisk G tegner seg -->
+                    <svg class="gm-draw-g" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="gm-g-path" pathLength="1"
+                            d="M 156,52
+                               C 138,24 100,16 68,30
+                               C 36,44 20,74 20,104
+                               C 20,140 42,168 74,178
+                               C 106,188 140,174 156,150
+                               C 164,134 162,114 152,104
+                               L 100,104"
+                        />
                     </svg>
 
-                    <!-- GloseMester -->
-                    <h1 class="gm-wordmark">
-                        <span class="gm-wordmark-glose">Glose</span><span class="gm-wordmark-mester">Mester</span>
-                    </h1>
-
-                    <!-- Underline tegner seg -->
-                    <div class="gm-underline"></div>
+                    <!-- GLOSEMESTER -->
+                    <h1 class="gm-wordmark">GloseMester</h1>
 
                     <!-- Tagline -->
                     <p class="gm-tagline">Lær gloser &middot; Samle kort &middot; Bli mester</p>
