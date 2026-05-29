@@ -132,7 +132,7 @@
 }
 
 /* 3. EPISK (Epic) - Lilla Glød */
-.rarity-episk { border-bottom: 4px solid #8B5CF6; }
+.rarity-episk { border-bottom: 4px solid #9333EA; }
 .rarity-episk .rarity-badge {
     color: #5B21B6;
     background: linear-gradient(135deg, #E9D5FF 0%, #D8B4FE 100%);

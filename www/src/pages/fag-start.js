@@ -160,7 +160,7 @@ export class FagStart {
                 name: 'GloseMester',
                 emoji: '📚',
                 description: 'Samle kort, bygg din samling og lær gloser samtidig.',
-                gradient: 'var(--gradient-purple)',
+                gradient: 'linear-gradient(135deg, #FF6B47, #FFB347)',
                 proveNavn: 'GlosePrøve'
             }
         };
@@ -207,8 +207,8 @@ export class FagStart {
         modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(8px);';
         modal.innerHTML = `
             <div class="glass-card" style="max-width: 400px; width: 92%; text-align: center;">
-                <h2 style="margin: 0 0 8px 0; font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--purple-900);">Skriv inn prøvekode</h2>
-                <p style="color: var(--purple-600); margin: 0 0 24px 0; font-size: 15px;">Du har fått en prøvekode fra læreren din</p>
+                <h2 style="margin: 0 0 8px 0; font-family: var(--font-primary, 'Nunito', sans-serif); font-size: 24px; font-weight: 800; color: var(--color-text, #1E1E2E);">Skriv inn prøvekode</h2>
+                <p style="color: var(--color-text-muted, #6B7280); margin: 0 0 24px 0; font-size: 15px;">Du har fått en prøvekode fra læreren din</p>
                 <input
                     type="text"
                     id="prove-code-input"

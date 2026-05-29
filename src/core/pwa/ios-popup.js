@@ -191,7 +191,7 @@ export function createIOSPopup() {
                     cursor: pointer;
                     transition: all 0.2s;
                 "
-                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(124, 58, 237, 0.4)';"
+                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 107, 71, 0.4)';"
                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
             >
                 Jeg forstår 👍
