@@ -11,7 +11,20 @@ Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.m
 - **Fase B2 — fundament:** ✅ react-router (alle ROUTES-stier fra v2), Zustand
   (`useAuthStore`/`useAppStore`), env-basert `lib/firebase.ts`, UID-nøklet
   `lib/storage.ts` (portet fra Del A), datalag `lib/data/users.ts`, rute-vakt og
-  delt `Layout`. Landing + Hjem som placeholder-sider.
+  delt `Layout`.
+- **Fase B3 (pågår) — feature-porting:**
+  - ✅ Landing + auth: Feide (OAuth2) + Google (`lib/auth.ts`, samme
+    endepunkter/scope som v2), Feide-callback i `AuthBootstrap`, gjenbrukbar
+    `Button` + toast (`Toaster` + `useToastStore`).
+  - ✅ GloseMester øvemodus: vokabular (`features/glosemester/vocabulary.ts`),
+    ren øve-motor (`practiceEngine.ts`, enhetstestet med Vitest), nivåvalg
+    (`GlosemesterStart`) og øve-økt (`GlosemesterPractice`) med flervalg/skriving
+    per nivå, XP/diamant-belønning (`lib/rewards.ts`) og TTS (`lib/speech.ts`).
+  - ⏳ Gjenstår i B3: prøvemodus (quiz), kort/galleri, lærer-dashboard,
+    standalone-sider, full markedsførings-landingsside.
+
+## Tester
+`npm test` (Vitest) — enhetstester for øve-motoren (`practiceEngine.test.ts`).
 
 ## Miljøvariabler
 Firebase-config kan overstyres via `app-v3/.env` (se `.env.example`). Standardverdier
