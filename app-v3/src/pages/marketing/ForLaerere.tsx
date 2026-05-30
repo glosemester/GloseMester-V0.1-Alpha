@@ -21,8 +21,8 @@ export function ForLaerere() {
         elevsvar. Alt på ett sted.
       </InfoKort>
       <InfoKort tittel="🎮 Motiverte elever">
-        Elevene øver i en gamifisert modus med samlekort og spaced repetition
-        (Leitner), så de kommer tilbake og repeterer det de strever med.
+        Elevene øver i en motiverende modus med samlekort og smart repetisjon,
+        så de kommer tilbake og repeterer det de strever med.
       </InfoKort>
       <div style={{ textAlign: 'center' }}>
         <Link
