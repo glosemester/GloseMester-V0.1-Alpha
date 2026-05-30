@@ -43,8 +43,14 @@ Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.m
   - ✅ Marketing/info-sider: landingsside (hero + funksjoner), For lærere,
     For skoler, Om oss, FAQ, Priser — felles `MarketingLayout` (én header/footer,
     løser A6 fra Del A).
-  - ⏳ Gjenstår: **Stripe-betaling** (bevisst utelatt — kampanjekoder fungerer i
-    mellomtiden). Krever testing i Stripe test-modus mot deploy-preview.
+  - ✅ Stripe-betaling: `lib/payment.ts` kaller stripe-checkout-funksjonen og
+    redirecter til Stripe Checkout; Oppgrader-siden har kjøpsknapper + håndterer
+    retur (?status=). Premium aktiveres server-side via stripe-webhook
+    (abonnement.type = 'premium'). **Må testes i Stripe test-modus mot
+    deploy-preview** (testkort 4242…).
+
+Hele B3-funksjonaliteten er nå portet. Gjenstår: B4 (bytt byggekjede til Vite/
+Capacitor) og B5 (slett v2) — se ../docs/DEL-B-REACT-PLAN.md.
 
 ## Tester
 `npm test` (Vitest) — øve-motor (`practiceEngine.test.ts`), Leitner
