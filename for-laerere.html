@@ -6,189 +6,339 @@
     <title>GloseMester for lærere – Lag engelske glose-tester på 2 minutter</title>
     <meta name="description" content="GloseMester hjelper lærere å lage glose-tester raskt, dele med QR-kode og motivere elever gjennom gamification. Gratis å starte — ingen installasjon." />
 
-    <!-- Open Graph -->
     <meta property="og:title" content="GloseMester for lærere" />
     <meta property="og:description" content="Lag engelske glose-tester på 2 minutter. Del med QR-kode. Elever elsker det." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://glosemester.no/for-laerere" />
 
-    <!-- Schema.org -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "EducationalApplication",
         "name": "GloseMester",
-        "description": "Gamifisert glose-læring for norske skoler. Lærere lager tester, elever øver og samler kort.",
+        "description": "Gamifisert glose-læring for norske skoler.",
         "url": "https://glosemester.no",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Any",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "NOK",
-            "description": "Gratis opp til 3 tester"
-        },
-        "audience": {
-            "@type": "EducationalAudience",
-            "educationalRole": "teacher"
-        }
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "NOK" },
+        "audience": { "@type": "EducationalAudience", "educationalRole": "teacher" }
     }
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="src/styles/redesign.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { font-family: 'Inter', system-ui, sans-serif; background: hsl(258, 60%, 97%); color: #1F2937; overflow-x: hidden; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Nav */
+        :root {
+            --coral:        #FF6B47;
+            --coral-hover:  #E85A38;
+            --coral-light:  #FFE8E3;
+            --amber:        #FFB347;
+            --amber-light:  #FFF3E0;
+            --bg:           #FAFAF8;
+            --surface:      #FFFFFF;
+            --border:       #E8E5E0;
+            --text:         #1E1E2E;
+            --text-muted:   #6B7280;
+            --dark-bg:      #1A1D2E;
+            --dark-surface: #242840;
+            --dark-border:  #363A52;
+            --font:         'Nunito', 'Arial Rounded MT Bold', system-ui, sans-serif;
+            --radius-lg:    20px;
+            --radius-xl:    28px;
+            --shadow-card:  0 2px 8px rgba(30,30,46,0.08);
+            --shadow-md:    0 4px 16px rgba(30,30,46,0.10);
+        }
+
+        html, body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ── Nav ── */
         .top-nav {
             position: sticky; top: 0; z-index: 100;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.92);
             backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(124,58,237,0.1);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
             padding: 14px 24px;
             display: flex; align-items: center; justify-content: space-between;
         }
-        .top-nav-logo { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: #7C3AED; text-decoration: none; }
-        .top-nav-cta { background: linear-gradient(135deg, #7C3AED, #A78BFA); color: #fff; border: none; border-radius: 999px; padding: 10px 22px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+        .nav-logo-g {
+            width: 32px; height: 32px; overflow: visible;
+        }
+        .nav-logo-g path {
+            stroke: var(--coral); stroke-width: 5; stroke-linecap: round;
+            stroke-linejoin: round; fill: none;
+        }
+        .nav-logo-text {
+            font-size: 18px; font-weight: 900;
+            letter-spacing: -0.02em; color: var(--text);
+        }
+        .nav-logo-text span { color: var(--coral); }
+        .nav-cta {
+            background: var(--coral); color: #fff;
+            border: none; border-radius: 999px;
+            padding: 10px 22px;
+            font-family: var(--font); font-size: 14px; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            box-shadow: 0 4px 14px rgba(255,107,71,0.32);
+            transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+        }
+        .nav-cta:hover { background: var(--coral-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,107,71,0.42); }
 
-        /* Hero */
+        /* ── Hero ── */
         .hero {
-            background: linear-gradient(170deg, hsl(258,80%,14%) 0%, hsl(270,75%,22%) 100%);
+            background: var(--dark-bg);
             color: white;
             padding: 80px 24px 72px;
             text-align: center;
-            border-radius: 0 0 60px 60px;
+            border-radius: 0 0 48px 48px;
             position: relative; overflow: hidden;
         }
         .hero::before {
             content: '';
             position: absolute; inset: 0;
             background:
-                radial-gradient(ellipse 70% 60% at 20% 0%, rgba(139,92,246,0.35) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 80% 100%, rgba(99,102,241,0.2) 0%, transparent 55%);
+                radial-gradient(ellipse 65% 55% at 15% 0%, rgba(255,107,71,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 45% at 85% 100%, rgba(255,179,71,0.12) 0%, transparent 55%);
             pointer-events: none;
         }
         .hero-eyebrow {
-            display: inline-block; background: rgba(167,139,250,0.2); border: 1px solid rgba(167,139,250,0.4);
-            color: #C4B5FD; border-radius: 999px; padding: 6px 16px; font-size: 13px; font-weight: 700;
-            letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1;
+            display: inline-block;
+            background: rgba(255,107,71,0.15);
+            border: 1px solid rgba(255,107,71,0.35);
+            color: #FFCAB8;
+            border-radius: 999px; padding: 6px 16px;
+            font-size: 12px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            margin-bottom: 20px; position: relative; z-index: 1;
         }
         .hero h1 {
-            font-family: 'Outfit', sans-serif; font-size: clamp(32px, 6vw, 58px); font-weight: 900;
+            font-size: clamp(30px, 6vw, 54px); font-weight: 900;
             line-height: 1.1; margin-bottom: 20px;
-            background: linear-gradient(135deg, #fff 0%, hsl(270,100%,88%) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            color: #fff;
             position: relative; z-index: 1;
         }
-        .hero p { font-size: clamp(16px, 2.5vw, 20px); color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto 36px; position: relative; z-index: 1; line-height: 1.6; }
-        .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+        .hero h1 em { font-style: normal; color: var(--coral); }
+        .hero p {
+            font-size: clamp(15px, 2.5vw, 18px);
+            color: rgba(255,255,255,0.65);
+            max-width: 520px; margin: 0 auto 36px;
+            position: relative; z-index: 1;
+        }
+        .hero-ctas {
+            display: flex; gap: 12px; justify-content: center;
+            flex-wrap: wrap; position: relative; z-index: 1;
+        }
         .btn-hero-primary {
-            background: linear-gradient(135deg, #7C3AED, #A78BFA); color: #fff;
-            border: none; border-radius: 999px; padding: 16px 36px;
-            font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;
-            cursor: pointer; text-decoration: none; box-shadow: 0 6px 24px rgba(124,58,237,0.5);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--coral); color: #fff;
+            border: none; border-radius: 999px; padding: 15px 32px;
+            font-family: var(--font); font-size: 16px; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            box-shadow: 0 6px 24px rgba(255,107,71,0.45);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(124,58,237,0.6); }
+        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(255,107,71,0.55); }
         .btn-hero-secondary {
-            background: rgba(255,255,255,0.12); color: #fff;
-            border: 1.5px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 15px 32px;
-            font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600;
+            display: inline-flex; align-items: center;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.88);
+            border: 1.5px solid rgba(255,255,255,0.25); border-radius: 999px; padding: 14px 28px;
+            font-family: var(--font); font-size: 15px; font-weight: 600;
             cursor: pointer; text-decoration: none; backdrop-filter: blur(8px);
-            transition: background 0.2s ease;
+            transition: background 0.2s;
         }
-        .btn-hero-secondary:hover { background: rgba(255,255,255,0.2); }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.18); }
         .feide-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(28,75,130,0.5); border: 1px solid rgba(255,255,255,0.2);
-            color: rgba(255,255,255,0.8); border-radius: 999px; padding: 8px 16px;
-            font-size: 13px; font-weight: 600; margin-top: 24px; position: relative; z-index: 1;
+            background: rgba(28,75,130,0.4); border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.75); border-radius: 999px; padding: 8px 16px;
+            font-size: 13px; font-weight: 600; margin-top: 24px;
+            position: relative; z-index: 1;
         }
 
-        /* Section */
-        section { max-width: 960px; margin: 0 auto; padding: 80px 24px; }
+        /* ── Sections ── */
+        section { max-width: 960px; margin: 0 auto; padding: 72px 24px; }
+        .section-eyebrow {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--coral); margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: clamp(22px, 4vw, 36px); font-weight: 900;
+            color: var(--text); line-height: 1.2;
+        }
 
-        /* Fordeler */
-        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+        /* ── Benefits ── */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
         .benefit-card {
-            background: rgba(255,255,255,0.88); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.7); border-radius: 28px; padding: 32px 28px;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.08);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 28px 24px;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .benefit-icon { font-size: 40px; margin-bottom: 16px; }
-        .benefit-card h3 { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #1F2937; }
-        .benefit-card p { font-size: 15px; color: #6B7280; line-height: 1.6; }
+        .benefit-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .benefit-icon {
+            width: 48px; height: 48px;
+            background: var(--coral-light);
+            border-radius: 14px;
+            border: 1.5px solid rgba(255,107,71,0.18);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
+        }
+        .benefit-icon svg { width: 24px; height: 24px; }
+        .benefit-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+        .benefit-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-        /* Steg-seksjon */
-        .steps-section { background: linear-gradient(170deg, hsl(258,80%,14%) 0%, hsl(270,75%,22%) 100%); border-radius: 48px; padding: 64px 40px; color: white; max-width: 960px; margin: 0 auto 0; }
-        .steps-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(26px, 4vw, 40px); font-weight: 900; text-align: center; margin-bottom: 48px; }
-        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; }
+        /* ── Steps ── */
+        .steps-wrap { padding: 0 24px 72px; }
+        .steps-section {
+            background: var(--dark-bg);
+            border-radius: 40px; padding: 56px 40px;
+            color: white; max-width: 960px; margin: 0 auto;
+            position: relative; overflow: hidden;
+        }
+        .steps-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse 60% 50% at 10% 10%, rgba(255,107,71,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .steps-section h2 {
+            font-size: clamp(22px, 4vw, 34px); font-weight: 900;
+            text-align: center; margin-bottom: 48px; position: relative; z-index: 1;
+        }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px; position: relative; z-index: 1;
+        }
         .step { text-align: center; }
-        .step-num { width: 52px; height: 52px; border-radius: 50%; background: rgba(167,139,250,0.25); border: 2px solid rgba(167,139,250,0.5); display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 22px; color: #C4B5FD; margin: 0 auto 16px; }
-        .step h3 { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-        .step p { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+        .step-num {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(255,107,71,0.18);
+            border: 2px solid rgba(255,107,71,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #FFCAB8;
+            margin: 0 auto 16px;
+        }
+        .step h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; }
 
-        /* Priser */
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        /* ── Priser ── */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+        }
         .pricing-card {
-            background: rgba(255,255,255,0.88); border: 1px solid rgba(124,58,237,0.15);
-            border-radius: 28px; padding: 36px 28px;
-            box-shadow: 0 4px 20px rgba(124,58,237,0.08);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 32px 28px;
+            box-shadow: var(--shadow-card);
         }
-        .pricing-card.featured { background: linear-gradient(145deg, hsl(258,80%,48%), hsl(270,85%,58%)); color: white; border: none; box-shadow: 0 12px 48px rgba(124,58,237,0.35); }
-        .pricing-name { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7C3AED; margin-bottom: 8px; }
-        .pricing-card.featured .pricing-name { color: rgba(255,255,255,0.7); }
-        .pricing-price { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
-        .pricing-price span { font-size: 16px; font-weight: 500; }
-        .pricing-desc { font-size: 14px; color: #6B7280; margin-bottom: 24px; }
+        .pricing-card.featured {
+            background: linear-gradient(145deg, #FF6B47, #FF8F6B);
+            color: white; border: none;
+            box-shadow: 0 12px 40px rgba(255,107,71,0.35);
+        }
+        .pricing-name {
+            font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--coral); margin-bottom: 8px;
+        }
+        .pricing-card.featured .pricing-name { color: rgba(255,255,255,0.75); }
+        .pricing-price { font-size: 40px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .pricing-price span { font-size: 15px; font-weight: 500; }
+        .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
         .pricing-card.featured .pricing-desc { color: rgba(255,255,255,0.7); }
-        .pricing-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-        .pricing-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #4B5563; }
-        .pricing-card.featured .pricing-list li { color: rgba(255,255,255,0.85); }
-        .pricing-list li::before { content: '✓'; font-weight: 700; color: #7C3AED; flex-shrink: 0; }
-        .pricing-card.featured .pricing-list li::before { color: #C4B5FD; }
-        .btn-pricing {
-            width: 100%; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
-            border-radius: 999px; cursor: pointer; text-align: center; text-decoration: none; display: block;
-            border: 2px solid rgba(124,58,237,0.3); background: transparent; color: #7C3AED;
-            transition: all 0.2s ease;
+        .pricing-list {
+            list-style: none;
+            display: flex; flex-direction: column; gap: 10px;
+            margin-bottom: 28px;
         }
-        .btn-pricing:hover { background: rgba(124,58,237,0.07); border-color: #7C3AED; }
+        .pricing-list li {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-size: 14px; color: var(--text-muted);
+        }
+        .pricing-card.featured .pricing-list li { color: rgba(255,255,255,0.88); }
+        .pricing-list li::before {
+            content: '';
+            display: inline-block; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%23FFE8E3' stroke='%23FF6B47' stroke-width='1'/%3E%3Cpath d='M5 8l2 2 4-4' stroke='%23FF6B47' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-size: contain; background-repeat: no-repeat;
+        }
+        .pricing-card.featured .pricing-list li::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='rgba(255,255,255,0.2)' stroke='rgba(255,255,255,0.6)' stroke-width='1'/%3E%3Cpath d='M5 8l2 2 4-4' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+        .btn-pricing {
+            display: block; width: 100%; padding: 13px;
+            font-family: var(--font); font-size: 15px; font-weight: 700;
+            border-radius: 999px; cursor: pointer; text-align: center;
+            text-decoration: none;
+            border: 2px solid rgba(255,107,71,0.3); background: transparent; color: var(--coral);
+            transition: all 0.2s;
+        }
+        .btn-pricing:hover { background: var(--coral-light); border-color: var(--coral); }
         .btn-pricing-primary {
-            width: 100%; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
-            border-radius: 999px; cursor: pointer; text-align: center; text-decoration: none; display: block;
-            background: white; color: #7C3AED; border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-            transition: all 0.2s ease;
+            display: block; width: 100%; padding: 13px;
+            font-family: var(--font); font-size: 15px; font-weight: 700;
+            border-radius: 999px; cursor: pointer; text-align: center;
+            text-decoration: none;
+            background: white; color: var(--coral); border: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transition: all 0.2s;
         }
         .btn-pricing-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 
-        /* Testimonial-plass */
-        .testimonial-section { text-align: center; padding: 72px 24px; }
-        .testimonial-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(24px, 4vw, 36px); font-weight: 900; margin-bottom: 40px; }
+        /* ── Testimonial ── */
+        .testimonial-section { text-align: center; padding: 64px 24px; }
+        .testimonial-section h2 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 32px; }
         .testimonial-placeholder {
-            max-width: 480px; margin: 0 auto;
-            background: rgba(255,255,255,0.7); border: 2px dashed rgba(124,58,237,0.2);
-            border-radius: 24px; padding: 40px 32px; color: #9CA3AF; font-size: 15px;
+            max-width: 460px; margin: 0 auto;
+            background: var(--surface);
+            border: 2px dashed rgba(255,107,71,0.25);
+            border-radius: var(--radius-xl); padding: 36px 28px;
+            color: var(--text-muted); font-size: 15px; line-height: 1.7;
         }
+        .testimonial-placeholder a { color: var(--coral); font-weight: 700; text-decoration: none; }
+        .testimonial-placeholder a:hover { text-decoration: underline; }
 
-        /* CTA-seksjon */
-        .cta-section { text-align: center; padding: 80px 24px; }
-        .cta-section h2 { font-family: 'Outfit', sans-serif; font-size: clamp(26px, 4vw, 42px); font-weight: 900; margin-bottom: 12px; }
-        .cta-section p { color: #6B7280; font-size: 17px; margin-bottom: 32px; }
+        /* ── CTA ── */
+        .cta-section { text-align: center; padding: 72px 24px 80px; }
+        .cta-section h2 { font-size: clamp(24px, 4vw, 40px); font-weight: 900; margin-bottom: 12px; }
+        .cta-section p { color: var(--text-muted); font-size: 16px; margin-bottom: 32px; }
 
-        /* Footer */
-        footer { background: hsl(258,60%,10%); color: rgba(255,255,255,0.5); text-align: center; padding: 32px 24px; font-size: 13px; }
-        footer a { color: rgba(255,255,255,0.6); text-decoration: none; }
+        /* ── Footer ── */
+        footer {
+            background: var(--dark-bg); color: rgba(255,255,255,0.45);
+            text-align: center; padding: 32px 24px; font-size: 13px;
+        }
+        footer a { color: rgba(255,255,255,0.55); text-decoration: none; margin: 0 6px; }
+        footer a:hover { color: rgba(255,255,255,0.8); }
 
         @media (max-width: 600px) {
-            .hero { padding: 60px 20px 56px; border-radius: 0 0 40px 40px; }
-            section { padding: 56px 20px; }
-            .steps-section { padding: 48px 24px; }
+            .hero { padding: 56px 20px 52px; border-radius: 0 0 32px 32px; }
+            .steps-section { padding: 40px 20px; border-radius: 28px; }
+            section { padding: 48px 20px; }
         }
     </style>
 </head>
@@ -196,76 +346,107 @@
 
 <!-- Toppmeny -->
 <nav class="top-nav">
-    <a href="/" class="top-nav-logo">📚 GloseMester</a>
-    <a href="/#/lærer" class="top-nav-cta">Kom i gang gratis →</a>
+    <a href="/" class="nav-logo">
+        <svg class="nav-logo-g" viewBox="0 0 200 200" fill="none">
+            <path stroke="#FF6B47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+                d="M156,52 C138,24 100,16 68,30 C36,44 20,74 20,104 C20,140 42,168 74,178 C106,188 140,174 156,150 C164,134 162,114 152,104 L100,104"/>
+        </svg>
+        <span class="nav-logo-text"><span>Glose</span>Mester</span>
+    </a>
+    <a href="/#/lærer" class="nav-cta">Kom i gang gratis →</a>
 </nav>
 
 <!-- Hero -->
 <div class="hero">
     <div class="hero-eyebrow">For lærere i norsk skole</div>
-    <h1>Lag engelske<br>glose-tester på 2 minutter</h1>
+    <h1>Lag engelske glose-tester<br>på <em>2 minutter</em></h1>
     <p>Del med QR-kode. Elevene øver og samler kort. Du ser resultatene.</p>
     <div class="hero-ctas">
-        <a href="/#/lærer" class="btn-hero-primary">🚀 Lag din første test — gratis</a>
+        <a href="/#/lærer" class="btn-hero-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Lag din første test — gratis
+        </a>
         <a href="#slik-fungerer-det" class="btn-hero-secondary">Se hvordan det fungerer</a>
     </div>
-    <div class="feide-badge">🏫 Støtter Feide-innlogging</div>
+    <div class="feide-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Støtter Feide-innlogging
+    </div>
 </div>
 
 <!-- Fordeler -->
 <section>
-    <div style="text-align:center; margin-bottom:48px;">
-        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7C3AED;margin-bottom:12px;">Hvorfor GloseMester?</div>
-        <h2 style="font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:900;">Laget for lærere, elsket av elever</h2>
+    <div style="text-align:center;margin-bottom:48px;">
+        <div class="section-eyebrow">Hvorfor GloseMester?</div>
+        <h2 class="section-title">Laget for lærere, elsket av elever</h2>
     </div>
     <div class="benefits-grid">
+
         <div class="benefit-card">
-            <div class="benefit-icon">⚡</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <h3>Ferdig på sekunder</h3>
-            <p>Velg nivå, sett antall spørsmål og trykk opprett. Ingen registrering av gloser nødvendig — innholdet er allerede klart.</p>
+            <p>Velg nivå, sett antall spørsmål og trykk opprett. Innholdet er allerede klart — ingen gloseregistrering nødvendig.</p>
         </div>
+
         <div class="benefit-card">
-            <div class="benefit-icon">📲</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#FF6B47" stroke-width="1.8"/><path d="M9 9h6M9 12h6M9 15h4" stroke="#FF6B47" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="12" r="1" fill="#FF6B47"/></svg>
+            </div>
             <h3>Del med QR-kode</h3>
             <p>Vis QR-koden på tavlen. Elevene scanner og er i gang umiddelbart — ingen app å laste ned, ingen konto å opprette.</p>
         </div>
+
         <div class="benefit-card">
-            <div class="benefit-icon">🎮</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <h3>Elevene elsker det</h3>
-            <p>Gamification med samlekort (150+ unike kort), XP og daglige utfordringer gjør at elever øver frivillig — også hjemme.</p>
+            <p>Samlekort (150+), XP og daglige utfordringer gjør at elever øver frivillig — også hjemme.</p>
         </div>
+
         <div class="benefit-card">
-            <div class="benefit-icon">📊</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <h3>Se resultatene</h3>
             <p>Dashbordet viser hvem som har tatt prøven, score og fremdrift. Ingen papirrettig, ingen kaos.</p>
         </div>
+
         <div class="benefit-card">
-            <div class="benefit-icon">🏫</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12h6v10" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <h3>Feide-innlogging</h3>
-            <p>Logg inn med skole-kontoen din via Feide. Ingen ekstra passord å huske, ingen ny bruker å opprette.</p>
+            <p>Logg inn med skole-kontoen din via Feide. Ingen ekstra passord, ingen ny bruker.</p>
         </div>
+
         <div class="benefit-card">
-            <div class="benefit-icon">🔒</div>
+            <div class="benefit-icon">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#FF6B47" stroke-width="1.8"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#FF6B47" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
             <h3>GDPR-trygt</h3>
             <p>Elevdata lagres i Norge. Ingen personopplysninger kreves for å øve. Oppfyller kravene i opplæringsloven.</p>
         </div>
+
     </div>
 </section>
 
 <!-- Steg-for-steg -->
-<div style="padding: 0 24px 80px;" id="slik-fungerer-det">
+<div class="steps-wrap" id="slik-fungerer-det">
     <div class="steps-section">
         <h2>Slik fungerer det</h2>
         <div class="steps-grid">
             <div class="step">
                 <div class="step-num">1</div>
                 <h3>Logg inn med Feide</h3>
-                <p>Bruk skole-kontoen din. Er du ikke på Feide? Google-innlogging fungerer like bra.</p>
+                <p>Bruk skole-kontoen din. Ikke på Feide? Google-innlogging fungerer like bra.</p>
             </div>
             <div class="step">
                 <div class="step-num">2</div>
                 <h3>Lag en prøve</h3>
-                <p>Velg nivå (1.–10. trinn), sett antall spørsmål og gi prøven et navn. Klart på under 2 minutter.</p>
+                <p>Velg nivå, sett antall spørsmål og gi prøven et navn. Klart på under 2 minutter.</p>
             </div>
             <div class="step">
                 <div class="step-num">3</div>
@@ -274,7 +455,7 @@
             </div>
             <div class="step">
                 <div class="step-num">4</div>
-                <h3>Følg med på resultatene</h3>
+                <h3>Følg resultatene</h3>
                 <p>Se hvem som er ferdig og hvilken score de fikk — i sanntid fra dashbordet ditt.</p>
             </div>
         </div>
@@ -284,10 +465,11 @@
 <!-- Priser -->
 <section>
     <div style="text-align:center;margin-bottom:48px;">
-        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7C3AED;margin-bottom:12px;">Priser</div>
-        <h2 style="font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:900;">Start gratis — oppgrader når du vil</h2>
+        <div class="section-eyebrow">Priser</div>
+        <h2 class="section-title">Start gratis — oppgrader når du vil</h2>
     </div>
     <div class="pricing-grid">
+
         <div class="pricing-card">
             <div class="pricing-name">Gratis</div>
             <div class="pricing-price">0 <span>kr</span></div>
@@ -300,6 +482,7 @@
             </ul>
             <a href="/#/lærer" class="btn-pricing">Start gratis</a>
         </div>
+
         <div class="pricing-card featured">
             <div class="pricing-name">Premium Lærer</div>
             <div class="pricing-price">99 <span>kr/mnd</span></div>
@@ -307,15 +490,16 @@
             <ul class="pricing-list">
                 <li>Ubegrenset antall prøver</li>
                 <li>Detaljerte analyser per elev</li>
-                <li>16 ferdige standardprøver (LK20)</li>
+                <li>16 standardprøver (LK20)</li>
                 <li>Eksport av resultater (CSV)</li>
                 <li>Prioritert støtte</li>
             </ul>
             <a href="/#/lærer" class="btn-pricing-primary">Prøv Premium — 30 dager gratis</a>
         </div>
+
         <div class="pricing-card">
             <div class="pricing-name">Skolepakke</div>
-            <div class="pricing-price" style="font-size:28px;">Fra 5 000 <span>kr/år</span></div>
+            <div class="pricing-price" style="font-size:26px;">Fra 5 000 <span>kr/år</span></div>
             <div class="pricing-desc">For hele skolen eller fagteamet</div>
             <ul class="pricing-list">
                 <li>Alt i Premium, for alle lærere</li>
@@ -326,6 +510,7 @@
             </ul>
             <a href="mailto:kontakt@glosemester.no" class="btn-pricing">Ta kontakt</a>
         </div>
+
     </div>
 </section>
 
@@ -333,8 +518,9 @@
 <section class="testimonial-section">
     <h2>Hva lærere sier</h2>
     <div class="testimonial-placeholder">
-        🌟 Vi samler inn tilbakemeldinger fra pilotskoler nå.<br>Er du interessert i å prøve GloseMester i klassen din?<br><br>
-        <a href="mailto:kontakt@glosemester.no" style="color:#7C3AED;font-weight:700;text-decoration:none;">Meld deg som pilotlærer →</a>
+        Vi samler tilbakemeldinger fra pilotskoler nå.<br>
+        Er du interessert i å prøve GloseMester i klassen din?<br><br>
+        <a href="mailto:kontakt@glosemester.no">Meld deg som pilotlærer →</a>
     </div>
 </section>
 
@@ -342,14 +528,22 @@
 <section class="cta-section">
     <h2>Klar til å prøve?</h2>
     <p>Gratis å starte. Ingen installasjon. Ingen kredittkort.</p>
-    <a href="/#/lærer" style="display:inline-block;background:linear-gradient(135deg,#7C3AED,#A78BFA);color:#fff;border:none;border-radius:999px;padding:18px 44px;font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;text-decoration:none;box-shadow:0 6px 24px rgba(124,58,237,0.4);transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 36px rgba(124,58,237,0.55)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 24px rgba(124,58,237,0.4)'">
-        🚀 Lag din første test — gratis
+    <a href="/#/lærer"
+       style="display:inline-flex;align-items:center;gap:8px;background:#FF6B47;color:#fff;border:none;border-radius:999px;padding:16px 40px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 6px 24px rgba(255,107,71,0.4);transition:transform 0.2s,box-shadow 0.2s;"
+       onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 36px rgba(255,107,71,0.52)'"
+       onmouseout="this.style.transform='';this.style.boxShadow='0 6px 24px rgba(255,107,71,0.4)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Lag din første test — gratis
     </a>
     <p style="margin-top:16px;font-size:13px;color:#9CA3AF;">Eller logg inn med Feide — samme konto du bruker på skolen</p>
 </section>
 
 <footer>
-    <p>© 2026 GloseMester · <a href="/personvern.html">Personvern</a> · <a href="/vilkar.html">Vilkår</a> · <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a></p>
+    <p>© 2026 GloseMester &nbsp;·&nbsp;
+        <a href="/personvern.html">Personvern</a>
+        <a href="/vilkar.html">Vilkår</a>
+        <a href="mailto:kontakt@glosemester.no">kontakt@glosemester.no</a>
+    </p>
 </footer>
 
 </body>

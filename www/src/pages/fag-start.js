@@ -5,9 +5,9 @@
    ============================================ */
 
 import { router, ROUTES } from '../core/navigation/router.js';
-
 import { hentProveMedKode, startQuiz } from '../shared/quiz/quiz-engine.js';
 import { visToast } from '../core/utils/feedback.js';
+import { visLoginModal } from '../core/auth/auth-service.js';
 
 /**
  * FagStart - Mellomledd som viser rollevalg
@@ -28,7 +28,13 @@ export class FagStart {
         const fagConfig = this.getFagConfig(fagType);
 
         container.innerHTML = `
-            <div class="fag-start-page blob-bg" style="min-height: 100vh; padding: 20px;">
+            <style>
+                @keyframes fsGlimmer {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,71,0); border-color: rgba(255,107,71,0.2); }
+                    50% { box-shadow: 0 0 28px 6px rgba(255,107,71,0.1); border-color: rgba(255,107,71,0.48); }
+                }
+            </style>
+            <div class="fag-start-page" style="min-height: 100vh; padding: 20px; background: #FAFAF8; font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;">
                 <!-- Header -->
                 <div style="margin-bottom: 30px; position: relative; height: 44px;">
                     <button onclick="window.router.back()" style="
@@ -121,25 +127,51 @@ export class FagStart {
                         <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 20px; line-height: 1;">↓</div>
                     </div>
 
-                    <!-- Lærer -->
-                    <div class="playful-card gold" data-role="larer" onclick="window.FagStart.startLarer('${fagType}')"
-                         style="text-align: center; cursor: pointer; position: relative; padding: 20px 20px 40px; transition: transform 0.15s;"
-                         onmouseenter="this.style.transform='translateY(-4px)'" onmouseleave="this.style.transform=''">
-                        <span class="doodle doodle-star">🌟</span>
-                        <div style="font-size: 40px; margin-bottom: 8px;">🎓</div>
-                        <h2 style="font-size: 22px; margin: 0 0 8px 0;">Lærer</h2>
-                        <p style="margin-bottom: 14px; font-size: 14px;">Lag prøver og følg elever</p>
-                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                            <li style="padding: 5px 0; font-size: 14px;">✅ Lag egne prøver</li>
-                            <li style="padding: 5px 0; font-size: 14px;">✅ Se elevresultater</li>
-                            <li style="padding: 5px 0; font-size: 14px;">✅ Del med QR-kode</li>
-                        </ul>
-                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); opacity: 0.3; font-size: 20px; line-height: 1;">↓</div>
+                </div>
+
+                <!-- Lærer — kompakt strip -->
+                <div style="max-width: 1200px; margin: 16px auto 0; padding: 0 4px;">
+                    <div onclick="window.FagStart.startLarer('${fagType}')" style="
+                        background: #fff; border: 1px solid #E8E5E0; border-radius: 16px;
+                        padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+                        cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+                    "
+                    onmouseenter="this.style.boxShadow='0 4px 16px rgba(255,107,71,0.12)';this.style.transform='translateY(-2px)'"
+                    onmouseleave="this.style.boxShadow='';this.style.transform=''">
+                        <div style="width:42px;height:42px;background:linear-gradient(145deg,#FFF3E0,#FFF8EE);border-radius:12px;border:1.5px solid rgba(255,179,71,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" stroke="#D97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6 12v5c0 2.21 2.69 4 6 4s6-1.79 6-4v-5" stroke="#D97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:15px;font-weight:700;color:#1E1E2E;">Logg inn som lærer</div>
+                            <div style="font-size:13px;color:#6B7280;">Lag prøver, del med elever, følg resultater</div>
+                        </div>
+                        <div style="color:#FF6B47;font-size:20px;font-weight:700;flex-shrink:0;">›</div>
                     </div>
                 </div>
 
-                <footer style="text-align: center; padding: 24px 20px 32px; color: var(--text-secondary, #6B7280);">
-                    <p style="font-size: 13px;">&copy; 2026 GloseMester</p>
+                <!-- Vil du vite mer — glowing teaser -->
+                <div style="max-width:540px;margin:28px auto 0;padding:0 20px;text-align:center;">
+                    <div style="
+                        width:100%; background:linear-gradient(135deg,rgba(255,107,71,0.04),rgba(255,179,71,0.05));
+                        border:1.5px solid rgba(255,107,71,0.2); border-radius:20px; padding:20px 24px;
+                        animation:fsGlimmer 2.8s ease-in-out infinite;
+                    ">
+                        <p style="font-size:14px;color:#6B7280;margin:0 0 10px;line-height:1.5;">
+                            Vil du lage prøver og følge elevene dine?
+                        </p>
+                        <a href="/for-laerere.html" style="
+                            display:inline-flex;align-items:center;gap:5px;
+                            color:#FF6B47;font-weight:700;font-size:14px;
+                            text-decoration:none;border-bottom:2px solid rgba(255,107,71,0.3);padding-bottom:1px;
+                        ">Se alt lærere kan gjøre ›</a>
+                    </div>
+                </div>
+
+                <footer style="text-align:center;padding:32px 20px;color:#9CA3AF;">
+                    <p style="font-size:13px;">&copy; 2026 GloseMester</p>
                 </footer>
             </div>
         `;
@@ -347,7 +379,10 @@ export class FagStart {
      * @param {string} fagType - Fag type
      */
     static async startLarer(_fagType) {
-        router.push(ROUTES.TEACHER_HOME);
+        try {
+            await visLoginModal(null, 'laerer');
+            router.push(ROUTES.TEACHER_HOME);
+        } catch { /* avbrøt */ }
     }
 }
 
