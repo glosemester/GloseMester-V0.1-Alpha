@@ -7,7 +7,15 @@ kjører uendret fra repo-roten (`../index.html` → `../src/app.js`).
 Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.md).
 
 ## Status
-- **Fase B1 — fundament:** ✅ Vite + React + TS-scaffold, merkevare-tokens, PWA-plugin.
+- **Fase B1 — scaffold:** ✅ Vite + React + TS, merkevare-tokens, PWA-plugin, ESLint.
+- **Fase B2 — fundament:** ✅ react-router (alle ROUTES-stier fra v2), Zustand
+  (`useAuthStore`/`useAppStore`), env-basert `lib/firebase.ts`, UID-nøklet
+  `lib/storage.ts` (portet fra Del A), datalag `lib/data/users.ts`, rute-vakt og
+  delt `Layout`. Landing + Hjem som placeholder-sider.
+
+## Miljøvariabler
+Firebase-config kan overstyres via `app-v3/.env` (se `.env.example`). Standardverdier
+(dagens prod) ligger som fallback i `src/lib/firebase.ts`.
 
 ## Kom i gang
 ```bash
