@@ -37,8 +37,14 @@ Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.m
     (`TeacherTestDetails.tsx`). Datalag: `lib/data/prover.ts` (CRUD +
     kodegenerering), `lib/data/resultater.ts` (chunked henting),
     `features/teacher/useLaererProver.ts`. Lukker elev↔lærer-løkka.
-  - ⏳ Gjenstår i B3: standalone-sider (oppgrader/min-side/marketing), full
-    markedsførings-landingsside.
+  - ✅ Hjem-nav: rollebevisst nav etter innlogging (`pages/Hjem.tsx`).
+  - ✅ Min side: profil, abonnement-badge, kampanjekode-aktivering
+    (`lib/data/kampanje.ts`) og GDPR eksport/sletting (`lib/data/gdpr.ts`).
+  - ✅ Marketing/info-sider: landingsside (hero + funksjoner), For lærere,
+    For skoler, Om oss, FAQ, Priser — felles `MarketingLayout` (én header/footer,
+    løser A6 fra Del A).
+  - ⏳ Gjenstår: **Stripe-betaling** (bevisst utelatt — kampanjekoder fungerer i
+    mellomtiden). Krever testing i Stripe test-modus mot deploy-preview.
 
 ## Tester
 `npm test` (Vitest) — øve-motor (`practiceEngine.test.ts`), Leitner

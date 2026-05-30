@@ -18,6 +18,12 @@ import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
 import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
 import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
 import { TEACHER_ROUTE_PATTERNS } from './pages/teacher/teacherPaths';
+import { MinSide } from './pages/MinSide';
+import { ForLaerere } from './pages/marketing/ForLaerere';
+import { ForSkoler } from './pages/marketing/ForSkoler';
+import { OmOss } from './pages/marketing/OmOss';
+import { Faq } from './pages/marketing/Faq';
+import { Oppgrader } from './pages/marketing/Oppgrader';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
@@ -55,6 +61,14 @@ const router = createBrowserRouter([
       { path: ROUTES.CREATE_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
       { path: TEACHER_ROUTE_PATTERNS.EDIT_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
       { path: TEACHER_ROUTE_PATTERNS.TEST_DETAILS, element: <ProtectedRoute><TeacherTestDetails /></ProtectedRoute> },
+      // Min side (profil/abonnement/GDPR) — krever innlogging.
+      { path: ROUTES.PROFILE, element: <ProtectedRoute><MinSide /></ProtectedRoute> },
+      // Offentlige info-/marketing-sider.
+      { path: '/for-laerere', element: <ForLaerere /> },
+      { path: '/for-skoler', element: <ForSkoler /> },
+      { path: '/om-oss', element: <OmOss /> },
+      { path: '/faq', element: <Faq /> },
+      { path: '/oppgrader', element: <Oppgrader /> },
     ],
   },
 ]);
