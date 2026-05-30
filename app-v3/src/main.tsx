@@ -5,6 +5,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import { Layout } from './components/Layout';
 import { AuthBootstrap } from './components/AuthBootstrap';
+import { Toaster } from './components/Toaster';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { ROUTES } from './routes/paths';
 import { Landing } from './pages/Landing';
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthBootstrap>
       <RouterProvider router={router} />
+      <Toaster />
     </AuthBootstrap>
   </StrictMode>,
 );
