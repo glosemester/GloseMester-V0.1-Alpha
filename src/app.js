@@ -212,6 +212,9 @@ function handleAuthChange(user) {
     if (user) {
         console.log('✅ User logged in:', user.email);
         window.GloseMester.bruker = user;
+        // Varsle moduler (bl.a. storage) om at UID nå er tilgjengelig, slik at
+        // lokal data kan migreres til UID-nøklet namespace.
+        window.dispatchEvent(new CustomEvent('glosemester:bruker-innlogget', { detail: { uid: user.uid } }));
         loadUserData(user.uid);
 
         // Send innlogget bruker til hjemskjermen ved oppstart (landing-siden er for utloggede)

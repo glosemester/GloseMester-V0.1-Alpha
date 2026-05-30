@@ -9,10 +9,47 @@ const CREDITS_KEY = 'mester_credits';
 const XP_KEY = 'mester_xp';
 const ELEV_PROVER_KEY = 'mester_elev_prover';
 
-// Hent brukernavn (brukes som nøkkel hvis flere spiller på samme enhet)
+// Brukeridentitet for nøkkel-namespacing.
+// Bruker Firebase UID (serverbekreftet) slik at data på en delt enhet ikke kan
+// nås av en annen bruker ved å endre et klient-satt navn. Uinnloggede brukere
+// deler ett "gjest"-namespace.
+const LEGACY_USER_TOKEN = 'Spiller';
+
+function getUserToken() {
+    const uid = window.GloseMester?.bruker?.uid;
+    return uid || 'gjest';
+}
+
 function getUserKey(baseKey) {
-    const user = window.brukerNavn || localStorage.getItem('aktiv_bruker') || "Spiller";
-    return `${baseKey}_${user}`;
+    return `${baseKey}_${getUserToken()}`;
+}
+
+// Engangsmigrering: tidligere ble alt lagret under det klient-satte navnet
+// (nesten alltid fallback-verdien "Spiller"). Flytt slike nøkler over til
+// gjeldende brukers UID-namespace første gang vedkommende er innlogget, så
+// ingen mister kortsamling/XP/diamanter ved overgangen.
+function migrerLegacyNokler() {
+    const token = getUserToken();
+    if (token === 'gjest' || token === LEGACY_USER_TOKEN) return;
+    if (localStorage.getItem('mester_migrert_uid') === token) return;
+
+    const baser = [STORAGE_KEY, CREDITS_KEY, XP_KEY, ELEV_PROVER_KEY];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.endsWith(`_${LEGACY_USER_TOKEN}`)) continue;
+        const base = key.slice(0, -(`_${LEGACY_USER_TOKEN}`).length);
+        if (!baser.some(b => base === b || base.startsWith(`${b}_`))) continue;
+
+        const nyNokkel = `${base}_${token}`;
+        if (localStorage.getItem(nyNokkel) === null) {
+            localStorage.setItem(nyNokkel, localStorage.getItem(key));
+        }
+    }
+    localStorage.setItem('mester_migrert_uid', token);
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('glosemester:bruker-innlogget', migrerLegacyNokler);
 }
 
 // --- KORTSAMLING ---
