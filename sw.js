@@ -1,6 +1,6 @@
-// SERVICE WORKER - GloseMester v2.38.0
-const APP_VERSION = 'v2.38.0';
-const CACHE_NAME = 'glosemester-v2.38.0';
+// SERVICE WORKER - GloseMester v2.39.0
+const APP_VERSION = 'v2.39.0';
+const CACHE_NAME = 'glosemester-v2.39.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -74,63 +74,21 @@ const ASSETS_TO_CACHE = [
   './src/features/base-modul.js',
 
   // ========================================
-  // V1.0 COMPATIBILITY (gamle index.html)
+  // VENDOR LIBRARIES
   // ========================================
-  './js/app.js',
-  './js/init.js',
-  './js/collection.js',
-  './js/vocabulary.js',
-
-  // Vendor Libraries
   './js/vendor/jsQR.js',
   './js/vendor/xlsx.full.min.js',
 
-  // Old fagmoduler
-  './js/fag/glosemester/vocabulary.js',
-  './js/fag/glosemester/practice.js',
-  './js/fag/glosemester/kort-data.js',
-
-  // Old shared
-  './js/shared/quiz.js',
-  './js/shared/kort-system.js',
-  './js/data/cardsData.js',
-
-  // Old core
-  './js/core/navigation.js',
-  './js/core/storage.js',
-  './js/core/credits.js',
-  './js/core/analytics.js',
-  './js/core/logger.js',
-
-  // Rate limiter
-  './js/core/rate-limiter.js',
-
-  // Data
-  './js/data/norskData.js',
-
-  // Old features
-  './js/features/practice.js',
-  './js/features/diktat-recorder.js',
-  './js/features/quiz.js',
-  './js/features/teacher.js',
-  './js/features/kort-display.js',
-  './js/features/qr-scanner.js',
-  './js/features/auth.js',
+  // ========================================
+  // STANDALONE-SIDER (oppgrader.html, min-side.html)
+  // Disse sidene er ikke en del av SPA-en og laster egne moduler.
+  // ========================================
   './js/features/firebase.js',
-  './js/features/saved-tests.js',
-  './js/features/glosebank-admin.js',
-  './js/features/glosebank-browse.js',
-  './js/features/standardprove.js',
+  './js/features/auth.js',
+  './js/features/payment.js',
   './js/features/gdpr.js',
-  './js/features/teacher-analytics.js',
-  './js/features/gallery.js',
-
-  // UI Helper
-  './js/ui/helpers.js',
-
-  // UI Helpers & Admin
-  './js/features/brukeradmin.js',
-  './js/features/payment.js'
+  './js/features/saved-tests.js',
+  './js/ui/helpers.js'
 ];
 
 // INSTALL - Cache assets
