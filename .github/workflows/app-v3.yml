@@ -1,0 +1,48 @@
+name: app-v3 CI
+
+# Bygger og tester React-appen i app-v3/ automatisk.
+# Kjører kun når noe i app-v3/ (eller denne workflowen) endres, slik at rene
+# v2-endringer ikke trigger unødvendige kjøringer.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'app-v3/**'
+      - '.github/workflows/app-v3.yml'
+  pull_request:
+    paths:
+      - 'app-v3/**'
+      - '.github/workflows/app-v3.yml'
+
+jobs:
+  build-test:
+    name: Lint, typecheck, test og bygg
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-v3
+    steps:
+      - name: Hent ut koden
+        uses: actions/checkout@v4
+
+      - name: Sett opp Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app-v3/package-lock.json
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typesjekk
+        run: npm run typecheck
+
+      - name: Enhetstester
+        run: npm test
+
+      - name: Bygg
+        run: npm run build
