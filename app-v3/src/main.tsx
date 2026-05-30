@@ -10,9 +10,11 @@ import { ProtectedRoute } from './routes/ProtectedRoute';
 import { ROUTES } from './routes/paths';
 import { Landing } from './pages/Landing';
 import { Hjem } from './pages/Hjem';
+import { GlosemesterStart } from './pages/GlosemesterStart';
+import { GlosemesterPractice } from './pages/GlosemesterPractice';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
-// i fase B3 (øvemodus, prøve, galleri, lærer-dashboard, min-side ...).
+// utover i fase B3 (prøve, galleri, lærer-dashboard, min-side ...).
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -26,6 +28,10 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // Øvemodus er åpen (gjest kan øve, jf. v2).
+      { path: ROUTES.GLOSEMESTER, element: <GlosemesterStart /> },
+      { path: ROUTES.GLOSEMESTER_START, element: <GlosemesterStart /> },
+      { path: ROUTES.PRACTICE, element: <GlosemesterPractice /> },
     ],
   },
 ]);
