@@ -12,7 +12,8 @@ import { auth, googleProvider } from './firebase';
 
 const FEIDE_CLIENT_ID = '82131d17-cccd-48da-8397-4e9d70434d4d';
 const FEIDE_AUTHORIZE = 'https://auth.dataporten.no/oauth/authorization';
-const FEIDE_SCOPE = 'openid profile email groups';
+// Samme scope som v2 — Netlify-funksjonen (bestemRolle) forventer disse claimene.
+const FEIDE_SCOPE = 'openid userid-feide email userinfo-name groups-org groups-edu';
 const FEIDE_STATE_KEY = 'feide_state';
 
 function getFeideRedirectUri(): string {
