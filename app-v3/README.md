@@ -27,12 +27,16 @@ Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.m
     (`pages/Quiz.tsx`), ren motor (`features/quiz/quizEngine.ts`), datalag
     `lib/data/prover.ts` + `lib/data/resultater.ts` (henter prøve, sender
     resultat til lærer — gjest eller innlogget).
-  - ⏳ Gjenstår i B3: kort/galleri, lærer-dashboard, standalone-sider, full
-    markedsførings-landingsside.
+  - ✅ Kort/galleri: 152 samlekort (`features/kort/kortData.ts`), belønnings-
+    logikk (`kortReward.ts`, enhetstestet), samling + panting på UID-nøklet
+    storage (`kortSamling.ts`), galleri-side (`pages/Galleri.tsx`). Kort deles
+    ut etter prøve ved 80&nbsp;%+ (innlogget).
+  - ⏳ Gjenstår i B3: lærer-dashboard, standalone-sider, full markedsførings-
+    landingsside.
 
 ## Tester
-`npm test` (Vitest) — enhetstester for øve-motoren (`practiceEngine.test.ts`),
-Leitner (`leitner.test.ts`).
+`npm test` (Vitest) — øve-motor (`practiceEngine.test.ts`), Leitner
+(`leitner.test.ts`), kortbelønning (`kortReward.test.ts`). 30 tester.
 
 ## Miljøvariabler
 Firebase-config kan overstyres via `app-v3/.env` (se `.env.example`). Standardverdier

@@ -13,6 +13,7 @@ import { Hjem } from './pages/Hjem';
 import { GlosemesterStart } from './pages/GlosemesterStart';
 import { GlosemesterPractice } from './pages/GlosemesterPractice';
 import { Quiz } from './pages/Quiz';
+import { Galleri } from './pages/Galleri';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
@@ -35,6 +36,15 @@ const router = createBrowserRouter([
       { path: ROUTES.PRACTICE, element: <GlosemesterPractice /> },
       // Prøvemodus: elev tar lærerens prøve via kode/QR (åpen for gjest).
       { path: ROUTES.QUIZ, element: <Quiz /> },
+      // Kortsamling/galleri (krever innlogging for å lagre samling på UID).
+      {
+        path: ROUTES.GALLERY,
+        element: (
+          <ProtectedRoute>
+            <Galleri />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ]);

@@ -18,6 +18,9 @@ import {
 } from '../features/quiz/quizEngine';
 import { hentProveMedKode, type Prove } from '../lib/data/prover';
 import { lagreResultat, type SvarRad } from '../lib/data/resultater';
+import { checkWinCondition } from '../features/kort/kortReward';
+import { leggTilKort } from '../features/kort/kortSamling';
+import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
@@ -47,6 +50,7 @@ export function Quiz() {
   const [feedback, setFeedback] = useState<{ riktig: boolean; fasit: string } | null>(null);
   const [valgtSvar, setValgtSvar] = useState<string | null>(null);
   const [lagret, setLagret] = useState<boolean | null>(null);
+  const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
 
   // Pågående prøve som hentes via kode (QR eller skjema).
   async function startMedKode(rawKode: string) {
@@ -199,10 +203,25 @@ export function Quiz() {
           <div style={{ fontSize: 64, fontWeight: 900, color: farge, lineHeight: 1 }}>{prosent}%</div>
           <div style={{ color: 'var(--color-text-muted)', marginTop: 8 }}>{riktige} av {state.sporsmal.length} riktige</div>
         </div>
+        {vunnetKort && (
+          <div style={{ background: 'var(--color-surface)', border: `2px solid ${RARITY_CONFIG[vunnetKort.rarity].farge}`, borderRadius: 20, padding: 20, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontWeight: 700 }}>🎁 Du vant et kort!</div>
+            <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 120, height: 120, objectFit: 'contain' }} />
+            <div style={{ fontWeight: 700 }}>{vunnetKort.name}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: RARITY_CONFIG[vunnetKort.rarity].farge }}>
+              {RARITY_CONFIG[vunnetKort.rarity].emoji} {RARITY_CONFIG[vunnetKort.rarity].tekst}
+            </div>
+          </div>
+        )}
         <p style={{ fontSize: 13, color: lagret ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
           {lagret === null ? '' : lagret ? '✅ Resultat sendt til læreren.' : 'Resultat kunne ikke sendes (ingen nettverkstilgang).'}
         </p>
-        <button type="button" onClick={() => navigate(bruker ? ROUTES.HJEM : ROUTES.LANDING)} style={primaerKnapp}>🏠 Tilbake</button>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {vunnetKort && (
+            <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={primaerKnapp}>🃏 Se samlingen</button>
+          )}
+          <button type="button" onClick={() => navigate(bruker ? ROUTES.HJEM : ROUTES.LANDING)} style={primaerKnapp}>🏠 Tilbake</button>
+        </div>
       </div>
     );
   }
@@ -247,6 +266,15 @@ export function Quiz() {
     } catch (e) {
       console.warn('Kunne ikke lagre resultat:', e);
       setLagret(false);
+    }
+
+    // Kortbelønning ved 80%+ (kun innlogget — samlingen lagres på UID).
+    if (firebaseUser) {
+      const kort = checkWinCondition(riktige, totalt, s.prove.niva ?? null);
+      if (kort) {
+        leggTilKort(kort);
+        setVunnetKort(kort);
+      }
     }
   }
 }
