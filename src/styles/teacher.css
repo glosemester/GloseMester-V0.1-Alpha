@@ -4,38 +4,40 @@
    Nunito + JetBrains Mono
    ============================================ */
 
-/* ==================== TOKENS ==================== */
+/* ==================== TOKENS ====================
+   Lærer-UI bruker mørke flater uavhengig av tema. --t-*-tokens er nå tynne
+   alias over de globale tokenene i tokens.css — ingen egne hex-verdier. */
 :root {
-    --t-bg:           #1A1D2E;
-    --t-surface:      #242840;
-    --t-card:         #242840;
-    --t-card-hover:   #2E3350;
-    --t-border:       #363A52;
+    --t-bg:           var(--color-dark-bg);
+    --t-surface:      var(--color-dark-surface);
+    --t-card:         var(--color-dark-surface);
+    --t-card-hover:   var(--color-dark-card-hover);
+    --t-border:       var(--color-dark-border);
     --t-border-hover: rgba(255, 107, 71, 0.40);
 
-    --t-amber:        #FF6B47;
+    --t-amber:        var(--color-primary);
     --t-amber-dim:    rgba(255, 107, 71, 0.12);
     --t-amber-border: rgba(255, 107, 71, 0.28);
-    --t-teal:         #4BAED4;
+    --t-teal:         var(--color-secondary);
     --t-teal-dim:     rgba(75, 174, 212, 0.12);
-    --t-danger:       #F45C5C;
+    --t-danger:       var(--color-error);
     --t-danger-dim:   rgba(244, 92, 92, 0.12);
-    --t-success:      #4CAF82;
+    --t-success:      var(--color-success);
 
-    --t-text:         #F0EEE9;
-    --t-text-2:       #A0A8C0;
-    --t-muted:        #6B7280;
+    --t-text:         var(--color-dark-text);
+    --t-text-2:       var(--color-dark-text-muted);
+    --t-muted:        var(--color-text-muted);
     --t-muted-2:      #4B5563;
 
-    --t-font-head: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-    --t-font-body: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-    --t-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --t-font-head: var(--font-primary);
+    --t-font-body: var(--font-primary);
+    --t-font-mono: var(--font-mono);
 
     --t-radius-sm: 10px;
     --t-radius:    16px;
     --t-radius-lg: 22px;
-    --t-ease:      cubic-bezier(0.4, 0, 0.2, 1);
-    --t-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+    --t-ease:      var(--ease-smooth);
+    --t-spring:    var(--ease-spring);
 }
 
 /* ==================== BODY / SHELL ==================== */

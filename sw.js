@@ -1,6 +1,6 @@
-// SERVICE WORKER - GloseMester v2.39.0
-const APP_VERSION = 'v2.39.0';
-const CACHE_NAME = 'glosemester-v2.39.0';
+// SERVICE WORKER - GloseMester v2.40.0
+const APP_VERSION = 'v2.40.0';
+const CACHE_NAME = 'glosemester-v2.40.0';
 
 const ASSETS_TO_CACHE = [
   // ========================================
@@ -13,14 +13,18 @@ const ASSETS_TO_CACHE = [
   // ========================================
   // DESIGN & CSS
   // ========================================
+  './src/styles/tokens.css',
   './src/styles/redesign.css',
+  './src/styles/landing.css',
+  './src/styles/glosemester.css',
+  './src/styles/teacher.css',
+  './src/styles/menu.css',
   './css/main.css',
   './css/kort.css',
   './css/popups.css',
   './css/glosebank-admin.css',
   './css/glosebank-browse.css',
   './css/standardprover.css',
-  './src/styles/landing.css',
 
   // ========================================
   // V2.0 CORE MODULES

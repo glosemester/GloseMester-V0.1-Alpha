@@ -13,7 +13,7 @@
 
 /* Header */
 .fag-header {
-    background: linear-gradient(170deg, #E85A38 0%, #FF6B47 100%);
+    background: linear-gradient(170deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
     padding: 52px 24px 44px;
     text-align: center;
     border-radius: 0 0 48px 48px;
@@ -91,16 +91,16 @@
 
 /* Fargede topstriper per nivå */
 .level-card[data-level="niva1"]::before {
-    background: linear-gradient(90deg, #10b981, #34d399);
+    background: linear-gradient(90deg, var(--level-1), var(--level-1-light));
 }
 .level-card[data-level="niva2"]::before {
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, var(--level-2), var(--level-2-light));
 }
 .level-card[data-level="niva3"]::before {
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    background: linear-gradient(90deg, var(--level-3), var(--level-3-light));
 }
 .level-card[data-level="niva4"]::before {
-    background: linear-gradient(90deg, #ef4444, #f87171);
+    background: linear-gradient(90deg, var(--level-4), var(--level-4-light));
 }
 
 .level-header {
@@ -192,19 +192,19 @@
 
 /* Nivåfarge-varianter på knapper */
 .level-card[data-level="niva1"] .start-practice-btn {
-    background: linear-gradient(135deg, #059669, #10b981);
+    background: linear-gradient(135deg, var(--level-1-deep), var(--level-1));
     box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
 }
 .level-card[data-level="niva2"] .start-practice-btn {
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    background: linear-gradient(135deg, #2563eb, var(--level-2));
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
 }
 .level-card[data-level="niva3"] .start-practice-btn {
-    background: linear-gradient(135deg, #d97706, #f59e0b);
+    background: linear-gradient(135deg, #d97706, var(--level-3));
     box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
 }
 .level-card[data-level="niva4"] .start-practice-btn {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
+    background: linear-gradient(135deg, #dc2626, var(--level-4));
     box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
 }
 
@@ -337,7 +337,7 @@
     font-family: var(--font-primary, 'Nunito', sans-serif);
     font-size: clamp(28px, 7vw, 52px);
     font-weight: 900;
-    background: linear-gradient(135deg, #E85A38 0%, #FF6B47 100%);
+    background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -529,7 +529,7 @@
     font-family: var(--font-primary, 'Nunito', sans-serif);
     font-size: 42px;
     font-weight: 900;
-    background: linear-gradient(135deg, #E85A38, #FF6B47);
+    background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -546,7 +546,7 @@
 }
 
 .kort-won {
-    background: linear-gradient(135deg, #FF6B47, #FFB347);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
     color: #fff;
     border-radius: var(--radius-lg, 20px);
     padding: 20px 32px;
