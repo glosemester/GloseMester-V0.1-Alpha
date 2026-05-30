@@ -11,6 +11,32 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ---
 
+## 🆕 NYTT I v2.5.0-ALPHA (30. mai 2026) — Arkitektur-opprydding (Del A)
+
+### ✅ Fjernet kodeoverlapp fra halvferdig V1→V2-migrering
+- **`www/` ut av versjonskontroll:** ren build-output (256 filer), nå i `.gitignore`
+- **34 foreldreløse V1-filer slettet:** reachability-analyse viste at kun 6 av 40
+  `js/`-filer faktisk lastes (av standalone-sidene `oppgrader.html`/`min-side.html`).
+  Gammel SPA-motor, `admin-verktoey`, `brukeradmin`, `quiz`, `practice`, `teacher`
+  m.fl. var død kode
+- **`index-v2.html` slettet:** foreldreløs alt-entry med utdatert lilla-merkevare
+
+### ✅ Sikkerhet
+- **Cross-user-lekkasje fikset:** `storage.js` nøkler nå på Firebase UID (ikke
+  klient-satt `window.brukerNavn`). Engangsmigrering bevarer eksisterende progresjon
+- **Delt Feide-rollelogikk:** `netlify/functions/lib/feide-roles.js` (fjernet ~23
+  duplikate linjer mellom web- og mobil-funksjonen)
+
+### ✅ Design-system
+- **`src/styles/tokens.css`:** eneste kilde til sannhet for farger/typografi/spacing
+  (korall #FF6B47 + Nunito, fra brand-guiden). `--t-*` og nivåfarger er nå
+  token-alias; ingen hardkodet lilla igjen
+
+**Filer:** `.gitignore`, `js/` (beskåret), `src/styles/*`, `src/core/utils/storage.js`,
+`src/app.js`, `netlify/functions/*`, `sw.js`, `index.html`
+
+---
+
 ## 🆕 NYTT I v2.4.2-ALPHA (6. mars 2026) — Design-gjennomgang
 
 ### ✅ Øvemodus og prøvemodus — konsistens
@@ -286,36 +312,52 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ### Viktige filer
 
+> **Arkitektur:** SPA-en lever i `src/` (V2). De eneste `js/`-filene som
+> gjenstår betjener de frittstående sidene `oppgrader.html` (Stripe) og
+> `min-side.html` (profil/GDPR) — disse er ikke en del av SPA-en. Den gamle
+> V1-kodebasen er fjernet (se changelog), og `www/` er build-output (genereres
+> av `npm run build`, ikke versjonskontrollert).
+
 ```
 glosemester/
-├── index.html                    # SPA — all app-logikk her
-├── min-side.html                 # Brukerprofilside med abo-info
-├── oppgrader.html                # Prisside med Stripe-integrasjon
-├── vilkar.html                   # Kjøpsvilkår
-├── css/
-│   └── main.css                  # Alt styling (~2900 linjer)
-├── js/
-│   ├── app.js                    # Hovedapp-logikk
-│   ├── vocabulary.js             # Ordlister (niva1–3, 90/50/50 ord)
+├── index.html                       # SPA-entrypoint (laster src/app.js)
+├── min-side.html                    # Frittstående: brukerprofil + abo
+├── oppgrader.html                   # Frittstående: prisside med Stripe
+├── src/
+│   ├── app.js                       # App-init, ruter, auth-state
+│   ├── styles/
+│   │   ├── tokens.css               # ENESTE design-token-kilde (korall + Nunito)
+│   │   ├── redesign.css             # Globale komponentstiler
+│   │   ├── glosemester.css          # Øvedel/quiz
+│   │   ├── teacher.css              # Lærer-UI (alias over tokens.css)
+│   │   ├── menu.css                 # Navigasjon
+│   │   └── landing.css              # Landingsside
+│   ├── core/
+│   │   ├── auth/                    # firebase-config.js, auth-service.js
+│   │   ├── kort/                    # kort-system/-data/-display/-reward.js
+│   │   ├── navigation/             # router.js, app-header.js, menu-system.js
+│   │   ├── pwa/                     # installer.js, ios-popup.js
+│   │   └── utils/                   # storage.js (UID-nøklet), feedback.js, rate-limiter.js
 │   ├── features/
-│   │   ├── auth.js               # Autentisering (Feide, Google, Email)
-│   │   ├── practice.js           # Øvemodus (Leitner + AdaptiveDifficulty)
-│   │   ├── learningEngine.js     # LeitnerSystem + AdaptiveDifficulty klasser
-│   │   ├── teacher-analytics.js  # Dashboard + statistikk
-│   │   ├── saved-tests.js        # Mine Prøver + søk
-│   │   ├── kort-display.js       # Kortsamling + galleri
-│   │   └── firebase.js           # Firebase config
-│   ├── shared/
-│   │   └── quiz.js               # Prøvemodus for elever
-│   └── core/
-│       └── navigation.js         # SPA-navigasjon
+│   │   ├── glosemester/            # vocabulary-data.js + øvemodus
+│   │   ├── teacher/                # teacher-module.js (dashboard + prøver)
+│   │   ├── trade/                   # kortbytte
+│   │   └── onboarding/
+│   ├── shared/quiz/quiz-engine.js   # Prøvemodus for elever
+│   └── pages/                       # landing.js, velkomst.js, fag-start.js
+├── js/                              # KUN standalone-sider (oppgrader/min-side)
+│   ├── features/                    # firebase, auth, payment, gdpr, saved-tests
+│   ├── ui/helpers.js
+│   └── vendor/                      # jsQR, xlsx
 ├── netlify/functions/
-│   ├── feide-auth.js             # Feide OIDC token exchange
-│   ├── stripe-checkout.js        # Stripe Checkout initiering
-│   ├── stripe-webhook.js         # Stripe webhook (auto-aktivering)
-│   └── school-inquiry.js         # Skolepakke-forespørsel
-├── sw.js                         # Service Worker (v2.3.0-ALPHA)
-└── firestore.rules               # Sikkerhet & tilgangskontroll
+│   ├── lib/feide-roles.js           # Delt rollelogikk (web + mobil)
+│   ├── feide-auth.js                # Feide OIDC token exchange (web)
+│   ├── feide-mobile-auth.js         # Feide OIDC (mobil)
+│   ├── stripe-checkout.js           # Stripe Checkout initiering
+│   ├── stripe-webhook.js            # Stripe webhook (auto-aktivering)
+│   └── school-inquiry.js            # Skolepakke-forespørsel
+├── sw.js                            # Service Worker
+└── firestore.rules                  # Sikkerhet & tilgangskontroll
 ```
 
 ---
