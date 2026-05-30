@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
+const { bestemRolle } = require('./lib/feide-roles');
 
 if (!admin.apps.length) {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
@@ -17,29 +18,6 @@ const FEIDE_USERINFO_URL = "https://auth.dataporten.no/openid/userinfo";
 const FEIDE_GROUPS_URL = "https://groups-api.dataporten.no/groups/me/groups";
 const MOBILE_REDIRECT_URI = "https://glosemester.no/.netlify/functions/feide-mobile-auth";
 const APP_SCHEME = "no.glosemester.app://auth";
-
-function bestemRolle(userinfo, groupsData = null) {
-    const primaryAffiliation = userinfo.eduPersonPrimaryAffiliation ||
-                               userinfo['https://n.feide.no/claims/eduPersonPrimaryAffiliation'];
-    if (primaryAffiliation) {
-        const aff = primaryAffiliation.toLowerCase();
-        if (aff === 'employee' || aff === 'faculty' || aff === 'staff') return 'laerer';
-        if (aff === 'student' || aff === 'pupil') return 'elev';
-    }
-    if (groupsData && Array.isArray(groupsData)) {
-        for (const group of groupsData) {
-            const aff = ((group.membership || {}).primaryAffiliation || (group.membership || {}).basic || '').toLowerCase();
-            if (aff === 'employee' || aff === 'faculty' || aff === 'staff') return 'laerer';
-            if (aff === 'student' || aff === 'pupil') return 'elev';
-        }
-    }
-    const principalName = (userinfo.eduPersonPrincipalName ||
-                           userinfo['https://n.feide.no/claims/eduPersonPrincipalName'] || '').toLowerCase();
-    const email = (userinfo.email || '').toLowerCase();
-    if (['teacher', 'ansatt', 'tilsatt', 'laerer', 'lærer', 'admin'].some(w => principalName.includes(w) || email.includes(w))) return 'laerer';
-    if (['student', 'elev', 'pupil'].some(w => principalName.includes(w) || email.includes(w))) return 'elev';
-    return 'elev';
-}
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'GET') {

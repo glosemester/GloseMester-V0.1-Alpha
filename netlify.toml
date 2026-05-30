@@ -1,6 +1,16 @@
+# Netlify-konfig — bygger og publiserer v3 (React/Vite) fra app-v3/.
+# Tidligere publiserte denne v2 fra rota (publish="."). v2-koden ligger fortsatt
+# i repoet (index.html, src/, js/) som referanse, men deployes ikke lenger.
+# Eldre v2-deploys finnes i Netlify sin deploy-historikk om rollback trengs.
+#
+# Base holdes i repo-rota slik at rotas package.json (firebase-admin, stripe,
+# resend) installeres — Netlify-funksjonene trenger disse. Byggekommandoen
+# installerer og bygger v3 separat. Vite skriver til repo-rot/dist.
+
 [build]
+  command = "cd app-v3 && npm ci && npm run build"
+  publish = "dist"
   functions = "netlify/functions"
-  publish = "."
 
 [[redirects]]
   from = "/api/*"
@@ -14,6 +24,7 @@
   status = 200
   force = true
 
+# SPA-fallback: alle ruter som ikke er en ekte fil serveres som v3 sin index.html.
 [[redirects]]
   from = "/*"
   to = "/index.html"

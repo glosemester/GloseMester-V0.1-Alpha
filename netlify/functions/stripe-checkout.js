@@ -39,7 +39,7 @@ exports.handler = async function (event, context) {
 
     try {
         const data = JSON.parse(event.body);
-        const { plan, userId, userEmail } = data;
+        const { plan, userId, userEmail, successUrl, cancelUrl } = data;
 
         // Validate required fields
         if (!userId || !plan) {
@@ -79,8 +79,13 @@ exports.handler = async function (event, context) {
                 quantity: 1,
             }],
             mode: 'subscription',
-            success_url: `${process.env.BASE_URL}/oppgrader.html?status=success&orderId=${orderId}`,
-            cancel_url: `${process.env.BASE_URL}/oppgrader.html?status=cancelled`,
+            // v3 kan sende egne retur-URL-er; faller tilbake til v2-sidene for bakoverkompatibilitet.
+            success_url: successUrl
+                ? `${successUrl}${successUrl.includes('?') ? '&' : '?'}status=success&orderId=${orderId}`
+                : `${process.env.BASE_URL}/oppgrader.html?status=success&orderId=${orderId}`,
+            cancel_url: cancelUrl
+                ? `${cancelUrl}${cancelUrl.includes('?') ? '&' : '?'}status=cancelled`
+                : `${process.env.BASE_URL}/oppgrader.html?status=cancelled`,
             customer_email: userEmail || undefined,
             client_reference_id: userId,
             metadata: {

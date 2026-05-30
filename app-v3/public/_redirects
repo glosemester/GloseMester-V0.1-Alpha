@@ -1,0 +1,6 @@
+# Netlify SPA-fallback + Stripe/Feide-funksjoner.
+# Lar React Router håndtere alle ruter klientside: alt som ikke er en ekte fil
+# serveres som index.html (ellers gir direktelenker/refresh 404).
+# Netlify-funksjonene (/.netlify/functions/*) og API-ene treffes før denne.
+
+/*    /index.html   200

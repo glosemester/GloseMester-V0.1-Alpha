@@ -91,7 +91,7 @@
 
     <div class="card">
         <h1>📋 Databehandleravtale</h1>
-        <p class="meta">GloseMester Skolepakke · Versjon 1.0 · Mai 2026</p>
+        <p class="meta">GloseMester Skolepakke · Versjon 1.1 · Mai 2026</p>
 
         <div class="highlight">
             <p>Denne avtalen regulerer behandling av personopplysninger i henhold til EUs personvernforordning (GDPR), artikkel 28, mellom skolen (behandlingsansvarlig) og Oksvold EDB (databehandler).</p>
@@ -134,7 +134,13 @@
                 <th>Rettslig grunnlag</th>
             </tr>
             <tr>
-                <td>Lærere (innloggede)</td>
+                <td>Lærere (Feide-innlogging)</td>
+                <td>Navn, e-postadresse, Feide-ID (eduPersonPrincipalName), tilknytning (eduPersonPrimaryAffiliation) og gruppetilhørighet fra Feide</td>
+                <td>Firebase / Google Cloud (EU)</td>
+                <td>Avtale (GDPR art. 6 nr. 1 b)</td>
+            </tr>
+            <tr>
+                <td>Lærere (Google-innlogging)</td>
                 <td>Navn, e-postadresse, Google-ID</td>
                 <td>Firebase / Google Cloud (EU)</td>
                 <td>Avtale (GDPR art. 6 nr. 1 b)</td>
@@ -185,7 +191,7 @@
             </tr>
             <tr>
                 <td>Autentisering</td>
-                <td>Google OAuth 2.0 for lærere. Elever autentiseres ikke.</td>
+                <td>Feide (OpenID Connect via Sikt) eller Google OAuth 2.0 for lærere. Elever autentiseres ikke — de oppgir kun fornavn ved prøvedeltakelse.</td>
             </tr>
             <tr>
                 <td>Logging</td>
@@ -212,6 +218,12 @@
                 <td>Standardkontraktsklausuler (SCC)</td>
             </tr>
             <tr>
+                <td>Sikt (Feide / Dataporten)</td>
+                <td>Autentisering av lærere (innlogging via skolens Feide-konto)</td>
+                <td>Norge / EØS</td>
+                <td>Norsk offentlig tjenesteleverandør (EØS)</td>
+            </tr>
+            <tr>
                 <td>Netlify Inc.</td>
                 <td>Web-hosting og serverless-funksjoner</td>
                 <td>EU / USA (SCC)</td>
@@ -220,6 +232,12 @@
             <tr>
                 <td>Stripe Inc.</td>
                 <td>Betalingsformidling (kun for lærere)</td>
+                <td>EU / USA (SCC)</td>
+                <td>Standardkontraktsklausuler (SCC)</td>
+            </tr>
+            <tr>
+                <td>Resend (e-postlevering)</td>
+                <td>Utsending av transaksjons-/varsel-e-post (f.eks. skolepakke-forespørsel)</td>
                 <td>EU / USA (SCC)</td>
                 <td>Standardkontraktsklausuler (SCC)</td>
             </tr>
