@@ -29,6 +29,11 @@ export function setUserToken(uid: string | null): void {
   }
 }
 
+/** Gjeldende namespace-token (Firebase UID eller 'gjest'). */
+export function getUserToken(): string {
+  return currentToken;
+}
+
 function getUserKey(baseKey: string): string {
   return `${baseKey}_${currentToken}`;
 }

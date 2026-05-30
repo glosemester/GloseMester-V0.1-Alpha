@@ -12,9 +12,10 @@ import { Landing } from './pages/Landing';
 import { Hjem } from './pages/Hjem';
 import { GlosemesterStart } from './pages/GlosemesterStart';
 import { GlosemesterPractice } from './pages/GlosemesterPractice';
+import { Quiz } from './pages/Quiz';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
-// utover i fase B3 (prøve, galleri, lærer-dashboard, min-side ...).
+// utover i fase B3 (galleri, lærer-dashboard, min-side ...).
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -32,6 +33,8 @@ const router = createBrowserRouter([
       { path: ROUTES.GLOSEMESTER, element: <GlosemesterStart /> },
       { path: ROUTES.GLOSEMESTER_START, element: <GlosemesterStart /> },
       { path: ROUTES.PRACTICE, element: <GlosemesterPractice /> },
+      // Prøvemodus: elev tar lærerens prøve via kode/QR (åpen for gjest).
+      { path: ROUTES.QUIZ, element: <Quiz /> },
     ],
   },
 ]);

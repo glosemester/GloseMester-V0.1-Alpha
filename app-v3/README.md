@@ -17,14 +17,22 @@ Se fullstendig plan i [`../docs/DEL-B-REACT-PLAN.md`](../docs/DEL-B-REACT-PLAN.m
     endepunkter/scope som v2), Feide-callback i `AuthBootstrap`, gjenbrukbar
     `Button` + toast (`Toaster` + `useToastStore`).
   - ✅ GloseMester øvemodus: vokabular (`features/glosemester/vocabulary.ts`),
-    ren øve-motor (`practiceEngine.ts`, enhetstestet med Vitest), nivåvalg
-    (`GlosemesterStart`) og øve-økt (`GlosemesterPractice`) med flervalg/skriving
-    per nivå, XP/diamant-belønning (`lib/rewards.ts`) og TTS (`lib/speech.ts`).
-  - ⏳ Gjenstår i B3: prøvemodus (quiz), kort/galleri, lærer-dashboard,
-    standalone-sider, full markedsførings-landingsside.
+    ren øve-motor (`practiceEngine.ts`, enhetstestet), nivåvalg
+    (`GlosemesterStart`) og øve-økt (`GlosemesterPractice`), XP/diamant-belønning
+    (`lib/rewards.ts`) og TTS (`lib/speech.ts`).
+  - ✅ Leitner spaced-repetition (NY i v3): `features/glosemester/leitner.ts`
+    (bokser 1–5, vektet ordvalg, persistert per bruker/nivå, enhetstestet).
+    Øvemodus velger nå neste ord via Leitner-vekting.
+  - ✅ Prøvemodus (quiz): elev tar lærerens prøve via kode/QR
+    (`pages/Quiz.tsx`), ren motor (`features/quiz/quizEngine.ts`), datalag
+    `lib/data/prover.ts` + `lib/data/resultater.ts` (henter prøve, sender
+    resultat til lærer — gjest eller innlogget).
+  - ⏳ Gjenstår i B3: kort/galleri, lærer-dashboard, standalone-sider, full
+    markedsførings-landingsside.
 
 ## Tester
-`npm test` (Vitest) — enhetstester for øve-motoren (`practiceEngine.test.ts`).
+`npm test` (Vitest) — enhetstester for øve-motoren (`practiceEngine.test.ts`),
+Leitner (`leitner.test.ts`).
 
 ## Miljøvariabler
 Firebase-config kan overstyres via `app-v3/.env` (se `.env.example`). Standardverdier
