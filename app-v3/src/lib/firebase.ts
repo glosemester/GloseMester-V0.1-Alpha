@@ -25,4 +25,5 @@ export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
 export const isDevelopment =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');

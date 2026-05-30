@@ -14,6 +14,10 @@ import { GlosemesterStart } from './pages/GlosemesterStart';
 import { GlosemesterPractice } from './pages/GlosemesterPractice';
 import { Quiz } from './pages/Quiz';
 import { Galleri } from './pages/Galleri';
+import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
+import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
+import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
+import { TEACHER_ROUTE_PATTERNS } from './pages/teacher/teacherPaths';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
@@ -45,6 +49,12 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // Lærer-modul (krever innlogging).
+      { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
+      { path: ROUTES.MY_TESTS, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
+      { path: ROUTES.CREATE_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
+      { path: TEACHER_ROUTE_PATTERNS.EDIT_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
+      { path: TEACHER_ROUTE_PATTERNS.TEST_DETAILS, element: <ProtectedRoute><TeacherTestDetails /></ProtectedRoute> },
     ],
   },
 ]);

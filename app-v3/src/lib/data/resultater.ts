@@ -2,7 +2,7 @@
  * Datalag for `resultater`-collection. Elevens prøveresultat sendes (anonymt
  * eller med navn/uid) til lærer. Portet fra v2 quiz-engine lagreResultat.
  */
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Prove } from './prover';
 
@@ -43,4 +43,42 @@ export async function lagreResultat(input: ResultatInput): Promise<void> {
     tidSekunder,
     tidspunkt: serverTimestamp(),
   });
+}
+
+export interface ProveResultat {
+  prove_id: string;
+  elevNavn: string;
+  prosent: number;
+  poengsum: number;
+  maksPoeng: number;
+  tidspunkt: string | null;
+}
+
+/**
+ * Henter resultater for en liste prøve-ID-er. Firestore 'in' tar maks 30 verdier,
+ * så vi deler opp i chunks (jf. v2 _loadResults).
+ */
+export async function hentResultaterForProver(proveIds: string[]): Promise<ProveResultat[]> {
+  const resultater: ProveResultat[] = [];
+  for (let i = 0; i < proveIds.length; i += 30) {
+    const chunk = proveIds.slice(i, i + 30);
+    if (chunk.length === 0) continue;
+    try {
+      const snap = await getDocs(query(collection(db, 'resultater'), where('prove_id', 'in', chunk)));
+      snap.docs.forEach((d) => {
+        const r = d.data();
+        resultater.push({
+          prove_id: r.prove_id,
+          elevNavn: r.elevNavn || 'Anonym',
+          prosent: r.prosent ?? 0,
+          poengsum: r.poengsum ?? 0,
+          maksPoeng: r.maksPoeng ?? 0,
+          tidspunkt: r.tidspunkt?.toDate?.()?.toISOString() ?? null,
+        });
+      });
+    } catch (e) {
+      console.warn('hentResultaterForProver chunk feil:', e);
+    }
+  }
+  return resultater;
 }
