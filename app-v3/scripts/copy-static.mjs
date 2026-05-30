@@ -23,7 +23,7 @@ if (!existsSync(dist)) {
 }
 
 const mapper = ['images'];
-const filer = ['personvern.html', 'vilkar.html', 'databehandleravtale.html', 'icon.png'];
+const filer = ['personvern.html', 'vilkar.html', 'databehandleravtale.html', 'skoleavtale.html', 'icon.png'];
 
 for (const m of mapper) {
   const kilde = join(repoRoot, m);

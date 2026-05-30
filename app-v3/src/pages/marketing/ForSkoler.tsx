@@ -19,9 +19,14 @@ export function ForSkoler() {
       <InfoKort tittel="💬 Dedikert support">
         Prioritert support og opplæring, samt fakturering med 30 dagers betalingsfrist.
       </InfoKort>
+      <InfoKort tittel="📄 Avtaler">
+        Tilgang reguleres av en <a href="/skoleavtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>skoleavtale</a>{' '}
+        og en <a href="/databehandleravtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>databehandleravtale</a>{' '}
+        (GDPR art. 28). Begge kan leses og signeres digitalt.
+      </InfoKort>
       <InfoKort tittel="📨 Interessert?">
         Ta kontakt på <strong>kontakt@glosemester.no</strong> for et tilbud tilpasset
-        skolen deres. (Bestilling og betaling håndteres utenfor appen.)
+        skolen deres.
       </InfoKort>
     </MarketingLayout>
   );

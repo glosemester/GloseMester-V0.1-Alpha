@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skoleavtale – GloseMester Skolepakke</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --muted: #555;
+            --accent: #0071e3;
+            --border: #e0e0e0;
+            --radius: 14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 24px 16px 60px;
+        }
+        .container { max-width: 820px; margin: 0 auto; }
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 48px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            margin-bottom: 24px;
+        }
+        h1 { font-size: 30px; color: var(--accent); margin-bottom: 6px; }
+        .meta { color: #888; font-size: 14px; margin-bottom: 28px; }
+        h2 { font-size: 19px; margin: 36px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        h3 { font-size: 16px; margin: 20px 0 8px; }
+        p { color: var(--muted); margin-bottom: 14px; }
+        ul, ol { color: var(--muted); padding-left: 22px; margin-bottom: 14px; }
+        li { margin-bottom: 6px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0 20px; }
+        th, td { border: 1px solid var(--border); padding: 11px 14px; text-align: left; font-size: 14px; }
+        th { background: #f5f5f7; font-weight: 600; color: var(--text); }
+        td { color: var(--muted); }
+        .highlight { background: #e8f4fd; border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 8px; margin: 20px 0; }
+        .highlight p { margin: 0; color: #1a3a5c; }
+        .signatur-boks { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px; }
+        .signatur-felt { border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+        .signatur-felt h3 { margin-top: 0; font-size: 15px; }
+        .signatur-linje { border-bottom: 1px solid #ccc; height: 40px; margin: 16px 0 8px; }
+        .btn-print {
+            display: inline-block; background: var(--accent); color: white;
+            padding: 12px 28px; border-radius: 99px; text-decoration: none;
+            font-weight: 600; font-size: 15px; cursor: pointer; border: none; margin-top: 8px;
+        }
+        .btn-back { display: inline-block; color: var(--accent); text-decoration: none; font-size: 14px; margin-bottom: 20px; }
+        strong { color: var(--text); }
+        @media (max-width: 600px) {
+            .card { padding: 24px 20px; }
+            .signatur-boks { grid-template-columns: 1fr; }
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; padding: 0; }
+            .btn-print, .btn-back { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" class="btn-back">← Tilbake til GloseMester</a>
+
+    <div class="card">
+        <h1>🏫 Skoleavtale</h1>
+        <p class="meta">GloseMester Skolepakke · Versjon 1.0 · Mai 2026</p>
+
+        <div class="highlight">
+            <p>Denne avtalen regulerer skolens tilgang til og bruk av GloseMester Skolepakke. Behandling av personopplysninger reguleres i en egen <strong><a href="/databehandleravtale.html">databehandleravtale</a></strong>, som inngås samtidig og er en integrert del av avtaleforholdet.</p>
+        </div>
+
+        <h2>1. Avtalens parter</h2>
+        <table>
+            <tr><th>Rolle</th><th>Part</th><th>Kontakt</th></tr>
+            <tr>
+                <td><strong>Kunde (skolen)</strong></td>
+                <td>[Skolens navn og org.nr. fylles inn]</td>
+                <td>[Kontaktperson, e-post, telefon]</td>
+            </tr>
+            <tr>
+                <td><strong>Leverandør</strong></td>
+                <td>Oksvold EDB (org.nr. 836 906 012)</td>
+                <td>kontakt@glosemester.no</td>
+            </tr>
+        </table>
+
+        <h2>2. Hva skolen får tilgang til</h2>
+        <p>Skolepakken gir skolens lærere full tilgang til GloseMester, inkludert:</p>
+        <ul>
+            <li><strong>Ubegrenset antall lærere</strong> ved skolen (skolelisens)</li>
+            <li><strong>Ubegrenset antall prøver</strong> per lærer</li>
+            <li><strong>Feide-innlogging</strong> for sikker pålogging via skolens eksisterende konto</li>
+            <li><strong>GloseBank</strong> — deling av prøver mellom lærere internt på skolen</li>
+            <li>Tilgang til ferdiglagde, LK20-tilpassede standardprøver</li>
+            <li>Resultatstatistikk og oversikt for lærere</li>
+            <li>Alle elevfunksjoner (øving, samlekort, galleri) — gratis for elever, uten innlogging</li>
+        </ul>
+
+        <h2>3. Pris og betaling</h2>
+        <table>
+            <tr><th>Element</th><th>Vilkår</th></tr>
+            <tr><td>Årlig lisens (skolepakke)</td><td>[ ___________ kr/år eks. mva., avtales individuelt ut fra skolens størrelse, normalt 5 000–10 000 kr/år]</td></tr>
+            <tr><td>Betalingsform</td><td>Faktura</td></tr>
+            <tr><td>Betalingsfrist</td><td>30 dager fra fakturadato</td></tr>
+            <tr><td>Fakturaperiode</td><td>Per skoleår / 12 måneder fra oppstart</td></tr>
+        </table>
+        <p>Prisen dekker lisens, drift, vedlikehold og oppdateringer i avtaleperioden. Det påløper ingen kostnad for elever.</p>
+
+        <h2>4. Varighet og fornyelse</h2>
+        <p>Avtalen gjelder fra signeringsdato og løper i <strong>12 måneder</strong>. Den fornyes automatisk for ett år av gangen med mindre den sies opp skriftlig senest <strong>30 dager</strong> før utløp. Pris ved fornyelse kan justeres med skriftlig varsel minst 60 dager før fornyelsestidspunktet.</p>
+
+        <h2>5. Oppsigelse</h2>
+        <p>Begge parter kan si opp avtalen med <strong>30 dagers skriftlig varsel</strong> til utløpet av inneværende avtaleperiode. Ved oppsigelse opphører tilgangen ved periodens slutt, og data håndteres i henhold til databehandleravtalen (sletting innen 90 dager). Forhåndsbetalt lisens refunderes ikke ved kundens oppsigelse, med mindre oppsigelsen skyldes vesentlig mislighold fra leverandøren.</p>
+
+        <h2>6. Leverandørens forpliktelser</h2>
+        <ol>
+            <li>Levere tjenesten med rimelig tilgjengelighet og uten kjente vesentlige feil</li>
+            <li>Utføre vedlikehold og oppdateringer, fortrinnsvis utenom ordinær skoletid</li>
+            <li>Yte support på e-post innen <strong>2 virkedager</strong></li>
+            <li>Behandle personopplysninger i samsvar med databehandleravtalen og GDPR</li>
+            <li>Varsle skolen i god tid ved vesentlige endringer i tjenesten eller priser</li>
+        </ol>
+
+        <h2>7. Skolens forpliktelser</h2>
+        <ol>
+            <li>Sørge for at lærere bruker tjenesten i samsvar med avtalen og norsk lov</li>
+            <li>Ivareta sitt ansvar som behandlingsansvarlig etter databehandleravtalen, herunder informasjon til elever/foresatte der det kreves</li>
+            <li>Ikke dele tilgang utenfor skolens egne ansatte</li>
+            <li>Betale faktura innen forfall</li>
+        </ol>
+
+        <h2>8. Tjenestenivå og tilgjengelighet</h2>
+        <p>Tjenesten leveres «som den er» med mål om høy tilgjengelighet. Leverandøren tilstreber rask retting av kritiske feil. Planlagt vedlikehold varsles når det er praktisk mulig. Tjenesten er per i dag i en tidlig fase (ALPHA/BETA); skolen gjøres oppmerksom på at funksjonalitet kan endres.</p>
+
+        <h2>9. Ansvarsbegrensning</h2>
+        <p>Leverandørens samlede erstatningsansvar er begrenset til vederlaget skolen har betalt for inneværende avtaleperiode. Leverandøren er ikke ansvarlig for indirekte tap, herunder tap av data utover det som følger av databehandleravtalen, tapt arbeidsfortjeneste eller følgeskader. Begrensningen gjelder ikke ved forsett eller grov uaktsomhet.</p>
+
+        <h2>10. Immaterielle rettigheter</h2>
+        <p>Alle rettigheter til GloseMester, inkludert kildekode, design, varemerke og innhold, tilhører Oksvold EDB. Skolen får en ikke-eksklusiv, ikke-overførbar bruksrett i avtaleperioden. Prøver og innhold som lærere selv lager, tilhører skolen/læreren.</p>
+
+        <h2>11. Personvern</h2>
+        <p>Behandling av personopplysninger reguleres i den separate <a href="/databehandleravtale.html">databehandleravtalen</a> mellom skolen (behandlingsansvarlig) og Oksvold EDB (databehandler), inngått etter GDPR artikkel 28. Ved motstrid om personvern går databehandleravtalen foran.</p>
+
+        <h2>12. Endringer</h2>
+        <p>Endringer i avtalen skal være skriftlige og signeres av begge parter. Mindre endringer i tjenestens funksjonalitet kan skje løpende som ledd i videreutvikling.</p>
+
+        <h2>13. Lovvalg og verneting</h2>
+        <p>Avtalen er underlagt norsk rett. Tvister som ikke løses i minnelighet, avgjøres ved Oslo tingrett.</p>
+
+        <h2>14. Signatur</h2>
+        <p>Ved signering bekrefter begge parter at de har lest og aksepterer vilkårene i denne skoleavtalen og den tilhørende databehandleravtalen.</p>
+
+        <div class="signatur-boks">
+            <div class="signatur-felt">
+                <h3>Kunde (skolen)</h3>
+                <p style="font-size:13px;color:#888;">Skolens navn:</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;">Org.nr.:</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;">Navn og stilling:</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;">Dato og underskrift:</p>
+                <div class="signatur-linje"></div>
+            </div>
+            <div class="signatur-felt">
+                <h3>Leverandør (Oksvold EDB)</h3>
+                <p style="font-size:13px;color:#888;">Oksvold EDB, org.nr. 836 906 012</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;">Øyvind Nilsen Oksvold, daglig leder</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;margin-top:16px;">Dato og underskrift:</p>
+                <div class="signatur-linje"></div>
+                <p style="font-size:13px;color:#888;">kontakt@glosemester.no</p>
+            </div>
+        </div>
+
+        <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn-print" onclick="window.print()">🖨️ Skriv ut / Last ned PDF</button>
+            <a href="mailto:kontakt@glosemester.no?subject=Skoleavtale%20GloseMester&body=Hei%2C%0A%0AVi%20%C3%B8nsker%20%C3%A5%20inng%C3%A5%20skolepakkeavtale%20med%20GloseMester.%0A%0ASkole%3A%20%0AOrg.nr%3A%20%0AKontaktperson%3A%20%0AE-post%3A%20%0AAntall%20l%C3%A6rere%3A%20%0A" class="btn-print" style="background:#34c759;text-decoration:none;">✉️ Be om tilbud / signering</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
