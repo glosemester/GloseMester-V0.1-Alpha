@@ -2,14 +2,15 @@
 # Tidligere publiserte denne v2 fra rota (publish="."). v2-koden ligger fortsatt
 # i repoet (index.html, src/, js/) som referanse, men deployes ikke lenger.
 # Eldre v2-deploys finnes i Netlify sin deploy-historikk om rollback trengs.
+#
+# Base holdes i repo-rota slik at rotas package.json (firebase-admin, stripe,
+# resend) installeres — Netlify-funksjonene trenger disse. Byggekommandoen
+# installerer og bygger v3 separat. Vite skriver til repo-rot/dist.
 
 [build]
-  base = "app-v3"
-  # base=app-v3 gjør at command og publish er relativt til app-v3/.
-  command = "npm run build"
+  command = "cd app-v3 && npm ci && npm run build"
   publish = "dist"
-  # functions ligger utenfor base, så stien er relativ til base (../).
-  functions = "../netlify/functions"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/api/*"
