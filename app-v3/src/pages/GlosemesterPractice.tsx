@@ -67,8 +67,8 @@ export function GlosemesterPractice() {
       );
 
       if (korrekt) {
-        const { diamantTildelt } = registrerRiktigSvar();
-        if (diamantTildelt) toast.success('💎 +1 Diamant! (100 XP nådd)');
+        const { diamanterTildelt } = registrerRiktigSvar();
+        if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
         setFeedback({ type: 'correct', correctAnswer: answerFor(word, session!.direction) });
         window.setTimeout(gaaTilNeste, 800);
       } else {
