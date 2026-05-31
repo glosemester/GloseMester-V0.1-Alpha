@@ -14,6 +14,7 @@ export function AppHeader() {
   const loggUt = useAuthStore((s) => s.loggUt);
   // Tilbakeknapp skjules på selve hjem-navet (ingen naturlig «tilbake» derfra).
   const visTilbake = location.pathname !== ROUTES.HJEM;
+  const initialer = lagInitialer(bruker?.displayName);
 
   return (
     <header style={header}>
@@ -30,9 +31,20 @@ export function AppHeader() {
       </Link>
       <div style={hoyre}>
         {bruker && (
-          <button type="button" onClick={() => void loggUt()} style={loggUtKnapp}>
-            Logg ut
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.PROFILE)}
+              style={avatarKnapp}
+              aria-label="Min side"
+              title="Min side"
+            >
+              {initialer || <span aria-hidden="true">👤</span>}
+            </button>
+            <button type="button" onClick={() => void loggUt()} style={loggUtKnapp}>
+              Logg ut
+            </button>
+          </>
         )}
       </div>
     </header>
@@ -46,8 +58,24 @@ const header: React.CSSProperties = {
   borderBottom: '1px solid var(--color-border)',
   backdropFilter: 'saturate(180%) blur(8px)',
 };
+/** Inntil to initialer fra visningsnavn («Øyvind Nilsen Oksvold» → «ØO»). */
+function lagInitialer(navn?: string | null): string {
+  if (!navn) return '';
+  const deler = navn.trim().split(/\s+/).filter(Boolean);
+  if (deler.length === 0) return '';
+  const forste = deler[0][0] ?? '';
+  const siste = deler.length > 1 ? deler[deler.length - 1][0] ?? '' : '';
+  return (forste + siste).toUpperCase();
+}
+
 const venstre: React.CSSProperties = { flex: 1, display: 'flex', justifyContent: 'flex-start' };
-const hoyre: React.CSSProperties = { flex: 1, display: 'flex', justifyContent: 'flex-end' };
+const hoyre: React.CSSProperties = { flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8 };
+const avatarKnapp: React.CSSProperties = {
+  display: 'grid', placeItems: 'center', width: 36, height: 36, flexShrink: 0,
+  borderRadius: '50%', background: 'var(--color-primary)', color: '#fff',
+  border: 'none', fontWeight: 800, fontSize: 13, cursor: 'pointer',
+  fontFamily: 'var(--font-primary)',
+};
 const knappBase: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'transparent', color: 'var(--color-text-muted)',
