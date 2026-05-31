@@ -46,6 +46,22 @@ test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
   await expect(page.getByText('🎁 Nytt kort!')).toBeVisible();
 });
 
+test('bunnmeny: øve-flyten har Øv/Galleri/Hjem-faner', async ({ page }) => {
+  // Bunnmenyen skal være tilgjengelig både på nivåvelger og i øvemodus.
+  await page.goto('/gloser');
+  await expect(page.getByTestId('tab-ov')).toBeVisible();
+  await expect(page.getByTestId('tab-galleri')).toBeVisible();
+  await expect(page.getByTestId('tab-hjem')).toBeVisible();
+
+  await page.goto('/ov?niva=niva1');
+  await expect(page.getByText('1/40')).toBeVisible();
+  await expect(page.getByTestId('tab-galleri')).toBeVisible();
+
+  // Galleri-fanen skal føre gjesten til galleriet (åpent uten innlogging).
+  await page.getByTestId('tab-galleri').click();
+  await expect(page).toHaveURL(/\/galleri$/);
+});
+
 test('FAQ-siden bruker ryddet språk (ingen «Leitner»)', async ({ page }) => {
   await page.goto('/faq');
   await expect(page.getByRole('heading', { name: /ofte stilte spørsmål/i })).toBeVisible();

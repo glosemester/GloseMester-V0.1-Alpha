@@ -16,11 +16,22 @@ export function AppHeader() {
   const visTilbake = location.pathname !== ROUTES.HJEM;
   const initialer = lagInitialer(bruker?.displayName);
 
+  // Noen sider har et fast tilbake-mål i stedet for historikk-baserte
+  // navigate(-1). Nivåvelgeren: ellers kan «tilbake» lande i øve-økten man
+  // nettopp avsluttet (øve-«Avslutt» pusher nivåvelgeren på historikken).
+  const FAST_TILBAKE: Record<string, string> = {
+    [ROUTES.GLOSEMESTER]: ROUTES.HJEM,
+    [ROUTES.GLOSEMESTER_START]: ROUTES.HJEM,
+    [ROUTES.GALLERY]: ROUTES.HJEM,
+  };
+  const fastMaal = FAST_TILBAKE[location.pathname];
+  const gaaTilbake = () => (fastMaal ? navigate(fastMaal) : navigate(-1));
+
   return (
     <header style={header}>
       <div style={venstre}>
         {visTilbake && (
-          <button type="button" onClick={() => navigate(-1)} style={tilbakeKnapp} aria-label="Gå tilbake">
+          <button type="button" onClick={gaaTilbake} style={tilbakeKnapp} aria-label="Gå tilbake">
             <span aria-hidden="true">←</span> Tilbake
           </button>
         )}
