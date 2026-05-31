@@ -56,16 +56,32 @@ export function Landing() {
           og deler med QR-kode.
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%', maxWidth: 320, marginTop: 8 }}>
-          <Button variant="primary" onClick={startFeideLogin} style={{ width: '100%' }}>
-            Logg inn med Feide
-          </Button>
-          <Button variant="secondary" onClick={handleGoogle} disabled={googleLaster} style={{ width: '100%' }}>
-            {googleLaster ? 'Logger inn…' : 'Logg inn med Google'}
-          </Button>
-          <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER)} style={gjestKnapp}>
-            Innloggingsfri øving →
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)', width: '100%', maxWidth: 360, marginTop: 8 }}>
+          {/* For elever — øverst: logg inn (Feide) eller øv uten innlogging. */}
+          <div style={gruppe}>
+            <span style={gruppeEtikett}>For elever</span>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              <Button variant="primary" onClick={startFeideLogin} style={{ flex: 1 }}>
+                Logg inn som elev
+              </Button>
+              <Button variant="secondary" onClick={() => navigate(ROUTES.GLOSEMESTER)} style={{ flex: 1 }}>
+                Øv uten innlogging
+              </Button>
+            </div>
+          </div>
+
+          {/* For lærere — under: to innloggingsmåter. */}
+          <div style={gruppe}>
+            <span style={gruppeEtikett}>For lærere</span>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              <Button variant="primary" onClick={startFeideLogin} style={{ flex: 1 }}>
+                Feide
+              </Button>
+              <Button variant="secondary" onClick={handleGoogle} disabled={googleLaster} style={{ flex: 1 }}>
+                {googleLaster ? 'Logger inn…' : 'Google'}
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -93,8 +109,13 @@ export function Landing() {
 }
 
 const navLenke: React.CSSProperties = { color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 14, textDecoration: 'none' };
-const gjestKnapp: React.CSSProperties = {
-  background: 'transparent', color: 'var(--color-text-muted)', border: 'none',
-  fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)', padding: 8,
+const gruppe: React.CSSProperties = {
+  display: 'flex', flexDirection: 'column', gap: 'var(--space-2)',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)', padding: 'var(--space-3)', boxShadow: 'var(--shadow-sm)',
+};
+const gruppeEtikett: React.CSSProperties = {
+  fontSize: 12, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase',
+  color: 'var(--color-text-muted)', textAlign: 'left',
 };
 
