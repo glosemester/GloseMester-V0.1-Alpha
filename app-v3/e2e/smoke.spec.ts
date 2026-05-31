@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 
 test('landingssiden har elev- og lærer-innlogging', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /logg inn som elev/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /øv uten innlogging/i })).toBeVisible();
   await expect(page.getByText('For elever')).toBeVisible();
 });

@@ -62,7 +62,7 @@ export function Landing() {
             <span style={gruppeEtikett}>For elever</span>
             <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
               <Button variant="primary" onClick={startFeideLogin} style={{ flex: 1 }}>
-                Logg inn som elev
+                Logg inn med Feide
               </Button>
               <Button variant="secondary" onClick={() => navigate(ROUTES.GLOSEMESTER)} style={{ flex: 1 }}>
                 Øv uten innlogging
