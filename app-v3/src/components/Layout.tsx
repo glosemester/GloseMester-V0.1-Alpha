@@ -7,6 +7,7 @@
  */
 import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { TabBar, TAB_BAR_HOYDE } from './TabBar';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
@@ -23,16 +24,27 @@ const UTEN_APP_HEADER = new Set<string>([
   ROUTES.QUIZ,
 ]);
 
+// Elev-sider som skal vise bunnmenyen (Øv / Galleri / Hjem). Prøvemodus
+// (/prove) holdes utenfor — eleven skal ikke navigere bort midt i en prøve.
+const MED_TABBAR = new Set<string>([
+  ROUTES.GLOSEMESTER,
+  ROUTES.GLOSEMESTER_START,
+  ROUTES.PRACTICE,
+  ROUTES.GALLERY,
+]);
+
 export function Layout() {
   const { pathname } = useLocation();
   const visAppHeader = !UTEN_APP_HEADER.has(pathname);
+  const visTabBar = MED_TABBAR.has(pathname);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {visAppHeader && <AppHeader />}
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, paddingBottom: visTabBar ? TAB_BAR_HOYDE + 24 : undefined }}>
         <Outlet />
       </main>
+      {visTabBar && <TabBar />}
     </div>
   );
 }

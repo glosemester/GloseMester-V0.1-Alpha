@@ -60,8 +60,9 @@ export function Galleri() {
       <div style={{ textAlign: 'center', padding: '60px 20px', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-4)' }}>
         <div style={{ fontSize: 64 }}>🃏</div>
         <h3 style={{ fontWeight: 800 }}>Ingen kort ennå</h3>
-        <p style={{ color: 'var(--color-text-muted)', maxWidth: '36ch' }}>
-          Svar riktig på minst 80&nbsp;% av en prøve for å vinne ditt første kort!
+        <p style={{ color: 'var(--color-text-muted)', maxWidth: '38ch' }}>
+          Øv og svar riktig for å vinne kort — du får ett for hvert 10. riktige svar,
+          og ekstra når du gjør det bra på en prøve!
         </p>
         <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={primaerKnapp}>
           🚀 Start øving
