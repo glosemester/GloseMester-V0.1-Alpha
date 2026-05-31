@@ -33,9 +33,15 @@ import {
   type LeitnerState,
 } from '../features/glosemester/leitner';
 import { registrerRiktigSvar } from '../lib/rewards';
+import { checkWinCondition } from '../features/kort/kortReward';
+import { leggTilKort } from '../features/kort/kortSamling';
+import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { lesOpp, vibrer } from '../lib/speech';
 import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
+
+/** Antall riktige svar per kortbelønning i øvemodus (jf. v2 kortProgress). */
+const KORT_PER_RIKTIGE = 10;
 
 type Feedback = { type: 'correct' | 'wrong'; correctAnswer: string } | null;
 
@@ -68,6 +74,14 @@ export function GlosemesterPractice() {
   const [valgtSvar, setValgtSvar] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState(false);
   const forrigeRef = useRef<Word | undefined>(undefined);
+
+  // Kortprogresjon: hvert 10. riktige svar gir et kort (jf. v2). Persisteres på
+  // tvers av økter via localStorage, akkurat som v2 sin kortProgress.
+  const [kortProgresjon, setKortProgresjon] = useState(() => {
+    const lagret = Number(localStorage.getItem('kortProgress') ?? '0');
+    return Number.isFinite(lagret) ? lagret % KORT_PER_RIKTIGE : 0;
+  });
+  const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
 
   // Bygger neste spørsmål basert på Leitner-vekting.
   const nesteSporsmal = useCallback(() => {
@@ -118,6 +132,25 @@ export function GlosemesterPractice() {
         setStreak((n) => n + 1);
         const { diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
+
+        // Kortbelønning: hvert 10. riktige svar gir et kort (jf. v2 øvemodus).
+        setKortProgresjon((forrige) => {
+          const ny = forrige + 1;
+          if (ny >= KORT_PER_RIKTIGE) {
+            // checkWinCondition(10,10) = 100 % → garantert kort, nivåfiltrert.
+            const kort = checkWinCondition(KORT_PER_RIKTIGE, KORT_PER_RIKTIGE, level);
+            if (kort) {
+              leggTilKort(kort);
+              setVunnetKort(kort);
+              toast.success(`🎁 Nytt kort: ${kort.name} (${RARITY_CONFIG[kort.rarity].tekst})!`);
+            }
+            localStorage.setItem('kortProgress', '0');
+            return 0;
+          }
+          localStorage.setItem('kortProgress', String(ny));
+          return ny;
+        });
+
         setFeedback({ type: 'correct', correctAnswer: answerFor(word, direction) });
         window.setTimeout(gaaVidere, 900);
       } else {
@@ -165,6 +198,19 @@ export function GlosemesterPractice() {
 
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, var(--color-primary-light) 0%, var(--color-bg) 40%)' }}>
+      {vunnetKort && (
+        <button type="button" onClick={() => setVunnetKort(null)} style={kortOverlay} aria-label="Lukk kortbelønning">
+          <div style={{ ...kortPopup, borderColor: RARITY_CONFIG[vunnetKort.rarity].farge }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 800, fontSize: 18 }}>🎁 Nytt kort!</div>
+            <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 160, height: 160, objectFit: 'contain' }} />
+            <div style={{ fontWeight: 800, fontSize: 18 }}>{vunnetKort.name}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: RARITY_CONFIG[vunnetKort.rarity].farge }}>
+              {RARITY_CONFIG[vunnetKort.rarity].emoji} {RARITY_CONFIG[vunnetKort.rarity].tekst}
+            </div>
+            <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Trykk for å fortsette</span>
+          </div>
+        </button>
+      )}
       <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px' }}>
         <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Avslutt</button>
         <div style={{ flex: 1 }}>
@@ -179,6 +225,27 @@ export function GlosemesterPractice() {
           </span>
         )}
       </header>
+
+      {/* Kortprogresjon — 10 bokser som fylles mot neste kort (jf. v2). */}
+      <div style={{ padding: '0 20px', maxWidth: 460, width: '100%', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4, letterSpacing: '0.03em' }}>
+          <span>🃏 NESTE KORT</span>
+          <span>{kortProgresjon}/{KORT_PER_RIKTIGE}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {Array.from({ length: KORT_PER_RIKTIGE }, (_, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1, height: 8, borderRadius: 999,
+                background: i < kortProgresjon ? 'var(--color-primary)' : 'rgba(0,0,0,0.08)',
+                boxShadow: i < kortProgresjon ? '0 0 8px var(--color-primary)' : 'none',
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-6)', padding: 'var(--space-6)', textAlign: 'center' }}>
         <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease' }}>
@@ -280,6 +347,17 @@ const primaerKnapp: React.CSSProperties = {
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
+};
+const kortOverlay: React.CSSProperties = {
+  position: 'fixed', inset: 0, zIndex: 200, border: 'none',
+  background: 'rgba(0,0,0,0.55)', display: 'grid', placeItems: 'center',
+  padding: 20, cursor: 'pointer', fontFamily: 'var(--font-primary)',
+};
+const kortPopup: React.CSSProperties = {
+  background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
+  border: '3px solid var(--color-border)', padding: '28px 32px', cursor: 'default',
+  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+  maxWidth: 320, animation: 'pop 0.35s ease', boxShadow: 'var(--shadow-lg)',
 };
 const tilbakeKnapp: React.CSSProperties = {
   background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
