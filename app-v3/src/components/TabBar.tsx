@@ -17,8 +17,8 @@ interface Fane {
 
 const FANER: Fane[] = [
   { id: 'ov', ikon: '✏️', label: 'Øv', rute: ROUTES.GLOSEMESTER, match: [ROUTES.GLOSEMESTER, ROUTES.GLOSEMESTER_START, ROUTES.PRACTICE] },
+  { id: 'mine', ikon: '🃏', label: 'Mine Kort', rute: ROUTES.MY_CARDS, match: [ROUTES.MY_CARDS] },
   { id: 'galleri', ikon: '🏆', label: 'Galleri', rute: ROUTES.GALLERY, match: [ROUTES.GALLERY] },
-  { id: 'hjem', ikon: '🏠', label: 'Hjem', rute: ROUTES.HJEM, match: [ROUTES.HJEM] },
 ];
 
 export function TabBar() {

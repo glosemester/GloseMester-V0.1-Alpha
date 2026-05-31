@@ -134,16 +134,13 @@ export function GlosemesterPractice() {
         if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
         // Kortbelønning: hvert 10. riktige svar gir et kort (jf. v2 øvemodus).
+        // Kortet legges IKKE til automatisk — eleven bekrefter via popup-knappen.
         setKortProgresjon((forrige) => {
           const ny = forrige + 1;
           if (ny >= KORT_PER_RIKTIGE) {
             // checkWinCondition(10,10) = 100 % → garantert kort, nivåfiltrert.
             const kort = checkWinCondition(KORT_PER_RIKTIGE, KORT_PER_RIKTIGE, level);
-            if (kort) {
-              leggTilKort(kort);
-              setVunnetKort(kort);
-              toast.success(`🎁 Nytt kort: ${kort.name} (${RARITY_CONFIG[kort.rarity].tekst})!`);
-            }
+            if (kort) setVunnetKort(kort);
             localStorage.setItem('kortProgress', '0');
             return 0;
           }
@@ -161,6 +158,14 @@ export function GlosemesterPractice() {
     },
     [level, gaaVidere],
   );
+
+  // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).
+  const leggTilVunnetKort = useCallback(() => {
+    if (!vunnetKort) return;
+    leggTilKort(vunnetKort);
+    toast.success(`🃏 ${vunnetKort.name} lagt i samlingen!`);
+    setVunnetKort(null);
+  }, [vunnetKort]);
 
   const progresjon = rundeLengde > 0 ? Math.round((besvart / rundeLengde) * 100) : 0;
 
@@ -199,17 +204,24 @@ export function GlosemesterPractice() {
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, var(--color-primary-light) 0%, var(--color-bg) 40%)' }}>
       {vunnetKort && (
-        <button type="button" onClick={() => setVunnetKort(null)} style={kortOverlay} aria-label="Lukk kortbelønning">
-          <div style={{ ...kortPopup, borderColor: RARITY_CONFIG[vunnetKort.rarity].farge }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontWeight: 800, fontSize: 18 }}>🎁 Nytt kort!</div>
+        <div style={kortOverlay} role="dialog" aria-label="Du vant et kort">
+          <div style={{ ...kortPopup, borderColor: RARITY_CONFIG[vunnetKort.rarity].farge }}>
+            <div style={{ fontWeight: 800, fontSize: 18 }}>🎁 Du vant et kort!</div>
             <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 160, height: 160, objectFit: 'contain' }} />
             <div style={{ fontWeight: 800, fontSize: 18 }}>{vunnetKort.name}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: RARITY_CONFIG[vunnetKort.rarity].farge }}>
               {RARITY_CONFIG[vunnetKort.rarity].emoji} {RARITY_CONFIG[vunnetKort.rarity].tekst}
             </div>
-            <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Trykk for å fortsette</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
+              <button type="button" onClick={leggTilVunnetKort} style={primaerKnapp}>
+                ➕ Legg til i min samling
+              </button>
+              <button type="button" onClick={() => setVunnetKort(null)} style={tilbakeKnapp}>
+                Hopp over
+              </button>
+            </div>
           </div>
-        </button>
+        </div>
       )}
       <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px' }}>
         <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Avslutt</button>
