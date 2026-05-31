@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../state/useAuthStore';
 import { ROUTES } from '../routes/paths';
+// «Logg ut» ligger nå i den globale AppHeader (tilgjengelig fra alle sider).
 
 interface Snarvei {
   ikon: string;
@@ -18,7 +19,6 @@ interface Snarvei {
 export function Hjem() {
   const navigate = useNavigate();
   const bruker = useAuthStore((s) => s.bruker);
-  const loggUt = useAuthStore((s) => s.loggUt);
   const erLaerer = bruker?.rolle === 'laerer' || bruker?.rolle === 'admin';
   const [hover, setHover] = useState<string | null>(null);
 
@@ -38,12 +38,9 @@ export function Hjem() {
         <p style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: 14, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 4 }}>
           Velkommen tilbake
         </p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: 'clamp(28px, 5vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
-            Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}! <span aria-hidden="true">👋</span>
-          </h1>
-          <button type="button" onClick={() => void loggUt()} style={ghostKnapp}>Logg ut</button>
-        </div>
+        <h1 style={{ fontSize: 'clamp(28px, 5vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
+          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}! <span aria-hidden="true">👋</span>
+        </h1>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
@@ -80,8 +77,4 @@ const kort: React.CSSProperties = {
 };
 const ikonSirkel: React.CSSProperties = {
   display: 'grid', placeItems: 'center', width: 56, height: 56, borderRadius: '50%',
-};
-const ghostKnapp: React.CSSProperties = {
-  background: 'transparent', color: 'var(--color-text-muted)', border: '2px solid var(--color-border)',
-  borderRadius: 'var(--radius-full)', padding: '8px 16px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };

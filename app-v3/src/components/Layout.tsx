@@ -10,6 +10,8 @@ import { AppHeader } from './AppHeader';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
+// Marketing-sider har egen header; øve-/prøvesider er fullskjerm med egen
+// avslutt-knapp og progresjonslinje.
 const UTEN_APP_HEADER = new Set<string>([
   ROUTES.LANDING,
   '/for-laerere',
@@ -17,6 +19,8 @@ const UTEN_APP_HEADER = new Set<string>([
   '/om-oss',
   '/faq',
   '/oppgrader',
+  ROUTES.PRACTICE,
+  ROUTES.QUIZ,
 ]);
 
 export function Layout() {
