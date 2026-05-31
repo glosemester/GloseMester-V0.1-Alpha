@@ -64,6 +64,8 @@ export function GlosemesterPractice() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [besvart, setBesvart] = useState(0);
   const [riktige, setRiktige] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [valgtSvar, setValgtSvar] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState(false);
   const forrigeRef = useRef<Word | undefined>(undefined);
 
@@ -83,6 +85,7 @@ export function GlosemesterPractice() {
     });
     setTypedAnswer('');
     setFeedback(null);
+    setValgtSvar(null);
   }, [words, level]);
 
   // Init: last Leitner-tilstand og lag første spørsmål.
@@ -103,7 +106,8 @@ export function GlosemesterPractice() {
   }, [besvart, rundeLengde, nesteSporsmal]);
 
   const registrerSvar = useCallback(
-    (word: Word, korrekt: boolean) => {
+    (word: Word, korrekt: boolean, svartekst?: string) => {
+      if (svartekst !== undefined) setValgtSvar(svartekst);
       // Oppdater + lagre Leitner-tilstand.
       leitnerRef.current = recordAnswer(leitnerRef.current, word, korrekt);
       saveLeitnerState(level as LevelId, leitnerRef.current);
@@ -111,11 +115,13 @@ export function GlosemesterPractice() {
       setBesvart((n) => n + 1);
       if (korrekt) {
         setRiktige((n) => n + 1);
+        setStreak((n) => n + 1);
         const { diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
         setFeedback({ type: 'correct', correctAnswer: answerFor(word, direction) });
-        window.setTimeout(gaaVidere, 800);
+        window.setTimeout(gaaVidere, 900);
       } else {
+        setStreak(0);
         vibrer(200);
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
@@ -143,7 +149,7 @@ export function GlosemesterPractice() {
         <p style={{ color: 'var(--color-text-muted)' }}>{riktige} av {besvart} riktig ({prosent}%)</p>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>💪 {mestret} av {words.length} ord mestret</p>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
+          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); setStreak(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>Velg nivå</button>
         </div>
       </div>
@@ -155,55 +161,86 @@ export function GlosemesterPractice() {
   const { word, mode, alternatives } = sporsmal;
   const svarLang = direction === 'en' ? 'en-US' : 'no-NO';
 
+  const korrektSvar = answerFor(word, direction);
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)' }}>
-        <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Tilbake</button>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, var(--color-primary-light) 0%, var(--color-bg) 40%)' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px' }}>
+        <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Avslutt</button>
         <div style={{ flex: 1 }}>
-          <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999 }}>
-            <div style={{ width: `${progresjon}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.3s' }} />
+          <div style={{ height: 10, background: 'rgba(0,0,0,0.08)', borderRadius: 999, overflow: 'hidden' }}>
+            <div style={{ width: `${progresjon}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
           </div>
         </div>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)' }}>{besvart + 1}/{rundeLengde}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', minWidth: 44, textAlign: 'right' }}>{besvart + 1}/{rundeLengde}</span>
+        {streak >= 2 && (
+          <span key={streak} style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary)', animation: 'pop 0.3s ease', whiteSpace: 'nowrap' }}>
+            🔥 {streak}
+          </span>
+        )}
       </header>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-6)', padding: 'var(--space-6)', textAlign: 'center' }}>
-        {word.image && direction === 'en' && (
-          <img src={word.image} alt={word.s} style={{ maxWidth: 160, maxHeight: 160 }} />
-        )}
-        <h2 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: 900, color: 'var(--color-text)' }}>
-          {promptFor(word, direction)}
-        </h2>
+        <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease' }}>
+          {word.image && direction === 'en' && (
+            <img src={word.image} alt={word.s} style={{ maxWidth: 160, maxHeight: 160, filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))' }} />
+          )}
+          <h2 style={{ fontSize: 'clamp(2.2rem, 9vw, 4rem)', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1.05 }}>
+            {promptFor(word, direction)}
+          </h2>
+          <button
+            type="button"
+            aria-label="Les opp ordet"
+            onClick={() => lesOpp(promptFor(word, direction), direction === 'en' ? 'en-US' : 'no-NO')}
+            style={hoyttalerKnapp}
+          >
+            🔊
+          </button>
+        </div>
 
         {mode === 'mc' && alternatives ? (
-          <div style={{ display: 'grid', gap: 12, width: '100%', maxWidth: 420 }}>
+          <div style={{ display: 'grid', gap: 12, width: '100%', maxWidth: 440 }}>
             {alternatives.map((alt) => {
               const tekst = answerFor(alt, direction);
+              const erFasit = tekst === korrektSvar;
+              const erValgt = valgtSvar === tekst;
+              // Fargelegg når svar er gitt: fasit = grønn, feilvalgt = rød.
+              let stil = alternativKnapp;
+              if (feedback) {
+                if (erFasit) stil = { ...alternativKnapp, ...riktigStil };
+                else if (erValgt) stil = { ...alternativKnapp, ...galtStil };
+                else stil = { ...alternativKnapp, opacity: 0.45 };
+              }
               return (
                 <button
                   key={tekst}
                   type="button"
+                  data-testid="svar-alternativ"
                   disabled={feedback !== null}
-                  onClick={() => registrerSvar(word, isAnswerCorrect(tekst, word, direction))}
-                  style={alternativKnapp}
+                  onClick={() => registrerSvar(word, isAnswerCorrect(tekst, word, direction), tekst)}
+                  style={stil}
                 >
                   <span>{tekst}</span>
-                  <span
-                    role="button"
-                    aria-label={`Les opp ${tekst}`}
-                    onClick={(e) => { e.stopPropagation(); lesOpp(tekst, svarLang); }}
-                    style={{ fontSize: 20, cursor: 'pointer' }}
-                  >
-                    🔊
-                  </span>
+                  {feedback && erFasit && <span aria-hidden="true">✓</span>}
+                  {feedback && erValgt && !erFasit && <span aria-hidden="true">✕</span>}
+                  {!feedback && (
+                    <span
+                      role="button"
+                      aria-label={`Les opp ${tekst}`}
+                      onClick={(e) => { e.stopPropagation(); lesOpp(tekst, svarLang); }}
+                      style={{ fontSize: 20, cursor: 'pointer' }}
+                    >
+                      🔊
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
         ) : (
           <form
-            onSubmit={(e) => { e.preventDefault(); if (feedback) return; registrerSvar(word, isAnswerCorrect(typedAnswer, word, direction)); }}
-            style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 420 }}
+            onSubmit={(e) => { e.preventDefault(); if (feedback) return; registrerSvar(word, isAnswerCorrect(typedAnswer, word, direction), typedAnswer); }}
+            style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 440 }}
           >
             <input
               autoFocus
@@ -211,17 +248,27 @@ export function GlosemesterPractice() {
               onChange={(e) => setTypedAnswer(e.target.value)}
               disabled={feedback !== null}
               placeholder="Skriv svaret…"
-              style={{ flex: 1, padding: '12px 16px', fontSize: 16, border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}
+              style={{
+                flex: 1, padding: '14px 18px', fontSize: 17, fontFamily: 'var(--font-primary)',
+                border: `2px solid ${feedback?.type === 'correct' ? 'var(--color-success)' : feedback?.type === 'wrong' ? 'var(--color-error)' : 'var(--color-border)'}`,
+                borderRadius: 'var(--radius-md)', outline: 'none', transition: 'border-color 0.2s',
+              }}
             />
             <button type="submit" disabled={feedback !== null} style={primaerKnapp}>Sjekk</button>
           </form>
         )}
 
-        {feedback?.type === 'correct' && <p style={{ color: 'var(--color-success)', fontWeight: 700 }}>✅ Riktig!</p>}
+        {feedback?.type === 'correct' && (
+          <p style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 20, animation: 'pop 0.3s ease' }}>
+            {streak >= 3 ? `🔥 ${streak} på rad!` : 'Riktig! 🎉'}
+          </p>
+        )}
         {feedback?.type === 'wrong' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-            <p style={{ color: 'var(--color-error)', fontWeight: 700 }}>Riktig svar: {feedback.correctAnswer}</p>
-            <button type="button" onClick={gaaVidere} style={primaerKnapp}>Neste →</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', animation: 'shake 0.4s ease' }}>
+            <p style={{ color: 'var(--color-error)', fontWeight: 700 }}>
+              Riktig svar: <strong>{feedback.correctAnswer}</strong>
+            </p>
+            <button type="button" onClick={gaaVidere} style={primaerKnapp} autoFocus>Neste →</button>
           </div>
         )}
       </main>
@@ -241,8 +288,20 @@ const tilbakeKnapp: React.CSSProperties = {
 };
 const alternativKnapp: React.CSSProperties = {
   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-  padding: '15px 20px', fontSize: 16, fontWeight: 600,
+  padding: '17px 22px', fontSize: 17, fontWeight: 700,
   background: 'var(--color-surface)', color: 'var(--color-text)',
-  border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)',
+  border: '2px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
   cursor: 'pointer', fontFamily: 'var(--font-primary)',
+  boxShadow: 'var(--shadow-sm)', transition: 'transform 0.12s, border-color 0.2s, background 0.2s',
+};
+const riktigStil: React.CSSProperties = {
+  background: 'var(--color-success)', color: '#fff', borderColor: 'var(--color-success)',
+};
+const galtStil: React.CSSProperties = {
+  background: 'var(--color-error)', color: '#fff', borderColor: 'var(--color-error)',
+};
+const hoyttalerKnapp: React.CSSProperties = {
+  display: 'grid', placeItems: 'center', width: 48, height: 48, fontSize: 22,
+  background: 'var(--color-surface)', border: '2px solid var(--color-border)',
+  borderRadius: '50%', cursor: 'pointer', boxShadow: 'var(--shadow-sm)',
 };

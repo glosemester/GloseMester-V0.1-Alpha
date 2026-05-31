@@ -7,7 +7,8 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "mcp__84a2dce2-18f1-4fc4-95a2-b07056fcf485__get_deployment_build_logs",
-      "mcp__093427ba-abb3-4452-99c8-471c98c14a4e__netlify-deploy-services-reader"
+      "mcp__093427ba-abb3-4452-99c8-471c98c14a4e__netlify-deploy-services-reader",
+      "mcp__093427ba-abb3-4452-99c8-471c98c14a4e__netlify-project-services-reader"
     ]
   }
 }

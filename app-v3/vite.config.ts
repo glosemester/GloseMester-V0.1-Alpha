@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -34,5 +35,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+  },
+  // Vitest (enhetstester). e2e/ kjøres av Playwright, ikke Vitest — ekskluderes
+  // så Vitest ikke prøver å laste @playwright/test.
+  test: {
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
   },
 });
