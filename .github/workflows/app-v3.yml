@@ -46,3 +46,37 @@ jobs:
 
       - name: Bygg
         run: npm run build
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-v3
+    steps:
+      - name: Hent ut koden
+        uses: actions/checkout@v4
+
+      - name: Sett opp Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app-v3/package-lock.json
+
+      - name: Installer avhengigheter
+        run: npm ci
+
+      - name: Installer Playwright-browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Kjør e2e-tester
+        run: npm run e2e
+
+      - name: Last opp rapport ved feil
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: app-v3/test-results/
+          retention-days: 7

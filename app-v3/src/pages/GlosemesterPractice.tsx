@@ -215,6 +215,7 @@ export function GlosemesterPractice() {
                 <button
                   key={tekst}
                   type="button"
+                  data-testid="svar-alternativ"
                   disabled={feedback !== null}
                   onClick={() => registrerSvar(word, isAnswerCorrect(tekst, word, direction), tekst)}
                   style={stil}
