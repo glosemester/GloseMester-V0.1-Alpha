@@ -11,8 +11,88 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* Loading-skjerm — vises før React mounter, fjernes av main.tsx.
+         Animert «G»-logo som tegner seg selv, så GloseMester-ordmerket toner inn. */
+      #loading-screen {
+        position: fixed;
+        inset: 0;
+        background: #fafaf8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.4s;
+        font-family: 'Nunito', 'Arial Rounded MT Bold', system-ui, sans-serif;
+      }
+      #loading-screen.skjul {
+        opacity: 0;
+      }
+      #loading-screen .ls-g {
+        width: 120px;
+        height: auto;
+        overflow: visible;
+        filter: drop-shadow(0 4px 12px rgba(255, 107, 71, 0.2));
+      }
+      #loading-screen .ls-g-path {
+        stroke: #ff6b47;
+        stroke-width: 5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: lsDrawG 1.4s ease-in-out forwards;
+      }
+      @keyframes lsDrawG {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      #loading-screen .ls-wordmark {
+        font-size: 17px;
+        font-weight: 400;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #ff6b47;
+        line-height: 1;
+        margin: 16px 0 0;
+        opacity: 0;
+        animation: lsFadeUp 0.6s ease forwards;
+        animation-delay: 1.3s;
+      }
+      @keyframes lsFadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- Loading-skjerm (fjernes av main.tsx når React har mountet) -->
+    <div id="loading-screen">
+      <svg class="ls-g" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          class="ls-g-path"
+          pathLength="1"
+          d="M 156,52
+             C 138,24 100,16 68,30
+             C 36,44 20,74 20,104
+             C 20,140 42,168 74,178
+             C 106,188 140,174 156,150
+             C 164,134 162,114 152,104
+             L 100,104"
+        />
+      </svg>
+      <div class="ls-wordmark">GloseMester</div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

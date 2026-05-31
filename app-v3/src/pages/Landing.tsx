@@ -11,8 +11,8 @@ import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
 
 const FUNKSJONER: { ikon: string; tittel: string; tekst: string }[] = [
-  { ikon: '🎮', tittel: 'Gamifisert øving', tekst: 'Samle kort og klatre i nivåene mens du lærer.' },
-  { ikon: '🧠', tittel: 'Smart repetisjon', tekst: 'Leitner sørger for at du øver mest på det du strever med.' },
+  { ikon: '🎮', tittel: 'Motiverende øving', tekst: 'Samle kort og klatre i nivåene mens du lærer.' },
+  { ikon: '🧠', tittel: 'Smart repetisjon', tekst: 'Du øver mest på det du strever med, så det sitter raskere.' },
   { ikon: '📲', tittel: 'Prøver med QR', tekst: 'Lærere lager prøver på to minutter og deler med ett klikk.' },
 ];
 
@@ -64,7 +64,7 @@ export function Landing() {
             {googleLaster ? 'Logger inn…' : 'Logg inn med Google'}
           </Button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER)} style={gjestKnapp}>
-            Øv som gjest →
+            Innloggingsfri øving →
           </button>
         </div>
       </section>

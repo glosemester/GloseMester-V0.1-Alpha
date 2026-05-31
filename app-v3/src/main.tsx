@@ -81,3 +81,13 @@ createRoot(document.getElementById('root')!).render(
     </AuthBootstrap>
   </StrictMode>,
 );
+
+// Fjern loading-skjermen (i index.html) når React har mountet. Lar logo-
+// animasjonen få minst ett gjennomløp før den toner ut.
+const loader = document.getElementById('loading-screen');
+if (loader) {
+  window.setTimeout(() => {
+    loader.classList.add('skjul');
+    window.setTimeout(() => loader.remove(), 400);
+  }, 600);
+}
