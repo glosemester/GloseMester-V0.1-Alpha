@@ -5,9 +5,11 @@
  * Landings- og marketing-sider har egen header (via MarketingLayout / Landing),
  * så AppHeader skjules der for å unngå dobbel chrome.
  */
-import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { TabBar, TAB_BAR_HOYDE } from './TabBar';
+import { useTradeStore } from '../state/useTradeStore';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
@@ -32,6 +34,7 @@ const MED_TABBAR = new Set<string>([
   ROUTES.PRACTICE,
   ROUTES.GALLERY,
   ROUTES.MY_CARDS,
+  ROUTES.TRADE,
 ]);
 
 export function Layout() {
@@ -41,6 +44,7 @@ export function Layout() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <TradeDeepLink />
       {visAppHeader && <AppHeader />}
       <main style={{ flex: 1, paddingBottom: visTabBar ? TAB_BAR_HOYDE + 24 : undefined }}>
         <Outlet />
@@ -48,4 +52,21 @@ export function Layout() {
       {visTabBar && <TabBar />}
     </div>
   );
+}
+
+/**
+ * Navigerer til /bytte når en dyplenke-kode (#bytt=) er fanget av AuthBootstrap.
+ * Ligger inne i routeren, så her er navigate tilgjengelig. ProtectedRoute sender
+ * uinnloggede til login først; koden ligger i store til de er fremme.
+ */
+function TradeDeepLink() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const pendingKode = useTradeStore((s) => s.pendingTradeCode);
+
+  useEffect(() => {
+    if (pendingKode && pathname !== ROUTES.TRADE) navigate(ROUTES.TRADE);
+  }, [pendingKode, pathname, navigate]);
+
+  return null;
 }

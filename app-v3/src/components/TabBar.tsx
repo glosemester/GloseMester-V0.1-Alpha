@@ -1,14 +1,17 @@
 /**
  * Bunnmeny (tab-bar) for elev-flyten — React-port av v2 menu-system tab-bar.
- * Gir rask veksling mellom Øv, Kortsamling/Galleri og Hjem. Vises på øve-,
- * nivåvalg- og galleri-sidene (styres av Layout).
+ * Gir rask veksling mellom Øv, Mine Kort, Bytte og Galleri. Vises på øve-,
+ * nivåvalg-, bytte- og galleri-sidene (styres av Layout).
+ *
+ * Brand: Lucide-ikoner (ingen emoji).
  */
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Pencil, Layers, Repeat, Trophy, type LucideIcon } from 'lucide-react';
 import { ROUTES } from '../routes/paths';
 
 interface Fane {
   id: string;
-  ikon: string;
+  Ikon: LucideIcon;
   label: string;
   rute: string;
   /** Stier som skal markere denne fanen som aktiv. */
@@ -16,9 +19,10 @@ interface Fane {
 }
 
 const FANER: Fane[] = [
-  { id: 'ov', ikon: '✏️', label: 'Øv', rute: ROUTES.GLOSEMESTER, match: [ROUTES.GLOSEMESTER, ROUTES.GLOSEMESTER_START, ROUTES.PRACTICE] },
-  { id: 'mine', ikon: '🃏', label: 'Mine Kort', rute: ROUTES.MY_CARDS, match: [ROUTES.MY_CARDS] },
-  { id: 'galleri', ikon: '🏆', label: 'Galleri', rute: ROUTES.GALLERY, match: [ROUTES.GALLERY] },
+  { id: 'ov', Ikon: Pencil, label: 'Øv', rute: ROUTES.GLOSEMESTER, match: [ROUTES.GLOSEMESTER, ROUTES.GLOSEMESTER_START, ROUTES.PRACTICE] },
+  { id: 'mine', Ikon: Layers, label: 'Mine Kort', rute: ROUTES.MY_CARDS, match: [ROUTES.MY_CARDS] },
+  { id: 'bytte', Ikon: Repeat, label: 'Bytte', rute: ROUTES.TRADE, match: [ROUTES.TRADE] },
+  { id: 'galleri', Ikon: Trophy, label: 'Galleri', rute: ROUTES.GALLERY, match: [ROUTES.GALLERY] },
 ];
 
 export function TabBar() {
@@ -27,21 +31,21 @@ export function TabBar() {
 
   return (
     <nav style={tabBar} role="tablist" aria-label="Hovedmeny">
-      {FANER.map((f) => {
-        const aktiv = f.match.includes(pathname);
+      {FANER.map(({ id, Ikon, label, rute, match }) => {
+        const aktiv = match.includes(pathname);
         return (
           <button
-            key={f.id}
+            key={id}
             type="button"
             role="tab"
             aria-selected={aktiv}
-            aria-label={f.label}
-            onClick={() => navigate(f.rute)}
-            data-testid={`tab-${f.id}`}
+            aria-label={label}
+            onClick={() => navigate(rute)}
+            data-testid={`tab-${id}`}
             style={{ ...fane, color: aktiv ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
           >
-            <span aria-hidden="true" style={{ fontSize: 22, lineHeight: 1, filter: aktiv ? 'none' : 'grayscale(0.4)' }}>{f.ikon}</span>
-            <span style={{ fontSize: 11, fontWeight: 700 }}>{f.label}</span>
+            <Ikon size={22} strokeWidth={aktiv ? 2.6 : 2} aria-hidden="true" />
+            <span style={{ fontSize: 11, fontWeight: 700 }}>{label}</span>
           </button>
         );
       })}
@@ -62,6 +66,6 @@ const tabBar: React.CSSProperties = {
 const fane: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
   background: 'transparent', border: 'none', cursor: 'pointer',
-  padding: '8px 20px', borderRadius: 'var(--radius-full)',
+  padding: '8px 16px', borderRadius: 'var(--radius-full)',
   fontFamily: 'var(--font-primary)',
 };

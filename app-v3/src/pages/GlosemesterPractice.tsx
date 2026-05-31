@@ -38,6 +38,10 @@ import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { lesOpp, vibrer } from '../lib/speech';
 import { toast } from '../state/useToastStore';
+import { useAuthStore } from '../state/useAuthStore';
+import { useTradeStore } from '../state/useTradeStore';
+import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
+import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
 
 /** Antall riktige svar per kortbelønning i øvemodus (jf. v2 kortProgress). */
@@ -54,6 +58,8 @@ interface AktivtSporsmal {
 export function GlosemesterPractice() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
+  const oppdaterSjetonger = useTradeStore((s) => s.oppdaterSjetonger);
   const level = params.get('niva') as LevelId | null;
   const gyldigNiva = Boolean(level && getAvailableLevels().includes(level));
 
@@ -133,6 +139,11 @@ export function GlosemesterPractice() {
         const { diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
+        // Oppdater byttesjetong-saldoen (XP kan nettopp ha krysset en milepæl).
+        const forUt = tilgjengeligeSjetonger();
+        oppdaterSjetonger();
+        if (tilgjengeligeSjetonger() > forUt) toast.success('Du tjente en byttesjetong!');
+
         // Kortbelønning: hvert 10. riktige svar gir et kort (jf. v2 øvemodus).
         // Kortet legges IKKE til automatisk — eleven bekrefter via popup-knappen.
         setKortProgresjon((forrige) => {
@@ -156,7 +167,7 @@ export function GlosemesterPractice() {
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
-    [level, gaaVidere],
+    [level, gaaVidere, oppdaterSjetonger],
   );
 
   // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).
@@ -236,6 +247,7 @@ export function GlosemesterPractice() {
             🔥 {streak}
           </span>
         )}
+        {innlogget && <TokenBalance compact />}
       </header>
 
       {/* Kortprogresjon — 10 bokser som fylles mot neste kort (jf. v2). */}

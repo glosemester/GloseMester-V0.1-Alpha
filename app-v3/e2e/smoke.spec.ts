@@ -56,6 +56,7 @@ test('bunnmeny: øve-flyten har Øv/Mine Kort/Galleri-faner', async ({ page }) =
   await page.goto('/gloser');
   await expect(page.getByTestId('tab-ov')).toBeVisible();
   await expect(page.getByTestId('tab-mine')).toBeVisible();
+  await expect(page.getByTestId('tab-bytte')).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toBeVisible();
 
   await page.goto('/ov?niva=niva1');
@@ -65,6 +66,13 @@ test('bunnmeny: øve-flyten har Øv/Mine Kort/Galleri-faner', async ({ page }) =
   // Galleri-fanen skal føre gjesten til galleriet (åpent uten innlogging).
   await page.getByTestId('tab-galleri').click();
   await expect(page).toHaveURL(/\/galleri$/);
+});
+
+test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
+  // /bytte er beskyttet — uinnlogget gjest skal ikke nå byttesiden.
+  await page.goto('/bytte');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
 });
 
 test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) => {

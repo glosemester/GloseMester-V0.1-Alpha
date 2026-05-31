@@ -11,6 +11,7 @@ import { aktiverKampanjekode } from '../lib/data/kampanje';
 import { eksporterMinData, slettMinKonto } from '../lib/data/gdpr';
 import { hentSamling, samlingStats } from '../features/kort/kortSamling';
 import { getKortById, getTotalKortCount, RARITY_CONFIG } from '../features/kort/kortData';
+import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
 
 const ABONNEMENT_ETIKETT: Record<string, string> = {
@@ -142,6 +143,17 @@ export function MinSide() {
             </button>
           </>
         )}
+      </Kort>
+
+      {/* Byttesjetonger */}
+      <Kort tittel="Byttesjetonger">
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
+          Tjen sjetonger ved å øve, og bytt kort med andre elever.
+        </p>
+        <TokenBalance />
+        <button type="button" onClick={() => navigate(ROUTES.TRADE)} style={{ ...primaerKnapp, marginTop: 14 }}>
+          Gå til bytte →
+        </button>
       </Kort>
 
       {/* Abonnement */}
