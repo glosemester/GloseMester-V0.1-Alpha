@@ -1,6 +1,6 @@
 # 🎓 GloseMester
 
-**Gamifisert språklæring for norske skoler og selvstudium**
+**Motiverende språklæring for norske skoler og selvstudium**
 
 🌐 **Nettside:** [glosemester.no](https://glosemester.no)
 👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)
@@ -216,7 +216,7 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 - **Lydstøtte:** Syntetisk tale (Web Speech API) for alle ord
 - **Umiddelbar feedback:** Grønne/røde indikatorer, «Neste →»-knapp
 
-**Gamification:**
+**Motivasjon og belønning:**
 - **Kortsamling:** 4 sjeldenhetsgrader (Common, Rare, Epic, Legendary)
 - **Panteordning:** Pant 2 like kort → 1 diamant
 - **Master Galleri:** Full oversikt over alle samlebokskort
