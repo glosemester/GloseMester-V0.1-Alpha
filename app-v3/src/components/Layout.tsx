@@ -31,6 +31,7 @@ const MED_TABBAR = new Set<string>([
   ROUTES.GLOSEMESTER_START,
   ROUTES.PRACTICE,
   ROUTES.GALLERY,
+  ROUTES.MY_CARDS,
 ]);
 
 export function Layout() {

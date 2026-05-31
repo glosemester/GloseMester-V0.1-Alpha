@@ -46,9 +46,10 @@ const router = createBrowserRouter([
       { path: ROUTES.PRACTICE, element: <GlosemesterPractice /> },
       // Prøvemodus: elev tar lærerens prøve via kode/QR (åpen for gjest).
       { path: ROUTES.QUIZ, element: <Quiz /> },
-      // Galleri: åpent for gjest (jf. øvemodus). Gjester samler kort lokalt og
-      // skal kunne se dem uten innlogging.
-      { path: ROUTES.GALLERY, element: <Galleri /> },
+      // Galleri/Mine Kort: åpent for gjest (jf. øvemodus). Gjester samler kort
+      // lokalt og skal kunne se dem uten innlogging.
+      { path: ROUTES.MY_CARDS, element: <Galleri /> },
+      { path: ROUTES.GALLERY, element: <Galleri visAlle /> },
       // Lærer-modul (krever innlogging).
       { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
       { path: ROUTES.MY_TESTS, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },

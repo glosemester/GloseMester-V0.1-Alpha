@@ -18,6 +18,7 @@ export const ROUTES = {
   PRACTICE: '/ov',
   QUIZ: '/prove',
   GALLERY: '/galleri',
+  MY_CARDS: '/mine-kort',
 
   // Lærer
   TEACHER_HOME: '/lærer',
