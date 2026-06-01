@@ -16,7 +16,7 @@ import {
   beregnResultat,
   type Sporsmal,
 } from '../features/quiz/quizEngine';
-import { hentProveMedKode, type Prove } from '../lib/data/prover';
+import { hentProveMedKode, erProveUtloept, type Prove } from '../lib/data/prover';
 import { lagreResultat, type SvarRad } from '../lib/data/resultater';
 import { checkWinCondition } from '../features/kort/kortReward';
 import { leggTilKort } from '../features/kort/kortSamling';
@@ -61,6 +61,10 @@ export function Quiz() {
       const prove = await hentProveMedKode(k);
       if (!prove) {
         toast.error(`Fant ingen prøve med kode "${k}".`);
+        return;
+      }
+      if (erProveUtloept(prove)) {
+        toast.error('Denne prøven er ikke lenger tilgjengelig.');
         return;
       }
       // Innlogget: bruk Firebase-navn. Gjest: be om navn først.

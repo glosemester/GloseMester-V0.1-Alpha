@@ -49,6 +49,20 @@ export interface Prove {
   ordliste?: ProveOrd[];
   oppgaver?: ProveOppgave[];
   opprettet_av?: string | null;
+  /** Hvor mange dager prøven er tilgjengelig for elevene (1–14). */
+  tilgjengeligDager?: number;
+  /** Epoch (ms) når prøven slutter å være tilgjengelig. 0/undefined = aldri. */
+  utloperDato?: number;
+}
+
+/** Standard og grenser for hvor lenge en prøve er tilgjengelig. */
+export const MIN_TILGJENGELIG_DAGER = 1;
+export const MAX_TILGJENGELIG_DAGER = 14;
+export const STANDARD_TILGJENGELIG_DAGER = 7;
+
+/** Er prøven utløpt nå? (utloperDato 0/undefined = aldri utløpt.) */
+export function erProveUtloept(prove: Pick<Prove, 'utloperDato'>, naa = Date.now()): boolean {
+  return Boolean(prove.utloperDato && prove.utloperDato > 0 && naa >= prove.utloperDato);
 }
 
 /** Henter prøve via 6-tegns kode (normaliseres til store bokstaver). */
@@ -73,6 +87,14 @@ export interface NyProve {
   ordliste: ProveOrd[];
   bland?: boolean;
   fag?: Fag;
+  /** Tilgjengelig i N dager (1–14). Klemmes til gyldig område. */
+  tilgjengeligDager?: number;
+}
+
+/** Klem dager til [MIN, MAX] og regn ut utløps-epoch fra et starttidspunkt. */
+function regnUtloep(dager: number | undefined, fra = Date.now()): { dager: number; utloperDato: number } {
+  const d = Math.min(MAX_TILGJENGELIG_DAGER, Math.max(MIN_TILGJENGELIG_DAGER, Math.round(dager ?? STANDARD_TILGJENGELIG_DAGER)));
+  return { dager: d, utloperDato: fra + d * 24 * 60 * 60 * 1000 };
 }
 
 /** Oppretter en ny prøve. Returnerer id + generert kode. */
@@ -81,6 +103,7 @@ export async function opprettProve(
   laerer: { uid: string; navn: string },
 ): Promise<{ id: string; kode: string }> {
   const kode = genererProvekode();
+  const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
   const ref = await addDoc(collection(db, 'prover'), {
     kode,
     fag: data.fag ?? 'gloser',
@@ -89,6 +112,8 @@ export async function opprettProve(
     antallSporsmal: data.ordliste.length,
     tidsbegrensning: 0,
     bland: data.bland ?? true,
+    tilgjengeligDager: dager,
+    utloperDato,
     opprettet_av: laerer.uid,
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
@@ -96,14 +121,23 @@ export async function opprettProve(
   return { id: ref.id, kode };
 }
 
-/** Oppdaterer tittel/ordliste/bland for en eksisterende prøve. */
+/**
+ * Oppdaterer tittel/ordliste/bland for en eksisterende prøve. Hvis
+ * tilgjengeligDager sendes, regnes utløp på nytt fra NÅ (lærer forlenger).
+ */
 export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
-  await updateDoc(doc(db, 'prover', id), {
+  const oppdatering: Record<string, unknown> = {
     tittel: data.tittel,
     ordliste: data.ordliste,
     antallSporsmal: data.ordliste.length,
     bland: data.bland ?? true,
-  });
+  };
+  if (data.tilgjengeligDager !== undefined) {
+    const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
+    oppdatering.tilgjengeligDager = dager;
+    oppdatering.utloperDato = utloperDato;
+  }
+  await updateDoc(doc(db, 'prover', id), oppdatering);
 }
 
 export async function slettProve(id: string): Promise<void> {

@@ -8,7 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
-import { slettProve } from '../../lib/data/prover';
+import { slettProve, erProveUtloept } from '../../lib/data/prover';
 import { toast } from '../../state/useToastStore';
 import { ROUTES } from '../../routes/paths';
 import { TEACHER_ROUTES } from './teacherPaths';
@@ -71,6 +71,18 @@ export function TeacherTestDetails() {
           <QRCodeSVG value={proveLenke} size={160} />
         </div>
         <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 12 }}>Elever scanner QR eller skriver inn koden</p>
+        {prove.utloperDato ? (
+          erProveUtloept(prove) ? (
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-error)', marginTop: 6 }}>
+              Utløpt {new Date(prove.utloperDato).toLocaleDateString('no-NO')} — ikke lenger tilgjengelig.
+              Rediger prøven for å forlenge.
+            </p>
+          ) : (
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-success)', marginTop: 6 }}>
+              Tilgjengelig til {new Date(prove.utloperDato).toLocaleDateString('no-NO')}
+            </p>
+          )
+        ) : null}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
           <button type="button" onClick={() => kopier(prove.kode, 'Prøvekode kopiert!')} style={sekundaerKnapp}>📋 Kopier kode</button>
           <button type="button" onClick={() => kopier(proveLenke, 'Lenke kopiert!')} style={sekundaerKnapp}>🔗 Kopier lenke</button>
