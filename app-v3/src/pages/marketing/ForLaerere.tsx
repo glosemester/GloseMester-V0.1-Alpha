@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ClipboardList, Smartphone, BarChart3, Gamepad2 } from 'lucide-react';
 import { MarketingLayout, InfoKort } from './MarketingLayout';
 import { ROUTES } from '../../routes/paths';
 
@@ -8,19 +9,19 @@ export function ForLaerere() {
       tittel="For lærere"
       ingress="Lag gloseprøver på to minutter og del dem med klassen via kode eller QR. Følg med på resultatene i sanntid."
     >
-      <InfoKort tittel="📝 Lag prøver raskt">
+      <InfoKort tittel={<><ClipboardList size={20} color="var(--color-primary)" aria-hidden="true" /> Lag prøver raskt</>}>
         Skriv inn glose-par (norsk/engelsk), gi prøven en tittel, og du er ferdig.
         Du får en delbar kode og QR-kode umiddelbart.
       </InfoKort>
-      <InfoKort tittel="📲 Del med klassen">
+      <InfoKort tittel={<><Smartphone size={20} color="var(--color-primary)" aria-hidden="true" /> Del med klassen</>}>
         Vis QR-koden på tavla eller send koden i Teams. Elevene starter prøven uten
         innlogging — de skriver bare inn navnet sitt.
       </InfoKort>
-      <InfoKort tittel="📊 Se resultatene">
+      <InfoKort tittel={<><BarChart3 size={20} color="var(--color-primary)" aria-hidden="true" /> Se resultatene</>}>
         Resultatene samles automatisk: gjennomføringer, gjennomsnitt og hvert
         elevsvar. Alt på ett sted.
       </InfoKort>
-      <InfoKort tittel="🎮 Motiverte elever">
+      <InfoKort tittel={<><Gamepad2 size={20} color="var(--color-primary)" aria-hidden="true" /> Motiverte elever</>}>
         Elevene øver i en motiverende modus med samlekort og smart repetisjon,
         så de kommer tilbake og repeterer det de strever med.
       </InfoKort>

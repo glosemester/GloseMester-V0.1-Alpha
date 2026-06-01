@@ -5,6 +5,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Layers, Trophy, Rocket, Lock, Recycle } from 'lucide-react';
 import { hentSamling, samlingStats, panteKort } from '../features/kort/kortSamling';
 import { getKortById, kortData, RARITY_CONFIG, type Rarity } from '../features/kort/kortData';
 import { toast } from '../state/useToastStore';
@@ -79,7 +80,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   function pant(id: string) {
     const nytt = panteKort(id);
     if (nytt) {
-      toast.success(`♻️ Pantet! Du fikk ${nytt.name} (${RARITY_CONFIG[nytt.rarity].tekst})`);
+      toast.success(`Pantet! Du fikk ${nytt.name} (${RARITY_CONFIG[nytt.rarity].tekst})`);
       setVersjon((v) => v + 1);
     }
   }
@@ -88,7 +89,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   if (!visAlle && kort.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px', minHeight: '70vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-4)' }}>
-        <div style={{ fontSize: 64 }}>🃏</div>
+        <Layers size={64} color="var(--color-primary)" aria-hidden="true" />
         <h3 style={{ fontWeight: 800 }}>Ingen kort ennå</h3>
         <p style={{ color: 'var(--color-text-muted)', maxWidth: '38ch' }}>
           Øv og svar riktig for å vinne kort — du får ett for hvert 10. riktige svar,
@@ -96,10 +97,10 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
         </p>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={primaerKnapp}>
-            🚀 Start øving
+            <Rocket size={16} aria-hidden="true" /> Start øving
           </button>
           <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={chip}>
-            🏆 Se hele galleriet
+            <Trophy size={16} aria-hidden="true" /> Se hele galleriet
           </button>
         </div>
       </div>
@@ -118,10 +119,10 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
       {/* Bytt mellom Mine Kort og Galleri */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <button type="button" onClick={() => navigate(ROUTES.MY_CARDS)} style={{ ...chip, ...(!visAlle ? aktivChip : {}) }}>
-          🃏 Mine Kort
+          <Layers size={16} aria-hidden="true" /> Mine Kort
         </button>
         <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={{ ...chip, ...(visAlle ? aktivChip : {}) }}>
-          🏆 Galleri
+          <Trophy size={16} aria-hidden="true" /> Galleri
         </button>
       </div>
 
@@ -176,7 +177,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                   style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', filter: eid ? 'none' : 'grayscale(1)' }}
                 />
                 {!eid && (
-                  <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontSize: 32 }} aria-hidden="true">🔒</span>
+                  <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }} aria-hidden="true"><Lock size={32} color="var(--color-text-muted)" /></span>
                 )}
                 {k.antall > 1 && (
                   <span style={{ position: 'absolute', top: 4, right: 4, background: 'var(--color-primary)', color: '#fff', borderRadius: 999, padding: '2px 8px', fontSize: 12, fontWeight: 700 }}>
@@ -188,11 +189,11 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 {eid ? k.navn : '???'}
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: eid ? cfg.farge : 'var(--color-text-muted)' }}>
-                {cfg.emoji} {cfg.tekst}
+                {cfg.tekst}
               </div>
               {!visAlle && k.antall >= 3 && (
                 <button type="button" onClick={() => pant(k.id)} style={pantKnapp}>
-                  ♻️ Pant 2 → nytt kort
+                  <Recycle size={14} aria-hidden="true" /> Pant 2 → nytt kort
                 </button>
               )}
             </div>
@@ -204,11 +205,13 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
 }
 
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };
 const chip: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'var(--color-surface)', color: 'var(--color-text-muted)',
   border: '1px solid var(--color-border)', borderRadius: 'var(--radius-full)',
   padding: '6px 14px', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: 'var(--font-primary)',
@@ -217,6 +220,7 @@ const aktivChip: React.CSSProperties = {
   background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)',
 };
 const pantKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
   borderRadius: 'var(--radius-md)', padding: '6px 8px', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };

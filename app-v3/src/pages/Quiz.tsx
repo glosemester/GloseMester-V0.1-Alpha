@@ -10,6 +10,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, Layers, Home, FileText, type LucideIcon } from 'lucide-react';
 import {
   byggSporsmalsliste,
   erSvarRiktig,
@@ -121,7 +122,7 @@ export function Quiz() {
             style={inputStil}
           />
           <button type="submit" disabled={laster} style={primaerKnapp}>
-            {laster ? 'Henter…' : '🚀 Start prøven'}
+            {laster ? 'Henter…' : <><Rocket size={18} aria-hidden="true" /> Start prøven</>}
           </button>
         </form>
       </Skjema>
@@ -136,7 +137,7 @@ export function Quiz() {
           style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}
         >
           <input autoFocus value={navn} onChange={(e) => setNavn(e.target.value)} placeholder="Fornavn" style={inputStil} />
-          <button type="submit" style={primaerKnapp}>🚀 Start prøven</button>
+          <button type="submit" style={primaerKnapp}><Rocket size={18} aria-hidden="true" /> Start prøven</button>
         </form>
       </Skjema>
     );
@@ -188,8 +189,8 @@ export function Quiz() {
           <TekstSvar disabled={feedback !== null} onSvar={(v) => svarPa(state, v)} />
         )}
 
-        <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 18, minHeight: 28, color: feedback ? (feedback.riktig ? 'var(--color-success)' : 'var(--color-error)') : undefined }}>
-          {feedback ? (feedback.riktig ? '✅ Riktig!' : `❌ Fasit: ${feedback.fasit}`) : ''}
+        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, textAlign: 'center', fontWeight: 700, fontSize: 18, minHeight: 28, color: feedback ? (feedback.riktig ? 'var(--color-success)' : 'var(--color-error)') : undefined }}>
+          {feedback ? (feedback.riktig ? <><Check size={20} aria-hidden="true" /> Riktig!</> : <><X size={20} aria-hidden="true" /> Fasit: {feedback.fasit}</>) : ''}
         </p>
       </div>
     );
@@ -197,11 +198,11 @@ export function Quiz() {
 
   if (fase === 'resultat' && state) {
     const { riktige, prosent } = beregnResultat(state.riktige, state.sporsmal.length);
-    const emoji = prosent >= 90 ? '🏆' : prosent >= 70 ? '🌟' : prosent >= 50 ? '👍' : '💪';
+    const ResultatIkon: LucideIcon = prosent >= 90 ? Trophy : prosent >= 70 ? Star : prosent >= 50 ? ThumbsUp : Dumbbell;
     const farge = prosent >= 70 ? 'var(--color-success)' : prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
     return (
       <div style={{ minHeight: '100vh', padding: '40px 20px', maxWidth: 560, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
-        <div style={{ fontSize: 80 }}>{emoji}</div>
+        <ResultatIkon size={80} color={farge} aria-hidden="true" />
         <h1 style={{ fontSize: 32, fontWeight: 800 }}>Prøven er ferdig!</h1>
         <div style={{ background: 'var(--color-surface)', borderRadius: 24, padding: '32px 40px', boxShadow: 'var(--shadow-card)', width: '100%' }}>
           <div style={{ fontSize: 64, fontWeight: 900, color: farge, lineHeight: 1 }}>{prosent}%</div>
@@ -209,22 +210,22 @@ export function Quiz() {
         </div>
         {vunnetKort && (
           <div style={{ background: 'var(--color-surface)', border: `2px solid ${RARITY_CONFIG[vunnetKort.rarity].farge}`, borderRadius: 20, padding: 20, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <div style={{ fontWeight: 700 }}>🎁 Du vant et kort!</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}><Gift size={20} color="var(--color-primary)" aria-hidden="true" /> Du vant et kort!</div>
             <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 120, height: 120, objectFit: 'contain' }} />
             <div style={{ fontWeight: 700 }}>{vunnetKort.name}</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: RARITY_CONFIG[vunnetKort.rarity].farge }}>
-              {RARITY_CONFIG[vunnetKort.rarity].emoji} {RARITY_CONFIG[vunnetKort.rarity].tekst}
+              {RARITY_CONFIG[vunnetKort.rarity].tekst}
             </div>
           </div>
         )}
-        <p style={{ fontSize: 13, color: lagret ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-          {lagret === null ? '' : lagret ? '✅ Resultat sendt til læreren.' : 'Resultat kunne ikke sendes (ingen nettverkstilgang).'}
+        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, color: lagret ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+          {lagret === null ? '' : lagret ? <><CheckCircle2 size={18} aria-hidden="true" /> Resultat sendt til læreren.</> : 'Resultat kunne ikke sendes (ingen nettverkstilgang).'}
         </p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           {vunnetKort && (
-            <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={primaerKnapp}>🃏 Se samlingen</button>
+            <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={primaerKnapp}><Layers size={18} aria-hidden="true" /> Se samlingen</button>
           )}
-          <button type="button" onClick={() => navigate(bruker ? ROUTES.HJEM : ROUTES.LANDING)} style={primaerKnapp}>🏠 Tilbake</button>
+          <button type="button" onClick={() => navigate(bruker ? ROUTES.HJEM : ROUTES.LANDING)} style={primaerKnapp}><Home size={18} aria-hidden="true" /> Tilbake</button>
         </div>
       </div>
     );
@@ -289,7 +290,7 @@ function Skjema({ tittel, beskrivelse, children }: { tittel: string; beskrivelse
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ background: 'var(--color-surface)', borderRadius: 24, padding: '40px 32px', maxWidth: 400, width: '100%', textAlign: 'center', boxShadow: 'var(--shadow-card)' }}>
-        <div style={{ fontSize: 52, marginBottom: 12 }}>📝</div>
+        <FileText size={52} color="var(--color-primary)" aria-hidden="true" style={{ marginBottom: 12 }} />
         <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 6 }}>{tittel}</h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 15, marginBottom: 24 }}>{beskrivelse}</p>
         {children}
@@ -306,7 +307,7 @@ function TekstSvar({ disabled, onSvar }: { disabled: boolean; onSvar: (v: string
       style={{ display: 'flex', gap: 10 }}
     >
       <input autoFocus value={val} onChange={(e) => setVal(e.target.value)} disabled={disabled} placeholder="Skriv svaret…" style={{ ...inputStil, flex: 1, marginBottom: 0 }} />
-      <button type="submit" disabled={disabled} style={{ ...primaerKnapp, width: 'auto', padding: '16px 24px' }}>✓</button>
+      <button type="submit" disabled={disabled} aria-label="Svar" style={{ ...primaerKnapp, width: 'auto', padding: '16px 24px' }}><Check size={20} aria-hidden="true" /></button>
     </form>
   );
 }
@@ -316,6 +317,7 @@ const inputStil: React.CSSProperties = {
   border: '2px solid var(--color-border)', borderRadius: 14, outline: 'none',
 };
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   width: '100%', padding: 14, background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 14, fontSize: 17, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };

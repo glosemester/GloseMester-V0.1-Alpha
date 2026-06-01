@@ -5,6 +5,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import { MarketingLayout } from './MarketingLayout';
 import { ROUTES } from '../../routes/paths';
 import { startStripeCheckout, type StripePlan } from '../../lib/payment';
@@ -23,7 +24,7 @@ interface Plan {
 const PLANER: Plan[] = [
   { navn: 'Gratis', pris: '0 kr', punkter: ['Opptil 3 prøver', 'Alle elevfunksjoner', 'QR-kode deling', 'Basis resultatstatistikk'] },
   { navn: 'Premium månedlig', pris: '99 kr/mnd', fremhevet: true, kjop: 'premium_monthly', punkter: ['Ubegrenset antall prøver', 'Tilgang til standardprøver', 'Avansert statistikk', 'Prioritert support'] },
-  { navn: 'Premium årlig', pris: '800 kr/år', kjop: 'premium_yearly', punkter: ['Alt i månedlig', '💰 Spar 388 kr per år', 'Full redigering og duplisering'] },
+  { navn: 'Premium årlig', pris: '800 kr/år', kjop: 'premium_yearly', punkter: ['Alt i månedlig', 'Spar 388 kr per år', 'Full redigering og duplisering'] },
   { navn: 'Skolepakke', pris: 'Kontakt oss', punkter: ['Alt i Premium', 'GloseBank (delt prøvebank)', 'Ubegrenset antall lærere', 'Feide-innlogging'] },
 ];
 
@@ -37,7 +38,7 @@ export function Oppgrader() {
     const status = params.get('status');
     if (!status) return;
     if (status === 'success') {
-      toast.success('🎉 Takk for kjøpet! Premium aktiveres straks — last siden på nytt om noen sekunder.');
+      toast.success('Takk for kjøpet! Premium aktiveres straks — last siden på nytt om noen sekunder.');
     } else if (status === 'cancelled') {
       toast.info('Betalingen ble avbrutt. Du kan prøve igjen når du vil.');
     }
@@ -78,7 +79,9 @@ export function Oppgrader() {
             <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--color-primary)' }}>{plan.pris}</div>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8, color: 'var(--color-text)', flex: 1 }}>
               {plan.punkter.map((p) => (
-                <li key={p}>✅ {p}</li>
+                <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Check size={18} color="var(--color-success)" aria-hidden="true" /> {p}
+                </li>
               ))}
             </ul>
             {plan.kjop && (

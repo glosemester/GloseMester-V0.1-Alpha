@@ -42,10 +42,10 @@ export function MarketingLayout({ tittel, ingress, children }: { tittel: string;
 const navLenke: React.CSSProperties = { color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 14, textDecoration: 'none' };
 
 /** Gjenbrukbart innholds-kort for marketing-seksjoner. */
-export function InfoKort({ tittel, children }: { tittel: string; children: ReactNode }) {
+export function InfoKort({ tittel, children }: { tittel: ReactNode; children: ReactNode }) {
   return (
     <section style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 24, boxShadow: 'var(--shadow-card)' }}>
-      <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 10 }}>{tittel}</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 10 }}>{tittel}</h2>
       <div style={{ color: 'var(--color-text)', lineHeight: 1.6 }}>{children}</div>
     </section>
   );

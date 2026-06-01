@@ -5,6 +5,7 @@
  */
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { X, Sparkles } from 'lucide-react';
 import {
   opprettProve, oppdaterProve, type ProveOrd,
   MIN_TILGJENGELIG_DAGER, MAX_TILGJENGELIG_DAGER, STANDARD_TILGJENGELIG_DAGER,
@@ -109,7 +110,7 @@ export function TeacherCreateTest() {
             <div key={i} style={{ display: 'flex', gap: 8 }}>
               <input value={rad.s} onChange={(e) => settRad(i, 's', e.target.value)} placeholder="Norsk" style={{ ...input, flex: 1 }} />
               <input value={rad.e} onChange={(e) => settRad(i, 'e', e.target.value)} placeholder="Engelsk" style={{ ...input, flex: 1 }} />
-              <button type="button" onClick={() => fjernRad(i)} aria-label="Fjern rad" style={fjernKnapp}>✕</button>
+              <button type="button" onClick={() => fjernRad(i)} aria-label="Fjern rad" style={fjernKnapp}><X size={18} color="var(--color-error)" aria-hidden="true" /></button>
             </div>
           ))}
           <button type="button" onClick={leggTilRad} style={sekundaerKnapp}>+ Legg til par</button>
@@ -141,7 +142,7 @@ export function TeacherCreateTest() {
         </div>
 
         <button type="submit" disabled={lagrer} style={primaerKnapp}>
-          {lagrer ? 'Lagrer…' : eksisterende ? 'Lagre endringer' : '✨ Opprett prøve'}
+          {lagrer ? 'Lagrer…' : eksisterende ? 'Lagre endringer' : <><Sparkles size={16} aria-hidden="true" /> Opprett prøve</>}
         </button>
       </form>
     </div>
@@ -153,6 +154,7 @@ const input: React.CSSProperties = {
   borderRadius: 'var(--radius-md)', outline: 'none', fontFamily: 'var(--font-primary)',
 };
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
@@ -172,6 +174,7 @@ const dagerPille: React.CSSProperties = {
   whiteSpace: 'nowrap', minWidth: 78, textAlign: 'center',
 };
 const fjernKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   background: 'transparent', color: 'var(--color-error)', border: '2px solid var(--color-border)',
   borderRadius: 'var(--radius-md)', padding: '0 12px', cursor: 'pointer', fontWeight: 700,
 };

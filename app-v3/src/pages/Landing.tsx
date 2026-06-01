@@ -4,16 +4,17 @@
  */
 import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
+import { Gamepad2, Brain, Smartphone, type LucideIcon } from 'lucide-react';
 import { Button } from '../components/Button';
 import { startFeideLogin, loggInnMedGoogle } from '../lib/auth';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
 
-const FUNKSJONER: { ikon: string; tittel: string; tekst: string }[] = [
-  { ikon: '🎮', tittel: 'Motiverende øving', tekst: 'Samle kort og klatre i nivåene mens du lærer.' },
-  { ikon: '🧠', tittel: 'Smart repetisjon', tekst: 'Du øver mest på det du strever med, så det sitter raskere.' },
-  { ikon: '📲', tittel: 'Prøver med QR', tekst: 'Lærere lager prøver på to minutter og deler med ett klikk.' },
+const FUNKSJONER: { Ikon: LucideIcon; tittel: string; tekst: string }[] = [
+  { Ikon: Gamepad2, tittel: 'Motiverende øving', tekst: 'Samle kort og klatre i nivåene mens du lærer.' },
+  { Ikon: Brain, tittel: 'Smart repetisjon', tekst: 'Du øver mest på det du strever med, så det sitter raskere.' },
+  { Ikon: Smartphone, tittel: 'Prøver med QR', tekst: 'Lærere lager prøver på to minutter og deler med ett klikk.' },
 ];
 
 export function Landing() {
@@ -89,7 +90,7 @@ export function Landing() {
       <section style={{ maxWidth: 960, margin: '0 auto', padding: '24px 20px 48px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
         {FUNKSJONER.map((f) => (
           <div key={f.tittel} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 24, textAlign: 'center', boxShadow: 'var(--shadow-card)' }}>
-            <div style={{ fontSize: 40 }}>{f.ikon}</div>
+            <f.Ikon size={40} color="var(--color-primary)" aria-hidden="true" />
             <h3 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', margin: '8px 0 6px' }}>{f.tittel}</h3>
             <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{f.tekst}</p>
           </div>

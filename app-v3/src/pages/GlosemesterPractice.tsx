@@ -36,6 +36,7 @@ import { registrerRiktigSvar } from '../lib/rewards';
 import { checkWinCondition } from '../features/kort/kortReward';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X } from 'lucide-react';
 import { lesOpp, vibrer } from '../lib/speech';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
@@ -137,7 +138,7 @@ export function GlosemesterPractice() {
         setRiktige((n) => n + 1);
         setStreak((n) => n + 1);
         const { diamanterTildelt } = registrerRiktigSvar();
-        if (diamanterTildelt) toast.success(`💎 BONUS! Du fikk ${diamanterTildelt} diamanter!`);
+        if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
         // Oppdater byttesjetong-saldoen (XP kan nettopp ha krysset en milepæl).
         const forUt = tilgjengeligeSjetonger();
@@ -174,7 +175,7 @@ export function GlosemesterPractice() {
   const leggTilVunnetKort = useCallback(() => {
     if (!vunnetKort) return;
     leggTilKort(vunnetKort);
-    toast.success(`🃏 ${vunnetKort.name} lagt i samlingen!`);
+    toast.success(`${vunnetKort.name} lagt i samlingen!`);
     setVunnetKort(null);
   }, [vunnetKort]);
 
@@ -194,9 +195,9 @@ export function GlosemesterPractice() {
     const mestret = masteredCount(leitnerRef.current, words);
     return (
       <div style={{ padding: 'var(--space-8)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', alignItems: 'center' }}>
-        <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Bra jobbet! 🎉</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Bra jobbet! <PartyPopper size={28} color="var(--color-primary)" aria-hidden="true" /></h2>
         <p style={{ color: 'var(--color-text-muted)' }}>{riktige} av {besvart} riktig ({prosent}%)</p>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>💪 {mestret} av {words.length} ord mestret</p>
+        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 14 }}><Dumbbell size={18} aria-hidden="true" /> {mestret} av {words.length} ord mestret</p>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
           <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); setStreak(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>Velg nivå</button>
@@ -217,15 +218,15 @@ export function GlosemesterPractice() {
       {vunnetKort && (
         <div style={kortOverlay} role="dialog" aria-label="Du vant et kort">
           <div style={{ ...kortPopup, borderColor: RARITY_CONFIG[vunnetKort.rarity].farge }}>
-            <div style={{ fontWeight: 800, fontSize: 18 }}>🎁 Du vant et kort!</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 18 }}><Gift size={24} color="var(--color-primary)" aria-hidden="true" /> Du vant et kort!</div>
             <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 160, height: 160, objectFit: 'contain' }} />
             <div style={{ fontWeight: 800, fontSize: 18 }}>{vunnetKort.name}</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: RARITY_CONFIG[vunnetKort.rarity].farge }}>
-              {RARITY_CONFIG[vunnetKort.rarity].emoji} {RARITY_CONFIG[vunnetKort.rarity].tekst}
+              {RARITY_CONFIG[vunnetKort.rarity].tekst}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
               <button type="button" onClick={leggTilVunnetKort} style={primaerKnapp}>
-                ➕ Legg til i min samling
+                <Plus size={16} aria-hidden="true" /> Legg til i min samling
               </button>
               <button type="button" onClick={() => setVunnetKort(null)} style={tilbakeKnapp}>
                 Hopp over
@@ -243,8 +244,8 @@ export function GlosemesterPractice() {
         </div>
         <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', minWidth: 44, textAlign: 'right' }}>{besvart + 1}/{rundeLengde}</span>
         {streak >= 2 && (
-          <span key={streak} style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary)', animation: 'pop 0.3s ease', whiteSpace: 'nowrap' }}>
-            🔥 {streak}
+          <span key={streak} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 15, fontWeight: 800, color: 'var(--color-primary)', animation: 'pop 0.3s ease', whiteSpace: 'nowrap' }}>
+            <Flame size={18} color="var(--color-primary)" aria-hidden="true" /> {streak}
           </span>
         )}
         {innlogget && <TokenBalance compact />}
@@ -253,7 +254,7 @@ export function GlosemesterPractice() {
       {/* Kortprogresjon — 10 bokser som fylles mot neste kort (jf. v2). */}
       <div style={{ padding: '0 20px', maxWidth: 460, width: '100%', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4, letterSpacing: '0.03em' }}>
-          <span>🃏 NESTE KORT</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Layers size={14} aria-hidden="true" /> NESTE KORT</span>
           <span>{kortProgresjon}/{KORT_PER_RIKTIGE}</span>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
@@ -285,7 +286,7 @@ export function GlosemesterPractice() {
             onClick={() => lesOpp(promptFor(word, direction), direction === 'en' ? 'en-US' : 'no-NO')}
             style={hoyttalerKnapp}
           >
-            🔊
+            <Volume2 size={22} aria-hidden="true" />
           </button>
         </div>
 
@@ -312,16 +313,16 @@ export function GlosemesterPractice() {
                   style={stil}
                 >
                   <span>{tekst}</span>
-                  {feedback && erFasit && <span aria-hidden="true">✓</span>}
-                  {feedback && erValgt && !erFasit && <span aria-hidden="true">✕</span>}
+                  {feedback && erFasit && <Check size={20} aria-hidden="true" />}
+                  {feedback && erValgt && !erFasit && <X size={20} aria-hidden="true" />}
                   {!feedback && (
                     <span
                       role="button"
                       aria-label={`Les opp ${tekst}`}
                       onClick={(e) => { e.stopPropagation(); lesOpp(tekst, svarLang); }}
-                      style={{ fontSize: 20, cursor: 'pointer' }}
+                      style={{ display: 'inline-flex', cursor: 'pointer' }}
                     >
-                      🔊
+                      <Volume2 size={20} aria-hidden="true" />
                     </span>
                   )}
                 </button>
@@ -350,8 +351,8 @@ export function GlosemesterPractice() {
         )}
 
         {feedback?.type === 'correct' && (
-          <p style={{ color: 'var(--color-success)', fontWeight: 800, fontSize: 20, animation: 'pop 0.3s ease' }}>
-            {streak >= 3 ? `🔥 ${streak} på rad!` : 'Riktig! 🎉'}
+          <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-success)', fontWeight: 800, fontSize: 20, animation: 'pop 0.3s ease' }}>
+            {streak >= 3 ? <><Flame size={20} color="var(--color-primary)" aria-hidden="true" /> {streak} på rad!</> : <>Riktig! <PartyPopper size={20} aria-hidden="true" /></>}
           </p>
         )}
         {feedback?.type === 'wrong' && (
@@ -368,6 +369,7 @@ export function GlosemesterPractice() {
 }
 
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',

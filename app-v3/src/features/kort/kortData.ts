@@ -19,14 +19,13 @@ export interface KortDef {
 export interface RarityConfig {
   tekst: string;
   farge: string;
-  emoji: string;
 }
 
 export const RARITY_CONFIG: Record<Rarity, RarityConfig> = {
-  common: { tekst: 'Vanlig', farge: '#a1a1a1', emoji: '📦' },
-  rare: { tekst: 'Sjelden', farge: '#0071e3', emoji: '✨' },
-  epic: { tekst: 'Episk', farge: '#8e44ad', emoji: '💎' },
-  legendary: { tekst: 'Legendarisk', farge: '#f1c40f', emoji: '🌟' },
+  common: { tekst: 'Vanlig', farge: '#a1a1a1' },
+  rare: { tekst: 'Sjelden', farge: '#0071e3' },
+  epic: { tekst: 'Episk', farge: '#8e44ad' },
+  legendary: { tekst: 'Legendarisk', farge: '#f1c40f' },
 };
 
 /** Sjeldenhet ut fra kortnummer 1–38 (jf. v2 getRarity). */

@@ -3,6 +3,7 @@
  * Viser ett kort per nivå; klikk navigerer til øve-økten (/ov?niva=...).
  */
 import { useNavigate } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { getAvailableLevels, getWordCountForLevel, levelMetadata } from '../features/glosemester/vocabulary';
 import { ROUTES } from '../routes/paths';
 
@@ -72,8 +73,8 @@ export function GlosemesterStart() {
                   {meta.description}
                 </span>
               </div>
-              <div style={{ color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 20 }}>
-                📖 {getWordCountForLevel(level)} ord
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 20 }}>
+                <BookOpen size={18} aria-hidden="true" /> {getWordCountForLevel(level)} ord
               </div>
               <span
                 style={{
