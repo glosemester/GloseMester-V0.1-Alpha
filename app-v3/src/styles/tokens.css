@@ -22,7 +22,9 @@
 
     /* ── Semantiske farger ── */
     --color-success:         #4CAF82;
+    --color-success-light:   #E3F6EC;
     --color-error:           #F45C5C;
+    --color-error-light:     #FDE7E7;
     --color-warning:         #FFB347;
     --color-info:            #4BAED4;
 

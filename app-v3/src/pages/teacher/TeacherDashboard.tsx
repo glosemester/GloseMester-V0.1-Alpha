@@ -26,7 +26,7 @@ export function TeacherDashboard() {
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
       <header
         style={{
-          background: 'linear-gradient(135deg, var(--color-dark-bg) 0%, #0071e3 100%)',
+          background: 'linear-gradient(135deg, var(--color-dark-bg) 0%, var(--color-secondary) 100%)',
           color: '#fff', borderRadius: 'var(--radius-lg)', padding: '28px 24px', marginBottom: 20,
         }}
       >

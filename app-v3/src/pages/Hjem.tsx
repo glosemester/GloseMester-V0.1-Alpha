@@ -15,6 +15,7 @@ interface Snarvei {
   tekst: string;
   rute: string;
   farge: string;
+  tint: string;
 }
 
 export function Hjem() {
@@ -24,13 +25,13 @@ export function Hjem() {
   const [hover, setHover] = useState<string | null>(null);
 
   const snarveier: Snarvei[] = [
-    { Ikon: BookOpen, tittel: 'Øv gloser', tekst: 'Tren med kort, lyd og smart repetisjon.', rute: ROUTES.GLOSEMESTER, farge: '#FF6B47' },
-    { Ikon: FileText, tittel: 'Ta en prøve', tekst: 'Skriv inn prøvekoden fra læreren.', rute: ROUTES.QUIZ, farge: '#0071e3' },
-    { Ikon: Layers, tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: '#9b59b6' },
-    { Ikon: User, tittel: 'Min side', tekst: 'Profil, abonnement og personvern.', rute: ROUTES.PROFILE, farge: '#27ae60' },
+    { Ikon: BookOpen, tittel: 'Øv gloser', tekst: 'Tren med kort, lyd og smart repetisjon.', rute: ROUTES.GLOSEMESTER, farge: 'var(--color-primary)', tint: 'var(--color-primary-light)' },
+    { Ikon: FileText, tittel: 'Ta en prøve', tekst: 'Skriv inn prøvekoden fra læreren.', rute: ROUTES.QUIZ, farge: 'var(--color-secondary)', tint: 'var(--color-secondary-light)' },
+    { Ikon: Layers, tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: 'var(--color-accent)', tint: 'var(--color-accent-light)' },
+    { Ikon: User, tittel: 'Min side', tekst: 'Profil, abonnement og personvern.', rute: ROUTES.PROFILE, farge: 'var(--color-success)', tint: 'var(--color-success-light)' },
   ];
   if (erLaerer) {
-    snarveier.unshift({ Ikon: Target, tittel: 'Lærerpanel', tekst: 'Lag og del prøver, se resultater.', rute: ROUTES.TEACHER_HOME, farge: '#e67e22' });
+    snarveier.unshift({ Ikon: Target, tittel: 'Lærerpanel', tekst: 'Lag og del prøver, se resultater.', rute: ROUTES.TEACHER_HOME, farge: 'var(--color-primary-hover)', tint: 'var(--color-primary-light)' });
   }
 
   return (
@@ -59,7 +60,7 @@ export function Hjem() {
               borderColor: hover === s.tittel ? s.farge : 'var(--color-border)',
             }}
           >
-            <div style={{ ...ikonSirkel, background: `${s.farge}1a` }}>
+            <div style={{ ...ikonSirkel, background: s.tint }}>
               <s.Ikon size={30} color={s.farge} aria-hidden="true" />
             </div>
             <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', margin: '14px 0 4px' }}>{s.tittel}</h2>

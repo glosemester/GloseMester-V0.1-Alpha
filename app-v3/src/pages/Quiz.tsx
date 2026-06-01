@@ -325,5 +325,5 @@ const altKnapp: React.CSSProperties = {
   padding: '18px 12px', border: '2px solid var(--color-border)', borderRadius: 16,
   background: 'var(--color-surface)', fontSize: 17, fontWeight: 600, cursor: 'pointer', color: 'var(--color-text)',
 };
-const riktigStil: React.CSSProperties = { background: '#D1FAE5', borderColor: '#10B981', color: '#065F46' };
-const feilStil: React.CSSProperties = { background: '#FEE2E2', borderColor: '#EF4444', color: '#991B1B' };
+const riktigStil: React.CSSProperties = { background: 'var(--color-success-light)', borderColor: 'var(--color-success)', color: 'var(--color-text)' };
+const feilStil: React.CSSProperties = { background: 'var(--color-error-light)', borderColor: 'var(--color-error)', color: 'var(--color-text)' };
