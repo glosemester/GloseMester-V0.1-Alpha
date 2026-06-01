@@ -15,6 +15,7 @@ const STORAGE_KEY = 'mester_samling';
 const CREDITS_KEY = 'mester_credits';
 const XP_KEY = 'mester_xp';
 const ELEV_PROVER_KEY = 'mester_elev_prover';
+const SPENT_TOKENS_KEY = 'mester_trade_tokens_spent';
 const LEGACY_USER_TOKEN = 'Spiller';
 const GUEST_TOKEN = 'gjest';
 
@@ -114,6 +115,19 @@ export function getTotalCorrect(fag = 'gloser'): number {
 
 export function saveTotalCorrect(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${XP_KEY}_${fag}`), String(amount));
+}
+
+// --- BYTTESJETONGER (trade tokens) ---
+// Antall sjetonger BRUKT. Tjente sjetonger utledes fra XP (byttesjetonger.ts),
+// så `tilgjengelig = tjent − brukt`. Brukt-telleren er UID-nøklet som credits/XP.
+
+export function getSpentTokens(): number {
+  const raw = localStorage.getItem(getUserKey(SPENT_TOKENS_KEY));
+  return raw ? parseInt(raw, 10) : 0;
+}
+
+export function saveSpentTokens(amount: number): void {
+  localStorage.setItem(getUserKey(SPENT_TOKENS_KEY), String(Math.max(0, amount)));
 }
 
 // --- ELEV-PRØVER (7-dagers lokal cache) ---

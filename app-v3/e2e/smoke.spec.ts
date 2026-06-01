@@ -56,6 +56,7 @@ test('bunnmeny: øve-flyten har Øv/Mine Kort/Galleri-faner', async ({ page }) =
   await page.goto('/gloser');
   await expect(page.getByTestId('tab-ov')).toBeVisible();
   await expect(page.getByTestId('tab-mine')).toBeVisible();
+  await expect(page.getByTestId('tab-bytte')).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toBeVisible();
 
   await page.goto('/ov?niva=niva1');
@@ -65,6 +66,13 @@ test('bunnmeny: øve-flyten har Øv/Mine Kort/Galleri-faner', async ({ page }) =
   // Galleri-fanen skal føre gjesten til galleriet (åpent uten innlogging).
   await page.getByTestId('tab-galleri').click();
   await expect(page).toHaveURL(/\/galleri$/);
+});
+
+test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
+  // /bytte er beskyttet — uinnlogget gjest skal ikke nå byttesiden.
+  await page.goto('/bytte');
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
 });
 
 test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) => {
@@ -78,4 +86,21 @@ test('FAQ-siden bruker ryddet språk (ingen «Leitner»)', async ({ page }) => {
   await page.goto('/faq');
   await expect(page.getByRole('heading', { name: /ofte stilte spørsmål/i })).toBeVisible();
   await expect(page.getByText(/leitner/i)).toHaveCount(0);
+});
+
+test('frittstående HTML-sider serveres (ikke React-404) selv med aktiv service worker', async ({ page }) => {
+  // Last appen og la service-workeren registrere seg (PWA), så last på nytt så
+  // den er aktiv. Naviger deretter til en .html-side: den skal serveres som ekte
+  // fil, ikke fanges av SPA-fallbacken (navigateFallbackDenylist).
+  await page.goto('/');
+  await page.waitForTimeout(800);
+  await page.reload();
+  await page.waitForTimeout(400);
+
+  await page.goto('/skoleavtale.html');
+  await expect(page.getByRole('heading', { name: /skoleavtale/i })).toBeVisible();
+  await expect(page.getByText('Unexpected Application Error')).toHaveCount(0);
+
+  await page.goto('/vilkar.html');
+  await expect(page.getByRole('heading', { name: /kjøpsvilkår/i })).toBeVisible();
 });

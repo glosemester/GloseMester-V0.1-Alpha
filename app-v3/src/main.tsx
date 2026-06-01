@@ -14,6 +14,7 @@ import { GlosemesterStart } from './pages/GlosemesterStart';
 import { GlosemesterPractice } from './pages/GlosemesterPractice';
 import { Quiz } from './pages/Quiz';
 import { Galleri } from './pages/Galleri';
+import { Bytte } from './pages/Bytte';
 import { TeacherDashboard } from './pages/teacher/TeacherDashboard';
 import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
 import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
@@ -50,6 +51,8 @@ const router = createBrowserRouter([
       // lokalt og skal kunne se dem uten innlogging.
       { path: ROUTES.MY_CARDS, element: <Galleri /> },
       { path: ROUTES.GALLERY, element: <Galleri visAlle /> },
+      // Bytte: kortbytte mellom elever (krever innlogging).
+      { path: ROUTES.TRADE, element: <ProtectedRoute><Bytte /></ProtectedRoute> },
       // Lærer-modul (krever innlogging).
       { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
       { path: ROUTES.MY_TESTS, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },

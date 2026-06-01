@@ -21,6 +21,11 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: '/index.html',
+        // Unnta frittstående HTML-sider (skoleavtale, vilkår, personvern,
+        // databehandleravtale) fra SPA-fallbacken. Uten dette fanger
+        // navigasjonsruten alle /*.html og serverer index.html → React Router
+        // gir 404 når PWA-en er installert.
+        navigateFallbackDenylist: [/\.html$/],
       },
     }),
   ],

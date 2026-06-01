@@ -69,15 +69,57 @@ service cloud.firestore {
                               (resource.data.opprettet_av == request.auth.uid || isAdmin());
     }
 
-    // Trades — anonym kortbytte mellom elever
+    // Trades — kortbytte mellom innloggede elever (v3-modell).
     match /trades/{tradeId} {
-      allow read: if true;
-      allow create: if
-        request.resource.data.status == 'pending' &&
-        request.resource.data.code is string &&
-        request.resource.data.initiatorDevice is string;
-      allow update: if
-        resource.data.status in ['pending', 'accepted'];
+      function signedIn() { return request.auth != null; }
+      function isParticipant() {
+        return signedIn() && (
+          request.auth.uid == resource.data.initiatorUid ||
+          request.auth.uid == resource.data.responderUid
+        );
+      }
+
+      // Lesing krever innlogging (B må kunne slå opp via kode før de er deltaker).
+      allow read: if signedIn();
+
+      // Opprettelse: kun initiativtaker, må stemple seg selv, starte som pending
+      // uten responder.
+      allow create: if signedIn()
+        && request.resource.data.initiatorUid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.responderUid == null
+        && request.resource.data.requestedKortId == null
+        && request.resource.data.code is string
+        && request.resource.data.offeredKortId is string;
+
+      // Oppdatering: kun lovlige overganger, uforanderlig initiator/tilbud.
+      allow update: if signedIn()
+        && request.resource.data.initiatorUid == resource.data.initiatorUid
+        && request.resource.data.offeredKortId == resource.data.offeredKortId
+        && (
+          // (a) B aksepterer pending → accepted (ikke initiativtaker = selv-bytte-sperre).
+          (
+            resource.data.status == 'pending'
+            && resource.data.initiatorUid != request.auth.uid
+            && request.resource.data.responderUid == request.auth.uid
+            && request.resource.data.status == 'accepted'
+          )
+          // (b) Deltaker flipper settled-flagg / fullfører (accepted ↔ completed).
+          || (
+            isParticipant()
+            && resource.data.status in ['accepted', 'completed']
+            && request.resource.data.status in ['accepted', 'completed']
+            && request.resource.data.responderUid == resource.data.responderUid
+          )
+          // (c) Avbryt/utløp av pending (initiativtaker kansellerer; utløp tillates).
+          || (
+            resource.data.status == 'pending'
+            && request.resource.data.status in ['cancelled', 'expired']
+            && (resource.data.initiatorUid == request.auth.uid
+                || request.resource.data.status == 'expired')
+          )
+        );
+
       allow delete: if false;
     }
 

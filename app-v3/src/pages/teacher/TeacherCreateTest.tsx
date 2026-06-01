@@ -5,7 +5,10 @@
  */
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { opprettProve, oppdaterProve, type ProveOrd } from '../../lib/data/prover';
+import {
+  opprettProve, oppdaterProve, type ProveOrd,
+  MIN_TILGJENGELIG_DAGER, MAX_TILGJENGELIG_DAGER, STANDARD_TILGJENGELIG_DAGER,
+} from '../../lib/data/prover';
 import { useAuthStore } from '../../state/useAuthStore';
 import { toast } from '../../state/useToastStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
@@ -29,6 +32,7 @@ export function TeacherCreateTest() {
 
   const [tittel, setTittel] = useState(eksisterende?.tittel ?? '');
   const [bland, setBland] = useState(true);
+  const [dager, setDager] = useState<number>(eksisterende?.tilgjengeligDager ?? STANDARD_TILGJENGELIG_DAGER);
   const [rader, setRader] = useState<Rad[]>(() => {
     const fra = eksisterende?.ordliste;
     if (fra && fra.length) return fra.map((o) => ({ s: o.s, e: o.e }));
@@ -67,12 +71,12 @@ export function TeacherCreateTest() {
     setLagrer(true);
     try {
       if (eksisterende) {
-        await oppdaterProve(eksisterende.id, { tittel: tittel.trim(), ordliste, bland });
+        await oppdaterProve(eksisterende.id, { tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager });
         toast.success('Prøve oppdatert!');
         navigate(TEACHER_ROUTES.testDetails(eksisterende.id));
       } else {
         const { id } = await opprettProve(
-          { tittel: tittel.trim(), ordliste, bland },
+          { tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager },
           { uid: firebaseUser.uid, navn: bruker?.displayName ?? 'Lærer' },
         );
         toast.success('Prøve opprettet!');
@@ -116,6 +120,26 @@ export function TeacherCreateTest() {
           Bland rekkefølgen for elevene
         </label>
 
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontWeight: 600 }}>
+          Tilgjengelig i (dager)
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <input
+              type="range"
+              min={MIN_TILGJENGELIG_DAGER}
+              max={MAX_TILGJENGELIG_DAGER}
+              value={dager}
+              onChange={(e) => setDager(Number(e.target.value))}
+              style={{ flex: 1, accentColor: 'var(--color-primary)' }}
+            />
+            <span style={dagerPille}>{dager} {dager === 1 ? 'dag' : 'dager'}</span>
+          </div>
+          <span style={{ fontWeight: 400, fontSize: 13, color: 'var(--color-text-muted)' }}>
+            {eksisterende
+              ? 'Lagring forlenger tilgjengeligheten fra i dag.'
+              : 'Elevene kan ta prøven i dette antall dager etter at den er laget.'}
+          </span>
+        </div>
+
         <button type="submit" disabled={lagrer} style={primaerKnapp}>
           {lagrer ? 'Lagrer…' : eksisterende ? 'Lagre endringer' : '✨ Opprett prøve'}
         </button>
@@ -141,6 +165,11 @@ const sekundaerKnapp: React.CSSProperties = {
 const tilbakeKnapp: React.CSSProperties = {
   background: 'transparent', color: 'var(--color-text-muted)', border: 'none',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)', padding: 0,
+};
+const dagerPille: React.CSSProperties = {
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+  borderRadius: 'var(--radius-full)', padding: '6px 14px', fontWeight: 800, fontSize: 14,
+  whiteSpace: 'nowrap', minWidth: 78, textAlign: 'center',
 };
 const fjernKnapp: React.CSSProperties = {
   background: 'transparent', color: 'var(--color-error)', border: '2px solid var(--color-border)',

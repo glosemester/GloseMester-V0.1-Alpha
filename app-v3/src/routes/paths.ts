@@ -19,6 +19,7 @@ export const ROUTES = {
   QUIZ: '/prove',
   GALLERY: '/galleri',
   MY_CARDS: '/mine-kort',
+  TRADE: '/bytte',
 
   // Lærer
   TEACHER_HOME: '/lærer',
@@ -42,6 +43,7 @@ export const PROTECTED_ROUTES: RoutePath[] = [
   ROUTES.QUIZ,
   ROUTES.GALLERY,
   ROUTES.PROFILE,
+  ROUTES.TRADE,
 ];
 
 export function isProtectedRoute(path: string): boolean {
