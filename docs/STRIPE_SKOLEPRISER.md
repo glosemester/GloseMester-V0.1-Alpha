@@ -49,14 +49,5 @@ betalingstierene gjør det mulig å:
 Skolelisensen løper i **12 måneder** og **fornyes automatisk** for ett år av gangen,
 med mindre den sies opp skriftlig senest **30 dager** før utløp. Dette er samkjørt
 mellom `skoleavtale.html` (punkt om varighet) og `vilkar.html` (punkt 6 Oppsigelse).
-
-### Standardtekst på faktura
-
-Legg alltid inn følgende fornyelses-/oppsigelsesnote når fornyelsesfaktura sendes
-ut (manuelt via Fiken/Tripletex e.l.), slik at oppsigelsesfristen er tydelig:
-
-> Denne lisensen fornyes automatisk for 12 nye måneder ved utløp. Ønsker dere ikke
-> å fornye, gi skriftlig beskjed til kontakt@glosemester.no senest 30 dager før
-> utløpsdato [DD.MM.ÅÅÅÅ].
-
-Admin-varselet fra `school-inquiry.js` minner om å inkludere denne teksten.
+Fornyelses-/oppsigelsesvilkåret kommuniseres via vilkårene og skoleavtalen — ikke på
+selve fakturaen.
