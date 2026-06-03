@@ -9,7 +9,8 @@ import { db } from '../firebase';
 export type Rolle = 'laerer' | 'elev' | 'admin';
 
 export interface Abonnement {
-  type: 'free' | 'premium' | 'skole' | 'skolepakke';
+  // Verdiene må matche firestore.rules og kampanje.ts ('skolepakke', ikke 'skole').
+  type: 'free' | 'premium' | 'skolepakke';
 }
 
 /** En Feide-klasse/gruppe brukeren er medlem av (jf. feide-roles.hentRelevanteGrupper). */
@@ -18,7 +19,6 @@ export interface FeideGruppe {
   navn: string;
   type: string;
   undervisning?: boolean;
-}
 
 export interface BrukerData {
   uid: string;
