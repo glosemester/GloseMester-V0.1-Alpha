@@ -34,6 +34,8 @@ function ForesporselSkjema() {
     return (
       <InfoKort tittel={<><CheckCircle2 size={20} color="var(--color-success)" aria-hidden="true" /> Forespørsel mottatt</>}>
         Takk for interessen! Vi tar kontakt på {data.contactEmail} så snart som mulig.
+        Skolelisensen løper i 12 måneder og fornyes automatisk, med mindre den sies opp
+        skriftlig senest 30 dager før utløp.
       </InfoKort>
     );
   }
@@ -72,6 +74,10 @@ function PrisOversikt() {
       <p style={{ marginTop: 0 }}>
         Én årlig skolelisens dekker hele skolen. Prisen avhenger av antall lærere
         (eks. mva.). Fakturering med 30 dagers betalingsfrist.
+      </p>
+      <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+        Lisensen løper i 12 måneder og fornyes automatisk for ett år av gangen, med
+        mindre den sies opp skriftlig senest 30 dager før utløp.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginTop: 12 }}>
         {TIERS.map((t) => (

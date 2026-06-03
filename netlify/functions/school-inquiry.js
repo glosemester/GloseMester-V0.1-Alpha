@@ -159,7 +159,17 @@ to: 'kontakt@glosemester.no',
         <a href="mailto:${contactEmail}?subject=Re: Skolepakke-forespørsel GloseMester" class="button">
             📧 Svar på forespørsel
         </a>
-        
+
+        <div class="message-box" style="border-left: 4px solid #e6a700;">
+            <div class="label">Husk ved fakturering</div>
+            <div class="value" style="margin-top: 10px;">
+                Legg inn fornyelses-/oppsigelsesnote på fakturaen:<br>
+                <em>«Denne lisensen fornyes automatisk for 12 nye måneder ved utløp.
+                Ønsker dere ikke å fornye, gi skriftlig beskjed til kontakt@glosemester.no
+                senest 30 dager før utløpsdato.»</em>
+            </div>
+        </div>
+
         <div class="footer">
             <strong>Forespørsel-ID:</strong> ${inquiryRef.id}<br>
             <strong>Mottatt:</strong> ${new Date().toLocaleString('no-NO', { timeZone: 'Europe/Oslo' })}<br>
