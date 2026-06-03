@@ -11,7 +11,8 @@
       "mcp__093427ba-abb3-4452-99c8-471c98c14a4e__netlify-project-services-reader",
       "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__search_stripe_resources",
       "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__create_product",
-      "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__create_price"
+      "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__create_price",
+      "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__stripe_api_write"
     ]
   }
 }
