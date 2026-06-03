@@ -4,10 +4,41 @@
 
 🌐 **Nettside:** [glosemester.no](https://glosemester.no)
 👨‍💻 **Utviklet av:** Øyvind Nilsen Oksvold (Oksvold EDB)
-📅 **Versjon:** v2.4.2-ALPHA (6. mars 2026)
+📅 **Versjon:** v2.6.0-ALPHA (3. juni 2026)
 📋 **Launch-plan:** [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)
 
 GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en skattejakt. Elevene samler digitale kort, bytter dubletter og klatrer i nivåene, mens lærere enkelt kan lage prøver med QR-kode deling.
+
+---
+
+## 🆕 NYTT I v2.6.0-ALPHA (3. juni 2026) — Ny prismodell (Premium 29 kr) + håndhevd gratis-grense
+
+### ✅ Premium repriset 99 → 29 kr/mnd (290 kr/år)
+- **Stripe-checkout:** fallback-beløp justert 9900→2900 (mnd) og 80000→29000 (år)
+  i `netlify/functions/stripe-checkout.js`. Faktisk pris styres av Stripe Price-ID
+  (`STRIPE_PRICE_MONTHLY`/`STRIPE_PRICE_YEARLY`) — **disse må oppdateres til de nye
+  29/290-prisene i Netlify env før deploy.**
+- **Pris-UI (`Oppgrader.tsx`):** 99→29 kr/mnd, 800→290 kr/år. Årlig vinkles nå som
+  **«2 måneder gratis»** (290 vs. 348 kr) — matematisk korrekt (10×29 = 290).
+- **Webhook uendret:** setter fortsatt `abonnement.type = 'premium'`; pris ligger i Stripe.
+
+### ✅ Gratis-grensen «opptil 3 prøver» håndheves nå
+- Var tidligere kun et UI-løfte — gratisbrukere kunne lage ubegrenset prøver.
+- **Ny delt logikk** i `app-v3/src/lib/data/prover.ts`: `kanOppretteProve(type, antall)`
+  + konstant `GRATIS_MAKS_PROVER = 3`. Betalte abonnement er ubegrenset.
+- **`TeacherCreateTest.tsx`:** banner + deaktivert «Opprett prøve»-knapp + blokk ved
+  lagring når en gratisbruker har nådd 3 prøver (med lenke til `/oppgrader`). Gjelder
+  kun **ny oppretting** — eksisterende prøver røres ikke.
+- **Enhetstester** for `kanOppretteProve` i `prover.test.ts` (10/10 grønne).
+
+### 🅿️ Pro-trinn (79 kr) parkert
+- Droppet i denne omgang fordi differensiatorene (klasser, AI-generator,
+  resultateksport) **ikke finnes i koden ennå**. Full plan for senere lansering i
+  `docs/spec-skole-prising.md` §6.
+
+**Filer:** `netlify/functions/stripe-checkout.js`, `app-v3/src/pages/marketing/Oppgrader.tsx`,
+`app-v3/src/lib/data/prover.ts`, `app-v3/src/lib/data/prover.test.ts`,
+`app-v3/src/pages/teacher/TeacherCreateTest.tsx`, `docs/spec-skole-prising.md` (ny)
 
 ---
 
@@ -283,7 +314,7 @@ Fullt førstegangsoppsett (Windows, VS Code/Cursor, .env): se [docs/UTVIKLING.md
 - ✅ QR-kode deling
 - ✅ Basis resultatstatistikk
 
-**Premium Lærer (99 kr/mnd eller 800 kr/år):**
+**Premium Lærer (29 kr/mnd eller 290 kr/år — 2 måneder gratis):**
 - ✅ **Ubegrenset** antall prøver
 - ✅ Full redigering og duplisering
 - ✅ Tilgang til 16 Standardprøver (LK20-alignert)

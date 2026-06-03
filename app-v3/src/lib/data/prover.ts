@@ -68,6 +68,18 @@ export const MIN_TILGJENGELIG_DAGER = 1;
 export const MAX_TILGJENGELIG_DAGER = 14;
 export const STANDARD_TILGJENGELIG_DAGER = 7;
 
+/** Maks antall prøver en gratisbruker kan ha. Premium/skolepakke = ubegrenset. */
+export const GRATIS_MAKS_PROVER = 3;
+
+/**
+ * Kan brukeren opprette en ny prøve? Gratisbrukere er begrenset til
+ * GRATIS_MAKS_PROVER; alle betalte abonnement er ubegrenset.
+ */
+export function kanOppretteProve(abonnementType: string | undefined, antallNaa: number): boolean {
+  if (abonnementType && abonnementType !== 'free') return true;
+  return antallNaa < GRATIS_MAKS_PROVER;
+}
+
 /** Er prøven utløpt nå? (utloperDato 0/undefined = aldri utløpt.) */
 export function erProveUtloept(prove: Pick<Prove, 'utloperDato'>, naa = Date.now()): boolean {
   return Boolean(prove.utloperDato && prove.utloperDato > 0 && naa >= prove.utloperDato);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { genererProvekode, erProveUtloept } from './prover';
+import { genererProvekode, erProveUtloept, kanOppretteProve, GRATIS_MAKS_PROVER } from './prover';
 
 describe('genererProvekode', () => {
   it('gir 6 tegn', () => {
@@ -26,5 +26,24 @@ describe('erProveUtloept', () => {
   it('0 eller undefined = aldri utløpt (eldre prøver uten felt)', () => {
     expect(erProveUtloept({ utloperDato: 0 }, 9e12)).toBe(false);
     expect(erProveUtloept({}, 9e12)).toBe(false);
+  });
+});
+
+describe('kanOppretteProve', () => {
+  it('gratis: tillatt under grensen', () => {
+    expect(kanOppretteProve('free', 0)).toBe(true);
+    expect(kanOppretteProve('free', GRATIS_MAKS_PROVER - 1)).toBe(true);
+  });
+  it('gratis: blokkert på/over grensen', () => {
+    expect(kanOppretteProve('free', GRATIS_MAKS_PROVER)).toBe(false);
+    expect(kanOppretteProve('free', GRATIS_MAKS_PROVER + 5)).toBe(false);
+  });
+  it('manglende abonnement behandles som gratis', () => {
+    expect(kanOppretteProve(undefined, GRATIS_MAKS_PROVER)).toBe(false);
+    expect(kanOppretteProve(undefined, 0)).toBe(true);
+  });
+  it('betalte abonnement er ubegrenset', () => {
+    expect(kanOppretteProve('premium', 999)).toBe(true);
+    expect(kanOppretteProve('skolepakke', 999)).toBe(true);
   });
 });
