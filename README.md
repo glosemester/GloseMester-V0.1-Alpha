@@ -312,11 +312,12 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ### Viktige filer
 
-> **Arkitektur:** SPA-en lever i `src/` (V2). De eneste `js/`-filene som
-> gjenstår betjener de frittstående sidene `oppgrader.html` (Stripe) og
-> `min-side.html` (profil/GDPR) — disse er ikke en del av SPA-en. Den gamle
-> V1-kodebasen er fjernet (se changelog), og `www/` er build-output (genereres
-> av `npm run build`, ikke versjonskontrollert).
+> **Arkitektur:** Den deployede appen er nå **v3** (React, i `app-v3/`).
+> `npm run build` i rota (og Netlify) bygger v3 til `dist/` (ikke
+> versjonskontrollert) — den gamle v2-byggkjeden (`scripts/build.js` → `www/`)
+> og det manuelle `sw.js` er fjernet (B4). V2-koden (`src/`, `js/`, `index.html`,
+> frittstående `*.html`) ligger igjen som referanse og fjernes i B5
+> (jf. `docs/DEL-B-REACT-PLAN.md`). Filtreet under beskriver fortsatt v2.
 
 ```
 glosemester/
