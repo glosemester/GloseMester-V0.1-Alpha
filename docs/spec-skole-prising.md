@@ -81,15 +81,23 @@ if (bruker.abonnement.type === 'free') {
 - UI: fang feilen i `TeacherCreateTest.tsx`/`TeacherDashboard.tsx` og vis toast +
   lenke til `/oppgrader`.
 
-### 4.2 Serversjekk — `firestore.rules`
-Klienten kan omgås, så grensen bør også speiles i regler. Aggregert telling i
-regler er kostbart; anbefalt mønster:
-- Hold en teller `proveAntall` på brukerdokumentet, inkrementert/dekrementert når
-  prøver opprettes/slettes (klient eller liten function).
-- `prover/create`-regel: `allow create` kun hvis
-  `type != 'free' || brukerdok.proveAntall < 3`.
-- **Alternativ (enklere, mindre robust):** håndhev kun i klient nå, legg
-  regel-håndheving som oppfølging. Akseptabelt gitt lav misbruksrisiko tidlig.
+### 4.2 Serversjekk — `firestore.rules` ✅ IMPLEMENTERT
+Klienten kan omgås, så grensen håndheves også i regler. Firestore-regler kan
+ikke telle dokumenter, så vi bruker en teller `proveAntall` på brukerdokumentet:
+- `opprettProve`/`slettProve` (`prover.ts`) inkrementerer/dekrementerer telleren
+  i SAMME atomiske `writeBatch` som prøven opprettes/slettes.
+- Hjelpefunksjoner `brukerData`/`brukerDataEtter`/`aboType`/`gratisProveOk` i
+  `firestore.rules`. `gratisProveOk` bruker `getAfter()` og krever at telleren
+  økes med nøyaktig 1 og holder seg ≤ 3 — så en gratisbruker IKKE kan opprette
+  en prøve uten å øke telleren i samme skriv.
+- `prover/create`-regel: `allow create` kun hvis eier stempler seg selv OG
+  (`aboType != 'free'` ELLER `gratisProveOk`).
+- **Kjent restmargin (akseptabel for alpha):** eksisterende prøver laget før
+  telleren fantes telles ikke (manglende felt = 0), så en gammel gratisbruker med
+  >3 prøver kan i teorien lage noen flere via direkte API-kall. UI-en blokkerer
+  korrekt på faktisk antall (`prover.length`). Kan strammes ved å initialisere
+  `proveAntall` til reelt antall ved migrering.
+- ⚠️ Reglene må deployes: `firebase deploy --only firestore:rules`.
 
 ### 4.3 Migrasjonshensyn
 - Eksisterende gratisbrukere med >3 prøver: **behold alle**, blokker kun *ny*

@@ -8,11 +8,11 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
   updateDoc,
-  deleteDoc,
   doc,
   serverTimestamp,
+  writeBatch,
+  increment,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { cacheHent, cacheSett } from '../nativeCache';
@@ -170,7 +170,11 @@ export async function opprettProve(
 ): Promise<{ id: string; kode: string }> {
   const kode = genererProvekode();
   const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
-  const ref = await addDoc(collection(db, 'prover'), {
+  // Opprett prøven og øk brukerens teller i ÉN atomisk skriv. firestore.rules
+  // håndhever gratis-grensen ved å kreve nettopp denne +1-økningen (≤ grense).
+  const proveRef = doc(collection(db, 'prover'));
+  const batch = writeBatch(db);
+  batch.set(proveRef, {
     kode,
     fag: data.fag ?? 'gloser',
     tittel: data.tittel,
@@ -186,6 +190,8 @@ export async function opprettProve(
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
   });
+  batch.update(doc(db, 'users', laerer.uid), { proveAntall: increment(1) });
+  await batch.commit();
 
   // Send push-varsel til elever i tildelte grupper (fire-and-forget).
   if ((data.tildeltGrupper?.length ?? 0) > 0) {
@@ -196,7 +202,7 @@ export async function opprettProve(
     }).catch(() => {}); // varselfeil skal ikke blokkere oppretting
   }
 
-  return { id: ref.id, kode };
+  return { id: proveRef.id, kode };
 }
 
 /**
@@ -222,6 +228,13 @@ export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
   await updateDoc(doc(db, 'prover', id), oppdatering);
 }
 
-export async function slettProve(id: string): Promise<void> {
-  await deleteDoc(doc(db, 'prover', id));
+/**
+ * Sletter en prøve og dekrementerer eierens teller (frigjør gratis-grensen).
+ * `eierUid` er prøvens `opprettet_av` — den hvis teller skal reduseres.
+ */
+export async function slettProve(id: string, eierUid: string): Promise<void> {
+  const batch = writeBatch(db);
+  batch.delete(doc(db, 'prover', id));
+  if (eierUid) batch.update(doc(db, 'users', eierUid), { proveAntall: increment(-1) });
+  await batch.commit();
 }

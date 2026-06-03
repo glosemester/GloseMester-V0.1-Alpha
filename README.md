@@ -30,6 +30,11 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
   lagring når en gratisbruker har nådd 3 prøver (med lenke til `/oppgrader`). Gjelder
   kun **ny oppretting** — eksisterende prøver røres ikke.
 - **Enhetstester** for `kanOppretteProve` i `prover.test.ts` (10/10 grønne).
+- ✅ **Server-håndheving i `firestore.rules`:** `proveAntall`-teller på brukerdok,
+  vedlikeholdt atomisk i `writeBatch` av `opprettProve`/`slettProve`. Regelen bruker
+  `getAfter()` og krever at gratisbrukere øker telleren med nøyaktig 1 og holder seg
+  ≤ 3 — kan ikke omgås fra klient. Se `docs/spec-skole-prising.md` §4.2.
+  ⚠️ **Må deployes:** `firebase deploy --only firestore:rules`.
 
 ### 🅿️ Pro-trinn (79 kr) parkert
 - Droppet i denne omgang fordi differensiatorene (klasser, AI-generator,
