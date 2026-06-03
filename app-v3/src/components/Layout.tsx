@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { TabBar, TAB_BAR_HOYDE } from './TabBar';
+import { PageTransition } from './PageTransition';
 import { useTradeStore } from '../state/useTradeStore';
 import { ROUTES } from '../routes/paths';
 
@@ -47,7 +48,9 @@ export function Layout() {
       <TradeDeepLink />
       {visAppHeader && <AppHeader />}
       <main style={{ flex: 1, paddingBottom: visTabBar ? TAB_BAR_HOYDE + 24 : undefined }}>
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
       {visTabBar && <TabBar />}
     </div>

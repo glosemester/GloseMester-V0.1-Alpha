@@ -24,6 +24,7 @@ import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
+import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { ROUTES } from '../routes/paths';
 
 type Fase = 'kode' | 'navn' | 'quiz' | 'resultat';
@@ -158,8 +159,9 @@ export function Quiz() {
           <span>Spørsmål {state.index + 1} av {totalt}</span>
           <span>{state.prove.tittel ?? 'Prøve'}</span>
         </div>
-        <div style={{ height: 6, background: 'var(--color-border)', borderRadius: 999 }}>
-          <div style={{ height: '100%', width: `${prosent}%`, background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent))', borderRadius: 999, transition: 'width 0.4s' }} />
+        <div style={{ height: 6, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden' }}>
+          {/* #4 Animer transform (scaleX) i stedet for width — GPU-akselerert. */}
+          <div style={{ height: '100%', width: '100%', background: 'linear-gradient(90deg, var(--color-primary), var(--color-accent))', borderRadius: 999, transform: `scaleX(${prosent / 100})`, transformOrigin: 'left', transition: 'transform 0.4s', willChange: 'transform' }} />
         </div>
 
         <div style={{ background: 'var(--color-surface)', borderRadius: 24, padding: '36px 28px', textAlign: 'center', boxShadow: 'var(--shadow-card)' }}>
@@ -239,6 +241,7 @@ export function Quiz() {
     if (feedback) return;
     const spm = s.sporsmal[s.index];
     const riktig = erSvarRiktig(brukersvar, spm.riktigSvar);
+    void (riktig ? hapticLett() : hapticTung()); // #17 haptikk på svar
     const nySvar: SvarRad = { sporsmal: spm.sporsmal, brukersvar, riktig };
     setValgtSvar(brukersvar);
     setFeedback({ riktig, fasit: spm.riktigSvar });
@@ -277,6 +280,7 @@ export function Quiz() {
     if (firebaseUser) {
       const kort = checkWinCondition(riktige, totalt, s.prove.niva ?? null);
       if (kort) {
+        void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
         leggTilKort(kort);
         setVunnetKort(kort);
       }

@@ -37,7 +37,8 @@ import { checkWinCondition } from '../features/kort/kortReward';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X } from 'lucide-react';
-import { lesOpp, vibrer } from '../lib/speech';
+import { lesOpp } from '../lib/speech';
+import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
 import { useTradeStore } from '../state/useTradeStore';
@@ -135,6 +136,7 @@ export function GlosemesterPractice() {
 
       setBesvart((n) => n + 1);
       if (korrekt) {
+        void hapticLett(); // #17 lett dunk ved riktig svar
         setRiktige((n) => n + 1);
         setStreak((n) => n + 1);
         const { diamanterTildelt } = registrerRiktigSvar();
@@ -152,7 +154,10 @@ export function GlosemesterPractice() {
           if (ny >= KORT_PER_RIKTIGE) {
             // checkWinCondition(10,10) = 100 % → garantert kort, nivåfiltrert.
             const kort = checkWinCondition(KORT_PER_RIKTIGE, KORT_PER_RIKTIGE, level);
-            if (kort) setVunnetKort(kort);
+            if (kort) {
+              void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
+              setVunnetKort(kort);
+            }
             localStorage.setItem('kortProgress', '0');
             return 0;
           }
@@ -164,7 +169,7 @@ export function GlosemesterPractice() {
         window.setTimeout(gaaVidere, 900);
       } else {
         setStreak(0);
-        vibrer(200);
+        void hapticTung(); // #17 tungt dunk ved feil svar (erstatter web-vibrer)
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
@@ -239,7 +244,8 @@ export function GlosemesterPractice() {
         <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Avslutt</button>
         <div style={{ flex: 1 }}>
           <div style={{ height: 10, background: 'rgba(0,0,0,0.08)', borderRadius: 999, overflow: 'hidden' }}>
-            <div style={{ width: `${progresjon}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
+            {/* #4 Animer transform (scaleX) i stedet for width — kjører på GPU. */}
+            <div style={{ width: '100%', height: '100%', background: 'var(--color-primary)', borderRadius: 999, transform: `scaleX(${progresjon / 100})`, transformOrigin: 'left', transition: 'transform 0.4s ease', willChange: 'transform' }} />
           </div>
         </div>
         <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', minWidth: 44, textAlign: 'right' }}>{besvart + 1}/{rundeLengde}</span>
@@ -273,7 +279,7 @@ export function GlosemesterPractice() {
       </div>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-6)', padding: 'var(--space-6)', textAlign: 'center' }}>
-        <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease' }}>
+        <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease', willChange: 'transform, opacity' }}>
           {word.image && direction === 'en' && (
             <img src={word.image} alt={word.s} style={{ maxWidth: 160, maxHeight: 160, filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))' }} />
           )}

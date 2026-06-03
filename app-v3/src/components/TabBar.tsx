@@ -58,7 +58,7 @@ export const TAB_BAR_HOYDE = 64;
 
 const tabBar: React.CSSProperties = {
   position: 'fixed', left: '50%', bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
-  transform: 'translateX(-50%)', zIndex: 150,
+  transform: 'translateX(-50%)', zIndex: 150, willChange: 'transform',
   display: 'flex', gap: 4, padding: 6,
   background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-full)', boxShadow: 'var(--shadow-lg)',

@@ -16,7 +16,14 @@
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/haptics": "^6.0.3",
+    "@capacitor/keyboard": "^6.0.4",
+    "@capacitor/preferences": "^6.0.4",
+    "@capacitor/splash-screen": "^6.0.4",
+    "@capacitor/status-bar": "^6.0.3",
     "firebase": "^10.13.2",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^1.17.0",
     "qrcode.react": "^4.1.0",
     "react": "^18.3.1",

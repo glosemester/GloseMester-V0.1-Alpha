@@ -55,8 +55,13 @@
     --level-4-light:  #f87171;
 
     /* ── Typografi ── */
-    --font-primary:          'Nunito', 'Arial Rounded MT Bold', sans-serif;
+    /* #14 Systemfont-fallback: -apple-system gir San Francisco på iOS, så
+       appen ser native ut umiddelbart hvis Nunito ikke har lastet enda. */
+    --font-primary:          'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial Rounded MT Bold', sans-serif;
     --font-mono:             'JetBrains Mono', 'Courier New', monospace;
+
+    /* #7 iOS-aktig spring-easing for CSS-overganger (Framer brukes i JS). */
+    --ease-spring:           cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --font-size-xs:   12px;
     --font-size-sm:   14px;
