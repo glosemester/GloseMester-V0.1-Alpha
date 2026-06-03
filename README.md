@@ -312,52 +312,47 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ### Viktige filer
 
-> **Arkitektur:** Den deployede appen er nå **v3** (React, i `app-v3/`).
+> **Arkitektur:** Den deployede appen er **v3** (React + Vite, i `app-v3/`).
 > `npm run build` i rota (og Netlify) bygger v3 til `dist/` (ikke
-> versjonskontrollert) — den gamle v2-byggkjeden (`scripts/build.js` → `www/`)
-> og det manuelle `sw.js` er fjernet (B4). V2-koden (`src/`, `js/`, `index.html`,
-> frittstående `*.html`) ligger igjen som referanse og fjernes i B5
-> (jf. `docs/DEL-B-REACT-PLAN.md`). Filtreet under beskriver fortsatt v2.
+> versjonskontrollert). V2-kildekoden (den gamle vanilla-JS-SPA-en i `src/`,
+> `js/`, `index.html` og de frittstående marketing-/Stripe-/GDPR-sidene) ble
+> fjernet i B5 — alle sidene er portet til React-ruter i `app-v3/src/pages/`
+> (`/for-laerere`, `/for-skoler`, `/om-oss`, `/faq`, `/oppgrader`, `/min-side`).
+> Gamle `*.html`-URLer 301-redirectes til de rene rutene i `netlify.toml`.
+> Kun fire statiske juridiske sider i rota deployes fortsatt (kopieres til
+> `dist/` av `app-v3/scripts/copy-static.mjs`).
 
 ```
 glosemester/
-├── index.html                       # SPA-entrypoint (laster src/app.js)
-├── min-side.html                    # Frittstående: brukerprofil + abo
-├── oppgrader.html                   # Frittstående: prisside med Stripe
-├── src/
-│   ├── app.js                       # App-init, ruter, auth-state
-│   ├── styles/
-│   │   ├── tokens.css               # ENESTE design-token-kilde (korall + Nunito)
-│   │   ├── redesign.css             # Globale komponentstiler
-│   │   ├── glosemester.css          # Øvedel/quiz
-│   │   ├── teacher.css              # Lærer-UI (alias over tokens.css)
-│   │   ├── menu.css                 # Navigasjon
-│   │   └── landing.css              # Landingsside
-│   ├── core/
-│   │   ├── auth/                    # firebase-config.js, auth-service.js
-│   │   ├── kort/                    # kort-system/-data/-display/-reward.js
-│   │   ├── navigation/             # router.js, app-header.js, menu-system.js
-│   │   ├── pwa/                     # installer.js, ios-popup.js
-│   │   └── utils/                   # storage.js (UID-nøklet), feedback.js, rate-limiter.js
-│   ├── features/
-│   │   ├── glosemester/            # vocabulary-data.js + øvemodus
-│   │   ├── teacher/                # teacher-module.js (dashboard + prøver)
-│   │   ├── trade/                   # kortbytte
-│   │   └── onboarding/
-│   ├── shared/quiz/quiz-engine.js   # Prøvemodus for elever
-│   └── pages/                       # landing.js, velkomst.js, fag-start.js
-├── js/                              # KUN standalone-sider (oppgrader/min-side)
-│   ├── features/                    # firebase, auth, payment, gdpr, saved-tests
-│   ├── ui/helpers.js
-│   └── vendor/                      # jsQR, xlsx
+├── app-v3/                          # v3-appen (React + Vite) — alt frontend her
+│   ├── index.html                   # Vite-entrypoint (laster src/main.tsx)
+│   ├── src/
+│   │   ├── main.tsx                 # Router-oppsett (react-router-dom)
+│   │   ├── pages/                   # Landing, ForLaerere, ForSkoler, OmOss,
+│   │   │                            #   Faq, Oppgrader, MinSide, Quiz, Galleri ...
+│   │   ├── features/                # Glosemester, teacher, trade ...
+│   │   ├── components/              # Layout, ProtectedRoute, delte UI-deler
+│   │   ├── routes/                  # paths.ts (ROUTES) + rute-mønstre
+│   │   ├── lib/                     # payment.ts, data/* (Firebase-tilgang)
+│   │   ├── state/                   # auth/app-state
+│   │   └── styles/                  # design-tokens (korall + Nunito)
+│   ├── scripts/copy-static.mjs      # Kopierer images/ + juridiske sider til dist/
+│   └── vite.config.ts               # outDir → ../dist, vite-plugin-pwa (sw)
 ├── netlify/functions/
 │   ├── lib/feide-roles.js           # Delt rollelogikk (web + mobil)
 │   ├── feide-auth.js                # Feide OIDC token exchange (web)
 │   ├── feide-mobile-auth.js         # Feide OIDC (mobil)
 │   ├── stripe-checkout.js           # Stripe Checkout initiering
 │   ├── stripe-webhook.js            # Stripe webhook (auto-aktivering)
-│   └── school-inquiry.js            # Skolepakke-forespørsel
-├── sw.js                            # Service Worker
+│   ├── school-inquiry.js            # Skolepakke-forespørsel
+│   └── admin-totp.js                # Admin 2FA (TOTP)
+├── personvern.html, vilkar.html,    # Frittstående juridiske sider (inline-stil)
+│   databehandleravtale.html,        #   — kopieres til dist/ ved bygg
+│   skoleavtale.html
+├── images/                          # Samlekort + vokabularbilder (kopieres til dist/)
+├── icon.png                         # PWA / apple-touch-icon (kopieres til dist/)
+├── netlify.toml                     # Bygg (app-v3 → dist), redirects, SPA-fallback
+├── android/, ios/                   # Capacitor native-skall (webDir = dist)
 └── firestore.rules                  # Sikkerhet & tilgangskontroll
 ```
 

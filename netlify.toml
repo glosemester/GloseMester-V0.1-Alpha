@@ -24,6 +24,38 @@
   status = 200
   force = true
 
+# Gamle v2-URLer (.html) → rene v3-ruter. Bevarer SEO/bokmerker etter at
+# v2-sidene ble fjernet (B5). Netlify viderefører query-string automatisk, så
+# stripe-checkout sin /oppgrader.html?status=... lander riktig på /oppgrader.
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+[[redirects]]
+  from = "/for-laerere.html"
+  to = "/for-laerere"
+  status = 301
+[[redirects]]
+  from = "/for-skoler.html"
+  to = "/for-skoler"
+  status = 301
+[[redirects]]
+  from = "/om-oss.html"
+  to = "/om-oss"
+  status = 301
+[[redirects]]
+  from = "/faq.html"
+  to = "/faq"
+  status = 301
+[[redirects]]
+  from = "/oppgrader.html"
+  to = "/oppgrader"
+  status = 301
+[[redirects]]
+  from = "/min-side.html"
+  to = "/min-side"
+  status = 301
+
 # SPA-fallback: alle ruter som ikke er en ekte fil serveres som v3 sin index.html.
 [[redirects]]
   from = "/*"
