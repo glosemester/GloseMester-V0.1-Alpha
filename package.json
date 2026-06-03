@@ -21,7 +21,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "build": "node scripts/build.js",
+    "build": "cd app-v3 && npm run build",
     "cap:sync": "npm run build && npx cap sync",
     "update-vendor": "cp node_modules/jsqr/dist/jsQR.js js/vendor/ && cp node_modules/xlsx/dist/xlsx.full.min.js js/vendor/"
   }
