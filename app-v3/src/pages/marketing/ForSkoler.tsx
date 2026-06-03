@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle2, Mail, School, BookOpen, Users, MessageCircle, FileText, Tag } from 'lucide-react';
 import { MarketingLayout, InfoKort } from './MarketingLayout';
+import { FlytendeKjop } from '../../components/FlytendeKjop';
 import { sendSkoleforesporsel, type SkoleForesporsel } from '../../lib/data/skoleforesporsel';
 import { toast } from '../../state/useToastStore';
 
@@ -134,6 +135,12 @@ export function ForSkoler() {
         (GDPR art. 28). Begge kan leses og signeres digitalt.
       </InfoKort>
       <ForesporselSkjema />
+      <FlytendeKjop
+        id="skole"
+        to="/oppgrader"
+        tittel="Kjøp skolelisens"
+        info="Hele skolen, ubegrenset antall lærere — fra 2 000 kr/år."
+      />
     </MarketingLayout>
   );
 }
