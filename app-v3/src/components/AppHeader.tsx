@@ -4,6 +4,7 @@
  * sider (de har egen header via MarketingLayout) — Layout styrer det via skjulListe.
  */
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { User } from 'lucide-react';
 import { ROUTES } from '../routes/paths';
 import { useAuthStore } from '../state/useAuthStore';
 
@@ -50,7 +51,7 @@ export function AppHeader() {
               aria-label="Min side"
               title="Min side"
             >
-              {initialer || <span aria-hidden="true">👤</span>}
+              {initialer || <User size={18} aria-hidden="true" />}
             </button>
             <button type="button" onClick={() => void loggUt()} style={loggUtKnapp}>
               Logg ut

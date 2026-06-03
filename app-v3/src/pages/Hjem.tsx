@@ -4,12 +4,13 @@
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BookOpen, FileText, Layers, User, Target, type LucideIcon } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { ROUTES } from '../routes/paths';
 // «Logg ut» ligger nå i den globale AppHeader (tilgjengelig fra alle sider).
 
 interface Snarvei {
-  ikon: string;
+  Ikon: LucideIcon;
   tittel: string;
   tekst: string;
   rute: string;
@@ -23,13 +24,13 @@ export function Hjem() {
   const [hover, setHover] = useState<string | null>(null);
 
   const snarveier: Snarvei[] = [
-    { ikon: '📚', tittel: 'Øv gloser', tekst: 'Tren med kort, lyd og smart repetisjon.', rute: ROUTES.GLOSEMESTER, farge: '#FF6B47' },
-    { ikon: '📝', tittel: 'Ta en prøve', tekst: 'Skriv inn prøvekoden fra læreren.', rute: ROUTES.QUIZ, farge: '#0071e3' },
-    { ikon: '🃏', tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: '#9b59b6' },
-    { ikon: '👤', tittel: 'Min side', tekst: 'Profil, abonnement og personvern.', rute: ROUTES.PROFILE, farge: '#27ae60' },
+    { Ikon: BookOpen, tittel: 'Øv gloser', tekst: 'Tren med kort, lyd og smart repetisjon.', rute: ROUTES.GLOSEMESTER, farge: '#FF6B47' },
+    { Ikon: FileText, tittel: 'Ta en prøve', tekst: 'Skriv inn prøvekoden fra læreren.', rute: ROUTES.QUIZ, farge: '#0071e3' },
+    { Ikon: Layers, tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: '#9b59b6' },
+    { Ikon: User, tittel: 'Min side', tekst: 'Profil, abonnement og personvern.', rute: ROUTES.PROFILE, farge: '#27ae60' },
   ];
   if (erLaerer) {
-    snarveier.unshift({ ikon: '🎯', tittel: 'Lærerpanel', tekst: 'Lag og del prøver, se resultater.', rute: ROUTES.TEACHER_HOME, farge: '#e67e22' });
+    snarveier.unshift({ Ikon: Target, tittel: 'Lærerpanel', tekst: 'Lag og del prøver, se resultater.', rute: ROUTES.TEACHER_HOME, farge: '#e67e22' });
   }
 
   return (
@@ -39,7 +40,7 @@ export function Hjem() {
           Velkommen tilbake
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 5vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
-          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}! <span aria-hidden="true">👋</span>
+          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}!
         </h1>
       </header>
 
@@ -59,7 +60,7 @@ export function Hjem() {
             }}
           >
             <div style={{ ...ikonSirkel, background: `${s.farge}1a` }}>
-              <span aria-hidden="true" style={{ fontSize: 30 }}>{s.ikon}</span>
+              <s.Ikon size={30} color={s.farge} aria-hidden="true" />
             </div>
             <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', margin: '14px 0 4px' }}>{s.tittel}</h2>
             <p style={{ color: 'var(--color-text-muted)', fontSize: 14, lineHeight: 1.5 }}>{s.tekst}</p>

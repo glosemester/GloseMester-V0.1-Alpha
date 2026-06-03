@@ -5,6 +5,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Sparkles, FileText } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
 import { TEACHER_ROUTES } from './teacherPaths';
@@ -30,7 +31,7 @@ export function TeacherDashboard() {
         }}
       >
         <h1 style={{ fontWeight: 900, fontSize: 'var(--font-size-2xl)' }}>
-          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}! 👋
+          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}!
         </h1>
         <p style={{ opacity: 0.85, marginTop: 6 }}>Velkommen til lærerpanelet</p>
       </header>
@@ -44,7 +45,7 @@ export function TeacherDashboard() {
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         <button type="button" onClick={() => navigate(TEACHER_ROUTES.CREATE_TEST)} style={primaerKnapp}>
-          ✨ Lag ny prøve
+          <Sparkles size={16} aria-hidden="true" /> Lag ny prøve
         </button>
       </div>
 
@@ -91,7 +92,7 @@ function StatKort({ tall, etikett }: { tall: number | string; etikett: string })
 function TomTilstand({ onLag }: { onLag: () => void }) {
   return (
     <div style={{ textAlign: 'center', padding: '48px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-      <div style={{ fontSize: 48 }}>📝</div>
+      <FileText size={48} color="var(--color-primary)" aria-hidden="true" />
       <h3 style={{ fontWeight: 800 }}>Ingen prøver ennå</h3>
       <p style={{ color: 'var(--color-text-muted)', maxWidth: '36ch' }}>Lag din første prøve og del den med klassen via kode eller QR.</p>
       <button type="button" onClick={onLag} style={primaerKnapp}>Lag prøve</button>
@@ -100,6 +101,7 @@ function TomTilstand({ onLag }: { onLag: () => void }) {
 }
 
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',

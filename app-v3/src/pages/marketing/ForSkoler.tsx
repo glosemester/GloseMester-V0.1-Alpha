@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CheckCircle2, Mail, School, BookOpen, Users, MessageCircle, FileText } from 'lucide-react';
 import { MarketingLayout, InfoKort } from './MarketingLayout';
 import { sendSkoleforesporsel, type SkoleForesporsel } from '../../lib/data/skoleforesporsel';
 import { toast } from '../../state/useToastStore';
@@ -31,14 +32,14 @@ function ForesporselSkjema() {
 
   if (sendt) {
     return (
-      <InfoKort tittel="✅ Forespørsel mottatt">
+      <InfoKort tittel={<><CheckCircle2 size={20} color="var(--color-success)" aria-hidden="true" /> Forespørsel mottatt</>}>
         Takk for interessen! Vi tar kontakt på {data.contactEmail} så snart som mulig.
       </InfoKort>
     );
   }
 
   return (
-    <InfoKort tittel="📨 Be om tilbud">
+    <InfoKort tittel={<><Mail size={20} color="var(--color-primary)" aria-hidden="true" /> Be om tilbud</>}>
       <form onSubmit={send} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <input required value={data.schoolName} onChange={(e) => felt('schoolName', e.target.value)} placeholder="Skolens navn *" style={inp} />
         <input required value={data.orgNumber} onChange={(e) => felt('orgNumber', e.target.value)} placeholder="Organisasjonsnummer *" style={inp} />
@@ -69,20 +70,20 @@ export function ForSkoler() {
       tittel="For skoler"
       ingress="GloseMester Skolepakke gir hele skolen tilgang — med Feide-innlogging, delt prøvebank og ubegrenset antall lærere."
     >
-      <InfoKort tittel="🏫 Feide-innlogging">
+      <InfoKort tittel={<><School size={20} color="var(--color-primary)" aria-hidden="true" /> Feide-innlogging</>}>
         Sikker pålogging for alle lærere via Feide. Ingen separate passord å holde styr på.
       </InfoKort>
-      <InfoKort tittel="📚 GloseBank">
+      <InfoKort tittel={<><BookOpen size={20} color="var(--color-primary)" aria-hidden="true" /> GloseBank</>}>
         Del prøver internt på skolen, slik at lærere kan gjenbruke og bygge videre
         på hverandres opplegg.
       </InfoKort>
-      <InfoKort tittel="👥 Ubegrenset antall lærere">
+      <InfoKort tittel={<><Users size={20} color="var(--color-primary)" aria-hidden="true" /> Ubegrenset antall lærere</>}>
         Én skolelisens dekker alle lærerne deres — ingen begrensning på antall kontoer.
       </InfoKort>
-      <InfoKort tittel="💬 Dedikert support">
+      <InfoKort tittel={<><MessageCircle size={20} color="var(--color-primary)" aria-hidden="true" /> Dedikert support</>}>
         Prioritert support og opplæring, samt fakturering med 30 dagers betalingsfrist.
       </InfoKort>
-      <InfoKort tittel="📄 Avtaler">
+      <InfoKort tittel={<><FileText size={20} color="var(--color-primary)" aria-hidden="true" /> Avtaler</>}>
         Tilgang reguleres av en <a href="/skoleavtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>skoleavtale</a>{' '}
         og en <a href="/databehandleravtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>databehandleravtale</a>{' '}
         (GDPR art. 28). Begge kan leses og signeres digitalt.

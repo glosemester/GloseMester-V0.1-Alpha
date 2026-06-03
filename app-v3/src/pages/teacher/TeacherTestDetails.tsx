@@ -5,6 +5,7 @@
  */
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Copy, Link as LinkIcon, Pencil, Trash2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
@@ -84,15 +85,15 @@ export function TeacherTestDetails() {
           )
         ) : null}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16, flexWrap: 'wrap' }}>
-          <button type="button" onClick={() => kopier(prove.kode, 'Prøvekode kopiert!')} style={sekundaerKnapp}>📋 Kopier kode</button>
-          <button type="button" onClick={() => kopier(proveLenke, 'Lenke kopiert!')} style={sekundaerKnapp}>🔗 Kopier lenke</button>
+          <button type="button" onClick={() => kopier(prove.kode, 'Prøvekode kopiert!')} style={sekundaerKnapp}><Copy size={16} aria-hidden="true" /> Kopier kode</button>
+          <button type="button" onClick={() => kopier(proveLenke, 'Lenke kopiert!')} style={sekundaerKnapp}><LinkIcon size={16} aria-hidden="true" /> Kopier lenke</button>
         </div>
       </div>
 
       {/* Handlinger */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button type="button" onClick={() => navigate(TEACHER_ROUTES.editTest(prove.id))} style={primaerKnapp}>✏️ Rediger</button>
-        <button type="button" onClick={slett} disabled={sletter} style={slettKnapp}>🗑️ Slett</button>
+        <button type="button" onClick={() => navigate(TEACHER_ROUTES.editTest(prove.id))} style={primaerKnapp}><Pencil size={16} aria-hidden="true" /> Rediger</button>
+        <button type="button" onClick={slett} disabled={sletter} style={slettKnapp}><Trash2 size={16} color="var(--color-error)" aria-hidden="true" /> Slett</button>
       </div>
 
       {/* Resultater */}
@@ -124,15 +125,18 @@ export function TeacherTestDetails() {
 }
 
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };
 const sekundaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
   borderRadius: 'var(--radius-full)', padding: '10px 16px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };
 const slettKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 6,
   background: 'transparent', color: 'var(--color-error)', border: '2px solid var(--color-error)',
   borderRadius: 'var(--radius-full)', padding: 'var(--space-3) var(--space-6)', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };

@@ -5,6 +5,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { aktiverKampanjekode } from '../lib/data/kampanje';
@@ -56,7 +57,7 @@ export function MinSide() {
     setAktiverer(true);
     const res = await aktiverKampanjekode(firebaseUser.uid, kode);
     if (res.ok && res.kampanje) {
-      toast.success(`✅ ${res.kampanje.beskrivelse} aktivert!`);
+      toast.success(`${res.kampanje.beskrivelse} aktivert!`);
       setKode('');
     } else {
       toast.error(res.feil ?? 'Kunne ikke aktivere koden.');
@@ -68,7 +69,7 @@ export function MinSide() {
     if (!firebaseUser) return;
     setBusy(true);
     try {
-      toast.info('📥 Henter data…');
+      toast.info('Henter data…');
       await eksporterMinData(firebaseUser.uid);
       toast.success('Data lastet ned.');
     } catch {
@@ -97,19 +98,19 @@ export function MinSide() {
     <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 20px 48px', display: 'flex', flexDirection: 'column', gap: 20 }}>
       <header>
         <h1 style={{ fontWeight: 900, fontSize: 'var(--font-size-2xl)' }}>
-          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}! 👋
+          Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}!
         </h1>
       </header>
 
       {/* Kortsamling */}
-      <Kort tittel="🃏 Kortsamlingen din">
+      <Kort tittel={<><Layers size={20} color="var(--color-primary)" aria-hidden="true" /> Kortsamlingen din</>}>
         {samling.antallUnike === 0 ? (
           <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
             <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 14 }}>
               Du har ikke samlet noen kort ennå. Svar riktig på prøver og øvinger for å vinne kort!
             </p>
             <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER)} style={primaerKnapp}>
-              🎴 Øv for å samle kort
+              <Layers size={16} aria-hidden="true" /> Øv for å samle kort
             </button>
           </div>
         ) : (
@@ -157,19 +158,19 @@ export function MinSide() {
       </Kort>
 
       {/* Abonnement */}
-      <Kort tittel="📦 Ditt abonnement">
+      <Kort tittel={<><Package size={20} color="var(--color-primary)" aria-hidden="true" /> Ditt abonnement</>}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <span style={badge}>{ABONNEMENT_ETIKETT[abonnement] ?? abonnement}</span>
           {abonnement === 'free' && (
             <button type="button" onClick={() => navigate('/oppgrader')} style={primaerKnapp}>
-              ⬆️ Se Premium
+              Se Premium
             </button>
           )}
         </div>
       </Kort>
 
       {/* Kampanjekode */}
-      <Kort tittel="🎁 Har du kampanjekode?">
+      <Kort tittel={<><Gift size={20} color="var(--color-primary)" aria-hidden="true" /> Har du kampanjekode?</>}>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
           Premium-koder gir ubegrenset antall prøver og tilgang til standardprøver.
         </p>
@@ -187,44 +188,44 @@ export function MinSide() {
       </Kort>
 
       {/* Profil */}
-      <Kort tittel="👤 Min profil">
+      <Kort tittel={<><User size={20} color="var(--color-primary)" aria-hidden="true" /> Min profil</>}>
         <Rad etikett="E-post" verdi={firebaseUser?.email ?? '–'} />
         <Rad etikett="Rolle" verdi={bruker?.rolle ?? '–'} />
         <Rad etikett="Bruker-ID" verdi={firebaseUser?.uid ?? '–'} />
       </Kort>
 
       {/* GDPR */}
-      <Kort tittel="🛡️ Personvern & dine rettigheter">
+      <Kort tittel={<><ShieldCheck size={20} color="var(--color-primary)" aria-hidden="true" /> Personvern & dine rettigheter</>}>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
           I henhold til GDPR kan du laste ned eller slette dataene dine.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button type="button" onClick={eksporter} disabled={busy} style={sekundaerKnapp}>
-            📥 Last ned mine data (JSON)
+            <Download size={18} aria-hidden="true" /> Last ned mine data (JSON)
           </button>
           <button type="button" onClick={slett} disabled={busy} style={fareKnapp}>
-            🗑️ Slett min konto
+            <Trash2 size={18} color="var(--color-error)" aria-hidden="true" /> Slett min konto
           </button>
         </div>
       </Kort>
 
       {/* Support */}
-      <Kort tittel="💬 Support & kontakt">
+      <Kort tittel={<><MessageCircle size={20} color="var(--color-primary)" aria-hidden="true" /> Support & kontakt</>}>
         <Rad etikett="E-post" verdi="kontakt@glosemester.no" />
         <Rad etikett="Responstid" verdi="Innen 2 virkedager" />
         <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-          <a href="/vilkar.html" style={lenke}>📄 Kjøpsvilkår</a>
-          <a href="/personvern.html" style={lenke}>🔒 Personvern</a>
+          <a href="/vilkar.html" style={lenke}><FileText size={16} aria-hidden="true" /> Kjøpsvilkår</a>
+          <a href="/personvern.html" style={lenke}><Lock size={16} aria-hidden="true" /> Personvern</a>
         </div>
       </Kort>
     </div>
   );
 }
 
-function Kort({ tittel, children }: { tittel: string; children: React.ReactNode }) {
+function Kort({ tittel, children }: { tittel: React.ReactNode; children: React.ReactNode }) {
   return (
     <section style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 20, boxShadow: 'var(--shadow-card)' }}>
-      <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 12 }}>{tittel}</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 12 }}>{tittel}</h2>
       {children}
     </section>
   );
@@ -244,14 +245,17 @@ const input: React.CSSProperties = {
   borderRadius: 'var(--radius-md)', outline: 'none', fontFamily: 'var(--font-primary)',
 };
 const primaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: '10px 18px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };
 const sekundaerKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 8,
   background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
   borderRadius: 'var(--radius-md)', padding: '12px 16px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)', textAlign: 'left',
 };
 const fareKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 8,
   background: 'transparent', color: 'var(--color-error)', border: '2px solid var(--color-error)',
   borderRadius: 'var(--radius-md)', padding: '12px 16px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)', textAlign: 'left',
 };
@@ -263,4 +267,4 @@ const badge: React.CSSProperties = {
   background: 'var(--color-primary-light)', color: 'var(--color-primary)',
   borderRadius: 'var(--radius-full)', padding: '6px 16px', fontWeight: 800, fontSize: 15,
 };
-const lenke: React.CSSProperties = { color: 'var(--color-secondary)', fontWeight: 600, fontSize: 14, textDecoration: 'none' };
+const lenke: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--color-secondary)', fontWeight: 600, fontSize: 14, textDecoration: 'none' };

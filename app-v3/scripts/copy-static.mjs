@@ -18,7 +18,7 @@ const repoRoot = join(here, '..', '..'); // app-v3/scripts → repo-rot
 const dist = join(repoRoot, 'dist');
 
 if (!existsSync(dist)) {
-  console.error('❌ dist/ finnes ikke — kjør "vite build" først.');
+  console.error('[feil] dist/ finnes ikke — kjør "vite build" først.');
   process.exit(1);
 }
 
@@ -29,9 +29,9 @@ for (const m of mapper) {
   const kilde = join(repoRoot, m);
   if (existsSync(kilde)) {
     cpSync(kilde, join(dist, m), { recursive: true });
-    console.log(`📁 Kopierte ${m}/ → dist/${m}/`);
+    console.log(`Kopierte ${m}/ → dist/${m}/`);
   } else {
-    console.warn(`⚠️  Mangler ${m}/ i rot — hopper over.`);
+    console.warn(`[advarsel] Mangler ${m}/ i rot — hopper over.`);
   }
 }
 
@@ -40,10 +40,10 @@ for (const f of filer) {
   if (existsSync(kilde)) {
     mkdirSync(dist, { recursive: true });
     cpSync(kilde, join(dist, f));
-    console.log(`📄 Kopierte ${f} → dist/${f}`);
+    console.log(`Kopierte ${f} → dist/${f}`);
   } else {
-    console.warn(`⚠️  Mangler ${f} i rot — hopper over.`);
+    console.warn(`[advarsel] Mangler ${f} i rot — hopper over.`);
   }
 }
 
-console.log('✅ Statiske rot-assets kopiert til dist/.');
+console.log('[ok] Statiske rot-assets kopiert til dist/.');
