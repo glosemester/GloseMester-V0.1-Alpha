@@ -159,7 +159,7 @@ to: 'kontakt@glosemester.no',
         <a href="mailto:${contactEmail}?subject=Re: Skolepakke-forespørsel GloseMester" class="button">
             📧 Svar på forespørsel
         </a>
-        
+
         <div class="footer">
             <strong>Forespørsel-ID:</strong> ${inquiryRef.id}<br>
             <strong>Mottatt:</strong> ${new Date().toLocaleString('no-NO', { timeZone: 'Europe/Oslo' })}<br>
@@ -173,11 +173,67 @@ to: 'kontakt@glosemester.no',
             });
             
             console.log('✅ E-postvarsel sendt via Resend:', emailData.id);
-            
+
         } catch (emailError) {
             // Logg feilen, men ikke fail hele requesten
             console.error('⚠️ Resend e-post feilet:', emailError.message);
             // Forespørselen er allerede lagret i Firestore, så det er OK
+        }
+
+        // ✅ AUTOSVAR TIL SKOLEN (bekreftelse på mottatt forespørsel)
+        try {
+            const resend = new Resend(process.env.RESEND_API_KEY);
+
+            const replyData = await resend.emails.send({
+                from: 'kontakt@glosemester.no',
+                to: contactEmail,
+                subject: 'Takk for forespørselen – GloseMester Skolepakke',
+                html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+        .header { background: #0071e3; color: white; padding: 25px; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 22px; }
+        .content { background: #f9f9f9; padding: 25px; border-radius: 0 0 8px 8px; }
+        .footer { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px; }
+        a { color: #0071e3; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Takk for forespørselen!</h1>
+    </div>
+    <div class="content">
+        <p>Hei ${contactPerson},</p>
+        <p>
+            Vi har mottatt forespørselen om GloseMester Skolepakke for
+            <strong>${schoolName}</strong> og tar kontakt så snart som mulig for
+            å avtale videre.
+        </p>
+        <p>
+            Skolelisensen dekker hele skolen med ubegrenset antall lærere, GloseBank
+            og Feide-innlogging. Vilkårene finner dere i
+            <a href="https://glosemester.no/skoleavtale.html">skoleavtalen</a> og
+            <a href="https://glosemester.no/vilkar.html">kjøpsvilkårene</a>.
+        </p>
+        <p>Har dere spørsmål i mellomtiden, svar gjerne direkte på denne e-posten.</p>
+        <p>Vennlig hilsen<br>GloseMester</p>
+        <div class="footer">
+            <em>Denne bekreftelsen ble automatisk sendt fra GloseMester</em>
+        </div>
+    </div>
+</body>
+</html>
+                `
+            });
+
+            console.log('✅ Autosvar sendt til skolen via Resend:', replyData.id);
+
+        } catch (replyError) {
+            // Logg feilen, men ikke fail hele requesten – forespørselen er lagret
+            console.error('⚠️ Autosvar til skolen feilet:', replyError.message);
         }
 
         return {

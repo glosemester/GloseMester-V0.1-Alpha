@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Mail, School, BookOpen, Users, MessageCircle, FileText } from 'lucide-react';
+import { CheckCircle2, Mail, School, BookOpen, Users, MessageCircle, FileText, Tag } from 'lucide-react';
 import { MarketingLayout, InfoKort } from './MarketingLayout';
 import { sendSkoleforesporsel, type SkoleForesporsel } from '../../lib/data/skoleforesporsel';
 import { toast } from '../../state/useToastStore';
@@ -34,6 +34,8 @@ function ForesporselSkjema() {
     return (
       <InfoKort tittel={<><CheckCircle2 size={20} color="var(--color-success)" aria-hidden="true" /> Forespørsel mottatt</>}>
         Takk for interessen! Vi tar kontakt på {data.contactEmail} så snart som mulig.
+        Skolelisensen løper i 12 måneder og fornyes automatisk, med mindre den sies opp
+        skriftlig senest 30 dager før utløp.
       </InfoKort>
     );
   }
@@ -50,6 +52,48 @@ function ForesporselSkjema() {
         <textarea value={data.message} onChange={(e) => felt('message', e.target.value)} placeholder="Melding (valgfritt)" rows={3} style={{ ...inp, resize: 'vertical' }} />
         <button type="submit" disabled={sender} style={knapp}>{sender ? 'Sender…' : 'Send forespørsel'}</button>
       </form>
+    </InfoKort>
+  );
+}
+
+interface SkoleTier {
+  navn: string;
+  laerere: string;
+  pris: string;
+}
+
+const TIERS: SkoleTier[] = [
+  { navn: 'Liten', laerere: '1–5 lærere', pris: '2 000 kr/år' },
+  { navn: 'Mellom', laerere: '6–15 lærere', pris: '4 000 kr/år' },
+  { navn: 'Stor', laerere: '16+ lærere', pris: '8 000 kr/år' },
+];
+
+function PrisOversikt() {
+  return (
+    <InfoKort tittel={<><Tag size={20} color="var(--color-primary)" aria-hidden="true" /> Priser</>}>
+      <p style={{ marginTop: 0 }}>
+        Én årlig skolelisens dekker hele skolen. Prisen avhenger av antall lærere
+        (eks. mva.). Fakturering med 30 dagers betalingsfrist.
+      </p>
+      <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+        Lisensen løper i 12 måneder og fornyes automatisk for ett år av gangen, med
+        mindre den sies opp skriftlig senest 30 dager før utløp.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginTop: 12 }}>
+        {TIERS.map((t) => (
+          <div
+            key={t.navn}
+            style={{
+              border: '2px solid var(--color-border)', borderRadius: 'var(--radius-md)',
+              padding: '14px 12px', textAlign: 'center',
+            }}
+          >
+            <div style={{ fontWeight: 700 }}>{t.navn}</div>
+            <div style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 6 }}>{t.laerere}</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--color-primary)' }}>{t.pris}</div>
+          </div>
+        ))}
+      </div>
     </InfoKort>
   );
 }
@@ -83,6 +127,7 @@ export function ForSkoler() {
       <InfoKort tittel={<><MessageCircle size={20} color="var(--color-primary)" aria-hidden="true" /> Dedikert support</>}>
         Prioritert support og opplæring, samt fakturering med 30 dagers betalingsfrist.
       </InfoKort>
+      <PrisOversikt />
       <InfoKort tittel={<><FileText size={20} color="var(--color-primary)" aria-hidden="true" /> Avtaler</>}>
         Tilgang reguleres av en <a href="/skoleavtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>skoleavtale</a>{' '}
         og en <a href="/databehandleravtale.html" style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>databehandleravtale</a>{' '}
