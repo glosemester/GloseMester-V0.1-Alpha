@@ -1,8 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/native.css';
+import { initNative } from './lib/native';
 import { Layout } from './components/Layout';
 import { AuthBootstrap } from './components/AuthBootstrap';
 import { Toaster } from './components/Toaster';
@@ -71,12 +74,19 @@ const router = createBrowserRouter([
   },
 ]);
 
+// Init Capacitor-broen (status bar, splash, tastatur). No-op på web/PWA.
+void initNative();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthBootstrap>
-      <RouterProvider router={router} />
-      <Toaster />
-    </AuthBootstrap>
+    {/* reducedMotion="user" → respekterer «reduser bevegelse» i OS for alle
+        Framer-animasjoner (rute-overganger m.m.). */}
+    <MotionConfig reducedMotion="user">
+      <AuthBootstrap>
+        <RouterProvider router={router} />
+        <Toaster />
+      </AuthBootstrap>
+    </MotionConfig>
   </StrictMode>,
 );
 

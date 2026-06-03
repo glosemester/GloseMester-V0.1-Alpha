@@ -2,10 +2,11 @@
  * Hjem — navet etter innlogging. Rollebevisste snarveier til øving, galleri,
  * min side og (for lærere) lærerpanelet. Erstatter v2 velkomst/fag-start.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, FileText, Layers, User, Target, type LucideIcon } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
+import { hentLaererProver } from '../lib/data/prover';
 import { ROUTES } from '../routes/paths';
 // «Logg ut» ligger nå i den globale AppHeader (tilgjengelig fra alle sider).
 
@@ -21,8 +22,15 @@ interface Snarvei {
 export function Hjem() {
   const navigate = useNavigate();
   const bruker = useAuthStore((s) => s.bruker);
+  const uid = useAuthStore((s) => s.firebaseUser?.uid);
   const erLaerer = bruker?.rolle === 'laerer' || bruker?.rolle === 'admin';
   const [hover, setHover] = useState<string | null>(null);
+
+  // #19 Forhåndslast lærerens prøver mens brukeren er på hjem, så lærerpanelet
+  // vises umiddelbart ved navigering (og varmer offline-cachen, jf. #20).
+  useEffect(() => {
+    if (erLaerer && uid) void hentLaererProver(uid).catch(() => {});
+  }, [erLaerer, uid]);
 
   const snarveier: Snarvei[] = [
     { Ikon: BookOpen, tittel: 'Øv gloser', tekst: 'Tren med kort, lyd og smart repetisjon.', rute: ROUTES.GLOSEMESTER, farge: 'var(--color-primary)', tint: 'var(--color-primary-light)' },
@@ -75,7 +83,8 @@ export function Hjem() {
 const kort: React.CSSProperties = {
   textAlign: 'left', background: 'var(--color-surface)', border: '2px solid var(--color-border)',
   borderRadius: 'var(--radius-xl)', padding: 24, cursor: 'pointer', boxShadow: 'var(--shadow-card)',
-  fontFamily: 'var(--font-primary)', transition: 'transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease',
+  fontFamily: 'var(--font-primary)', willChange: 'transform',
+  transition: 'transform 0.2s var(--ease-spring), box-shadow 0.15s ease, border-color 0.15s ease',
 };
 const ikonSirkel: React.CSSProperties = {
   display: 'grid', placeItems: 'center', width: 56, height: 56, borderRadius: '50%',

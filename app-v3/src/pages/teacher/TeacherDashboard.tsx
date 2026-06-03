@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, FileText } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
+import { SkeletonKort } from '../../components/Skeleton';
 import { TEACHER_ROUTES } from './teacherPaths';
 
 export function TeacherDashboard() {
@@ -57,7 +58,12 @@ export function TeacherDashboard() {
       </div>
 
       {laster ? (
-        <p style={{ color: 'var(--color-text-muted)' }}>Laster…</p>
+        /* #18 Skeleton-skjerm i stedet for blank/spinner mens prøvene lastes. */
+        <div style={{ display: 'grid', gap: 12 }}>
+          <SkeletonKort />
+          <SkeletonKort />
+          <SkeletonKort />
+        </div>
       ) : prover.length === 0 ? (
         <TomTilstand onLag={() => navigate(TEACHER_ROUTES.CREATE_TEST)} />
       ) : (

@@ -15,6 +15,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { cacheHent, cacheSett } from '../nativeCache';
 
 const KODE_TEGN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -75,11 +76,27 @@ export async function hentProveMedKode(kode: string): Promise<Prove | null> {
   return { id: d.id, ...(d.data() as Omit<Prove, 'id'>) };
 }
 
-/** Henter alle prøver opprettet av en lærer (jf. v2 loadTests). */
+/**
+ * Henter alle prøver opprettet av en lærer (jf. v2 loadTests).
+ * #20 Offline-first: skriver hver vellykkede henting til lokal cache, og faller
+ * tilbake til siste cachede liste hvis nettverket er nede.
+ */
 export async function hentLaererProver(uid: string): Promise<Prove[]> {
-  const q = query(collection(db, 'prover'), where('opprettet_av', '==', uid));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Prove, 'id'>) }));
+  const cacheKey = `cache_laererprover_${uid}`;
+  try {
+    const q = query(collection(db, 'prover'), where('opprettet_av', '==', uid));
+    const snap = await getDocs(q);
+    const prover = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Prove, 'id'>) }));
+    void cacheSett(cacheKey, prover);
+    return prover;
+  } catch (e) {
+    const cachet = await cacheHent<Prove[]>(cacheKey);
+    if (cachet) {
+      console.warn('Offline — bruker cachede lærerprøver:', e);
+      return cachet;
+    }
+    throw e;
+  }
 }
 
 export interface NyProve {
