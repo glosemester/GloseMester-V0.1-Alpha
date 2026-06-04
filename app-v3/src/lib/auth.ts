@@ -50,12 +50,25 @@ export interface FeideCallbackResult {
 export async function handleFeideCallback(): Promise<FeideCallbackResult> {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
+  const feideError = params.get('error');
   const returnedState = params.get('state');
   const savedState = sessionStorage.getItem(FEIDE_STATE_KEY);
 
+  // Feide avviste/avbrøt: sender ?error=... (vanligvis uten code). v2 viste denne
+  // feilen; v3 svelget den i stillhet. Surface den så rotårsak (f.eks. uregistrert
+  // redirect_uri eller ugyldig scope) blir synlig.
+  if (feideError) {
+    sessionStorage.removeItem(FEIDE_STATE_KEY);
+    window.history.replaceState({}, document.title, getFeideRedirectUri());
+    return { handled: true, success: false, error: params.get('error_description') || feideError };
+  }
+
   if (!code) return { handled: false };
 
-  if (returnedState !== savedState) {
+  // CSRF-vern: avvis kun ved REELL mismatch. Hvis savedState mangler (tapt
+  // sessionStorage e.l.) slipper vi gjennom som v2 gjorde — ellers ville en
+  // tapt state gi falsk avvisning av en gyldig innlogging.
+  if (savedState && returnedState !== savedState) {
     console.error('Feide state-mismatch');
     return { handled: true, success: false, error: 'state_mismatch' };
   }
@@ -67,7 +80,7 @@ export async function handleFeideCallback(): Promise<FeideCallbackResult> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, redirect_uri: redirectUri }),
     });
-    const data: { token?: string; error?: string } = await response.json();
+    const data: { token?: string; error?: string } = await response.json().catch(() => ({}));
 
     if (data.token) {
       await signInWithCustomToken(auth, data.token);
@@ -75,7 +88,7 @@ export async function handleFeideCallback(): Promise<FeideCallbackResult> {
       window.history.replaceState({}, document.title, redirectUri);
       return { handled: true, success: true };
     }
-    return { handled: true, success: false, error: data.error };
+    return { handled: true, success: false, error: data.error || `HTTP ${response.status}` };
   } catch (error) {
     console.error('Feide callback feilet:', error);
     return {
