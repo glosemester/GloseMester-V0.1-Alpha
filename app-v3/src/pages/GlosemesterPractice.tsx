@@ -36,11 +36,13 @@ import { registrerRiktigSvar } from '../lib/rewards';
 import { checkWinCondition } from '../features/kort/kortReward';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
-import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X } from 'lucide-react';
-import { lesOpp } from '../lib/speech';
+import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut } from 'lucide-react';
+import { lesOpp, talesynteseStottes } from '../lib/speech';
+import { lesStreak, settStreak } from '../lib/streak';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
+import { useUiStore } from '../state/useUiStore';
 import { useTradeStore } from '../state/useTradeStore';
 import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
 import { TokenBalance } from '../components/TokenBalance';
@@ -61,7 +63,10 @@ export function GlosemesterPractice() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
+  const setBunnmenySkjult = useUiStore((s) => s.setBunnmenySkjult);
   const oppdaterSjetonger = useTradeStore((s) => s.oppdaterSjetonger);
+  // Bug 2: høyttaler-knappen skjules der talesyntese mangler (ellers «død» knapp).
+  const harTale = useMemo(() => talesynteseStottes(), []);
   const level = params.get('niva') as LevelId | null;
   const gyldigNiva = Boolean(level && getAvailableLevels().includes(level));
 
@@ -78,9 +83,20 @@ export function GlosemesterPractice() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [besvart, setBesvart] = useState(0);
   const [riktige, setRiktige] = useState(0);
-  const [streak, setStreak] = useState(0);
+  // Bug 6: streaken fortsetter på tvers av økter (lagres) og vises også utenfor
+  // øvemodus. oppdaterStreak holder React-state og localStorage i synk.
+  const [streak, setStreak] = useState(() => lesStreak());
+  const oppdaterStreak = useCallback((oppdater: number | ((n: number) => number)) => {
+    setStreak((n) => {
+      const ny = typeof oppdater === 'function' ? oppdater(n) : oppdater;
+      settStreak(ny);
+      return ny;
+    });
+  }, []);
   const [valgtSvar, setValgtSvar] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState(false);
+  // Bug 4: «Avslutt» midt i en økt ber om bekreftelse i stedet for å hoppe ut.
+  const [visAvslutt, setVisAvslutt] = useState(false);
   const forrigeRef = useRef<Word | undefined>(undefined);
 
   // Kortprogresjon: hvert 10. riktige svar gir et kort (jf. v2). Persisteres på
@@ -119,6 +135,22 @@ export function GlosemesterPractice() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gyldigNiva, level]);
 
+  // Bug 3: skjul den globale bunnmenyen mens et spørsmål er aktivt (den dekket
+  // det 4. svaralternativet). Den vises igjen på resultatskjermen (ferdig) og
+  // på ugyldig-nivå-skjermen, og når vi forlater øve-økten (cleanup).
+  const iAktivtSporsmal = gyldigNiva && !ferdig;
+  useEffect(() => {
+    setBunnmenySkjult(iAktivtSporsmal);
+    return () => setBunnmenySkjult(false);
+  }, [iAktivtSporsmal, setBunnmenySkjult]);
+
+  // Bug 4: forlat øve-økten. Har eleven svart på noe, be om bekreftelse først
+  // (et feilklikk skal ikke kaste bort konteksten); ellers bare ut.
+  const avslutt = useCallback(() => {
+    if (besvart > 0) setVisAvslutt(true);
+    else navigate(ROUTES.GLOSEMESTER_START);
+  }, [besvart, navigate]);
+
   const gaaVidere = useCallback(() => {
     if (besvart + 1 >= rundeLengde) {
       setFerdig(true);
@@ -138,7 +170,7 @@ export function GlosemesterPractice() {
       if (korrekt) {
         void hapticLett(); // #17 lett dunk ved riktig svar
         setRiktige((n) => n + 1);
-        setStreak((n) => n + 1);
+        oppdaterStreak((n) => n + 1);
         const { diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
@@ -168,12 +200,12 @@ export function GlosemesterPractice() {
         setFeedback({ type: 'correct', correctAnswer: answerFor(word, direction) });
         window.setTimeout(gaaVidere, 900);
       } else {
-        setStreak(0);
+        oppdaterStreak(0);
         void hapticTung(); // #17 tungt dunk ved feil svar (erstatter web-vibrer)
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
-    [level, gaaVidere, oppdaterSjetonger],
+    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak],
   );
 
   // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).
@@ -204,7 +236,7 @@ export function GlosemesterPractice() {
         <p style={{ color: 'var(--color-text-muted)' }}>{riktige} av {besvart} riktig ({prosent}%)</p>
         <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 14 }}><Dumbbell size={18} aria-hidden="true" /> {mestret} av {words.length} ord mestret</p>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); setStreak(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
+          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); oppdaterStreak(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>Velg nivå</button>
         </div>
       </div>
@@ -240,8 +272,29 @@ export function GlosemesterPractice() {
           </div>
         </div>
       )}
+      {visAvslutt && (
+        <div style={kortOverlay} role="dialog" aria-label="Avslutte økten?">
+          <div style={{ ...kortPopup, maxWidth: 360, gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 18 }}>
+              <LogOut size={22} color="var(--color-primary)" aria-hidden="true" /> Avslutte økten?
+            </div>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
+              Du har svart på {besvart} ord så langt. Fremgangen din er lagret,
+              men selve økten avsluttes.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
+              <button type="button" onClick={() => { setVisAvslutt(false); navigate(ROUTES.GLOSEMESTER_START); }} style={primaerKnapp}>
+                Avslutt økten
+              </button>
+              <button type="button" onClick={() => setVisAvslutt(false)} style={tilbakeKnapp} autoFocus>
+                Fortsett å øve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <header style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px' }}>
-        <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Avslutt</button>
+        <button type="button" onClick={avslutt} style={tilbakeKnapp}>← Avslutt</button>
         <div style={{ flex: 1 }}>
           <div style={{ height: 10, background: 'rgba(0,0,0,0.08)', borderRadius: 999, overflow: 'hidden' }}>
             {/* #4 Animer transform (scaleX) i stedet for width — kjører på GPU. */}
@@ -281,19 +334,28 @@ export function GlosemesterPractice() {
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-6)', padding: 'var(--space-6)', textAlign: 'center' }}>
         <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease', willChange: 'transform, opacity' }}>
           {word.image && direction === 'en' && (
-            <img src={word.image} alt={word.s} style={{ maxWidth: 160, maxHeight: 160, filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))' }} />
+            // Bug 1: skjul bildet pent hvis assetet mangler/ikke laster, i stedet
+            // for å vise nettleserens «ødelagt bilde»-blob på spørsmålet.
+            <img
+              src={word.image}
+              alt={word.s}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              style={{ maxWidth: 160, maxHeight: 160, filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.12))' }}
+            />
           )}
           <h2 style={{ fontSize: 'clamp(2.2rem, 9vw, 4rem)', fontWeight: 900, color: 'var(--color-text)', lineHeight: 1.05 }}>
             {promptFor(word, direction)}
           </h2>
-          <button
-            type="button"
-            aria-label="Les opp ordet"
-            onClick={() => lesOpp(promptFor(word, direction), direction === 'en' ? 'en-US' : 'no-NO')}
-            style={hoyttalerKnapp}
-          >
-            <Volume2 size={22} aria-hidden="true" />
-          </button>
+          {harTale && (
+            <button
+              type="button"
+              aria-label="Les opp ordet"
+              onClick={() => lesOpp(promptFor(word, direction), direction === 'en' ? 'en-US' : 'no-NO')}
+              style={hoyttalerKnapp}
+            >
+              <Volume2 size={22} aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {mode === 'mc' && alternatives ? (
@@ -321,7 +383,7 @@ export function GlosemesterPractice() {
                   <span>{tekst}</span>
                   {feedback && erFasit && <Check size={20} aria-hidden="true" />}
                   {feedback && erValgt && !erFasit && <X size={20} aria-hidden="true" />}
-                  {!feedback && (
+                  {!feedback && harTale && (
                     <span
                       role="button"
                       aria-label={`Les opp ${tekst}`}

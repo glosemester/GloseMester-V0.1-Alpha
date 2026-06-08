@@ -11,6 +11,7 @@ import { AppHeader } from './AppHeader';
 import { TabBar, TAB_BAR_HOYDE } from './TabBar';
 import { PageTransition } from './PageTransition';
 import { useTradeStore } from '../state/useTradeStore';
+import { useUiStore } from '../state/useUiStore';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
@@ -23,6 +24,7 @@ const UTEN_APP_HEADER = new Set<string>([
   '/om-oss',
   '/faq',
   '/oppgrader',
+  ROUTES.OPPGRADER_TAKK,
   ROUTES.PRACTICE,
   ROUTES.QUIZ,
 ]);
@@ -41,7 +43,11 @@ const MED_TABBAR = new Set<string>([
 export function Layout() {
   const { pathname } = useLocation();
   const visAppHeader = !UTEN_APP_HEADER.has(pathname);
-  const visTabBar = MED_TABBAR.has(pathname);
+  // Bug 3: øve-økten skjuler bunnmenyen mens eleven svarer på et spørsmål, så
+  // den ikke dekker det 4. svaralternativet. Menyen kommer tilbake på
+  // nivåvelger og resultatskjerm (der flagget settes tilbake til false).
+  const bunnmenySkjult = useUiStore((s) => s.bunnmenySkjult);
+  const visTabBar = MED_TABBAR.has(pathname) && !bunnmenySkjult;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

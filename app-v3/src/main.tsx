@@ -28,6 +28,7 @@ import { ForSkoler } from './pages/marketing/ForSkoler';
 import { OmOss } from './pages/marketing/OmOss';
 import { Faq } from './pages/marketing/Faq';
 import { Oppgrader } from './pages/marketing/Oppgrader';
+import { OppgraderTakk } from './pages/marketing/OppgraderTakk';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
@@ -70,6 +71,7 @@ const router = createBrowserRouter([
       { path: '/om-oss', element: <OmOss /> },
       { path: '/faq', element: <Faq /> },
       { path: '/oppgrader', element: <Oppgrader /> },
+      { path: ROUTES.OPPGRADER_TAKK, element: <OppgraderTakk /> },
     ],
   },
 ]);

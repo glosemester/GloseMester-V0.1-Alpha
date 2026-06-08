@@ -57,6 +57,36 @@ html {
   scrollbar-width: none;
 }
 
+/* #9b Desktop (mus/pekeplate): gjeninnfør en slank, SYNLIG scrollbar.
+   Den skjulte scrollbaren over gir app-følelse på touch, men på PC fjernet den
+   scroll-affordansen — uten synlig scrollbar virket sidene «ulåselige» / umulige
+   å scrolle. (pointer: fine) treffer mus/pekeplate, ikke touch-skjermer. */
+@media (pointer: fine) {
+  html,
+  body {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--color-border) transparent;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .gm-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    display: block; /* overstyr display:none over */
+  }
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb,
+  .gm-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 999px;
+  }
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track,
+  .gm-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
 /* #6 GPU-akselerasjon for elementer som animeres ofte (kort, modaler, tab-bar) */
 .gm-will-animate {
   will-change: transform;

@@ -32,6 +32,10 @@ export const ROUTES = {
   // Felles
   PROFILE: '/min-side',
   SETTINGS: '/innstillinger',
+
+  // Marketing
+  OPPGRADER: '/oppgrader',
+  OPPGRADER_TAKK: '/oppgrader/takk',
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

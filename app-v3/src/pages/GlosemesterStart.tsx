@@ -3,13 +3,16 @@
  * Viser ett kort per nivå; klikk navigerer til øve-økten (/ov?niva=...).
  */
 import { useNavigate } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Flame } from 'lucide-react';
 import { getAvailableLevels, getWordCountForLevel, levelMetadata } from '../features/glosemester/vocabulary';
+import { lesStreak } from '../lib/streak';
 import { ROUTES } from '../routes/paths';
 
 export function GlosemesterStart() {
   const navigate = useNavigate();
   const levels = getAvailableLevels();
+  // Bug 6: vis den vedvarende streaken her også, ikke bare inne i øvemodus.
+  const streak = lesStreak();
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)', paddingBottom: 40 }}>
@@ -25,6 +28,18 @@ export function GlosemesterStart() {
       >
         <h1 style={{ fontWeight: 900, fontSize: 'clamp(28px, 5vw, 42px)' }}>GloseMester</h1>
         <p style={{ opacity: 0.85, marginTop: 8 }}>Velg nivå for å begynne å øve</p>
+        {streak >= 2 && (
+          <div
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14,
+              background: 'rgba(255,255,255,0.18)', borderRadius: 999, padding: '6px 14px',
+              fontWeight: 800, fontSize: 15,
+            }}
+            aria-label={`Streak: ${streak} riktige på rad`}
+          >
+            <Flame size={18} aria-hidden="true" /> {streak} på rad
+          </div>
+        )}
       </header>
 
       <div
