@@ -6,7 +6,7 @@ import { test } from '@playwright/test';
  */
 test('skjermbilde: øvemodus før og etter svar', async ({ page }) => {
   await page.goto('/ov?niva=niva1');
-  await page.getByText('1/40').waitFor();
+  await page.getByText(/^1\/\d+$/).waitFor();
   await page.screenshot({ path: 'test-results/ove-foer.png' });
 
   await page.getByTestId('svar-alternativ').first().click();

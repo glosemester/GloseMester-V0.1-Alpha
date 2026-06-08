@@ -125,12 +125,36 @@ const guder: Rad[] = [
   ['037-fenrir.png', 'Fenrisulven'], ['038-jormungandr.png', 'Midgardsormen'],
 ];
 
-export const kortData: KortDef[] = [
-  ...bygg('bil', 'biler', biler),
-  ...bygg('dino', 'dinosaurer', dinosaurer),
-  ...bygg('dyr', 'dyr', dyr),
-  ...bygg('gud', 'guder', guder),
+/**
+ * Kortpakke. Sett `aktiv: false` for å STAGE en pakke i koden uten å rulle den
+ * ut ennå (kortene vises ikke i galleri/belønning før den slås på).
+ *
+ * Slik ruller du ut en ny pakke:
+ *   1. Legg kategorien til i `Category`-typen øverst.
+ *   2. Legg 38 bilder i `images/<mappe>/` (001-…png … 038-…png).
+ *   3. Definer radene og legg til en linje i PAKKER med `aktiv: false`.
+ *   4. Når alt er klart: sett `aktiv: true` — ferdig.
+ */
+export interface Kortpakke {
+  prefix: string;
+  mappe: Category;
+  navn: string;
+  aktiv: boolean;
+  rader: Rad[];
+}
+
+export const PAKKER: Kortpakke[] = [
+  { prefix: 'bil', mappe: 'biler', navn: 'Biler', aktiv: true, rader: biler },
+  { prefix: 'dino', mappe: 'dinosaurer', navn: 'Dinosaurer', aktiv: true, rader: dinosaurer },
+  { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
+  { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
+  // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
+
+/** Pakker som faktisk er rullet ut (aktiv). */
+export const aktiveKortpakker = PAKKER.filter((p) => p.aktiv);
+
+export const kortData: KortDef[] = aktiveKortpakker.flatMap((p) => bygg(p.prefix, p.mappe, p.rader));
 
 const kortMap = new Map(kortData.map((k) => [k.id, k]));
 

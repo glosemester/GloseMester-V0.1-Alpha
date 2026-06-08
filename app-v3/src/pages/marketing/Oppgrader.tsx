@@ -23,8 +23,8 @@ interface Plan {
 
 const PLANER: Plan[] = [
   { navn: 'Gratis', pris: '0 kr', punkter: ['Opptil 3 prøver', 'Alle elevfunksjoner', 'QR-kode deling', 'Basis resultatstatistikk'] },
-  { navn: 'Premium månedlig', pris: '99 kr/mnd', fremhevet: true, kjop: 'premium_monthly', punkter: ['Ubegrenset antall prøver', 'Tilgang til standardprøver', 'Avansert statistikk', 'Prioritert support'] },
-  { navn: 'Premium årlig', pris: '800 kr/år', kjop: 'premium_yearly', punkter: ['Alt i månedlig', 'Spar 388 kr per år', 'Full redigering og duplisering'] },
+  { navn: 'Premium månedlig', pris: '49 kr/mnd', fremhevet: true, kjop: 'premium_monthly', punkter: ['Ubegrenset antall prøver', 'Tilgang til standardprøver', 'Avansert statistikk', 'Prioritert support'] },
+  { navn: 'Premium årlig', pris: '490 kr/år', kjop: 'premium_yearly', punkter: ['Alt i månedlig', 'Spar 98 kr per år', 'Full redigering og duplisering'] },
   { navn: 'Skolepakke', pris: 'Fra 2 000 kr/år', punkter: ['Alt i Premium', 'GloseBank (delt prøvebank)', 'Ubegrenset antall lærere', 'Feide-innlogging', '2 000 / 4 000 / 8 000 kr etter skolestørrelse'] },
 ];
 

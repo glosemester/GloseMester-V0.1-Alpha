@@ -48,6 +48,23 @@ import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
 import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
 
+/** Antall ord per øve-sett (= én runde på kort-hjulet). */
+const SETT_LENGDE = 10;
+
+/** True på skjermer ≥10 tommer (nettbrett/desktop) — gir to-spalte øvemodus. */
+function useErStorskjerm(): boolean {
+  const [er, setEr] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const oppdater = () => setEr(mq.matches);
+    mq.addEventListener('change', oppdater);
+    return () => mq.removeEventListener('change', oppdater);
+  }, []);
+  return er;
+}
+
 type Feedback = { type: 'correct' | 'wrong'; correctAnswer: string } | null;
 
 interface AktivtSporsmal {
@@ -69,7 +86,10 @@ export function GlosemesterPractice() {
 
   const direction: Direction = 'en';
   const words = useMemo(() => (gyldigNiva ? getWordsForLevel(level as LevelId) : []), [gyldigNiva, level]);
-  const rundeLengde = words.length;
+  // Fase 4: øvingen går i SETT på 10 ord (= én runde på hjulet = ett kort), i
+  // stedet for å gå gjennom hele nivået på én gang. Kortere, mer motiverende økter.
+  const rundeLengde = Math.min(SETT_LENGDE, words.length);
+  const erStorskjerm = useErStorskjerm();
 
   // Leitner-tilstand i en ref (persisteres); UI trenger ikke re-rendre på hver endring.
   const leitnerRef = useRef<LeitnerState>({});
@@ -100,6 +120,8 @@ export function GlosemesterPractice() {
   // 10. riktige svar gir et kort, og prøvesvar teller mot samme bar.
   const [kortProgresjon, setKortProgresjon] = useState(() => lesKortProgresjon());
   const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
+  // Fase 4 (storskjerm): kort vunnet i denne økten — vises i kortbunken til høyre.
+  const [oktKort, setOktKort] = useState<KortDef[]>([]);
 
   // Bygger neste spørsmål basert på Leitner-vekting.
   const nesteSporsmal = useCallback(() => {
@@ -182,6 +204,7 @@ export function GlosemesterPractice() {
           if (kort.length > 0) {
             void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
             setVunnetKort(kort[0]);
+            setOktKort((b) => [...b, kort[0]]); // legg øverst i kortbunken (storskjerm)
           }
         }
 
@@ -220,11 +243,12 @@ export function GlosemesterPractice() {
     const mestret = masteredCount(leitnerRef.current, words);
     return (
       <div style={{ padding: 'var(--space-8)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', alignItems: 'center' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Bra jobbet! <PartyPopper size={28} color="var(--color-primary)" aria-hidden="true" /></h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Sett fullført! <PartyPopper size={28} color="var(--color-primary)" aria-hidden="true" /></h2>
         <p style={{ color: 'var(--color-text-muted)' }}>{riktige} av {besvart} riktig ({prosent}%)</p>
         <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 14 }}><Dumbbell size={18} aria-hidden="true" /> {mestret} av {words.length} ord mestret</p>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); oppdaterStreak(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Øv igjen</button>
+          {/* Fortsett til neste sett — streak og kortprogresjon beholdes. */}
+          <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Fortsett</button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>Velg nivå</button>
         </div>
       </div>
@@ -298,26 +322,42 @@ export function GlosemesterPractice() {
         {innlogget && <TokenBalance compact />}
       </header>
 
-      {/* Kortprogresjon — 10 bokser som fylles mot neste kort (jf. v2). */}
-      <div style={{ padding: '0 20px', maxWidth: 460, width: '100%', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4, letterSpacing: '0.03em' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Layers size={14} aria-hidden="true" /> NESTE KORT</span>
-          <span>{kortProgresjon}/{KORT_PER_RIKTIGE}</span>
+      {/* Kortprogresjon — 10 bokser som fylles mot neste kort (mobil). På
+          storskjerm vises i stedet kort-hjulet i venstre sidepanel. */}
+      {!erStorskjerm && (
+        <div style={{ padding: '0 20px', maxWidth: 460, width: '100%', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4, letterSpacing: '0.03em' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Layers size={14} aria-hidden="true" /> NESTE KORT</span>
+            <span>{kortProgresjon}/{KORT_PER_RIKTIGE}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {Array.from({ length: KORT_PER_RIKTIGE }, (_, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1, height: 8, borderRadius: 999,
+                  background: i < kortProgresjon ? 'var(--color-primary)' : 'rgba(0,0,0,0.08)',
+                  boxShadow: i < kortProgresjon ? '0 0 8px var(--color-primary)' : 'none',
+                  transition: 'all 0.3s ease',
+                }}
+              />
+            ))}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {Array.from({ length: KORT_PER_RIKTIGE }, (_, i) => (
-            <div
-              key={i}
-              style={{
-                flex: 1, height: 8, borderRadius: 999,
-                background: i < kortProgresjon ? 'var(--color-primary)' : 'rgba(0,0,0,0.08)',
-                boxShadow: i < kortProgresjon ? '0 0 8px var(--color-primary)' : 'none',
-                transition: 'all 0.3s ease',
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      )}
+
+      {/* Fase 4: storskjerm-øvemodus (≥10"). Venstre = kort-hjul (fremdrift mot
+          neste kort), høyre = kortbunke (sist vunnet øverst). Mobil er uendret. */}
+      {erStorskjerm && (
+        <>
+          <aside style={{ ...sidePanel, left: 'max(16px, calc(50vw - 520px))' }} aria-label="Fremdrift mot neste kort">
+            <Hjul fylt={kortProgresjon} total={KORT_PER_RIKTIGE} />
+          </aside>
+          <aside style={{ ...sidePanel, right: 'max(16px, calc(50vw - 520px))' }} aria-label="Kortbunke">
+            <Kortbunke kort={oktKort} />
+          </aside>
+        </>
+      )}
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-6)', padding: 'var(--space-6)', textAlign: 'center' }}>
         <div key={word.s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', animation: 'floatIn 0.35s ease', willChange: 'transform, opacity' }}>
@@ -465,3 +505,73 @@ const hoyttalerKnapp: React.CSSProperties = {
   background: 'var(--color-surface)', border: '2px solid var(--color-border)',
   borderRadius: '50%', cursor: 'pointer', boxShadow: 'var(--shadow-sm)',
 };
+const sidePanel: React.CSSProperties = {
+  position: 'fixed', top: '50%', transform: 'translateY(-50%)', zIndex: 50,
+  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+  pointerEvents: 'none',
+};
+
+/** Kort-hjul (storskjerm): fyllingsring med 10 ruter mot neste kort. */
+function Hjul({ fylt, total }: { fylt: number; total: number }) {
+  const R = 46;
+  const C = 2 * Math.PI * R;
+  const andel = total > 0 ? Math.min(1, fylt / total) : 0;
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <svg width={128} height={128} viewBox="0 0 120 120" role="img" aria-label={`${fylt} av ${total} mot neste kort`}>
+        <circle cx={60} cy={60} r={R} fill="var(--color-surface)" stroke="rgba(0,0,0,0.08)" strokeWidth={10} />
+        <circle
+          cx={60} cy={60} r={R} fill="none" stroke="var(--color-primary)" strokeWidth={10}
+          strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - andel)}
+          transform="rotate(-90 60 60)" style={{ transition: 'stroke-dashoffset 0.45s ease' }}
+        />
+        {Array.from({ length: total }, (_, i) => {
+          const a = (i / total) * 2 * Math.PI - Math.PI / 2;
+          return <circle key={i} cx={60 + Math.cos(a) * R} cy={60 + Math.sin(a) * R} r={3.5} fill={i < fylt ? '#fff' : 'var(--color-border)'} />;
+        })}
+        <text x={60} y={58} textAnchor="middle" fontSize={26} fontWeight={900} fill="var(--color-text)">{fylt}</text>
+        <text x={60} y={76} textAnchor="middle" fontSize={11} fontWeight={700} fill="var(--color-text-muted)">av {total}</text>
+      </svg>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-muted)', letterSpacing: '0.03em' }}>NESTE KORT</div>
+    </div>
+  );
+}
+
+/** Kortbunke (storskjerm): kort vunnet i økten, sist vunnet øverst. */
+function Kortbunke({ kort }: { kort: KortDef[] }) {
+  if (kort.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+        <div style={{ width: 116, height: 150, margin: '0 auto', border: '2px dashed var(--color-border)', borderRadius: 14, display: 'grid', placeItems: 'center' }}>
+          <Layers size={32} aria-hidden="true" />
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 800, marginTop: 8 }}>KORTBUNKE</div>
+        <div style={{ fontSize: 11 }}>Vinn kort her</div>
+      </div>
+    );
+  }
+  const vis = kort.slice(-5); // de 5 siste; sist vunnet ligger øverst
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ position: 'relative', width: 150, height: 172, margin: '0 auto' }}>
+        {vis.map((k, i) => (
+          <div
+            key={`${k.id}-${i}`}
+            style={{
+              position: 'absolute', top: i * 7, left: '50%',
+              transform: `translateX(-50%) rotate(${(i - (vis.length - 1) / 2) * 2}deg)`,
+              width: 116, background: 'var(--color-surface)',
+              border: `2px solid ${RARITY_CONFIG[k.rarity].farge}`, borderRadius: 14,
+              padding: 8, boxShadow: 'var(--shadow-card)', zIndex: i,
+              animation: i === vis.length - 1 ? 'pop 0.4s ease' : undefined,
+            }}
+          >
+            <img src={k.image} alt={k.name} style={{ width: '100%', height: 88, objectFit: 'contain' }} />
+            <div style={{ fontSize: 11, fontWeight: 800, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{k.name}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-text-muted)', marginTop: 8 }}>{kort.length} KORT</div>
+    </div>
+  );
+}
