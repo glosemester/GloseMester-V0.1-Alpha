@@ -9,7 +9,15 @@ import { db } from '../firebase';
 export type Rolle = 'laerer' | 'elev' | 'admin';
 
 export interface Abonnement {
-  type: 'free' | 'premium' | 'skole';
+  type: 'free' | 'premium' | 'skole' | 'skolepakke';
+}
+
+/** En Feide-klasse/gruppe brukeren er medlem av (jf. feide-roles.hentRelevanteGrupper). */
+export interface FeideGruppe {
+  id: string;
+  navn: string;
+  type: string;
+  undervisning?: boolean;
 }
 
 export interface BrukerData {
@@ -19,6 +27,8 @@ export interface BrukerData {
   photoURL: string | null;
   rolle: Rolle;
   abonnement: Abonnement;
+  /** Feide-klasser (settes server-side ved Feide-innlogging). */
+  feide_grupper?: FeideGruppe[];
   opprettetDato?: unknown;
 }
 

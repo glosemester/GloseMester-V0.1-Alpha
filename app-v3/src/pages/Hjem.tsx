@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, FileText, Layers, User, Target, Flame, type LucideIcon } from 'lucide-react';
+import { BookOpen, FileText, Layers, User, Target, Flame, ClipboardList, type LucideIcon } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { hentLaererProver } from '../lib/data/prover';
 import { lesStreak } from '../lib/streak';
@@ -41,6 +41,10 @@ export function Hjem() {
     { Ikon: Layers, tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: 'var(--color-accent)', tint: 'var(--color-accent-light)' },
     { Ikon: User, tittel: 'Min side', tekst: 'Profil, abonnement og personvern.', rute: ROUTES.PROFILE, farge: 'var(--color-success)', tint: 'var(--color-success-light)' },
   ];
+  // Elever som er medlem av en Feide-klasse får snarvei til tildelte prøver.
+  if (!erLaerer && (bruker?.feide_grupper?.length ?? 0) > 0) {
+    snarveier.splice(1, 0, { Ikon: ClipboardList, tittel: 'Mine prøver', tekst: 'Prøver klassen din har fått — se hva du mangler.', rute: ROUTES.STUDENT_PROVER, farge: 'var(--color-secondary)', tint: 'var(--color-secondary-light)' });
+  }
   if (erLaerer) {
     snarveier.unshift({ Ikon: Target, tittel: 'Lærerpanel', tekst: 'Lag og del prøver, se resultater.', rute: ROUTES.TEACHER_HOME, farge: 'var(--color-primary-hover)', tint: 'var(--color-primary-light)' });
   }

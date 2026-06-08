@@ -50,10 +50,15 @@ export interface Prove {
   ordliste?: ProveOrd[];
   oppgaver?: ProveOppgave[];
   opprettet_av?: string | null;
+  opprettetAvNavn?: string;
   /** Hvor mange dager prøven er tilgjengelig for elevene (1–14). */
   tilgjengeligDager?: number;
   /** Epoch (ms) når prøven slutter å være tilgjengelig. 0/undefined = aldri. */
   utloperDato?: number;
+  /** Feide-gruppe-IDer prøven er tildelt — elever i disse gruppene ser den. */
+  tildeltGrupper?: string[];
+  /** Visningsnavn for de tildelte gruppene (for elevens «Mine prøver»-liste). */
+  tildeltGruppeNavn?: string[];
 }
 
 /** Standard og grenser for hvor lenge en prøve er tilgjengelig. */
@@ -106,6 +111,36 @@ export interface NyProve {
   fag?: Fag;
   /** Tilgjengelig i N dager (1–14). Klemmes til gyldig område. */
   tilgjengeligDager?: number;
+  /** Feide-gruppe-IDer prøven tildeles. */
+  tildeltGrupper?: string[];
+  /** Visningsnavn for de tildelte gruppene. */
+  tildeltGruppeNavn?: string[];
+}
+
+/**
+ * Henter ikke-utløpte prøver tildelt en av elevens Feide-grupper (D).
+ * array-contains-any tar maks 10 verdier → vi deler opp i chunks og deduper.
+ */
+export async function hentProverForGrupper(gruppeIds: string[]): Promise<Prove[]> {
+  if (!gruppeIds.length) return [];
+  const prover: Prove[] = [];
+  const sett = new Set<string>();
+  for (let i = 0; i < gruppeIds.length; i += 10) {
+    const chunk = gruppeIds.slice(i, i + 10);
+    try {
+      const snap = await getDocs(
+        query(collection(db, 'prover'), where('tildeltGrupper', 'array-contains-any', chunk)),
+      );
+      snap.docs.forEach((d) => {
+        if (sett.has(d.id)) return;
+        sett.add(d.id);
+        prover.push({ id: d.id, ...(d.data() as Omit<Prove, 'id'>) });
+      });
+    } catch (e) {
+      console.warn('hentProverForGrupper chunk feil:', e);
+    }
+  }
+  return prover.filter((p) => !erProveUtloept(p));
 }
 
 /** Klem dager til [MIN, MAX] og regn ut utløps-epoch fra et starttidspunkt. */
@@ -131,6 +166,8 @@ export async function opprettProve(
     bland: data.bland ?? true,
     tilgjengeligDager: dager,
     utloperDato,
+    tildeltGrupper: data.tildeltGrupper ?? [],
+    tildeltGruppeNavn: data.tildeltGruppeNavn ?? [],
     opprettet_av: laerer.uid,
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
@@ -149,6 +186,10 @@ export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
     antallSporsmal: data.ordliste.length,
     bland: data.bland ?? true,
   };
+  if (data.tildeltGrupper !== undefined) {
+    oppdatering.tildeltGrupper = data.tildeltGrupper;
+    oppdatering.tildeltGruppeNavn = data.tildeltGruppeNavn ?? [];
+  }
   if (data.tilgjengeligDager !== undefined) {
     const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
     oppdatering.tilgjengeligDager = dager;

@@ -45,6 +45,12 @@ export async function lagreResultat(input: ResultatInput): Promise<void> {
   });
 }
 
+/** Prøve-IDer eleven har gjennomført (for «Mine prøver»-statusen). */
+export async function hentGjennomforteProveIder(elevUid: string): Promise<Set<string>> {
+  const snap = await getDocs(query(collection(db, 'resultater'), where('elev_id', '==', elevUid)));
+  return new Set(snap.docs.map((d) => String(d.data().prove_id)));
+}
+
 export interface ProveResultat {
   prove_id: string;
   elevNavn: string;
