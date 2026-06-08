@@ -14,6 +14,7 @@
 const STORAGE_KEY = 'mester_samling';
 const CREDITS_KEY = 'mester_credits';
 const XP_KEY = 'mester_xp';
+const KORTPROGRESJON_KEY = 'mester_kortprogresjon';
 const ELEV_PROVER_KEY = 'mester_elev_prover';
 const SPENT_TOKENS_KEY = 'mester_trade_tokens_spent';
 const LEGACY_USER_TOKEN = 'Spiller';
@@ -115,6 +116,20 @@ export function getTotalCorrect(fag = 'gloser'): number {
 
 export function saveTotalCorrect(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${XP_KEY}_${fag}`), String(amount));
+}
+
+// --- KORTPROGRESJON (felles teller mot neste kort: øving + prøve) ---
+// Antall riktige svar samlet siden forrige kort (0–9). Deles mellom øvemodus og
+// prøvemodus, og er UID-nøklet som XP/diamanter (gjester får 'gjest'-namespace).
+
+export function getKortProgresjon(fag = 'gloser'): number {
+  const raw = localStorage.getItem(getUserKey(`${KORTPROGRESJON_KEY}_${fag}`));
+  const n = raw ? parseInt(raw, 10) : 0;
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+export function saveKortProgresjon(antall: number, fag = 'gloser'): void {
+  localStorage.setItem(getUserKey(`${KORTPROGRESJON_KEY}_${fag}`), String(Math.max(0, antall)));
 }
 
 // --- BYTTESJETONGER (trade tokens) ---

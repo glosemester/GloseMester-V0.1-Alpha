@@ -10,7 +10,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, Layers, Home, FileText, type LucideIcon } from 'lucide-react';
+import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, Layers, Home, FileText, LogIn, UserRound, Repeat, type LucideIcon } from 'lucide-react';
 import {
   byggSporsmalsliste,
   erSvarRiktig,
@@ -19,15 +19,17 @@ import {
 } from '../features/quiz/quizEngine';
 import { hentProveMedKode, erProveUtloept, type Prove } from '../lib/data/prover';
 import { lagreResultat, type SvarRad } from '../lib/data/resultater';
-import { checkWinCondition } from '../features/kort/kortReward';
+import { registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { startFeideLogin } from '../lib/auth';
+import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { ROUTES } from '../routes/paths';
 
-type Fase = 'kode' | 'navn' | 'quiz' | 'resultat';
+type Fase = 'kode' | 'valg' | 'modus' | 'navn' | 'quiz' | 'resultat';
 
 interface QuizState {
   prove: Prove;
@@ -36,6 +38,13 @@ interface QuizState {
   riktige: number;
   svar: SvarRad[];
   startTid: number;
+  /** Øve-til-prøve: ordene kjøres på repeat, resultat sendes IKKE til læreren. */
+  ovemodus?: boolean;
+}
+
+/** Øve-til-prøve er eksklusivt for skolelisens. */
+function harSkolelisens(type: string | undefined): boolean {
+  return type === 'skole' || type === 'skolepakke';
 }
 
 export function Quiz() {
@@ -69,12 +78,15 @@ export function Quiz() {
         toast.error('Denne prøven er ikke lenger tilgjengelig.');
         return;
       }
-      // Innlogget: bruk Firebase-navn. Gjest: be om navn først.
-      if (firebaseUser) {
-        startQuiz(prove);
+      setState({ prove, sporsmal: [], index: 0, riktige: 0, svar: [], startTid: 0 });
+      if (!firebaseUser) {
+        // Gjest: tilby Feide-innlogging (spar kort) eller fortsett uten.
+        setFase('valg');
+      } else if (harSkolelisens(bruker?.abonnement?.type)) {
+        // Skolelisens: la eleven velge prøve eller øve-til-prøve.
+        setFase('modus');
       } else {
-        setState({ prove, sporsmal: [], index: 0, riktige: 0, svar: [], startTid: 0 });
-        setFase('navn');
+        startQuiz(prove);
       }
     } catch (e) {
       console.error('Kunne ikke hente prøve:', e);
@@ -84,7 +96,7 @@ export function Quiz() {
     }
   }
 
-  function startQuiz(prove: Prove) {
+  function startQuiz(prove: Prove, ovemodus = false) {
     setState({
       prove,
       sporsmal: byggSporsmalsliste(prove),
@@ -92,9 +104,18 @@ export function Quiz() {
       riktige: 0,
       svar: [],
       startTid: Date.now(),
+      ovemodus,
     });
     setFeedback(null);
+    setValgtSvar(null);
     setFase('quiz');
+  }
+
+  // Eleven valgte Feide-innlogging på valg-skjermen: parker koden og start
+  // innlogging — Landing sender eleven tilbake til prøven etterpå.
+  function loggInnOgFortsett() {
+    if (state?.prove.kode) settVentendeProve(state.prove.kode);
+    startFeideLogin();
   }
 
   // QR-inngang: hvis ?kode= er satt, start automatisk (én gang).
@@ -130,6 +151,46 @@ export function Quiz() {
     );
   }
 
+  // Gjest med gyldig kode: logg inn med Feide (spar kort) eller fortsett uten.
+  if (fase === 'valg' && state) {
+    return (
+      <Skjema tittel={state.prove.tittel ?? 'Prøve'} beskrivelse="Vil du logge inn og samle kort, eller fortsette uten?">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <button type="button" onClick={loggInnOgFortsett} style={valgBoks}>
+            <LogIn size={26} color="var(--color-primary)" aria-hidden="true" />
+            <span style={valgTittel}>Logg inn med Feide og spar kort</span>
+            <span style={valgTekst}>Kortene du vinner lagres i din egen samling.</span>
+          </button>
+          <button type="button" onClick={() => setFase('navn')} style={valgBoks}>
+            <UserRound size={26} color="var(--color-text-muted)" aria-hidden="true" />
+            <span style={valgTittel}>Fortsett uten innlogging</span>
+            <span style={valgTekst}>Ta prøven nå — kort lagres kun på denne enheten.</span>
+          </button>
+        </div>
+      </Skjema>
+    );
+  }
+
+  // Innlogget skolelisens: ta prøven, eller øve-til-prøve (uten å sende resultat).
+  if (fase === 'modus' && state) {
+    return (
+      <Skjema tittel={state.prove.tittel ?? 'Prøve'} beskrivelse="Vil du ta prøven, eller øve på ordene først?">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <button type="button" onClick={() => startQuiz(state.prove)} style={valgBoks}>
+            <FileText size={26} color="var(--color-primary)" aria-hidden="true" />
+            <span style={valgTittel}>Ta prøven</span>
+            <span style={valgTekst}>Resultatet sendes til læreren din.</span>
+          </button>
+          <button type="button" onClick={() => startQuiz(state.prove, true)} style={valgBoks}>
+            <Repeat size={26} color="var(--color-primary)" aria-hidden="true" />
+            <span style={valgTittel}>Øv på ordene</span>
+            <span style={valgTekst}>Tren på ordene i prøven på repeat — sendes ikke til læreren.</span>
+          </button>
+        </div>
+      </Skjema>
+    );
+  }
+
   if (fase === 'navn' && state) {
     return (
       <Skjema tittel={state.prove.tittel ?? 'Prøve'} beskrivelse="Hva heter du?">
@@ -146,7 +207,7 @@ export function Quiz() {
 
   if (fase === 'quiz' && state) {
     const totalt = state.sporsmal.length;
-    if (state.index >= totalt) {
+    if (state.index >= totalt && !state.ovemodus) {
       void avsluttOgLagre(state);
       return <div style={{ padding: 'var(--space-8)', textAlign: 'center' }}>Lagrer resultat…</div>;
     }
@@ -155,8 +216,18 @@ export function Quiz() {
 
     return (
       <div style={{ minHeight: '100vh', padding: 20, maxWidth: 680, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {state.ovemodus && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: 'var(--color-primary-light)', color: 'var(--color-primary)', borderRadius: 'var(--radius-full)', padding: '8px 16px', fontWeight: 700, fontSize: 13 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <Repeat size={16} aria-hidden="true" /> Øving — sendes ikke til læreren
+            </span>
+            <button type="button" onClick={() => navigate(bruker ? ROUTES.HJEM : ROUTES.LANDING)} style={avsluttKnapp}>
+              Avslutt
+            </button>
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: 'var(--color-text-muted)', fontWeight: 600 }}>
-          <span>Spørsmål {state.index + 1} av {totalt}</span>
+          <span>{state.ovemodus ? 'Ord' : 'Spørsmål'} {state.index + 1} av {totalt}</span>
           <span>{state.prove.tittel ?? 'Prøve'}</span>
         </div>
         <div style={{ height: 6, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden' }}>
@@ -246,12 +317,18 @@ export function Quiz() {
     setValgtSvar(brukersvar);
     setFeedback({ riktig, fasit: spm.riktigSvar });
     window.setTimeout(() => {
-      setState({
-        ...s,
-        index: s.index + 1,
-        riktige: s.riktige + (riktig ? 1 : 0),
-        svar: [...s.svar, nySvar],
-      });
+      const nesteIndex = s.index + 1;
+      if (s.ovemodus && nesteIndex >= s.sporsmal.length) {
+        // Øve-til-prøve: stokk om og start runden på nytt (endeløs repetisjon).
+        setState({ ...s, sporsmal: byggSporsmalsliste(s.prove), index: 0, riktige: 0, svar: [] });
+      } else {
+        setState({
+          ...s,
+          index: nesteIndex,
+          riktige: s.riktige + (riktig ? 1 : 0),
+          svar: [...s.svar, nySvar],
+        });
+      }
       setFeedback(null);
       setValgtSvar(null);
     }, riktig ? 900 : 1600);
@@ -276,14 +353,15 @@ export function Quiz() {
       setLagret(false);
     }
 
-    // Kortbelønning ved 80%+ (kun innlogget — samlingen lagres på UID).
-    if (firebaseUser) {
-      const kort = checkWinCondition(riktige, totalt, s.prove.niva ?? null);
-      if (kort) {
-        void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
-        leggTilKort(kort);
-        setVunnetKort(kort);
-      }
+    // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
+    // som øvemodus — ikke et engangskort. Gjelder også gjester (samlingen
+    // lagres i 'gjest'-namespace).
+    const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null);
+    if (kort.length > 0) {
+      void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
+      kort.forEach((k) => leggTilKort(k));
+      setVunnetKort(kort[0]);
+      if (kort.length > 1) toast.success(`Du tjente ${kort.length} kort!`);
     }
   }
 }
@@ -331,3 +409,16 @@ const altKnapp: React.CSSProperties = {
 };
 const riktigStil: React.CSSProperties = { background: 'var(--color-success-light)', borderColor: 'var(--color-success)', color: 'var(--color-text)' };
 const feilStil: React.CSSProperties = { background: 'var(--color-error-light)', borderColor: 'var(--color-error)', color: 'var(--color-text)' };
+const valgBoks: React.CSSProperties = {
+  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+  padding: '20px 18px', border: '2px solid var(--color-border)', borderRadius: 16,
+  background: 'var(--color-surface)', cursor: 'pointer', textAlign: 'center',
+  fontFamily: 'var(--font-primary)',
+};
+const valgTittel: React.CSSProperties = { fontWeight: 800, fontSize: 16, color: 'var(--color-text)', marginTop: 4 };
+const valgTekst: React.CSSProperties = { fontSize: 13, color: 'var(--color-text-muted)', lineHeight: 1.4 };
+const avsluttKnapp: React.CSSProperties = {
+  background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)',
+  borderRadius: 'var(--radius-full)', padding: '4px 14px', fontWeight: 700, fontSize: 13,
+  cursor: 'pointer', fontFamily: 'var(--font-primary)', whiteSpace: 'nowrap',
+};

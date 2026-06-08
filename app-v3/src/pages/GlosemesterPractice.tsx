@@ -33,7 +33,7 @@ import {
   type LeitnerState,
 } from '../features/glosemester/leitner';
 import { registrerRiktigSvar } from '../lib/rewards';
-import { checkWinCondition } from '../features/kort/kortReward';
+import { KORT_PER_RIKTIGE, lesKortProgresjon, registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut } from 'lucide-react';
@@ -47,9 +47,6 @@ import { useTradeStore } from '../state/useTradeStore';
 import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
 import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
-
-/** Antall riktige svar per kortbelønning i øvemodus (jf. v2 kortProgress). */
-const KORT_PER_RIKTIGE = 10;
 
 type Feedback = { type: 'correct' | 'wrong'; correctAnswer: string } | null;
 
@@ -99,12 +96,9 @@ export function GlosemesterPractice() {
   const [visAvslutt, setVisAvslutt] = useState(false);
   const forrigeRef = useRef<Word | undefined>(undefined);
 
-  // Kortprogresjon: hvert 10. riktige svar gir et kort (jf. v2). Persisteres på
-  // tvers av økter via localStorage, akkurat som v2 sin kortProgress.
-  const [kortProgresjon, setKortProgresjon] = useState(() => {
-    const lagret = Number(localStorage.getItem('kortProgress') ?? '0');
-    return Number.isFinite(lagret) ? lagret % KORT_PER_RIKTIGE : 0;
-  });
+  // Kortprogresjon: felles teller for øving + prøve (lib/kortProgress). Hvert
+  // 10. riktige svar gir et kort, og prøvesvar teller mot samme bar.
+  const [kortProgresjon, setKortProgresjon] = useState(() => lesKortProgresjon());
   const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
 
   // Bygger neste spørsmål basert på Leitner-vekting.
@@ -179,23 +173,17 @@ export function GlosemesterPractice() {
         oppdaterSjetonger();
         if (tilgjengeligeSjetonger() > forUt) toast.success('Du tjente en byttesjetong!');
 
-        // Kortbelønning: hvert 10. riktige svar gir et kort (jf. v2 øvemodus).
-        // Kortet legges IKKE til automatisk — eleven bekrefter via popup-knappen.
-        setKortProgresjon((forrige) => {
-          const ny = forrige + 1;
-          if (ny >= KORT_PER_RIKTIGE) {
-            // checkWinCondition(10,10) = 100 % → garantert kort, nivåfiltrert.
-            const kort = checkWinCondition(KORT_PER_RIKTIGE, KORT_PER_RIKTIGE, level);
-            if (kort) {
-              void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
-              setVunnetKort(kort);
-            }
-            localStorage.setItem('kortProgress', '0');
-            return 0;
+        // Kortbelønning via den felles telleren (deles med prøvemodus). Hvert
+        // 10. riktige svar gir et kort; kortet legges IKKE til automatisk —
+        // eleven bekrefter via popup-knappen.
+        {
+          const { kort, rest } = registrerRiktigeMotKort(1, level);
+          setKortProgresjon(rest);
+          if (kort.length > 0) {
+            void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
+            setVunnetKort(kort[0]);
           }
-          localStorage.setItem('kortProgress', String(ny));
-          return ny;
-        });
+        }
 
         setFeedback({ type: 'correct', correctAnswer: answerFor(word, direction) });
         window.setTimeout(gaaVidere, 900);

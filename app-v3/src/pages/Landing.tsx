@@ -7,6 +7,7 @@ import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { Gamepad2, Brain, Smartphone, type LucideIcon } from 'lucide-react';
 import { Button } from '../components/Button';
 import { startFeideLogin, loggInnMedGoogle } from '../lib/auth';
+import { taVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
@@ -23,8 +24,13 @@ export function Landing() {
   const laster = useAuthStore((s) => s.laster);
   const [googleLaster, setGoogleLaster] = useState(false);
 
-  // Allerede innlogget → rett til hjem.
+  // Allerede innlogget → rett til hjem. Men hvis eleven logget inn med Feide
+  // midt i en prøve (kode parkert før redirect), send dem tilbake til prøven.
   if (!laster && firebaseUser) {
+    const ventende = taVentendeProve();
+    if (ventende) {
+      return <Navigate to={`${ROUTES.QUIZ}?kode=${encodeURIComponent(ventende)}`} replace />;
+    }
     return <Navigate to={ROUTES.HJEM} replace />;
   }
 

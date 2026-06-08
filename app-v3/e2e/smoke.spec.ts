@@ -30,8 +30,8 @@ test('øvemodus: et svar gir fargefeedback (grønn/rød)', async ({ page }) => {
 });
 
 test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
-  // Seed kortProgress=9 så neste riktige svar blir det 10. og utløser kort.
-  await page.addInitScript(() => localStorage.setItem('kortProgress', '9'));
+  // Seed den felles kort-telleren (gjest) til 9 så neste riktige svar utløser kort.
+  await page.addInitScript(() => localStorage.setItem('mester_kortprogresjon_gloser_gjest', '9'));
   await page.goto('/ov?niva=niva1');
   await expect(page.getByText('1/40')).toBeVisible();
 
