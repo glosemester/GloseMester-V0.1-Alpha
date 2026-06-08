@@ -78,6 +78,19 @@ export function masteredCount(state: LeitnerState, words: readonly Word[]): numb
   return words.filter((w) => getBox(state, w) >= MAX_BOX).length;
 }
 
+/**
+ * Glidende nivå-fremgang i prosent (0–100), basert på hvor langt hvert ord har
+ * klatret i Leitner-boksene. Gir et motiverende tall som vokser fra første
+ * riktige svar — i motsetning til masteredCount, som først teller når et ord
+ * når øverste boks.
+ */
+export function nivaProsent(state: LeitnerState, words: readonly Word[]): number {
+  if (words.length === 0) return 0;
+  const sum = words.reduce((acc, w) => acc + (getBox(state, w) - MIN_BOX), 0);
+  const maks = words.length * (MAX_BOX - MIN_BOX);
+  return maks > 0 ? Math.round((sum / maks) * 100) : 0;
+}
+
 // ---- Persistering (UID-nøklet via storage-mønsteret) ----
 
 import { getUserToken } from '../../lib/storage';

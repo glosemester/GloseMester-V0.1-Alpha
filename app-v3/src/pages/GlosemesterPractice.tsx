@@ -29,7 +29,7 @@ import {
   saveLeitnerState,
   recordAnswer,
   pickNextWord,
-  masteredCount,
+  nivaProsent,
   type LeitnerState,
 } from '../features/glosemester/leitner';
 import { registrerRiktigSvar } from '../lib/rewards';
@@ -48,8 +48,8 @@ import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
 import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
 
-/** Antall ord per øve-sett (= én runde på kort-hjulet). */
-const SETT_LENGDE = 10;
+/** Antall ord per øverunde (= én runde på kort-hjulet). */
+const RUNDE_LENGDE = 10;
 
 /** True på skjermer ≥10 tommer (nettbrett/desktop) — gir to-spalte øvemodus. */
 function useErStorskjerm(): boolean {
@@ -86,9 +86,9 @@ export function GlosemesterPractice() {
 
   const direction: Direction = 'en';
   const words = useMemo(() => (gyldigNiva ? getWordsForLevel(level as LevelId) : []), [gyldigNiva, level]);
-  // Fase 4: øvingen går i SETT på 10 ord (= én runde på hjulet = ett kort), i
+  // Fase 4: øvingen går i RUNDER på 10 ord (= én runde på hjulet = ett kort), i
   // stedet for å gå gjennom hele nivået på én gang. Kortere, mer motiverende økter.
-  const rundeLengde = Math.min(SETT_LENGDE, words.length);
+  const rundeLengde = Math.min(RUNDE_LENGDE, words.length);
   const erStorskjerm = useErStorskjerm();
 
   // Leitner-tilstand i en ref (persisteres); UI trenger ikke re-rendre på hver endring.
@@ -240,14 +240,14 @@ export function GlosemesterPractice() {
 
   if (ferdig) {
     const prosent = besvart ? Math.round((riktige / besvart) * 100) : 0;
-    const mestret = masteredCount(leitnerRef.current, words);
+    const nivaPct = nivaProsent(leitnerRef.current, words);
     return (
       <div style={{ padding: 'var(--space-8)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', alignItems: 'center' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Sett fullført! <PartyPopper size={28} color="var(--color-primary)" aria-hidden="true" /></h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>Runde fullført! <PartyPopper size={28} color="var(--color-primary)" aria-hidden="true" /></h2>
         <p style={{ color: 'var(--color-text-muted)' }}>{riktige} av {besvart} riktig ({prosent}%)</p>
-        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 14 }}><Dumbbell size={18} aria-hidden="true" /> {mestret} av {words.length} ord mestret</p>
+        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 14 }}><Dumbbell size={18} aria-hidden="true" /> {nivaPct}% av nivået lært</p>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-          {/* Fortsett til neste sett — streak og kortprogresjon beholdes. */}
+          {/* Fortsett til neste runde — streak og kortprogresjon beholdes. */}
           <button type="button" onClick={() => { setFerdig(false); setBesvart(0); setRiktige(0); forrigeRef.current = undefined; nesteSporsmal(); }} style={primaerKnapp}>Fortsett</button>
           <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>Velg nivå</button>
         </div>
@@ -264,6 +264,18 @@ export function GlosemesterPractice() {
 
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(180deg, var(--color-primary-light) 0%, var(--color-bg) 40%)' }}>
+      {/* Designforslag #2: kort, subtil grønn glow ved riktig svar. */}
+      {feedback?.type === 'correct' && (
+        <div
+          key={besvart}
+          aria-hidden="true"
+          style={{
+            position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 90, opacity: 0,
+            boxShadow: 'inset 0 0 110px 12px var(--color-success)',
+            animation: 'glowPulse 0.5s ease forwards',
+          }}
+        />
+      )}
       {vunnetKort && (
         <div style={kortOverlay} role="dialog" aria-label="Du vant et kort">
           <div style={{ ...kortPopup, borderColor: RARITY_CONFIG[vunnetKort.rarity].farge }}>

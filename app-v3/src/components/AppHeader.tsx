@@ -4,7 +4,7 @@
  * sider (de har egen header via MarketingLayout) — Layout styrer det via skjulListe.
  */
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { User, Home } from 'lucide-react';
 import { ROUTES } from '../routes/paths';
 import { useAuthStore } from '../state/useAuthStore';
 
@@ -32,9 +32,17 @@ export function AppHeader() {
     <header style={header}>
       <div style={venstre}>
         {visTilbake && (
-          <button type="button" onClick={gaaTilbake} style={tilbakeKnapp} aria-label="Gå tilbake">
-            <span aria-hidden="true">←</span> Tilbake
-          </button>
+          fastMaal === ROUTES.HJEM ? (
+            // Designforslag #8: når «tilbake» uansett går hjem (f.eks. fra
+            // nivåvelger), vis en tydelig Hjem-knapp i stedet for «← Tilbake».
+            <button type="button" onClick={gaaTilbake} style={tilbakeKnapp} aria-label="Til hjem">
+              <Home size={16} aria-hidden="true" /> Hjem
+            </button>
+          ) : (
+            <button type="button" onClick={gaaTilbake} style={tilbakeKnapp} aria-label="Gå tilbake">
+              <span aria-hidden="true">←</span> Tilbake
+            </button>
+          )
         )}
       </div>
       <Link to={ROUTES.HJEM} style={logo} aria-label="GloseMester – til forsiden">

@@ -35,15 +35,21 @@ test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
   await page.goto('/ov?niva=niva1');
   await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
 
-  // Svar til vi treffer riktig (det blir nr. 10) — maks noen runder.
-  for (let runde = 0; runde < 6; runde++) {
+  // Svar til vi treffer riktig (det blir nr. 10). Øvingen går i runder på 10 ord,
+  // så vi fortsetter over flere runder for å garantere minst ett riktig svar.
+  for (let steg = 0; steg < 24; steg++) {
     if (await page.getByText('Du vant et kort!').isVisible().catch(() => false)) break;
     const alts = page.getByTestId('svar-alternativ');
-    if ((await alts.count()) === 0) break;
+    if ((await alts.count()) === 0) {
+      // Runde fullført uten kort ennå → start neste runde.
+      const fortsett = page.getByRole('button', { name: /Fortsett/ });
+      if (await fortsett.isVisible().catch(() => false)) { await fortsett.click(); await page.waitForTimeout(300); continue; }
+      break;
+    }
     await alts.first().click();
-    await page.waitForTimeout(1100);
+    await page.waitForTimeout(1000);
     const neste = page.getByRole('button', { name: /Neste/ });
-    if (await neste.isVisible().catch(() => false)) { await neste.click(); await page.waitForTimeout(400); }
+    if (await neste.isVisible().catch(() => false)) { await neste.click(); await page.waitForTimeout(300); }
   }
   // Popup vises med «Legg til i min samling»-knapp; kortet legges til ved klikk.
   await expect(page.getByText('Du vant et kort!')).toBeVisible();
