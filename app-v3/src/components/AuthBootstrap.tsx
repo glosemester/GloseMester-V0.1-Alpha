@@ -17,12 +17,14 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = initAuth();
 
-    // Håndter Feide-callback hvis vi kom tilbake med ?code=... (kun én gang).
-    if (!feideHandlet.current && new URLSearchParams(window.location.search).has('code')) {
+    // Håndter Feide-callback hvis vi kom tilbake med ?code=... ELLER ?error=...
+    // (Feide sender error ved avvist redirect_uri, scope, avbrutt e.l.). Kun én gang.
+    const sokeParams = new URLSearchParams(window.location.search);
+    if (!feideHandlet.current && (sokeParams.has('code') || sokeParams.has('error'))) {
       feideHandlet.current = true;
       void handleFeideCallback().then((res) => {
         if (res.handled && res.success) toast.success('Innlogget med Feide!');
-        else if (res.handled) toast.error('Feide-innlogging feilet');
+        else if (res.handled) toast.error(`Feide-innlogging feilet: ${res.error ?? 'ukjent'}`);
       });
     }
 
