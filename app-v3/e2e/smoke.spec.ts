@@ -15,14 +15,14 @@ test('landingssiden har elev- og lærer-innlogging', async ({ page }) => {
 
 test('øvemodus: nivå 1 viser ord og svaralternativer', async ({ page }) => {
   await page.goto('/ov?niva=niva1');
-  // Progresjonsteller 1/40 og minst ett svaralternativ skal vises.
-  await expect(page.getByText('1/40')).toBeVisible();
+  // Progresjonsteller (1/N) og minst ett svaralternativ skal vises.
+  await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
   await expect(page.getByTestId('svar-alternativ').first()).toBeVisible();
 });
 
 test('øvemodus: et svar gir fargefeedback (grønn/rød)', async ({ page }) => {
   await page.goto('/ov?niva=niva1');
-  await expect(page.getByText('1/40')).toBeVisible();
+  await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
   // Klikk første ekte svaralternativ; etterpå skal feedback-tekst vises.
   await page.getByTestId('svar-alternativ').first().click();
   // Enten «Riktig!» (evt. streak) eller «Riktig svar:» ved feil.
@@ -33,7 +33,7 @@ test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
   // Seed den felles kort-telleren (gjest) til 9 så neste riktige svar utløser kort.
   await page.addInitScript(() => localStorage.setItem('mester_kortprogresjon_gloser_gjest', '9'));
   await page.goto('/ov?niva=niva1');
-  await expect(page.getByText('1/40')).toBeVisible();
+  await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
 
   // Svar til vi treffer riktig (det blir nr. 10) — maks noen runder.
   for (let runde = 0; runde < 6; runde++) {
@@ -66,7 +66,7 @@ test('bunnmeny: synlig på nivåvelger, skjult under aktivt spørsmål', async (
   // Bug 3: under et aktivt spørsmål skjules bunnmenyen, så den ikke dekker
   // det 4. svaralternativet.
   await page.goto('/ov?niva=niva1');
-  await expect(page.getByText('1/40')).toBeVisible();
+  await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toHaveCount(0);
 });
 

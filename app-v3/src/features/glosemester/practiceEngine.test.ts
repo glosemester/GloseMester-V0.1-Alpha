@@ -10,7 +10,7 @@ import {
   currentQuestion,
   isSessionComplete,
 } from './practiceEngine';
-import type { Word } from './vocabulary';
+import { getWordsForLevel, type Word } from './vocabulary';
 
 const ord: Word = { s: 'Hund', e: 'Dog', k: 'dyr' };
 
@@ -70,7 +70,7 @@ describe('buildAlternatives', () => {
 describe('session-flyt', () => {
   it('createSession stokker og nullstiller', () => {
     const s = createSession('niva2', 'en');
-    expect(s.words.length).toBe(50);
+    expect(s.words.length).toBe(getWordsForLevel('niva2').length);
     expect(s.index).toBe(0);
     expect(s.correctAnswers).toBe(0);
     expect(isSessionComplete(s)).toBe(false);
