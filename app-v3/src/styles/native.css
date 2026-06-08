@@ -34,6 +34,10 @@ html,
 body {
   overscroll-behavior: none;
   overflow-x: hidden;
+  /* #10b Defensiv scroll-sikring: garanter vertikal scroll selv om en
+     nettleserutvidelse (lese-/skrivestøtte som Lingdys/IntoWords o.l.)
+     injiserer overlays eller setter uventede overflow-regler på dokumentet. */
+  overflow-y: auto;
 }
 body {
   min-height: 100dvh;
