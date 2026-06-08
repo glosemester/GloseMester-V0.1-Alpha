@@ -4,7 +4,8 @@
  */
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Flame } from 'lucide-react';
-import { getAvailableLevels, getWordCountForLevel, levelMetadata } from '../features/glosemester/vocabulary';
+import { getAvailableLevels, getWordCountForLevel, getWordsForLevel, levelMetadata } from '../features/glosemester/vocabulary';
+import { loadLeitnerState, nivaProsent } from '../features/glosemester/leitner';
 import { lesStreak } from '../lib/streak';
 import { ROUTES } from '../routes/paths';
 
@@ -54,6 +55,9 @@ export function GlosemesterStart() {
       >
         {levels.map((level) => {
           const meta = levelMetadata[level];
+          // Designforslag #3: vis elevens fremgang per nivå (glidende % lært).
+          const totalt = getWordCountForLevel(level);
+          const pct = nivaProsent(loadLeitnerState(level), getWordsForLevel(level));
           return (
             <button
               key={level}
@@ -88,8 +92,12 @@ export function GlosemesterStart() {
                   {meta.description}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 20 }}>
-                <BookOpen size={18} aria-hidden="true" /> {getWordCountForLevel(level)} ord
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 10 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><BookOpen size={18} aria-hidden="true" /> {totalt} ord</span>
+                <span>{pct}% lært</span>
+              </div>
+              <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden', marginBottom: 20 }} aria-label={`Fremgang: ${pct} prosent`}>
+                <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
               </div>
               <span
                 style={{

@@ -27,12 +27,12 @@ export interface LevelMetadata {
 
 export const vocabularyData: Record<LevelId, Word[]> = {
   niva1: [
-    { k: 'dyr', s: 'Hund', e: 'Dog', image: 'images/dyr/007-valp.png' },
-    { k: 'dyr', s: 'Katt', e: 'Cat', image: 'images/dyr/006-kattunge.png' },
+    { k: 'dyr', s: 'Hund', e: 'Dog' },
+    { k: 'dyr', s: 'Katt', e: 'Cat' },
     { k: 'dyr', s: 'Hest', e: 'Horse' }, { k: 'dyr', s: 'Ku', e: 'Cow' }, { k: 'dyr', s: 'Gris', e: 'Pig' },
     { k: 'dyr', s: 'Sau', e: 'Sheep' }, { k: 'dyr', s: 'Fugl', e: 'Bird' }, { k: 'dyr', s: 'Fisk', e: 'Fish' },
-    { k: 'dyr', s: 'Mus', e: 'Mouse', image: 'images/dyr/009-mus.png' },
-    { k: 'dyr', s: 'And', e: 'Duck', image: 'images/dyr/008-and.png' },
+    { k: 'dyr', s: 'Mus', e: 'Mouse' },
+    { k: 'dyr', s: 'And', e: 'Duck' },
     { k: 'familie', s: 'Mor', e: 'Mother' }, { k: 'familie', s: 'Far', e: 'Father' }, { k: 'familie', s: 'Baby', e: 'Baby' },
     { k: 'familie', s: 'Gutt', e: 'Boy' }, { k: 'familie', s: 'Jente', e: 'Girl' },
     { k: 'farge', s: 'Rød', e: 'Red' }, { k: 'farge', s: 'Blå', e: 'Blue' }, { k: 'farge', s: 'Grønn', e: 'Green' },
@@ -125,7 +125,7 @@ export const vocabularyData: Record<LevelId, Word[]> = {
 };
 
 export const levelMetadata: Record<LevelId, LevelMetadata> = {
-  niva1: { name: 'Nivå 1 - Superenkle substantiv', description: 'Førskolenivå / 1. trinn', wordCount: 56, hasImages: true },
+  niva1: { name: 'Nivå 1 - Superenkle substantiv', description: 'Førskolenivå / 1. trinn', wordCount: 56, hasImages: false },
   niva2: { name: 'Nivå 2 - Det nære', description: '1.-4. trinn', wordCount: 66, hasImages: false },
   niva3: { name: 'Nivå 3 - Beskrivelser & Hverdag', description: '5.-7. trinn', wordCount: 66, hasImages: false },
   niva4: { name: 'Nivå 4 - Gaming, Samfunn & Meninger', description: '8.-10. trinn', wordCount: 66, hasImages: false },
