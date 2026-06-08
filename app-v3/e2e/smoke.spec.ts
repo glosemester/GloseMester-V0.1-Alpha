@@ -30,8 +30,8 @@ test('øvemodus: et svar gir fargefeedback (grønn/rød)', async ({ page }) => {
 });
 
 test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
-  // Seed kortProgress=9 så neste riktige svar blir det 10. og utløser kort.
-  await page.addInitScript(() => localStorage.setItem('kortProgress', '9'));
+  // Seed den felles kort-telleren (gjest) til 9 så neste riktige svar utløser kort.
+  await page.addInitScript(() => localStorage.setItem('mester_kortprogresjon_gloser_gjest', '9'));
   await page.goto('/ov?niva=niva1');
   await expect(page.getByText('1/40')).toBeVisible();
 
@@ -51,21 +51,23 @@ test('øvemodus: 10. riktige svar gir et kort (jf. v2)', async ({ page }) => {
   await expect(page.getByText('Du vant et kort!')).toHaveCount(0);
 });
 
-test('bunnmeny: øve-flyten har Øv/Mine Kort/Galleri-faner', async ({ page }) => {
-  // Bunnmenyen skal være tilgjengelig både på nivåvelger og i øvemodus.
+test('bunnmeny: synlig på nivåvelger, skjult under aktivt spørsmål', async ({ page }) => {
+  // På nivåvelgeren skal hele bunnmenyen være tilgjengelig.
   await page.goto('/gloser');
   await expect(page.getByTestId('tab-ov')).toBeVisible();
   await expect(page.getByTestId('tab-mine')).toBeVisible();
   await expect(page.getByTestId('tab-bytte')).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toBeVisible();
 
-  await page.goto('/ov?niva=niva1');
-  await expect(page.getByText('1/40')).toBeVisible();
-  await expect(page.getByTestId('tab-galleri')).toBeVisible();
-
-  // Galleri-fanen skal føre gjesten til galleriet (åpent uten innlogging).
+  // Galleri-fanen fører gjesten til galleriet (åpent uten innlogging).
   await page.getByTestId('tab-galleri').click();
   await expect(page).toHaveURL(/\/galleri$/);
+
+  // Bug 3: under et aktivt spørsmål skjules bunnmenyen, så den ikke dekker
+  // det 4. svaralternativet.
+  await page.goto('/ov?niva=niva1');
+  await expect(page.getByText('1/40')).toBeVisible();
+  await expect(page.getByTestId('tab-galleri')).toHaveCount(0);
 });
 
 test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
@@ -80,6 +82,30 @@ test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) =>
   await expect(page.getByText(/av 152 samlet/)).toBeVisible();
   // Uten samlede kort skal låste «???»-kort vises.
   await expect(page.getByText('???').first()).toBeVisible();
+});
+
+test('kvitteringsside vises etter kjøp (/oppgrader/takk)', async ({ page }) => {
+  await page.goto('/oppgrader/takk?status=success&orderId=test123');
+  await expect(page.getByRole('heading', { name: /takk for kjøpet/i })).toBeVisible();
+  await expect(page.getByText(/Ordre-ID: test123/)).toBeVisible();
+});
+
+test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
+  // Liten viewport-høyde + mye innhold (galleriet) → siden må kunne scrolles.
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto('/galleri');
+  await expect(page.getByText(/av 152 samlet/)).toBeVisible();
+  const kanScrolle = await page.evaluate(() => {
+    const el = document.scrollingElement || document.documentElement;
+    return el.scrollHeight > el.clientHeight + 50;
+  });
+  expect(kanScrolle).toBe(true);
+  // Faktisk hjul-scroll skal flytte posisjonen (poll bort timing-flakiness).
+  await page.mouse.move(640, 300);
+  await page.mouse.wheel(0, 1000);
+  await expect
+    .poll(() => page.evaluate(() => (document.scrollingElement || document.documentElement).scrollTop))
+    .toBeGreaterThan(0);
 });
 
 test('FAQ-siden bruker ryddet språk (ingen «Leitner»)', async ({ page }) => {

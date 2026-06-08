@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
-const { bestemRolle } = require('./lib/feide-roles');
+const { bestemRolle, hentRelevanteGrupper } = require('./lib/feide-roles');
 
 if (!admin.apps.length) {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
@@ -69,23 +69,24 @@ exports.handler = async (event) => {
         }
         const uid = `feide_${feideId}`;
 
-        // 5. Bestem rolle (laerer eller elev)
+        // 5. Bestem rolle (laerer eller elev) + plukk ut klasser/grupper.
         const rolle = bestemRolle(feideUser, groupsData);
+        const grupper = hentRelevanteGrupper(groupsData);
 
-        // 6. Lagre/oppdater bruker i Firestore
-        const brukerData = {
+        // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved
+        //    opprettelse (merge bevarer ev. eksisterende skolelisens).
+        const docRef = db.collection('users').doc(uid);
+        const finnes = (await docRef.get()).exists;
+        await docRef.set({
             uid,
             displayName: feideUser.name || '',
             email: feideUser.email || '',
             feide_id: feideId,
             kilde: 'feide',
             rolle,
+            feide_grupper: grupper,
+            ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
-        };
-        // Sett abonnement kun for nye brukere
-        await db.collection('users').doc(uid).set({
-            ...brukerData,
-            abonnement: { type: 'free' }
         }, { merge: true });
 
         // 7. Lag Firebase custom token

@@ -23,11 +23,13 @@ import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
 import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
 import { TEACHER_ROUTE_PATTERNS } from './pages/teacher/teacherPaths';
 import { MinSide } from './pages/MinSide';
+import { MineProver } from './pages/MineProver';
 import { ForLaerere } from './pages/marketing/ForLaerere';
 import { ForSkoler } from './pages/marketing/ForSkoler';
 import { OmOss } from './pages/marketing/OmOss';
 import { Faq } from './pages/marketing/Faq';
 import { Oppgrader } from './pages/marketing/Oppgrader';
+import { OppgraderTakk } from './pages/marketing/OppgraderTakk';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
@@ -56,6 +58,8 @@ const router = createBrowserRouter([
       { path: ROUTES.GALLERY, element: <Galleri visAlle /> },
       // Bytte: kortbytte mellom elever (krever innlogging).
       { path: ROUTES.TRADE, element: <ProtectedRoute><Bytte /></ProtectedRoute> },
+      // Mine prøver (elev): prøver tildelt elevens Feide-klasse(r).
+      { path: ROUTES.STUDENT_PROVER, element: <ProtectedRoute><MineProver /></ProtectedRoute> },
       // Lærer-modul (krever innlogging).
       { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
       { path: ROUTES.MY_TESTS, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
@@ -70,6 +74,7 @@ const router = createBrowserRouter([
       { path: '/om-oss', element: <OmOss /> },
       { path: '/faq', element: <Faq /> },
       { path: '/oppgrader', element: <Oppgrader /> },
+      { path: ROUTES.OPPGRADER_TAKK, element: <OppgraderTakk /> },
     ],
   },
 ]);

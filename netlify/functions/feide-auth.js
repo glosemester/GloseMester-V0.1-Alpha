@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
-const { bestemRolle } = require('./lib/feide-roles');
+const { bestemRolle, hentRelevanteGrupper } = require('./lib/feide-roles');
 
 if (!admin.apps.length) {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
@@ -70,18 +70,32 @@ exports.handler = async (event) => {
         }
         const uid = `feide_${feideId}`;
 
-        // 5. Bestem rolle (laerer eller elev)
+        // 5. Bestem rolle (laerer eller elev) + plukk ut klasser/grupper.
         const rolle = bestemRolle(feideUser, groupsData);
+        const grupper = hentRelevanteGrupper(groupsData);
 
-        // 6. Lagre/oppdater bruker i Firestore
-        await db.collection('users').doc(uid).set({
+        // Diagnostikk (Netlify function-logg) for å feilsøke rolle ute i felten.
+        console.log('feide-auth rolle:', JSON.stringify({
+            uid,
+            rolle,
+            primaryAffiliation: feideUser.eduPersonPrimaryAffiliation || null,
+            affiliation: feideUser.eduPersonAffiliation || null,
+            antallGrupper: grupper.length
+        }));
+
+        // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved
+        //    opprettelse (merge bevarer ev. eksisterende skolelisens).
+        const docRef = db.collection('users').doc(uid);
+        const finnes = (await docRef.get()).exists;
+        await docRef.set({
             uid,
             displayName: feideUser.name,
             email: feideUser.email || '',
             feide_id: feideId,
             kilde: 'feide',
             rolle,
-            abonnement: { type: 'free' },
+            feide_grupper: grupper,
+            ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 

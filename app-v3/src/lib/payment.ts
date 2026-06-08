@@ -28,8 +28,10 @@ export async function startStripeCheckout(plan: StripePlan): Promise<CheckoutRes
     return { ok: false, feil: 'Du må være innlogget for å kjøpe Premium.' };
   }
 
-  // v3 returnerer til /oppgrader (samme SPA-rute), ikke v2 sin oppgrader.html.
-  const retur = `${window.location.origin}/oppgrader`;
+  // Suksess → egen kvitteringsside (/oppgrader/takk), som også er
+  // konverteringsmål i Google Ads. Avbrutt → tilbake til prislisten (/oppgrader).
+  // Serveren legger selv på ?status=…&orderId=… på disse URL-ene.
+  const origin = window.location.origin;
 
   try {
     const response = await fetch('/.netlify/functions/stripe-checkout', {
@@ -39,8 +41,8 @@ export async function startStripeCheckout(plan: StripePlan): Promise<CheckoutRes
         plan,
         userId: user.uid,
         userEmail: user.email,
-        successUrl: retur,
-        cancelUrl: retur,
+        successUrl: `${origin}/oppgrader/takk`,
+        cancelUrl: `${origin}/oppgrader`,
       }),
     });
 

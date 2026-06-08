@@ -41,6 +41,13 @@ export function TeacherCreateTest() {
   });
   const [lagrer, setLagrer] = useState(false);
 
+  // D: tildel prøven til en eller flere av lærerens Feide-klasser.
+  const grupper = bruker?.feide_grupper ?? [];
+  const [valgteGrupper, setValgteGrupper] = useState<string[]>(eksisterende?.tildeltGrupper ?? []);
+  function veksleGruppe(id: string) {
+    setValgteGrupper((v) => (v.includes(id) ? v.filter((g) => g !== id) : [...v, id]));
+  }
+
   function settRad(i: number, felt: 's' | 'e', verdi: string) {
     setRader((r) => r.map((rad, idx) => (idx === i ? { ...rad, [felt]: verdi } : rad)));
   }
@@ -69,15 +76,23 @@ export function TeacherCreateTest() {
       return;
     }
 
+    const tildeltGruppeNavn = grupper.filter((g) => valgteGrupper.includes(g.id)).map((g) => g.navn);
+
     setLagrer(true);
     try {
       if (eksisterende) {
-        await oppdaterProve(eksisterende.id, { tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager });
+        await oppdaterProve(eksisterende.id, {
+          tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager,
+          tildeltGrupper: valgteGrupper, tildeltGruppeNavn,
+        });
         toast.success('Prøve oppdatert!');
         navigate(TEACHER_ROUTES.testDetails(eksisterende.id));
       } else {
         const { id } = await opprettProve(
-          { tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager },
+          {
+            tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager,
+            tildeltGrupper: valgteGrupper, tildeltGruppeNavn,
+          },
           { uid: firebaseUser.uid, navn: bruker?.displayName ?? 'Lærer' },
         );
         toast.success('Prøve opprettet!');
@@ -120,6 +135,40 @@ export function TeacherCreateTest() {
           <input type="checkbox" checked={bland} onChange={(e) => setBland(e.target.checked)} />
           Bland rekkefølgen for elevene
         </label>
+
+        {/* D: tildel til Feide-klasse(r). Elever i valgte klasser ser prøven
+            under «Mine prøver» med gjennomført-status. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontWeight: 600 }}>Tildel til klasse (valgfritt)</div>
+          {grupper.length === 0 ? (
+            <span style={{ fontWeight: 400, fontSize: 13, color: 'var(--color-text-muted)' }}>
+              Ingen Feide-klasser funnet. Logg inn med Feide for å tildele prøver til en klasse —
+              ellers deler du som vanlig med kode/QR.
+            </span>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {grupper.map((g) => {
+                const valgt = valgteGrupper.includes(g.id);
+                return (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => veksleGruppe(g.id)}
+                    aria-pressed={valgt}
+                    style={{
+                      ...gruppePille,
+                      background: valgt ? 'var(--color-primary)' : 'var(--color-surface)',
+                      color: valgt ? '#fff' : 'var(--color-text)',
+                      borderColor: valgt ? 'var(--color-primary)' : 'var(--color-border)',
+                    }}
+                  >
+                    {g.navn}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontWeight: 600 }}>
           Tilgjengelig i (dager)
@@ -172,6 +221,11 @@ const dagerPille: React.CSSProperties = {
   background: 'var(--color-primary-light)', color: 'var(--color-primary)',
   borderRadius: 'var(--radius-full)', padding: '6px 14px', fontWeight: 800, fontSize: 14,
   whiteSpace: 'nowrap', minWidth: 78, textAlign: 'center',
+};
+const gruppePille: React.CSSProperties = {
+  border: '2px solid var(--color-border)', borderRadius: 'var(--radius-full)',
+  padding: '8px 16px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+  fontFamily: 'var(--font-primary)',
 };
 const fjernKnapp: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

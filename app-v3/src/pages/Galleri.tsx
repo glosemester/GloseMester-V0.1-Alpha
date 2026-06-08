@@ -27,6 +27,8 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   const navigate = useNavigate();
   const [sortering, setSortering] = useState<Sortering>('nyeste');
   const [versjon, setVersjon] = useState(0); // tving re-les etter pant
+  // Bug 5: klikk på et låst kort åpnet ingenting. Vis en hint-popup i stedet.
+  const [valgtLaast, setValgtLaast] = useState<VisKort | null>(null);
 
   const { kort, stats } = useMemo(() => {
     const samling = hentSamling();
@@ -156,6 +158,11 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
           return (
             <div
               key={k.id}
+              onClick={!eid ? () => setValgtLaast(k) : undefined}
+              onKeyDown={!eid ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setValgtLaast(k); } } : undefined}
+              role={!eid ? 'button' : undefined}
+              tabIndex={!eid ? 0 : undefined}
+              aria-label={!eid ? `Låst kort, ${cfg.tekst}. Trykk for å se hvordan du låser det opp.` : undefined}
               style={{
                 background: 'var(--color-surface)',
                 border: `2px solid ${eid ? cfg.farge : 'var(--color-border)'}`,
@@ -167,6 +174,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 flexDirection: 'column',
                 gap: 8,
                 opacity: eid ? 1 : 0.55,
+                cursor: eid ? 'default' : 'pointer',
               }}
             >
               <div style={{ position: 'relative' }}>
@@ -200,6 +208,43 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
           );
         })}
       </div>
+
+      {/* Bug 5: klikk på et låst kort viser hint (sjeldenhet + hvisket navn) og
+          hva som skal til for å låse det opp — i stedet for ingen respons. */}
+      {valgtLaast && (
+        <div style={laastOverlay} role="dialog" aria-modal="true" aria-label="Låst kort" onClick={() => setValgtLaast(null)}>
+          <div style={laastPopup} onClick={(e) => e.stopPropagation()}>
+            <div style={{ position: 'relative' }}>
+              <img
+                src={valgtLaast.bilde}
+                alt=""
+                aria-hidden="true"
+                style={{ width: 140, height: 140, objectFit: 'contain', filter: 'grayscale(1) blur(2px)', opacity: 0.7 }}
+              />
+              <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }} aria-hidden="true">
+                <Lock size={40} color="var(--color-text-muted)" />
+              </span>
+            </div>
+            <div style={{ fontWeight: 800, fontSize: 18, filter: 'blur(6px)', userSelect: 'none' }} aria-hidden="true">
+              {valgtLaast.navn}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: RARITY_CONFIG[valgtLaast.rarity].farge }}>
+              {RARITY_CONFIG[valgtLaast.rarity].tekst}
+            </div>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
+              Svar riktig i øving for å låse opp dette kortet.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
+              <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={primaerKnapp}>
+                <Rocket size={16} aria-hidden="true" /> Gå til øving
+              </button>
+              <button type="button" onClick={() => setValgtLaast(null)} style={chip}>
+                Lukk
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -223,4 +268,15 @@ const pantKnapp: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
   background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
   borderRadius: 'var(--radius-md)', padding: '6px 8px', fontWeight: 700, fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-primary)',
+};
+const laastOverlay: React.CSSProperties = {
+  position: 'fixed', inset: 0, zIndex: 200,
+  background: 'rgba(0,0,0,0.55)', display: 'grid', placeItems: 'center',
+  padding: 20, cursor: 'pointer', fontFamily: 'var(--font-primary)',
+};
+const laastPopup: React.CSSProperties = {
+  background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
+  border: '3px solid var(--color-border)', padding: '28px 32px', cursor: 'default',
+  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+  maxWidth: 320, width: '100%', animation: 'pop 0.3s ease', boxShadow: 'var(--shadow-lg)',
 };
