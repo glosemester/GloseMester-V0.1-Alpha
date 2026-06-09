@@ -21,9 +21,13 @@ export interface ForesporselResultat {
   feil?: string;
 }
 
+// TODO: BYTT UT DENNE URL-EN MED DIN N8N WEBHOOK URL NÅR DU HAR LAGET DEN!
+// Eksempel: 'https://din-n8n.com/webhook/12345678'
+const N8N_WEBHOOK_URL = '/.netlify/functions/school-inquiry'; 
+
 export async function sendSkoleforesporsel(data: SkoleForesporsel): Promise<ForesporselResultat> {
   try {
-    const response = await fetch('/.netlify/functions/school-inquiry', {
+    const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
