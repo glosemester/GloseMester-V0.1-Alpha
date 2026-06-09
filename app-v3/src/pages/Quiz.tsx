@@ -27,7 +27,7 @@ import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
-import { harSkolelisens, harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
+import { harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
 
 type Fase = 'kode' | 'valg' | 'modus' | 'navn' | 'quiz' | 'resultat';
@@ -79,11 +79,9 @@ export function Quiz() {
       if (!firebaseUser) {
         // Gjest: tilby Feide-innlogging (spar kort) eller fortsett uten.
         setFase('valg');
-      } else if (harSkolelisens(bruker?.abonnement?.type)) {
-        // Skolelisens: la eleven velge prøve eller øve-til-prøve.
-        setFase('modus');
       } else {
-        startQuiz(prove);
+        // Innlogget elev: la dem velge «Ta prøven» eller «Øv til prøve».
+        setFase('modus');
       }
     } catch (e) {
       console.error('Kunne ikke hente prøve:', e);
