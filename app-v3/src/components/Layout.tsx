@@ -5,7 +5,7 @@
  * Landings- og marketing-sider har egen header (via MarketingLayout / Landing),
  * så AppHeader skjules der for å unngå dobbel chrome.
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { TabBar, TAB_BAR_HOYDE } from './TabBar';
@@ -44,14 +44,17 @@ const MED_TABBAR = new Set<string>([
 export function Layout() {
   const { pathname } = useLocation();
   const visAppHeader = !UTEN_APP_HEADER.has(pathname);
-  // Bug 3: øve-økten skjuler bunnmenyen mens eleven svarer på et spørsmål, så
-  // den ikke dekker det 4. svaralternativet. Menyen kommer tilbake på
-  // nivåvelger og resultatskjerm (der flagget settes tilbake til false).
   const bunnmenySkjult = useUiStore((s) => s.bunnmenySkjult);
   const visTabBar = MED_TABBAR.has(pathname) && !bunnmenySkjult;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll til toppen ved ruteskifte.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname]);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div ref={scrollRef} className="gm-scroll-root" style={{ display: 'flex', flexDirection: 'column' }}>
       <TradeDeepLink />
       {visAppHeader && <AppHeader />}
       <main style={{ flex: 1, paddingBottom: visTabBar ? TAB_BAR_HOYDE + 24 : undefined }}>
