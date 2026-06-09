@@ -7,6 +7,12 @@
  * tvers av sidene. Streaken nullstilles ved feil svar (samme regel som i øving).
  */
 const NOKKEL = 'gm_streak';
+let _onStreakChange: (() => void) | null = null;
+
+/** Registreres av progressSync for debounced Firestore-push. */
+export function setStreakChangeCallback(cb: () => void): void {
+  _onStreakChange = cb;
+}
 
 /** Leser lagret streak (0 hvis ingen / ugyldig). */
 export function lesStreak(): number {
@@ -19,4 +25,5 @@ export function lesStreak(): number {
 export function settStreak(verdi: number): void {
   if (typeof localStorage === 'undefined') return;
   localStorage.setItem(NOKKEL, String(Math.max(0, Math.floor(verdi))));
+  _onStreakChange?.();
 }

@@ -9,6 +9,7 @@
 import { getSamling, setSamling, lagreBrukerKort, type Kort } from '../../lib/storage';
 import { getKortById, kortData, type KortDef, type Rarity, type Category } from './kortData';
 import { calculateRarity } from './kortReward';
+import { flushSync } from '../../lib/progressSync';
 
 export interface SamlingStats {
   total: number;
@@ -27,9 +28,10 @@ export function hentSamling(): Kort[] {
   });
 }
 
-/** Legger til et vunnet kort i samlingen. */
+/** Legger til et vunnet kort i samlingen og synkroniserer umiddelbart til Firestore. */
 export function leggTilKort(kort: KortDef): void {
   lagreBrukerKort({ ...kort }, 'gloser');
+  flushSync().catch(() => {});
 }
 
 export function antallAvKort(kortId: string): number {
@@ -78,6 +80,7 @@ export function panteKort(kortId: string, rng: () => number = Math.random): Kort
   if (rarityPool.length === 0) rarityPool = pool;
 
   const nytt = rarityPool[Math.floor(rng() * rarityPool.length)];
-  leggTilKort(nytt);
+  lagreBrukerKort({ ...nytt }, 'gloser');
+  flushSync().catch(() => {});
   return nytt;
 }

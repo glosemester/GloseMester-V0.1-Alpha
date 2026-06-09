@@ -141,11 +141,18 @@ service cloud.firestore {
     
     // Orders (Stripe-betalinger)
     match /orders/{orderId} {
-      allow read: if request.auth != null && 
+      allow read: if request.auth != null &&
                      (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if request.auth != null;
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // Bruker-progresjon — kortsamling, XP, diamanter, streak per bruker.
+    // Kun eieren kan lese og skrive sitt eget dokument.
+    match /user_progress/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
