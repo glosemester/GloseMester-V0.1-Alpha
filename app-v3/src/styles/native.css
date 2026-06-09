@@ -63,9 +63,10 @@ html {
 
 /* #9b Desktop (mus/pekeplate): gjeninnfør en slank, SYNLIG scrollbar.
    Den skjulte scrollbaren over gir app-følelse på touch, men på PC fjernet den
-   scroll-affordansen — uten synlig scrollbar virket sidene «ulåselige» / umulige
-   å scrolle. (pointer: fine) treffer mus/pekeplate, ikke touch-skjermer. */
-@media (pointer: fine) {
+   scroll-affordansen — uten synlig scrollbar virket sidene «ulåselige».
+   (any-pointer: fine) treffer ENHVER mus/pekeplate — også på touch-skjerm-
+   laptoper, der (pointer: fine) feilaktig var usann (primær peker = touch). */
+@media (any-pointer: fine) {
   html,
   body {
     scrollbar-width: thin; /* Firefox */

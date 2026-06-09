@@ -42,7 +42,8 @@ function bygg(prefix: string, mappe: Category, rader: Rad[]): KortDef[] {
   return rader.map(([f, n], i) => ({
     id: `${prefix}_${String(i + 1).padStart(3, '0')}`,
     name: n,
-    image: `images/${mappe}/${f}`,
+    // Bildene er optimalisert til WebP (320px) — radene beholder .png-navn.
+    image: `images/${mappe}/${f.replace(/\.png$/, '.webp')}`,
     category: mappe,
     rarity: getRarity(i + 1),
     fag: 'gloser' as const,
