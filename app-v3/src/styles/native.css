@@ -30,24 +30,36 @@ textarea,
 /* #10 Ingen rubber-band / pull-to-refresh på dokumentet.
    Vi låser overscroll i stedet for `position: fixed` på body — sistnevnte
    ville brutt normal dokument-scroll og scrollIntoView i denne SPA-en. */
-html,
-body {
+html {
   overscroll-behavior: none;
   overflow-x: hidden;
   /* #10b Defensiv scroll-sikring: garanter vertikal scroll selv om en
      nettleserutvidelse (lese-/skrivestøtte som Lingdys/IntoWords o.l.)
-     injiserer overlays eller setter uventede overflow-regler på dokumentet. */
+     injiserer overlays eller setter uventede overflow-regler på dokumentet.
+     html er ENESTE scroll-container for dokumentet. Tidligere hadde også body
+     overflow-y:auto — det gjorde body til en konkurrerende scroll-container som
+     «fanget» musehjulet, mens overscroll-behavior:contain på body hindret at
+     hjul-scrollen kjedet videre til html (der overflowet faktisk skjer). Da
+     virket bare drag i scrollbaren, ikke musehjulet. Én scroll-container fikser. */
   overflow-y: auto;
 }
 body {
+  overscroll-behavior: none;
+  overflow-x: hidden;
   min-height: 100dvh;
 }
 
-/* #8 Momentum-scroll (iOS) + #9 skjul scrollbar på alle scroll-flater */
-body,
+/* #8 Momentum-scroll (iOS) + scroll-containment gjelder bevisst KUN indre
+   scroll-flater (.gm-scroll) — IKKE body, ellers blokkeres musehjul-kjeding
+   til html (se #10b). */
 .gm-scroll {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+/* #9 skjul scrollbar på scroll-flater (gjeninnføres synlig på desktop under) */
+body,
+.gm-scroll {
   scrollbar-width: none; /* Firefox */
 }
 html::-webkit-scrollbar,
