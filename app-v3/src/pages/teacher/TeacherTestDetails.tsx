@@ -3,13 +3,14 @@
  * Viser prøvekode + QR (lenke til /prove?kode=), elevresultater, og knapper for
  * å kopiere kode/lenke, redigere og slette prøven.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Copy, Link as LinkIcon, Pencil, Trash2, Users } from 'lucide-react';
+import { Copy, Link as LinkIcon, Pencil, Trash2, Users, CheckCircle2, Circle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
 import { slettProve, erProveUtloept } from '../../lib/data/prover';
+import { hentKlasseRoster, type KlasseElev } from '../../lib/data/users';
 import { toast } from '../../state/useToastStore';
 import { ROUTES } from '../../routes/paths';
 import { TEACHER_ROUTES } from './teacherPaths';
@@ -20,8 +21,16 @@ export function TeacherTestDetails() {
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const { prover, laster, reload } = useLaererProver(firebaseUser?.uid);
   const [sletter, setSletter] = useState(false);
+  const [roster, setRoster] = useState<KlasseElev[]>([]);
 
   const prove = prover.find((p) => p.id === testId);
+
+  // Hent klasse-roster når prøven er lastet og har tildelte grupper.
+  useEffect(() => {
+    const gruppeIds = prove?.tildeltGrupper ?? [];
+    if (!gruppeIds.length) { setRoster([]); return; }
+    hentKlasseRoster(gruppeIds).then(setRoster).catch(() => setRoster([]));
+  }, [prove?.tildeltGrupper?.join(',')]);
   const proveLenke = prove ? `${window.location.origin}${ROUTES.QUIZ}?kode=${prove.kode}` : '';
 
   async function kopier(tekst: string, melding: string) {
@@ -113,7 +122,51 @@ export function TeacherTestDetails() {
         <button type="button" onClick={slett} disabled={sletter} style={slettKnapp}><Trash2 size={16} color="var(--color-error)" aria-hidden="true" /> Slett</button>
       </div>
 
-      {/* Resultater */}
+      {/* Klasse-roster — kun synlig når prøven er tildelt en klasse */}
+      {roster.length > 0 && (() => {
+        const gjortUider = new Set(prove.resultater.map((r) => r.elev_id).filter(Boolean));
+        const antallGjort = roster.filter((e) => gjortUider.has(e.uid)).length;
+        return (
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 4 }}>
+              Klassestatus
+            </h2>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 12 }}>
+              {antallGjort} av {roster.length} elever i klassen har gjennomført
+            </p>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+              {/* Fremgangsbar */}
+              <div style={{ height: 6, background: 'var(--color-border)' }}>
+                <div style={{ height: '100%', width: `${roster.length ? (antallGjort / roster.length) * 100 : 0}%`, background: 'var(--color-success)', transition: 'width 0.5s ease' }} />
+              </div>
+              {roster.map((elev) => {
+                const resultat = prove.resultater.find((r) => r.elev_id === elev.uid);
+                const gjort = !!resultat;
+                return (
+                  <div key={elev.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderTop: '1px solid var(--color-border)', fontSize: 14, gap: 12 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text)' }}>
+                      {gjort
+                        ? <CheckCircle2 size={16} color="var(--color-success)" aria-hidden="true" />
+                        : <Circle size={16} color="var(--color-text-muted)" aria-hidden="true" />}
+                      {elev.navn}
+                    </span>
+                    {gjort
+                      ? <span style={{ fontWeight: 700, color: resultat.prosent >= 70 ? 'var(--color-success)' : resultat.prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)' }}>
+                          {resultat.prosent}%
+                        </span>
+                      : <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Ikke gjennomført</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 8 }}>
+              Viser elever som har logget inn i GloseMester med Feide.
+            </p>
+          </div>
+        );
+      })()}
+
+      {/* Resultater — alle innleveringer inkl. gjester og duplikater */}
       <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 12 }}>
         Resultater ({prove.resultater.length})
       </h2>

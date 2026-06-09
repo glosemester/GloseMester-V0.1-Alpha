@@ -27,6 +27,7 @@ import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
+import { harSkolelisens } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
 
 type Fase = 'kode' | 'valg' | 'modus' | 'navn' | 'quiz' | 'resultat';
@@ -42,10 +43,6 @@ interface QuizState {
   ovemodus?: boolean;
 }
 
-/** Øve-til-prøve er eksklusivt for skolelisens. */
-function harSkolelisens(type: string | undefined): boolean {
-  return type === 'skole' || type === 'skolepakke';
-}
 
 export function Quiz() {
   const [params] = useSearchParams();

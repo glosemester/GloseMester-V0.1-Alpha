@@ -5,7 +5,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock } from 'lucide-react';
+import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock, CheckCircle2, Circle } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { aktiverKampanjekode } from '../lib/data/kampanje';
@@ -13,13 +13,8 @@ import { eksporterMinData, slettMinKonto } from '../lib/data/gdpr';
 import { hentSamling, samlingStats } from '../features/kort/kortSamling';
 import { getKortById, getTotalKortCount, RARITY_CONFIG } from '../features/kort/kortData';
 import { TokenBalance } from '../components/TokenBalance';
+import { ABONNEMENT_ETIKETT, hentTilgangsliste } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
-
-const ABONNEMENT_ETIKETT: Record<string, string> = {
-  free: 'Gratis',
-  premium: 'Premium',
-  skolepakke: 'Skolepakke',
-};
 
 export function MinSide() {
   const navigate = useNavigate();
@@ -159,13 +154,31 @@ export function MinSide() {
 
       {/* Abonnement */}
       <Kort tittel={<><Package size={20} color="var(--color-primary)" aria-hidden="true" /> Ditt abonnement</>}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
           <span style={badge}>{ABONNEMENT_ETIKETT[abonnement] ?? abonnement}</span>
           {abonnement === 'free' && (
             <button type="button" onClick={() => navigate('/oppgrader')} style={primaerKnapp}>
-              Se Premium
+              Oppgrader
             </button>
           )}
+        </div>
+        {/* Tilgangsoversikt — viser hva brukeren faktisk har tilgang til */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {hentTilgangsliste(bruker, !!firebaseUser).map((t) => (
+            <div key={t.tekst} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14 }}>
+              {t.tilgjengelig
+                ? <CheckCircle2 size={16} color="var(--color-success)" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
+                : <Circle size={16} color="var(--color-text-muted)" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true" />}
+              <div>
+                <span style={{ color: t.tilgjengelig ? 'var(--color-text)' : 'var(--color-text-muted)', fontWeight: t.tilgjengelig ? 600 : 400 }}>
+                  {t.tekst}
+                </span>
+                {!t.tilgjengelig && t.forklaring && (
+                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)', display: 'block' }}>{t.forklaring}</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </Kort>
 
