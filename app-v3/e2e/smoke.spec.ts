@@ -87,7 +87,17 @@ test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
   await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
 });
 
-test('galleri: alle kort vises, ikke-samlede grået ut', async ({ page }) => {
+test('galleri: trykk på eget kort åpner detalj-popup', async ({ page }) => {
+  // Seed ett eid kort (gjest-namespace) og åpne «Mine Kort».
+  await page.addInitScript(() =>
+    localStorage.setItem('mester_samling_gloser_gjest', JSON.stringify([{ id: 'bil_001', vunnetDato: new Date().toISOString() }])),
+  );
+  await page.goto('/mine-kort');
+  await page.getByText('VW Golf').first().click();
+  await expect(page.getByRole('dialog', { name: 'VW Golf' })).toBeVisible();
+});
+
+test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) => {
   await page.goto('/galleri');
   await expect(page.getByText(new RegExp(`av ${TOTALT_KORT} samlet`))).toBeVisible();
   // Uten samlede kort skal låste «???»-kort vises.

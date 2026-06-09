@@ -46,6 +46,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   const [versjon, setVersjon] = useState(0); // tving re-les etter pant
   // Bug 5: klikk på et låst kort viser hint-popup.
   const [valgtLaast, setValgtLaast] = useState<VisKort | null>(null);
+  // Trykk på et eid kort åpner en detalj-popup (stort kort, sjeldenhet, antall).
   const [valgtEid, setValgtEid] = useState<VisKort | null>(null);
 
   const { kort, stats } = useMemo(() => {
@@ -240,6 +241,11 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
               <div style={{ fontSize: 12, fontWeight: 600, color: eid ? cfg.farge : 'var(--color-text-muted)' }}>
                 {cfg.tekst}
               </div>
+              {!visAlle && k.antall >= 3 && (
+                <button type="button" onClick={(e) => { e.stopPropagation(); pant(k.id); }} style={pantKnapp}>
+                  <Recycle size={14} aria-hidden="true" /> Pant 2 → nytt kort
+                </button>
+              )}
             </div>
           );
         })}
@@ -339,6 +345,34 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 </button>
               )}
               <button type="button" onClick={() => setValgtLaast(null)} style={chip}>
+                Lukk
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detalj-popup for et eid kort: stort kort, sjeldenhet, antall, ev. pant. */}
+      {valgtEid && (
+        <div style={laastOverlay} role="dialog" aria-modal="true" aria-label={valgtEid.navn} onClick={() => setValgtEid(null)}>
+          <div style={{ ...laastPopup, borderColor: RARITY_CONFIG[valgtEid.rarity].farge }} onClick={(e) => e.stopPropagation()}>
+            <img src={valgtEid.bilde} alt={valgtEid.navn} style={{ width: 200, height: 200, objectFit: 'contain' }} />
+            <div style={{ fontWeight: 800, fontSize: 20 }}>{valgtEid.navn}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: RARITY_CONFIG[valgtEid.rarity].farge }}>
+              {RARITY_CONFIG[valgtEid.rarity].tekst}
+            </div>
+            {valgtEid.antall > 1 && (
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)' }}>
+                Du har {valgtEid.antall} av dette kortet
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
+              {!visAlle && valgtEid.antall >= 3 && (
+                <button type="button" onClick={() => { pant(valgtEid.id); setValgtEid(null); }} style={primaerKnapp}>
+                  <Recycle size={16} aria-hidden="true" /> Pant 2 → nytt kort
+                </button>
+              )}
+              <button type="button" onClick={() => setValgtEid(null)} style={chip}>
                 Lukk
               </button>
             </div>
