@@ -5,7 +5,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Copy, Link as LinkIcon, Pencil, Trash2, Users, CheckCircle2, Circle } from 'lucide-react';
+import { Copy, Link as LinkIcon, Pencil, Trash2, Users, CheckCircle2, Circle, Download } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
@@ -40,6 +40,44 @@ export function TeacherTestDetails() {
     } catch {
       toast.error('Kunne ikke kopiere.');
     }
+  }
+
+  function eksporterCSV() {
+    if (!prove) return;
+
+    const gjortUider = new Set(prove.resultater.map((r) => r.elev_id).filter(Boolean));
+
+    // Bygg rader: alle innleveringer + roster-elever som ikke har svart
+    const rader: string[][] = [];
+    const kolonner = ['Elevnavn', 'Prosent', 'Poengsum', 'Maks poeng', 'Status', 'Tidspunkt'];
+    rader.push(kolonner);
+
+    prove.resultater
+      .slice()
+      .sort((a, b) => a.elevNavn.localeCompare(b.elevNavn))
+      .forEach((r) => {
+        const dato = r.tidspunkt ? new Date(r.tidspunkt).toLocaleString('no-NO') : '';
+        rader.push([r.elevNavn, String(r.prosent), String(r.poengsum), String(r.maksPoeng), 'Gjennomført', dato]);
+      });
+
+    roster
+      .filter((e) => !gjortUider.has(e.uid))
+      .sort((a, b) => a.navn.localeCompare(b.navn))
+      .forEach((e) => {
+        rader.push([e.navn, '', '', '', 'Ikke gjennomført', '']);
+      });
+
+    const csvInnhold = rader
+      .map((rad) => rad.map((felt) => `"${felt.replace(/"/g, '""')}"`).join(';'))
+      .join('\n');
+
+    const blob = new Blob(['﻿' + csvInnhold, ''], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(prove.tittel ?? 'prove').replace(/[^a-zA-Z0-9æøåÆØÅ]/g, '_')}_resultater.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function slett() {
@@ -119,6 +157,9 @@ export function TeacherTestDetails() {
       {/* Handlinger */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         <button type="button" onClick={() => navigate(TEACHER_ROUTES.editTest(prove.id))} style={primaerKnapp}><Pencil size={16} aria-hidden="true" /> Rediger</button>
+        {prove.resultater.length > 0 && (
+          <button type="button" onClick={eksporterCSV} style={sekundaerKnapp}><Download size={16} aria-hidden="true" /> Eksporter CSV</button>
+        )}
         <button type="button" onClick={slett} disabled={sletter} style={slettKnapp}><Trash2 size={16} color="var(--color-error)" aria-hidden="true" /> Slett</button>
       </div>
 
