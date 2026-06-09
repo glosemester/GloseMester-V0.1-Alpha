@@ -12,6 +12,7 @@ import { TabBar, TAB_BAR_HOYDE } from './TabBar';
 import { PageTransition } from './PageTransition';
 import { useTradeStore } from '../state/useTradeStore';
 import { useUiStore } from '../state/useUiStore';
+import { useAuthStore } from '../state/useAuthStore';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
@@ -72,10 +73,17 @@ function TradeDeepLink() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const pendingKode = useTradeStore((s) => s.pendingTradeCode);
+  const firebaseUser = useAuthStore((s) => s.firebaseUser);
+  const laster = useAuthStore((s) => s.laster);
 
   useEffect(() => {
-    if (pendingKode && pathname !== ROUTES.TRADE) navigate(ROUTES.TRADE);
-  }, [pendingKode, pathname, navigate]);
+    if (!pendingKode || laster) return;
+    // Utlogget: la ProtectedRoute sende dem til innlogging — koden ligger trygt i
+    // sessionStorage og plukkes opp her når firebaseUser er satt (også etter en
+    // full Feide-redirect). Hindrer samtidig en LANDING↔TRADE-redirectloop.
+    if (!firebaseUser) return;
+    if (pathname !== ROUTES.TRADE) navigate(ROUTES.TRADE);
+  }, [pendingKode, pathname, firebaseUser, laster, navigate]);
 
   return null;
 }

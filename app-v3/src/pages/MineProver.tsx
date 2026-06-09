@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, CheckCircle2, Circle, Rocket, Users } from 'lucide-react';
+import { FileText, CheckCircle2, Circle, Rocket, Users, Clock } from 'lucide-react';
 import { hentProverForGrupper, type Prove } from '../lib/data/prover';
 import { hentGjennomforteProveIder } from '../lib/data/resultater';
 import { useAuthStore } from '../state/useAuthStore';
@@ -88,7 +88,7 @@ export function MineProver() {
               <div key={p.id} style={kort}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 800, fontSize: 16 }}>{p.tittel ?? 'Prøve'}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 13, marginTop: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', color: 'var(--color-text-muted)', fontSize: 13, marginTop: 2 }}>
                     {(p.tildeltGruppeNavn ?? []).length > 0 && (
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                         <Users size={14} aria-hidden="true" /> {(p.tildeltGruppeNavn ?? []).join(', ')}
@@ -97,6 +97,11 @@ export function MineProver() {
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: gjort ? 'var(--color-success)' : 'var(--color-text-muted)', fontWeight: 700 }}>
                       {gjort ? <><CheckCircle2 size={14} aria-hidden="true" /> Gjennomført</> : <><Circle size={14} aria-hidden="true" /> Ikke gjennomført</>}
                     </span>
+                    {p.utloperDato ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={14} aria-hidden="true" /> Frist {new Date(p.utloperDato).toLocaleDateString('no-NO', { day: 'numeric', month: 'short' })}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <button

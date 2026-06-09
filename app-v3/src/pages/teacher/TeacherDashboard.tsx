@@ -5,7 +5,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, FileText } from 'lucide-react';
+import { Sparkles, FileText, Users } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
 import { SkeletonKort } from '../../components/Skeleton';
@@ -17,6 +17,7 @@ export function TeacherDashboard() {
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const { prover, laster, totaltGjennomforinger, totaltSnitt } = useLaererProver(firebaseUser?.uid);
   const [sok, setSok] = useState('');
+  const klasser = bruker?.feide_grupper ?? [];
 
   const filtrert = useMemo(
     () => prover.filter((p) => (p.tittel ?? '').toLowerCase().includes(sok.toLowerCase())),
@@ -42,6 +43,23 @@ export function TeacherDashboard() {
         <StatKort tall={prover.length} etikett="Prøver" />
         <StatKort tall={totaltGjennomforinger} etikett="Gjennomføringer" />
         <StatKort tall={`${totaltSnitt}%`} etikett="Snitt" />
+      </div>
+
+      {/* Dine Feide-klasser — bekrefter at klassene ble fanget ved innlogging,
+          og er gruppene du kan tildele prøver til. */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Users size={15} aria-hidden="true" /> Dine klasser
+        </div>
+        {klasser.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {klasser.map((k) => <span key={k.id} style={klassePille}>{k.navn}</span>)}
+          </div>
+        ) : (
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
+            Ingen Feide-klasser funnet. Logg inn med Feide for å hente klassene dine og tildele prøver til dem.
+          </p>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
@@ -75,6 +93,11 @@ export function TeacherDashboard() {
                 <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
                   {(p.ordliste?.length ?? 0)} ord · kode {p.kode} · {p.resultater.length} gjennomføringer
                 </div>
+                {(p.tildeltGruppeNavn ?? []).length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: 'var(--color-primary)', fontWeight: 700, marginTop: 6 }}>
+                    <Users size={13} aria-hidden="true" /> {(p.tildeltGruppeNavn ?? []).join(', ')}
+                  </div>
+                )}
               </div>
               <span style={{ color: 'var(--color-text-muted)' }}>→</span>
             </button>
@@ -121,4 +144,9 @@ const proveKort: React.CSSProperties = {
   background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-lg)', padding: '16px 18px', cursor: 'pointer',
   textAlign: 'left', fontFamily: 'var(--font-primary)', boxShadow: 'var(--shadow-card)',
+};
+const klassePille: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center',
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+  borderRadius: 'var(--radius-full)', padding: '4px 14px', fontSize: 13, fontWeight: 700,
 };
