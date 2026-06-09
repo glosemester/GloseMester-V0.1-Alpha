@@ -42,7 +42,8 @@ export function TeacherCreateTest() {
   const [lagrer, setLagrer] = useState(false);
 
   // D: tildel prøven til en eller flere av lærerens Feide-klasser.
-  const grupper = bruker?.feide_grupper ?? [];
+  // fc:org = skole/kommune-nivå (ikke relevant her) — vis kun fc:gogroup (klasser).
+  const grupper = (bruker?.feide_grupper ?? []).filter((g) => g.type === 'fc:gogroup');
   const [valgteGrupper, setValgteGrupper] = useState<string[]>(eksisterende?.tildeltGrupper ?? []);
   function veksleGruppe(id: string) {
     setValgteGrupper((v) => (v.includes(id) ? v.filter((g) => g !== id) : [...v, id]));

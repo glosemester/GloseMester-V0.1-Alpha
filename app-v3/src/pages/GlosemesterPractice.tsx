@@ -227,7 +227,8 @@ export function GlosemesterPractice() {
     setVunnetKort(null);
   }, [vunnetKort]);
 
-  const progresjon = rundeLengde > 0 ? Math.round((besvart / rundeLengde) * 100) : 0;
+  // +1 fordi telleren viser nåværende spørsmål (besvart+1/total), ikke antall ferdig.
+  const progresjon = rundeLengde > 0 ? Math.round(((besvart + 1) / rundeLengde) * 100) : 0;
 
   if (!gyldigNiva) {
     return (
