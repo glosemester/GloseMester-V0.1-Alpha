@@ -5,9 +5,10 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Trophy, Rocket, Lock, Recycle } from 'lucide-react';
+import { Layers, Trophy, Rocket, Lock, Recycle, X } from 'lucide-react';
 import { hentSamling, samlingStats, panteKort } from '../features/kort/kortSamling';
 import { getKortById, kortData, RARITY_CONFIG, type Rarity } from '../features/kort/kortData';
+import type { Kort } from '../lib/storage';
 import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
 
@@ -20,40 +21,53 @@ interface VisKort {
   navn: string;
   bilde: string;
   rarity: Rarity;
+  category: string;
   antall: number; // 0 = ikke samlet (kun relevant i galleri-visning)
+  forstVunnet?: string; // ISO-dato fra samlingen
 }
 
 export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   const navigate = useNavigate();
   const [sortering, setSortering] = useState<Sortering>('nyeste');
   const [versjon, setVersjon] = useState(0); // tving re-les etter pant
-  // Bug 5: klikk på et låst kort åpnet ingenting. Vis en hint-popup i stedet.
+  // Bug 5: klikk på et låst kort viser hint-popup.
   const [valgtLaast, setValgtLaast] = useState<VisKort | null>(null);
+  const [valgtEid, setValgtEid] = useState<VisKort | null>(null);
 
   const { kort, stats } = useMemo(() => {
     const samling = hentSamling();
     const stats = samlingStats();
 
-    // Antall per kort-id i samlingen.
+    // Antall og første vunnede dato per kort-id.
     const antallPer = new Map<string, number>();
-    samling.forEach((k) => antallPer.set(String(k.id), (antallPer.get(String(k.id)) ?? 0) + 1));
+    const forstVunnetPer = new Map<string, string>();
+    samling.forEach((k: Kort) => {
+      const sid = String(k.id);
+      antallPer.set(sid, (antallPer.get(sid) ?? 0) + 1);
+      if (k.vunnetDato && !forstVunnetPer.has(sid)) forstVunnetPer.set(sid, k.vunnetDato);
+    });
 
     let kort: VisKort[];
     if (visAlle) {
       // Hele katalogen; eide markeres med antall, resten antall=0 (grået ut).
       kort = kortData.map((def) => ({
         id: def.id, navn: def.name, bilde: def.image, rarity: def.rarity,
-        antall: antallPer.get(def.id) ?? 0,
+        category: def.category, antall: antallPer.get(def.id) ?? 0,
+        forstVunnet: forstVunnetPer.get(def.id),
       }));
     } else {
       // Kun eide kort, i innsamlingsrekkefølge (siste vunnet sist).
       const sett = new Set<string>();
       kort = [];
-      samling.forEach((k) => {
+      samling.forEach((k: Kort) => {
         const def = getKortById(String(k.id));
         if (!def || sett.has(def.id)) return;
         sett.add(def.id);
-        kort.push({ id: def.id, navn: def.name, bilde: def.image, rarity: def.rarity, antall: antallPer.get(def.id) ?? 1 });
+        kort.push({
+          id: def.id, navn: def.name, bilde: def.image, rarity: def.rarity,
+          category: def.category, antall: antallPer.get(def.id) ?? 1,
+          forstVunnet: forstVunnetPer.get(def.id),
+        });
       });
     }
 
@@ -84,6 +98,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
     if (nytt) {
       toast.success(`Pantet! Du fikk ${nytt.name} (${RARITY_CONFIG[nytt.rarity].tekst})`);
       setVersjon((v) => v + 1);
+      setValgtEid(null);
     }
   }
 
@@ -158,11 +173,11 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
           return (
             <div
               key={k.id}
-              onClick={!eid ? () => setValgtLaast(k) : undefined}
-              onKeyDown={!eid ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setValgtLaast(k); } } : undefined}
-              role={!eid ? 'button' : undefined}
-              tabIndex={!eid ? 0 : undefined}
-              aria-label={!eid ? `Låst kort, ${cfg.tekst}. Trykk for å se hvordan du låser det opp.` : undefined}
+              onClick={eid ? () => setValgtEid(k) : () => setValgtLaast(k)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); eid ? setValgtEid(k) : setValgtLaast(k); } }}
+              role="button"
+              tabIndex={0}
+              aria-label={eid ? `${k.navn}, ${cfg.tekst}. Trykk for detaljer.` : `Låst kort, ${cfg.tekst}. Trykk for å se hvordan du låser det opp.`}
               style={{
                 background: 'var(--color-surface)',
                 border: `2px solid ${eid ? cfg.farge : 'var(--color-border)'}`,
@@ -174,7 +189,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 flexDirection: 'column',
                 gap: 8,
                 opacity: eid ? 1 : 0.55,
-                cursor: eid ? 'default' : 'pointer',
+                cursor: 'pointer',
               }}
             >
               <div style={{ position: 'relative' }}>
@@ -200,15 +215,57 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
               <div style={{ fontSize: 12, fontWeight: 600, color: eid ? cfg.farge : 'var(--color-text-muted)' }}>
                 {cfg.tekst}
               </div>
-              {!visAlle && k.antall >= 3 && (
-                <button type="button" onClick={() => pant(k.id)} style={pantKnapp}>
-                  <Recycle size={14} aria-hidden="true" /> Pant 2 → nytt kort
-                </button>
-              )}
             </div>
           );
         })}
       </div>
+
+      {/* Detalj-popup for eide kort */}
+      {valgtEid && (() => {
+        const cfg = RARITY_CONFIG[valgtEid.rarity];
+        const dato = valgtEid.forstVunnet
+          ? new Date(valgtEid.forstVunnet).toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+          : null;
+        const kategoriNavn: Record<string, string> = { biler: 'Biler', dinosaurer: 'Dinosaurer', dyr: 'Dyr', guder: 'Guder' };
+        return (
+          <div style={laastOverlay} role="dialog" aria-modal="true" aria-label={`Detaljer for ${valgtEid.navn}`} onClick={() => setValgtEid(null)}>
+            <div style={{ ...laastPopup, maxWidth: 340 }} onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setValgtEid(null)}
+                style={{ position: 'absolute', top: 14, right: 14, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', padding: 4 }}
+                aria-label="Lukk"
+              >
+                <X size={20} />
+              </button>
+              <img
+                src={valgtEid.bilde}
+                alt={valgtEid.navn}
+                style={{ width: 160, height: 160, objectFit: 'contain' }}
+              />
+              <div style={{ fontWeight: 900, fontSize: 20, color: 'var(--color-text)' }}>{valgtEid.navn}</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: cfg.farge, background: `${cfg.farge}18`, borderRadius: 999, padding: '3px 12px' }}>
+                  {cfg.tekst}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', background: 'var(--color-border)', borderRadius: 999, padding: '3px 12px' }}>
+                  {kategoriNavn[valgtEid.category] ?? valgtEid.category}
+                </span>
+              </div>
+              <div style={{ fontSize: 14, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                {valgtEid.antall > 1 ? `Du har ${valgtEid.antall} kopier` : 'Du har 1 kopi'}
+                {dato && <><br />Første gang vunnet: {dato}</>}
+              </div>
+              {!visAlle && valgtEid.antall >= 3 && (
+                <button type="button" onClick={() => pant(valgtEid.id)} style={{ ...pantKnapp, padding: '10px 18px', fontSize: 14, width: '100%', justifyContent: 'center' }}>
+                  <Recycle size={16} aria-hidden="true" /> Pant 2 kopier → nytt tilfeldig kort
+                </button>
+              )}
+              <button type="button" onClick={() => setValgtEid(null)} style={{ ...chip, width: '100%', justifyContent: 'center' }}>Lukk</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Bug 5: klikk på et låst kort viser hint (sjeldenhet + hvisket navn) og
           hva som skal til for å låse det opp — i stedet for ingen respons. */}
@@ -276,6 +333,7 @@ const laastOverlay: React.CSSProperties = {
   padding: 20, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };
 const laastPopup: React.CSSProperties = {
+  position: 'relative',
   background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
   border: '3px solid var(--color-border)', padding: '28px 32px', cursor: 'default',
   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
