@@ -9,7 +9,7 @@
  */
 import { getKortProgresjon, saveKortProgresjon } from '../../lib/storage';
 import { calculateRarity, getRandomKort } from './kortReward';
-import type { KortDef } from './kortData';
+import type { Category, KortDef } from './kortData';
 
 type Rng = () => number;
 
@@ -31,13 +31,14 @@ export function registrerRiktigeMotKort(
   antallRiktige: number,
   niva: number | string | null = null,
   rng: Rng = Math.random,
+  tilgjengeligeKategorier?: readonly Category[],
 ): { kort: KortDef[]; rest: number } {
   let total = lesKortProgresjon() + Math.max(0, Math.floor(antallRiktige));
   const kort: KortDef[] = [];
   while (total >= KORT_PER_RIKTIGE) {
     total -= KORT_PER_RIKTIGE;
     // calculateRarity(100) gir samme sjeldenhetsodds som da et fullt øve-sett ga kort.
-    kort.push(getRandomKort(calculateRarity(100, rng), niva, rng));
+    kort.push(getRandomKort(calculateRarity(100, rng), niva, rng, tilgjengeligeKategorier));
   }
   saveKortProgresjon(total, 'gloser');
   return { kort, rest: total };

@@ -28,24 +28,32 @@ export function calculateRarity(percentage: number, rng: Rng = Math.random): Rar
   return 'common';
 }
 
-/** Kategorier tilgjengelig for et nivå — guder kun på nivå 3–4 (jf. v2). */
-export function getCategoriesForLevel(niva: number | string): Category[] {
+/** Kategorier tilgjengelig for et nivå + tilgangsnivå. */
+export function getCategoriesForLevel(
+  niva: number | string,
+  tilgjengeligeKategorier?: readonly Category[],
+): Category[] {
   const level = typeof niva === 'string' ? parseInt(niva.replace('niva', ''), 10) : niva;
-  const alle: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder'];
-  if (level === 1 || level === 2) return alle.filter((c) => c !== 'guder');
-  return alle;
+  const base: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder'];
+  // Filter by Feide access first, then apply level rules (guder only niva 3–4).
+  const allowed = tilgjengeligeKategorier ? base.filter((c) => tilgjengeligeKategorier.includes(c)) : base;
+  if (level === 1 || level === 2) return allowed.filter((c) => c !== 'guder');
+  return allowed;
 }
 
-/** Trekker et tilfeldig kort av ønsket sjeldenhet, evt. nivåfiltrert. */
+/** Trekker et tilfeldig kort av ønsket sjeldenhet, evt. nivå- og tilgangsfiltrert. */
 export function getRandomKort(
   rarity: Rarity,
   niva: number | string | null = null,
   rng: Rng = Math.random,
+  tilgjengeligeKategorier?: readonly Category[],
 ): KortDef {
   let pool = kortData.filter((k) => k.fag === 'gloser');
   if (niva) {
-    const kategorier = getCategoriesForLevel(niva);
+    const kategorier = getCategoriesForLevel(niva, tilgjengeligeKategorier);
     pool = pool.filter((k) => kategorier.includes(k.category));
+  } else if (tilgjengeligeKategorier) {
+    pool = pool.filter((k) => tilgjengeligeKategorier.includes(k.category));
   }
   let mulige = pool.filter((k) => k.rarity === rarity);
   if (mulige.length === 0) mulige = pool;
@@ -60,9 +68,10 @@ export function checkWinCondition(
   totalQuestions: number,
   niva: number | string | null = null,
   rng: Rng = Math.random,
+  tilgjengeligeKategorier?: readonly Category[],
 ): KortDef | null {
   if (totalQuestions <= 0) return null;
   const percentage = Math.round((correctCount / totalQuestions) * 100);
   if (percentage < 80) return null;
-  return getRandomKort(calculateRarity(percentage, rng), niva, rng);
+  return getRandomKort(calculateRarity(percentage, rng), niva, rng, tilgjengeligeKategorier);
 }

@@ -27,7 +27,7 @@ import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
-import { harSkolelisens } from '../lib/tilgang';
+import { harSkolelisens, harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
 
 type Fase = 'kode' | 'valg' | 'modus' | 'navn' | 'quiz' | 'resultat';
@@ -353,7 +353,8 @@ export function Quiz() {
     // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
     // som øvemodus — ikke et engangskort. Gjelder også gjester (samlingen
     // lagres i 'gjest'-namespace).
-    const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null);
+    const tilgjengeligeKategorier = harAlleKortpakker(bruker) ? ALLE_KORTPAKKER : GRATIS_KORTPAKKER;
+    const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null, Math.random, tilgjengeligeKategorier);
     if (kort.length > 0) {
       void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
       kort.forEach((k) => leggTilKort(k));
