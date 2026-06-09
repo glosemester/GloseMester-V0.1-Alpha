@@ -53,6 +53,7 @@ export async function hentGjennomforteProveIder(elevUid: string): Promise<Set<st
 
 export interface ProveResultat {
   prove_id: string;
+  elev_id: string;
   elevNavn: string;
   prosent: number;
   poengsum: number;
@@ -75,6 +76,7 @@ export async function hentResultaterForProver(proveIds: string[]): Promise<Prove
         const r = d.data();
         resultater.push({
           prove_id: r.prove_id,
+          elev_id: r.elev_id ?? '',
           elevNavn: r.elevNavn || 'Anonym',
           prosent: r.prosent ?? 0,
           poengsum: r.poengsum ?? 0,

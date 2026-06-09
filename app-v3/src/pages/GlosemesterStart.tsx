@@ -77,18 +77,7 @@ export function GlosemesterStart() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)' }}>{meta.name}</h3>
-                <span
-                  style={{
-                    flexShrink: 0,
-                    background: 'var(--color-primary-light)',
-                    color: 'var(--color-primary)',
-                    borderRadius: 999,
-                    padding: '4px 12px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <span style={{ flexShrink: 0, background: 'var(--color-primary-light)', color: 'var(--color-primary)', borderRadius: 999, padding: '4px 12px', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
                   {meta.description}
                 </span>
               </div>
@@ -99,17 +88,7 @@ export function GlosemesterStart() {
               <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden', marginBottom: 20 }} aria-label={`Fremgang: ${pct} prosent`}>
                 <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
               </div>
-              <span
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  background: 'var(--color-primary)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '14px 20px',
-                  fontWeight: 700,
-                }}
-              >
+              <span style={{ display: 'block', textAlign: 'center', background: 'var(--color-primary)', color: '#fff', borderRadius: 'var(--radius-full)', padding: '14px 20px', fontWeight: 700 }}>
                 Start øving
               </span>
             </button>

@@ -27,26 +27,26 @@ textarea,
   user-select: text;
 }
 
-/* #10 Ingen rubber-band / pull-to-refresh på dokumentet.
-   Vi låser overscroll i stedet for `position: fixed` på body — sistnevnte
-   ville brutt normal dokument-scroll og scrollIntoView i denne SPA-en. */
+/* #10 html og body er IKKE scroll-containere — all scroll skjer i .gm-scroll-root
+   (Layout-divet). Dette løser at Chrome sin wheel-event-dispatch er upålitelig
+   når html er scroll-container i SPA-er: drag på scrollbar virket, men hjul ikke. */
 html {
+  height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
-  overflow-x: hidden;
-  /* #10b Defensiv scroll-sikring: garanter vertikal scroll selv om en
-     nettleserutvidelse (lese-/skrivestøtte som Lingdys/IntoWords o.l.)
-     injiserer overlays eller setter uventede overflow-regler på dokumentet.
-     html er ENESTE scroll-container for dokumentet. Tidligere hadde også body
-     overflow-y:auto — det gjorde body til en konkurrerende scroll-container som
-     «fanget» musehjulet, mens overscroll-behavior:contain på body hindret at
-     hjul-scrollen kjedet videre til html (der overflowet faktisk skjer). Da
-     virket bare drag i scrollbaren, ikke musehjulet. Én scroll-container fikser. */
-  overflow-y: auto;
 }
 body {
+  height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
+}
+
+/* Hoved-scroll-container for hele appen. Brukes på Layout-divet. */
+.gm-scroll-root {
+  height: 100%;
+  overflow-y: auto;
   overflow-x: hidden;
-  min-height: 100dvh;
+  overscroll-behavior: none;
 }
 
 /* #8 Momentum-scroll (iOS) + scroll-containment gjelder bevisst KUN indre
@@ -57,49 +57,34 @@ body {
   overscroll-behavior: contain;
 }
 
-/* #9 skjul scrollbar på scroll-flater (gjeninnføres synlig på desktop under) */
-body,
+/* #9 Skjul scrollbar på touch-flater (.gm-scroll-root og .gm-scroll) */
+.gm-scroll-root,
 .gm-scroll {
   scrollbar-width: none; /* Firefox */
 }
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
+.gm-scroll-root::-webkit-scrollbar,
 .gm-scroll::-webkit-scrollbar {
   width: 0;
   height: 0;
-  display: none; /* WebKit/Blink */
-}
-html {
-  scrollbar-width: none;
+  display: none;
 }
 
-/* #9b Desktop (mus/pekeplate): gjeninnfør en slank, SYNLIG scrollbar.
-   Den skjulte scrollbaren over gir app-følelse på touch, men på PC fjernet den
-   scroll-affordansen — uten synlig scrollbar virket sidene «ulåselige».
-   (any-pointer: fine) treffer ENHVER mus/pekeplate — også på touch-skjerm-
-   laptoper, der (pointer: fine) feilaktig var usann (primær peker = touch). */
+/* #9b Desktop: gjeninnfør slank SYNLIG scrollbar på .gm-scroll-root.
+   (any-pointer: fine) treffer mus/pekeplate — også touch-skjerm-laptoper. */
 @media (any-pointer: fine) {
-  html,
-  body {
+  .gm-scroll-root {
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: var(--color-border) transparent;
   }
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar,
-  .gm-scroll::-webkit-scrollbar {
+  .gm-scroll-root::-webkit-scrollbar {
     width: 10px;
-    height: 10px;
-    display: block; /* overstyr display:none over */
+    display: block;
   }
-  html::-webkit-scrollbar-thumb,
-  body::-webkit-scrollbar-thumb,
-  .gm-scroll::-webkit-scrollbar-thumb {
+  .gm-scroll-root::-webkit-scrollbar-thumb {
     background: var(--color-border);
     border-radius: 999px;
   }
-  html::-webkit-scrollbar-track,
-  body::-webkit-scrollbar-track,
-  .gm-scroll::-webkit-scrollbar-track {
+  .gm-scroll-root::-webkit-scrollbar-track {
     background: transparent;
   }
 }

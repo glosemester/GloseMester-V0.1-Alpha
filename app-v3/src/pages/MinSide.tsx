@@ -3,9 +3,9 @@
  * React-port av v2 min-side.html / teacher renderMinSide. Betaling (Stripe)
  * er bevisst utelatt her; «Oppgrader» lenker til prisinfo-siden.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock } from 'lucide-react';
+import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock, CheckCircle2, Circle, Bell, BellOff } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { aktiverKampanjekode } from '../lib/data/kampanje';
@@ -13,13 +13,9 @@ import { eksporterMinData, slettMinKonto } from '../lib/data/gdpr';
 import { hentSamling, samlingStats } from '../features/kort/kortSamling';
 import { getKortById, getTotalKortCount, RARITY_CONFIG } from '../features/kort/kortData';
 import { TokenBalance } from '../components/TokenBalance';
+import { ABONNEMENT_ETIKETT, hentTilgangsliste } from '../lib/tilgang';
+import { pushStøttes, abonnerPåVarsler, avmelding, erAbonnert } from '../lib/push';
 import { ROUTES } from '../routes/paths';
-
-const ABONNEMENT_ETIKETT: Record<string, string> = {
-  free: 'Gratis',
-  premium: 'Premium',
-  skolepakke: 'Skolepakke',
-};
 
 export function MinSide() {
   const navigate = useNavigate();
@@ -29,6 +25,27 @@ export function MinSide() {
   const [kode, setKode] = useState('');
   const [aktiverer, setAktiverer] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [abonnert, setAbonnert] = useState(false);
+
+  useEffect(() => {
+    void erAbonnert().then(setAbonnert);
+  }, []);
+
+  async function toggleVarsler() {
+    if (!firebaseUser?.uid) return;
+    setBusy(true);
+    if (abonnert) {
+      await avmelding(firebaseUser.uid);
+      setAbonnert(false);
+      toast.success('Varsler slått av.');
+    } else {
+      const ok = await abonnerPåVarsler(firebaseUser.uid);
+      setAbonnert(ok);
+      if (ok) toast.success('Varsler slått på — du får melding når læreren tildeler en prøve.');
+      else toast.error('Kunne ikke slå på varsler. Sjekk at nettleseren tillater varsler.');
+    }
+    setBusy(false);
+  }
 
   const abonnement = bruker?.abonnement?.type ?? 'free';
 
@@ -159,13 +176,31 @@ export function MinSide() {
 
       {/* Abonnement */}
       <Kort tittel={<><Package size={20} color="var(--color-primary)" aria-hidden="true" /> Ditt abonnement</>}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
           <span style={badge}>{ABONNEMENT_ETIKETT[abonnement] ?? abonnement}</span>
           {abonnement === 'free' && (
             <button type="button" onClick={() => navigate('/oppgrader')} style={primaerKnapp}>
-              Se Premium
+              Oppgrader
             </button>
           )}
+        </div>
+        {/* Tilgangsoversikt — viser hva brukeren faktisk har tilgang til */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {hentTilgangsliste(bruker, !!firebaseUser).map((t) => (
+            <div key={t.tekst} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14 }}>
+              {t.tilgjengelig
+                ? <CheckCircle2 size={16} color="var(--color-success)" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
+                : <Circle size={16} color="var(--color-text-muted)" style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true" />}
+              <div>
+                <span style={{ color: t.tilgjengelig ? 'var(--color-text)' : 'var(--color-text-muted)', fontWeight: t.tilgjengelig ? 600 : 400 }}>
+                  {t.tekst}
+                </span>
+                {!t.tilgjengelig && t.forklaring && (
+                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)', display: 'block' }}>{t.forklaring}</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </Kort>
 
@@ -193,6 +228,20 @@ export function MinSide() {
         <Rad etikett="Rolle" verdi={bruker?.rolle ?? '–'} />
         <Rad etikett="Bruker-ID" verdi={firebaseUser?.uid ?? '–'} />
       </Kort>
+
+      {/* Varsler */}
+      {pushStøttes() && (
+        <Kort tittel={<><Bell size={20} color="var(--color-primary)" aria-hidden="true" /> Varsler</>}>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 14, marginBottom: 12 }}>
+            Få varsel på denne enheten når læreren tildeler klassen din en ny prøve.
+          </p>
+          <button type="button" onClick={toggleVarsler} disabled={busy} style={abonnert ? fareKnapp : sekundaerKnapp}>
+            {abonnert
+              ? <><BellOff size={18} aria-hidden="true" /> Slå av varsler</>
+              : <><Bell size={18} aria-hidden="true" /> Slå på varsler</>}
+          </button>
+        </Kort>
+      )}
 
       {/* GDPR */}
       <Kort tittel={<><ShieldCheck size={20} color="var(--color-primary)" aria-hidden="true" /> Personvern & dine rettigheter</>}>

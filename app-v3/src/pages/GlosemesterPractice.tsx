@@ -42,6 +42,7 @@ import { lesStreak, settStreak } from '../lib/streak';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
+import { harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
 import { useUiStore } from '../state/useUiStore';
 import { useTradeStore } from '../state/useTradeStore';
 import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
@@ -77,6 +78,8 @@ export function GlosemesterPractice() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
+  const bruker = useAuthStore((s) => s.bruker);
+  const tilgjengeligeKategorier = harAlleKortpakker(bruker) ? ALLE_KORTPAKKER : GRATIS_KORTPAKKER;
   const setBunnmenySkjult = useUiStore((s) => s.setBunnmenySkjult);
   const oppdaterSjetonger = useTradeStore((s) => s.oppdaterSjetonger);
   // Bug 2: høyttaler-knappen skjules der talesyntese mangler (ellers «død» knapp).
@@ -199,7 +202,7 @@ export function GlosemesterPractice() {
         // 10. riktige svar gir et kort; kortet legges IKKE til automatisk —
         // eleven bekrefter via popup-knappen.
         {
-          const { kort, rest } = registrerRiktigeMotKort(1, level);
+          const { kort, rest } = registrerRiktigeMotKort(1, level, Math.random, tilgjengeligeKategorier);
           setKortProgresjon(rest);
           if (kort.length > 0) {
             void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
@@ -227,7 +230,8 @@ export function GlosemesterPractice() {
     setVunnetKort(null);
   }, [vunnetKort]);
 
-  const progresjon = rundeLengde > 0 ? Math.round((besvart / rundeLengde) * 100) : 0;
+  // +1 fordi telleren viser nåværende spørsmål (besvart+1/total), ikke antall ferdig.
+  const progresjon = rundeLengde > 0 ? Math.round(((besvart + 1) / rundeLengde) * 100) : 0;
 
   if (!gyldigNiva) {
     return (

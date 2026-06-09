@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
-import { Gamepad2, Brain, Smartphone, type LucideIcon } from 'lucide-react';
+import { Gamepad2, Brain, Smartphone, Lock, CheckCircle2, type LucideIcon } from 'lucide-react';
 import { Button } from '../components/Button';
 import { startFeideLogin, loggInnMedGoogle } from '../lib/auth';
 import { taVentendeProve } from '../lib/provePending';
@@ -13,9 +13,23 @@ import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
 
 const FUNKSJONER: { Ikon: LucideIcon; tittel: string; tekst: string }[] = [
-  { Ikon: Gamepad2, tittel: 'Motiverende øving', tekst: 'Samle kort og klatre i nivåene mens du lærer.' },
+  { Ikon: Gamepad2, tittel: 'Motiverende øving', tekst: 'Samle samlekort og klatre i nivåene mens du lærer.' },
   { Ikon: Brain, tittel: 'Smart repetisjon', tekst: 'Du øver mest på det du strever med, så det sitter raskere.' },
   { Ikon: Smartphone, tittel: 'Prøver med QR', tekst: 'Lærere lager prøver på to minutter og deler med ett klikk.' },
+];
+
+interface TilgangRad {
+  tekst: string;
+  gratis: boolean;
+  feide: boolean;
+}
+
+const TILGANG_RADER: TilgangRad[] = [
+  { tekst: 'Øving — alle 4 nivåer', gratis: true, feide: true },
+  { tekst: 'Kortpakker: Biler & Dinosaurer', gratis: true, feide: true },
+  { tekst: 'Kortpakker: Dyr & Guder', gratis: false, feide: true },
+  { tekst: 'Bytte av kort med andre', gratis: false, feide: true },
+  { tekst: 'Mine prøver (tildelt av lærer)', gratis: false, feide: true },
 ];
 
 export function Landing() {
@@ -103,6 +117,38 @@ export function Landing() {
         ))}
       </section>
 
+      {/* Tilgangsoversikt */}
+      <section style={{ maxWidth: 640, margin: '0 auto', padding: '0 20px 56px' }}>
+        <h2 style={{ fontWeight: 900, fontSize: 'clamp(20px, 4vw, 26px)', textAlign: 'center', marginBottom: 20 }}>Hva er gratis?</h2>
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 0 }}>
+            {/* Kolonneoverskrifter */}
+            <div style={th} />
+            <div style={{ ...th, textAlign: 'center', color: 'var(--color-text-muted)', fontWeight: 800, fontSize: 13 }}>Uten innlogging</div>
+            <div style={{ ...th, textAlign: 'center', color: 'var(--color-primary)', fontWeight: 800, fontSize: 13 }}>Med Feide</div>
+            {/* Rader */}
+            {TILGANG_RADER.map((r, i) => (
+              <>
+                <div key={`t${i}`} style={{ ...td, borderTop: '1px solid var(--color-border)', fontWeight: 600, fontSize: 14 }}>{r.tekst}</div>
+                <div key={`g${i}`} style={{ ...tdSenter, borderTop: '1px solid var(--color-border)' }}>
+                  {r.gratis
+                    ? <CheckCircle2 size={18} color="var(--color-success)" aria-label="Ja" />
+                    : <Lock size={16} color="var(--color-text-muted)" aria-label="Nei" />}
+                </div>
+                <div key={`f${i}`} style={{ ...tdSenter, borderTop: '1px solid var(--color-border)' }}>
+                  {r.feide
+                    ? <CheckCircle2 size={18} color="var(--color-success)" aria-label="Ja" />
+                    : <Lock size={16} color="var(--color-text-muted)" aria-label="Nei" />}
+                </div>
+              </>
+            ))}
+          </div>
+        </div>
+        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--color-text-muted)', marginTop: 12 }}>
+          Feide er skolens innloggingssystem — gratis for alle elever og lærere.
+        </p>
+      </section>
+
       <footer style={{ borderTop: '1px solid var(--color-border)', padding: '24px 20px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: 14 }}>
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
           <Link to="/om-oss" style={navLenke}>Om oss</Link>
@@ -116,6 +162,9 @@ export function Landing() {
 }
 
 const navLenke: React.CSSProperties = { color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 14, textDecoration: 'none' };
+const th: React.CSSProperties = { padding: '10px 16px', background: 'var(--color-bg)' };
+const td: React.CSSProperties = { padding: '12px 16px', color: 'var(--color-text)' };
+const tdSenter: React.CSSProperties = { ...td, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const gruppe: React.CSSProperties = {
   display: 'flex', flexDirection: 'column', gap: 'var(--space-2)',
   background: 'var(--color-surface)', border: '1px solid var(--color-border)',

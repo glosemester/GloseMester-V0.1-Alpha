@@ -85,6 +85,7 @@ exports.handler = async (event) => {
             kilde: 'feide',
             rolle,
             feide_grupper: grupper,
+            feide_gruppe_ids: grupper.map((g) => g.id),
             ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });

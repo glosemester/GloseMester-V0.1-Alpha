@@ -172,6 +172,16 @@ export async function opprettProve(
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
   });
+
+  // Send push-varsel til elever i tildelte grupper (fire-and-forget).
+  if ((data.tildeltGrupper?.length ?? 0) > 0) {
+    void fetch('/.netlify/functions/send-push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gruppeIds: data.tildeltGrupper, tittel: data.tittel }),
+    }).catch(() => {}); // varselfeil skal ikke blokkere oppretting
+  }
+
   return { id: ref.id, kode };
 }
 

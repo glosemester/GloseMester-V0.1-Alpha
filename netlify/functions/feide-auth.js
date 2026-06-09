@@ -95,6 +95,9 @@ exports.handler = async (event) => {
             kilde: 'feide',
             rolle,
             feide_grupper: grupper,
+            // Flatt id-felt så lærere kan slå opp klasse-roster med
+            // array-contains-any (objekt-array kan ikke spørres direkte).
+            feide_gruppe_ids: grupper.map((g) => g.id),
             ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });

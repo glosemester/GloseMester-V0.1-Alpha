@@ -30,6 +30,9 @@ export const ROUTES = {
   STANDARD_TESTS: '/lærer/standardprover',
   GLOSEBANK: '/lærer/glosebank',
 
+  // Admin
+  ADMIN: '/admin',
+
   // Felles
   PROFILE: '/min-side',
   SETTINGS: '/innstillinger',

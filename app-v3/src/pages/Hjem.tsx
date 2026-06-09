@@ -8,6 +8,7 @@ import { BookOpen, FileText, Layers, User, Target, Flame, ClipboardList, type Lu
 import { useAuthStore } from '../state/useAuthStore';
 import { hentLaererProver } from '../lib/data/prover';
 import { lesStreak } from '../lib/streak';
+import { OnboardingModal } from '../components/OnboardingModal';
 import { ROUTES } from '../routes/paths';
 // «Logg ut» ligger nå i den globale AppHeader (tilgjengelig fra alle sider).
 
@@ -51,6 +52,7 @@ export function Hjem() {
 
   return (
     <div style={{ maxWidth: 920, margin: '0 auto', padding: '32px 20px 56px' }}>
+      <OnboardingModal />
       <header style={{ marginBottom: 32 }}>
         <p style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: 14, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 4 }}>
           Velkommen tilbake
