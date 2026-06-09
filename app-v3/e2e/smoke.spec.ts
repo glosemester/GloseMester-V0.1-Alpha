@@ -102,7 +102,8 @@ test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
   await page.goto('/galleri');
   await expect(page.getByText(/av 152 samlet/)).toBeVisible();
   const kanScrolle = await page.evaluate(() => {
-    const el = document.scrollingElement || document.documentElement;
+    const el = document.querySelector('.gm-scroll-root') as HTMLElement | null;
+    if (!el) return false;
     return el.scrollHeight > el.clientHeight + 50;
   });
   expect(kanScrolle).toBe(true);
@@ -110,7 +111,7 @@ test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
   await page.mouse.move(640, 300);
   await page.mouse.wheel(0, 1000);
   await expect
-    .poll(() => page.evaluate(() => (document.scrollingElement || document.documentElement).scrollTop))
+    .poll(() => page.evaluate(() => (document.querySelector('.gm-scroll-root') as HTMLElement | null)?.scrollTop ?? 0))
     .toBeGreaterThan(0);
 });
 
