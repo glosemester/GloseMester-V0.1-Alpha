@@ -182,6 +182,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                   src={k.bilde}
                   alt={eid ? k.navn : 'Ikke samlet'}
                   loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', filter: eid ? 'none' : 'grayscale(1)' }}
                 />
                 {!eid && (
