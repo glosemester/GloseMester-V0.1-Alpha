@@ -41,7 +41,7 @@ export function TeacherDashboard() {
       {/* Nøkkeltall */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
         <StatKort tall={prover.length} etikett="Prøver" />
-        <StatKort tall={totaltGjennomforinger} etikett="Gjennomføringer" />
+        <StatKort tall={totaltGjennomforinger} etikett="Elever gjennomført" />
         <StatKort tall={`${totaltSnitt}%`} etikett="Snitt" />
       </div>
 
@@ -91,7 +91,7 @@ export function TeacherDashboard() {
               <div>
                 <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{p.tittel ?? 'Uten tittel'}</div>
                 <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
-                  {(p.ordliste?.length ?? 0)} ord · kode {p.kode} · {p.resultater.length} gjennomføringer
+                  {(p.ordliste?.length ?? 0)} ord · kode {p.kode} · {p.grupper.length} har gjennomført
                 </div>
                 {(p.tildeltGruppeNavn ?? []).length > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: 'var(--color-primary)', fontWeight: 700, marginTop: 6 }}>
