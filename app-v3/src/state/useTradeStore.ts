@@ -18,6 +18,28 @@ function refundertKey(tradeId: string, uid: string): string {
   return `mester_trade_refunded_${tradeId}_${uid}`;
 }
 
+// Dyplenke-kode persisteres i sessionStorage så den overlever en full
+// sideomdirigering (Feide-innlogging går via dataporten.no og tilbake — da
+// nullstilles minne-staten). Per fane, ryddes når byttet er svart/avbrutt.
+const PENDING_KODE_KEY = 'mester_pending_bytte';
+
+function lesPendingKode(): string | null {
+  try {
+    return sessionStorage.getItem(PENDING_KODE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function skrivPendingKode(kode: string | null): void {
+  try {
+    if (kode) sessionStorage.setItem(PENDING_KODE_KEY, kode);
+    else sessionStorage.removeItem(PENDING_KODE_KEY);
+  } catch {
+    /* sessionStorage utilgjengelig — degrader til kun minne-state */
+  }
+}
+
 /** Refunder sjetong nøyaktig én gang per handel (markør hindrer dobbel-refund). */
 function refunderEnGang(tradeId: string, uid: string): boolean {
   const key = refundertKey(tradeId, uid);
@@ -45,12 +67,15 @@ interface TradeState {
 export const useTradeStore = create<TradeState>((set, get) => ({
   fremgang: sjetongFremgang(),
   myTrades: [],
-  pendingTradeCode: null,
+  pendingTradeCode: lesPendingKode(),
   laster: false,
 
   oppdaterSjetonger: () => set({ fremgang: sjetongFremgang() }),
 
-  settPendingKode: (kode) => set({ pendingTradeCode: kode }),
+  settPendingKode: (kode) => {
+    skrivPendingKode(kode);
+    set({ pendingTradeCode: kode });
+  },
 
   refreshTrades: async (uid) => {
     set({ laster: true });

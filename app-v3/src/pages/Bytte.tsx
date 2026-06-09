@@ -8,6 +8,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { Repeat, Plus, KeyRound, Copy, Share2, X, Check, Clock, Lock } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../state/useAuthStore';
 import { useTradeStore } from '../state/useTradeStore';
 import { hentSamling } from '../features/kort/kortSamling';
@@ -198,10 +199,18 @@ function LagBytte({ eide, uid, navn, onAvbryt, onFerdig }: {
       <div style={panel}>
         <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 8 }}>Bytte opprettet</h2>
         <p style={{ color: 'var(--color-text-muted)', marginBottom: 16 }}>
-          Del koden eller lenken med en venn. De har 15 minutter på å svare.
+          Del koden, lenken eller QR-koden med en venn. De har 15 minutter på å svare.
         </p>
         <div style={kodeBoks}>{resultat.code}</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 16 }}>
+          <div style={{ background: '#fff', padding: 12, borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+            <QRCodeSVG value={lenke} size={168} aria-label={`QR-kode for byttekode ${resultat.code}`} />
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 10, textAlign: 'center', maxWidth: 320 }}>
+            Vennen skanner koden og kommer rett til byttet — logger inn først hvis de ikke allerede er det.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" onClick={() => { void navigator.clipboard?.writeText(resultat.code); toast.success('Kode kopiert'); }} style={sekundaerKnapp}>
             <Copy size={16} aria-hidden="true" /> Kopier kode
           </button>
