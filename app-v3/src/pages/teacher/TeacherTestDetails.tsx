@@ -26,11 +26,12 @@ export function TeacherTestDetails() {
   const prove = prover.find((p) => p.id === testId);
 
   // Hent klasse-roster når prøven er lastet og har tildelte grupper.
+  const gruppeNokkel = (prove?.tildeltGrupper ?? []).join(',');
   useEffect(() => {
-    const gruppeIds = prove?.tildeltGrupper ?? [];
+    const gruppeIds = gruppeNokkel ? gruppeNokkel.split(',') : [];
     if (!gruppeIds.length) { setRoster([]); return; }
     hentKlasseRoster(gruppeIds).then(setRoster).catch(() => setRoster([]));
-  }, [prove?.tildeltGrupper?.join(',')]);
+  }, [gruppeNokkel]);
   const proveLenke = prove ? `${window.location.origin}${ROUTES.QUIZ}?kode=${prove.kode}` : '';
 
   async function kopier(tekst: string, melding: string) {
