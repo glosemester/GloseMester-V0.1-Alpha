@@ -37,14 +37,17 @@ export function erFeidebruker(bruker: BrukerData | null | undefined): boolean {
   return (bruker?.feide_grupper?.length ?? 0) > 0;
 }
 
-/** Feide-innlogget = har tilgang til alle nivåer. Gjest/Google = kun niva1+niva2. */
-export function harAlleNivaer(bruker: BrukerData | null | undefined): boolean {
+/** Feide-innlogget = har tilgang til alle kortpakker. Gjest/Google = kun de to første. */
+export function harAlleKortpakker(bruker: BrukerData | null | undefined): boolean {
   return (bruker as (BrukerData & { kilde?: string }) | null | undefined)?.kilde === 'feide';
 }
 
-/** Nivåer tilgjengelig for denne brukeren. */
-export const GRATIS_NIVA = ['niva1', 'niva2'] as const;
-export const ALLE_NIVA = ['niva1', 'niva2', 'niva3', 'niva4'] as const;
+/** Kortpakker (kategorier) tilgjengelig uten Feide. */
+export const GRATIS_KORTPAKKER = ['biler', 'dinosaurer'] as const;
+/** Alle kortpakker. */
+export const ALLE_KORTPAKKER = ['biler', 'dinosaurer', 'dyr', 'guder'] as const;
+
+export type Kortpakke = typeof ALLE_KORTPAKKER[number];
 
 /**
  * Hva en bruker har tilgang til, som en lesbar liste.
@@ -66,14 +69,19 @@ export function hentTilgangsliste(
 
   return [
     {
-      tekst: 'Øving — Nivå 1 og 2',
+      tekst: 'Øving — alle nivåer',
       tilgjengelig: true,
-      forklaring: 'Tilgjengelig for alle, også uten innlogging.',
+      forklaring: 'Alle nivåer er gratis — også uten innlogging.',
     },
     {
-      tekst: 'Øving — Nivå 3 og 4',
-      tilgjengelig: harAlleNivaer(bruker),
-      forklaring: harAlleNivaer(bruker) ? undefined : 'Krever innlogging med Feide.',
+      tekst: 'Kortpakker: Biler og Dinosaurer',
+      tilgjengelig: true,
+      forklaring: 'Gratis for alle.',
+    },
+    {
+      tekst: 'Kortpakker: Dyr og Guder',
+      tilgjengelig: harAlleKortpakker(bruker),
+      forklaring: harAlleKortpakker(bruker) ? undefined : 'Krever Feide-innlogging.',
     },
     {
       tekst: 'Samlekort — vinn kort ved riktige svar',
