@@ -61,10 +61,11 @@ service cloud.firestore {
     
     // Prøver - støtter multi-fag (gloser, matte, norsk)
     // Les: Alle kan lese (elever er ikke innlogget, skanner QR-kode)
-    // Skriv: Kun innloggede lærere
+    // Skriv: Kun innloggede lærere (rollesjekk mot users-dokumentet)
     match /prover/{proveId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null &&
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rolle in ['laerer', 'admin'];
       allow update, delete: if request.auth != null &&
                               (resource.data.opprettet_av == request.auth.uid || isAdmin());
     }
@@ -123,10 +124,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Resultater
-    // Alle resultater har nå 'prove_type' felt
+    // Resultater — elevsvar på prøver.
+    // Les: prøveeier (lærer) og eleven selv. Klientspørringene matcher dette:
+    // lærer spør på prove_eier == uid, elev på elev_id == uid.
+    // Opprett: åpen — gjester leverer uten innlogging (QR-flyt og offline-kø).
     match /resultater/{resultatId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null &&
+                     (resource.data.prove_eier == request.auth.uid ||
+                      resource.data.elev_id == request.auth.uid ||
+                      isAdmin());
       allow create: if true;
       allow update, delete: if request.auth != null &&
                               (resource.data.prove_eier == request.auth.uid || isAdmin());
