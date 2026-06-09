@@ -21,6 +21,12 @@ const LEGACY_USER_TOKEN = 'Spiller';
 const GUEST_TOKEN = 'gjest';
 
 let currentToken: string = GUEST_TOKEN;
+let _onProgressChange: (() => void) | null = null;
+
+/** Registreres av progressSync for debounced Firestore-push. */
+export function setProgressChangeCallback(cb: () => void): void {
+  _onProgressChange = cb;
+}
 
 /** Settes av auth-store ved innlogging/utlogging. */
 export function setUserToken(uid: string | null): void {
@@ -84,6 +90,7 @@ export function getSamling(fag = 'gloser'): Kort[] {
 
 export function setSamling(nySamling: Kort[], fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${STORAGE_KEY}_${fag}`), JSON.stringify(nySamling));
+  _onProgressChange?.();
 }
 
 export function lagreBrukerKort(kort: Kort, fag = 'gloser'): void {
@@ -105,6 +112,7 @@ export function getCredits(fag = 'gloser'): number {
 
 export function saveCredits(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${CREDITS_KEY}_${fag}`), String(amount));
+  _onProgressChange?.();
 }
 
 // --- TOTAL XP ---
@@ -116,6 +124,7 @@ export function getTotalCorrect(fag = 'gloser'): number {
 
 export function saveTotalCorrect(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${XP_KEY}_${fag}`), String(amount));
+  _onProgressChange?.();
 }
 
 // --- KORTPROGRESJON (felles teller mot neste kort: øving + prøve) ---
@@ -130,6 +139,7 @@ export function getKortProgresjon(fag = 'gloser'): number {
 
 export function saveKortProgresjon(antall: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${KORTPROGRESJON_KEY}_${fag}`), String(Math.max(0, antall)));
+  _onProgressChange?.();
 }
 
 // --- BYTTESJETONGER (trade tokens) ---
@@ -143,6 +153,7 @@ export function getSpentTokens(): number {
 
 export function saveSpentTokens(amount: number): void {
   localStorage.setItem(getUserKey(SPENT_TOKENS_KEY), String(Math.max(0, amount)));
+  _onProgressChange?.();
 }
 
 // --- ELEV-PRØVER (7-dagers lokal cache) ---
