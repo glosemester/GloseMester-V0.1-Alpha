@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Copy, Link as LinkIcon, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Link as LinkIcon, Pencil, Trash2, Users } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
@@ -62,7 +62,24 @@ export function TeacherTestDetails() {
     <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 20px 48px' }}>
       <button type="button" onClick={() => navigate(TEACHER_ROUTES.MY_TESTS)} style={tilbakeKnapp}>← Mine prøver</button>
       <h1 style={{ fontWeight: 900, fontSize: 'var(--font-size-2xl)', margin: '16px 0 4px' }}>{prove.tittel}</h1>
-      <p style={{ color: 'var(--color-text-muted)', marginBottom: 24 }}>{prove.ordliste?.length ?? 0} ord</p>
+      <p style={{ color: 'var(--color-text-muted)', marginBottom: 12 }}>{prove.ordliste?.length ?? 0} ord</p>
+
+      {/* Tildelt til Feide-klasse(r) — så læreren ser hvem prøven er delt med. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
+        <Users size={16} color="var(--color-text-muted)" aria-hidden="true" />
+        {(prove.tildeltGruppeNavn ?? []).length > 0 ? (
+          <>
+            <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>Tildelt:</span>
+            {(prove.tildeltGruppeNavn ?? []).map((navn) => (
+              <span key={navn} style={gruppePille}>{navn}</span>
+            ))}
+          </>
+        ) : (
+          <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+            Ikke tildelt en klasse — åpen for alle som har koden eller lenken.
+          </span>
+        )}
+      </div>
 
       {/* Kode + QR */}
       <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 24, textAlign: 'center', boxShadow: 'var(--shadow-card)', marginBottom: 24 }}>
@@ -143,4 +160,9 @@ const slettKnapp: React.CSSProperties = {
 const tilbakeKnapp: React.CSSProperties = {
   background: 'transparent', color: 'var(--color-text-muted)', border: 'none',
   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-primary)', padding: 0,
+};
+const gruppePille: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center',
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+  borderRadius: 'var(--radius-full)', padding: '3px 12px', fontSize: 13, fontWeight: 700,
 };
