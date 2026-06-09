@@ -37,6 +37,15 @@ export function erFeidebruker(bruker: BrukerData | null | undefined): boolean {
   return (bruker?.feide_grupper?.length ?? 0) > 0;
 }
 
+/** Feide-innlogget = har tilgang til alle nivåer. Gjest/Google = kun niva1+niva2. */
+export function harAlleNivaer(bruker: BrukerData | null | undefined): boolean {
+  return (bruker as (BrukerData & { kilde?: string }) | null | undefined)?.kilde === 'feide';
+}
+
+/** Nivåer tilgjengelig for denne brukeren. */
+export const GRATIS_NIVA = ['niva1', 'niva2'] as const;
+export const ALLE_NIVA = ['niva1', 'niva2', 'niva3', 'niva4'] as const;
+
 /**
  * Hva en bruker har tilgang til, som en lesbar liste.
  * Brukes på MinSide og i onboarding-flow.
@@ -57,9 +66,14 @@ export function hentTilgangsliste(
 
   return [
     {
-      tekst: 'Øving og alle glosestarter',
+      tekst: 'Øving — Nivå 1 og 2',
       tilgjengelig: true,
-      forklaring: 'Alle nivåer er gratis — også uten innlogging.',
+      forklaring: 'Tilgjengelig for alle, også uten innlogging.',
+    },
+    {
+      tekst: 'Øving — Nivå 3 og 4',
+      tilgjengelig: harAlleNivaer(bruker),
+      forklaring: harAlleNivaer(bruker) ? undefined : 'Krever innlogging med Feide.',
     },
     {
       tekst: 'Samlekort — vinn kort ved riktige svar',

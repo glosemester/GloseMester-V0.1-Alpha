@@ -3,16 +3,20 @@
  * Viser ett kort per nivå; klikk navigerer til øve-økten (/ov?niva=...).
  */
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Flame } from 'lucide-react';
+import { BookOpen, Flame, Lock } from 'lucide-react';
 import { getAvailableLevels, getWordCountForLevel, getWordsForLevel, levelMetadata } from '../features/glosemester/vocabulary';
 import { loadLeitnerState, nivaProsent } from '../features/glosemester/leitner';
 import { lesStreak } from '../lib/streak';
+import { harAlleNivaer, GRATIS_NIVA } from '../lib/tilgang';
+import { startFeideLogin } from '../lib/auth';
+import { useAuthStore } from '../state/useAuthStore';
 import { ROUTES } from '../routes/paths';
 
 export function GlosemesterStart() {
   const navigate = useNavigate();
+  const bruker = useAuthStore((s) => s.bruker);
   const levels = getAvailableLevels();
-  // Bug 6: vis den vedvarende streaken her også, ikke bare inne i øvemodus.
+  const alleNivaer = harAlleNivaer(bruker);
   const streak = lesStreak();
 
   return (
@@ -55,66 +59,72 @@ export function GlosemesterStart() {
       >
         {levels.map((level) => {
           const meta = levelMetadata[level];
-          // Designforslag #3: vis elevens fremgang per nivå (glidende % lært).
           const totalt = getWordCountForLevel(level);
           const pct = nivaProsent(loadLeitnerState(level), getWordsForLevel(level));
+          const laast = !alleNivaer && !(GRATIS_NIVA as readonly string[]).includes(level);
           return (
             <button
               key={level}
               type="button"
-              onClick={() => navigate(`${ROUTES.PRACTICE}?niva=${level}`)}
+              onClick={() => laast ? startFeideLogin() : navigate(`${ROUTES.PRACTICE}?niva=${level}`)}
               data-level={level}
+              aria-label={laast ? `${meta.name} — krever Feide-innlogging` : meta.name}
               style={{
                 textAlign: 'left',
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
+                background: laast ? 'var(--color-bg)' : 'var(--color-surface)',
+                border: `1px solid ${laast ? 'var(--color-border)' : 'var(--color-border)'}`,
                 borderRadius: 'var(--radius-lg)',
                 padding: '28px 24px 24px',
-                boxShadow: 'var(--shadow-card)',
+                boxShadow: laast ? 'none' : 'var(--shadow-card)',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-primary)',
+                opacity: laast ? 0.7 : 1,
+                position: 'relative',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
+              {laast && (
+                <div style={{ position: 'absolute', top: 14, right: 14, display: 'flex', alignItems: 'center', gap: 5, background: 'var(--color-border)', borderRadius: 999, padding: '4px 10px', fontSize: 12, fontWeight: 700, color: 'var(--color-text-muted)' }}>
+                  <Lock size={12} aria-hidden="true" /> Feide
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 14, paddingRight: laast ? 80 : 0 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--color-text)' }}>{meta.name}</h3>
-                <span
-                  style={{
-                    flexShrink: 0,
-                    background: 'var(--color-primary-light)',
-                    color: 'var(--color-primary)',
-                    borderRadius: 999,
-                    padding: '4px 12px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <span style={{ flexShrink: 0, background: 'var(--color-primary-light)', color: 'var(--color-primary)', borderRadius: 999, padding: '4px 12px', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', display: laast ? 'none' : undefined }}>
                   {meta.description}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 10 }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><BookOpen size={18} aria-hidden="true" /> {totalt} ord</span>
-                <span>{pct}% lært</span>
-              </div>
-              <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden', marginBottom: 20 }} aria-label={`Fremgang: ${pct} prosent`}>
-                <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
-              </div>
-              <span
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  background: 'var(--color-primary)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '14px 20px',
-                  fontWeight: 700,
-                }}
-              >
-                Start øving
-              </span>
+              {!laast && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, color: 'var(--color-text-muted)', fontWeight: 600, fontSize: 13, marginBottom: 10 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><BookOpen size={18} aria-hidden="true" /> {totalt} ord</span>
+                    <span>{pct}% lært</span>
+                  </div>
+                  <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden', marginBottom: 20 }} aria-label={`Fremgang: ${pct} prosent`}>
+                    <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 999, transition: 'width 0.4s ease' }} />
+                  </div>
+                  <span style={{ display: 'block', textAlign: 'center', background: 'var(--color-primary)', color: '#fff', borderRadius: 'var(--radius-full)', padding: '14px 20px', fontWeight: 700 }}>
+                    Start øving
+                  </span>
+                </>
+              )}
+              {laast && (
+                <div style={{ marginTop: 4 }}>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '0 0 16px' }}>{meta.description} · {totalt} ord</p>
+                  <span style={{ display: 'block', textAlign: 'center', background: 'var(--color-dark-bg)', color: '#fff', borderRadius: 'var(--radius-full)', padding: '14px 20px', fontWeight: 700, fontSize: 14 }}>
+                    Logg inn med Feide for å låse opp
+                  </span>
+                </div>
+              )}
             </button>
           );
         })}
+
+        {/* Forklaring under rutenettet for gjester */}
+        {!alleNivaer && (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: 13, paddingTop: 4 }}>
+            Nivå 3 og 4 låses opp gratis med Feide-innlogging.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
 import { useUiStore } from '../state/useUiStore';
+import { harAlleNivaer, GRATIS_NIVA } from '../lib/tilgang';
 import { useTradeStore } from '../state/useTradeStore';
 import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
 import { TokenBalance } from '../components/TokenBalance';
@@ -77,12 +78,15 @@ export function GlosemesterPractice() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
+  const bruker = useAuthStore((s) => s.bruker);
   const setBunnmenySkjult = useUiStore((s) => s.setBunnmenySkjult);
   const oppdaterSjetonger = useTradeStore((s) => s.oppdaterSjetonger);
-  // Bug 2: høyttaler-knappen skjules der talesyntese mangler (ellers «død» knapp).
   const harTale = useMemo(() => talesynteseStottes(), []);
   const level = params.get('niva') as LevelId | null;
-  const gyldigNiva = Boolean(level && getAvailableLevels().includes(level));
+  const nivaFinnes = Boolean(level && getAvailableLevels().includes(level));
+  // Nivå 3 og 4 krever Feide-innlogging.
+  const nivaLaast = nivaFinnes && !(GRATIS_NIVA as readonly string[]).includes(level!) && !harAlleNivaer(bruker);
+  const gyldigNiva = nivaFinnes && !nivaLaast;
 
   const direction: Direction = 'en';
   const words = useMemo(() => (gyldigNiva ? getWordsForLevel(level as LevelId) : []), [gyldigNiva, level]);
@@ -229,6 +233,22 @@ export function GlosemesterPractice() {
 
   // +1 fordi telleren viser nåværende spørsmål (besvart+1/total), ikke antall ferdig.
   const progresjon = rundeLengde > 0 ? Math.round(((besvart + 1) / rundeLengde) * 100) : 0;
+
+  if (nivaLaast) {
+    return (
+      <div style={{ padding: 'var(--space-8)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)' }}>
+        <div style={{ fontSize: 48 }}>🔒</div>
+        <h2 style={{ fontWeight: 800 }}>Dette nivået krever Feide</h2>
+        <p style={{ color: 'var(--color-text-muted)', maxWidth: '36ch' }}>
+          Nivå 3 og 4 er tilgjengelig gratis for alle med Feide-innlogging.
+        </p>
+        <button type="button" onClick={() => { void import('../lib/auth').then((m) => m.startFeideLogin()); }} style={primaerKnapp}>
+          Logg inn med Feide
+        </button>
+        <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={tilbakeKnapp}>← Tilbake</button>
+      </div>
+    );
+  }
 
   if (!gyldigNiva) {
     return (
