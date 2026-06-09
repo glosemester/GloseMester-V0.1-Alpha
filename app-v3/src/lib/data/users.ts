@@ -59,6 +59,43 @@ export async function hentBrukerData(uid: string): Promise<BrukerData | null> {
   return snap.exists() ? (snap.data() as BrukerData) : null;
 }
 
+/** Brukersammendrag for adminpanel — ingen data om aktivitet. */
+export interface AdminBrukerRad {
+  uid: string;
+  navn: string;
+  rolle: string;
+  organisasjon: string; // Navn på skole/kommune (fc:org-gruppe)
+  antallKlasser: number;
+}
+
+/**
+ * Henter alle Feide-brukere for adminpanelet.
+ * Returnerer kun uid, navn, rolle og org/skole — ingen aktivitetsdata.
+ */
+export async function hentAdminBrukere(): Promise<AdminBrukerRad[]> {
+  try {
+    const snap = await getDocs(
+      query(collection(db, 'users'), where('kilde', '==', 'feide')),
+    );
+    return snap.docs.map((d) => {
+      const data = d.data() as BrukerData & { feide_grupper?: { id: string; navn: string; type: string }[] };
+      const grupper = data.feide_grupper ?? [];
+      const org = grupper.find((g) => g.type === 'fc:org');
+      const klasser = grupper.filter((g) => g.type === 'fc:gogroup');
+      return {
+        uid: d.id,
+        navn: data.displayName || 'Ukjent',
+        rolle: data.rolle ?? 'elev',
+        organisasjon: org?.navn ?? '—',
+        antallKlasser: klasser.length,
+      };
+    }).sort((a, b) => a.organisasjon.localeCompare(b.organisasjon) || a.navn.localeCompare(b.navn));
+  } catch (e) {
+    console.error('hentAdminBrukere feil:', e);
+    return [];
+  }
+}
+
 /** Ett elevmedlem i et klasse-roster (avledet fra GloseMester-brukere). */
 export interface KlasseElev {
   uid: string;

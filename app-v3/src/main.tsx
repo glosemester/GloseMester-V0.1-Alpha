@@ -23,6 +23,7 @@ import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
 import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
 import { TEACHER_ROUTE_PATTERNS } from './pages/teacher/teacherPaths';
 import { MinSide } from './pages/MinSide';
+import { Admin } from './pages/Admin';
 import { MineProver } from './pages/MineProver';
 import { ForLaerere } from './pages/marketing/ForLaerere';
 import { ForSkoler } from './pages/marketing/ForSkoler';
@@ -68,6 +69,8 @@ const router = createBrowserRouter([
       { path: TEACHER_ROUTE_PATTERNS.TEST_DETAILS, element: <ProtectedRoute><TeacherTestDetails /></ProtectedRoute> },
       // Min side (profil/abonnement/GDPR) — krever innlogging.
       { path: ROUTES.PROFILE, element: <ProtectedRoute><MinSide /></ProtectedRoute> },
+      // Admin — tilgangsvakt inne i komponenten (sjekker rolle === 'admin').
+      { path: ROUTES.ADMIN, element: <ProtectedRoute><Admin /></ProtectedRoute> },
       // Offentlige info-/marketing-sider.
       { path: '/for-laerere', element: <ForLaerere /> },
       { path: '/for-skoler', element: <ForSkoler /> },

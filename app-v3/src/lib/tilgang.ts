@@ -59,12 +59,12 @@ export function hentTilgangsliste(
     {
       tekst: 'Øving og alle glosestarter',
       tilgjengelig: true,
-      forklaring: 'Alle nivåer er gratis.',
+      forklaring: 'Alle nivåer er gratis — også uten innlogging.',
     },
     {
       tekst: 'Samlekort — vinn kort ved riktige svar',
       tilgjengelig: true,
-      forklaring: 'Gratis for alle.',
+      forklaring: 'Gratis for alle, også uten innlogging.',
     },
     {
       tekst: 'Bytte av kort med andre elever',
