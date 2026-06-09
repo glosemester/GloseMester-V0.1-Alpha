@@ -2,7 +2,7 @@
  * Web Push — abonnement-styring for varsler om nye tildelte prøver.
  * Abonnementsendepunktet lagres på brukerens Firestore-dokument.
  */
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteField, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 // Generert med `npx web-push generate-vapid-keys`.
@@ -30,7 +30,7 @@ export async function abonnerPåVarsler(uid: string): Promise<boolean> {
     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as ArrayBuffer,
   });
 
-  await updateDoc(doc(db, 'users', uid), { pushSubscription: sub.toJSON() });
+  await setDoc(doc(db, 'users', uid, 'private', 'data'), { pushSubscription: sub.toJSON() }, { merge: true });
   return true;
 }
 
@@ -38,7 +38,7 @@ export async function avmelding(uid: string): Promise<void> {
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
   if (sub) await sub.unsubscribe();
-  await updateDoc(doc(db, 'users', uid), { pushSubscription: null });
+  await updateDoc(doc(db, 'users', uid, 'private', 'data'), { pushSubscription: deleteField() });
 }
 
 export async function erAbonnert(): Promise<boolean> {
