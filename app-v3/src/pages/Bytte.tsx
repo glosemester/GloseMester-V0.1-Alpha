@@ -12,7 +12,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../state/useAuthStore';
 import { useTradeStore } from '../state/useTradeStore';
 import { hentSamling } from '../features/kort/kortSamling';
-import { getKortById, RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { getKortById, glodStil, RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import type { KortSnapshot, TradeMedId } from '../features/trade/tradeTypes';
 import { lookupTrade } from '../features/trade/tradeData';
 import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
@@ -302,7 +302,7 @@ function SvarBytte({ eide, uid, navn, startKode, onAvbryt, onFerdig }: {
   return (
     <div style={panel}>
       <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 12 }}>Du får dette kortet</h2>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, border: `2px solid ${cfg.farge}`, borderRadius: 'var(--radius-lg)', marginBottom: 20 }}>
+      <div className="kort-glod" style={{ ...glodStil(funnet.tilbudt.rarity), display: 'flex', alignItems: 'center', gap: 12, padding: 12, border: `2px solid ${cfg.farge}`, borderRadius: 'var(--radius-lg)', marginBottom: 20 }}>
         <img src={funnet.tilbudt.image} alt="" style={{ width: 64, height: 64, objectFit: 'contain' }} />
         <div>
           <div style={{ fontWeight: 800 }}>{funnet.tilbudt.name}</div>
@@ -345,7 +345,9 @@ function KortVelger({ eide, valgt, onVelg }: {
             key={kort.id}
             type="button"
             onClick={() => onVelg(kort)}
+            className={erValgt ? undefined : 'kort-glod'}
             style={{
+              ...(erValgt ? {} : glodStil(kort.rarity)),
               position: 'relative', textAlign: 'center', cursor: 'pointer', padding: 6,
               background: 'var(--color-surface)', fontFamily: 'var(--font-primary)',
               border: `2px solid ${erValgt ? 'var(--color-primary)' : cfg.farge}`,

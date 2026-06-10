@@ -22,7 +22,7 @@ import { byggResultatDokument, lagreResultatDokument, type SvarRad } from '../li
 import { leggIResultatKo } from '../lib/data/resultatKo';
 import { registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
-import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { glodStil, RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { startFeideLogin } from '../lib/auth';
 import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
@@ -281,7 +281,7 @@ export function Quiz() {
           <div style={{ color: 'var(--color-text-muted)', marginTop: 8 }}>{riktige} av {state.sporsmal.length} riktige</div>
         </div>
         {vunnetKort && (
-          <div style={{ background: 'var(--color-surface)', border: `2px solid ${RARITY_CONFIG[vunnetKort.rarity].farge}`, borderRadius: 20, padding: 20, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <div className="kort-glod" style={{ ...glodStil(vunnetKort.rarity), background: 'var(--color-surface)', border: `2px solid ${RARITY_CONFIG[vunnetKort.rarity].farge}`, borderRadius: 20, padding: 20, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}><Gift size={20} color="var(--color-primary)" aria-hidden="true" /> Du vant et kort!</div>
             <img src={vunnetKort.image} alt={vunnetKort.name} style={{ width: 120, height: 120, objectFit: 'contain' }} />
             <div style={{ fontWeight: 700 }}>{vunnetKort.name}</div>
