@@ -1,49 +1,168 @@
-# Automatisk generering av kortbilder
+# Generering av kortbilder — komplett guide
 
 Erstatter den manuelle Midjourney-flyten (`docs/arkiv/MIDJOURNEY_MATTEMESTER_KORT.md`).
 Motor: **OpenAI gpt-image-1-mini** (~$0.005/bilde → en hel 38-korts kategori for ca. $0.19).
-Formatet er 1024×1024 (1:1, samme som eksisterende kort), stilen er malerisk
-illustrasjon som matcher dagens samling, og sluttbildene blir uansett 320px WebP,
-så mini-kvalitet holder. Enkeltkort kan regenereres med `--model gpt-image-1.5`.
 
-## Slik lager du en ny kategori
+---
 
-1. **Lag manifest** (JSON), f.eks. `kort-manifest-romvesener.json`:
+## Forutsetninger (én gang per maskin)
 
-   ```json
-   {
-     "mappe": "romvesener",
-     "kort": [
-       { "fil": "001-zorg.png", "navn": "Zorg", "prompt": "friendly green alien with big eyes and antenna, smiling, wearing space suit, floating in space, colorful nebula background" },
-       { "fil": "002-beep.png", "navn": "Beep", "prompt": "small blue alien with three eyes, cute expression, holding a glowing orb, asteroid field background" }
-     ]
-   }
-   ```
+### Node.js og avhengigheter
 
-   38 kort per kategori; rekkefølgen styrer sjeldenhet (1–20 common, 21–30 rare,
-   31–35 epic, 36–38 legendary — jf. `getRarity` i `kortData.ts`). Bakgrunnen
-   koder sjeldenheten automatisk (hvit/grå → blå → lilla → gyllen).
+```powershell
+node --version   # må være v18 eller nyere
+cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha\app-v3
+npm install      # installerer sharp og alt annet
+```
 
-   **Mangfold:** legg gjerne inn `"variasjoner": [ … ]` (komposisjons-/positur-
-   fraser som fordeles rundgang på kortene) og skriv per-kort-promptene med
-   ulike detaljer — se `kort-manifest-planeter.json` som mal. Per-kort-felt
-   `"stil"` overstyrer kategoristilen for enkeltkort.
+### Git-identitet
 
-2. **Generer** (API-nøkkelen settes i miljøet, aldri i repoet):
+Uten dette feiler `git commit`:
 
-   ```bash
-   export OPENAI_API_KEY=sk-…
-   cd app-v3
-   node scripts/generate-card-images.mjs kort-manifest-romvesener.json
-   ```
+```powershell
+git config --global user.email "din@epost.no"
+git config --global user.name "Ditt Navn"
+```
 
-   Skriptet er idempotent — eksisterende filer hoppes over. Vil du regenerere et
-   kort: slett filen og kjør igjen (evt. `--kun 007 --model gpt-image-1.5`).
-   Test gjerne med 2–3 kort i manifestet før du kjører alle 38.
+### OpenAI API-nøkkel
 
-3. **Optimaliser** til WebP 320px: legg mappen til i `KATEGORIER` i
-   `scripts/optimize-card-images.mjs` og kjør `node scripts/optimize-card-images.mjs`.
+Sett nøkkelen i PowerShell-sesjonen (aldri lagre den i koden eller repoet):
 
-4. **Stage pakken** i `app-v3/src/features/kort/kortData.ts` (oppskriften står i
-   filen): ny `Category`, rader, `PAKKER`-innslag med `aktiv: false` → sett
-   `aktiv: true` når bildene er godkjent.
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
+```
+
+Vil du at den skal huskes mellom sesjoner:
+
+```powershell
+[Environment]::SetEnvironmentVariable("OPENAI_API_KEY", "sk-...", "User")
+```
+
+---
+
+## Steg for steg: ny kategori
+
+### 1 — Lag manifest (JSON)
+
+Opprett `app-v3/kort-manifest-<kategori>.json`. Bruk `kort-manifest-planeter.json` som mal:
+
+```json
+{
+  "mappe": "romvesener",
+  "kategoriStil": "digital trading card art style, detailed digital illustration, single centered subject, vibrant colors, kid-friendly",
+  "variasjoner": [
+    "full view centered, facing forward",
+    "three-quarter view, dynamic pose",
+    "close-up with rich detail filling the frame",
+    "side profile view",
+    "dramatic low-angle view"
+  ],
+  "kort": [
+    { "fil": "001-navn.png", "navn": "Navn", "prompt": "beskrivelse av motivet" },
+    { "fil": "002-navn2.png", "navn": "Navn 2", "prompt": "..." }
+  ]
+}
+```
+
+**Viktige regler for promptene:**
+- Beskriv **kun motivet** — ikke bakgrunn eller setting (f.eks. ikke «floating in space»)
+- Bakgrunnen legges til automatisk og koder sjeldenhet (se under)
+- `"variasjoner"` fordeles jevnt på kortene og gir mangfold i komposisjon
+- Per-kort `"stil"` overstyrer `"kategoriStil"` for enkeltbilder
+- Rekkefølge styrer sjeldenhet: 1–20 vanlig, 21–30 sjelden, 31–35 episk, 36–38 legendarisk
+
+**Automatisk raritetsbakgrunn:**
+| Posisjon | Sjeldenhet | Bakgrunn |
+|---|---|---|
+| 1–20 | Vanlig | Hvit/lysegrå gradient |
+| 21–30 | Sjelden | Lyseblå → blå gradient |
+| 31–35 | Episk | Lilla → mørklilla gradient |
+| 36–38 | Legendarisk | Gyllen glow → gul gradient |
+
+### 2 — Test med 2–3 kort
+
+Alltid test før du kjører alle 38:
+
+```powershell
+cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha\app-v3
+node scripts/generate-card-images.mjs kort-manifest-<kategori>.json --kun 001,002,003
+```
+
+Sjekk bildene i `images/<kategori>/` og juster promptene ved behov.
+
+### 3 — Generer alle 38 kort
+
+```powershell
+node scripts/generate-card-images.mjs kort-manifest-<kategori>.json
+```
+
+Skriptet er **idempotent** — filer som allerede finnes hoppes over. Vil du regenerere ett kort:
+
+```powershell
+# Slett filen, kjør så:
+node scripts/generate-card-images.mjs kort-manifest-<kategori>.json --kun 007
+
+# Full kvalitet for legendariske kort (koster mer):
+node scripts/generate-card-images.mjs kort-manifest-<kategori>.json --kun 036,037,038 --model gpt-image-1.5
+```
+
+### 4 — Optimaliser til WebP 320px
+
+```powershell
+node scripts/optimize-card-images.mjs <kategori>
+```
+
+Reduserer ~71 MB PNG → ~0.5 MB WebP. Bildene lander i `images/<kategori>/` som `.webp`.
+
+### 5 — Commit og push
+
+```powershell
+cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha
+
+git checkout -b <kategori>-bilder
+git add images/<kategori>
+git commit -m "<Kategori>-kortbilder: 38 WebP generert med gpt-image-1-mini"
+git push -u origin <kategori>-bilder
+```
+
+### 6 — Aktiver pakken i kortData.ts
+
+Åpne `app-v3/src/features/kort/kortData.ts`.
+
+Pakken er allerede lagt inn med `aktiv: false` som en del av kodebasen. Sett den til `true`:
+
+```typescript
+{ prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
+```
+
+Commit til samme branch:
+
+```powershell
+git add app-v3/src/features/kort/kortData.ts
+git commit -m "Aktiver <kategori>-pakken"
+git push
+```
+
+### 7 — Opprett PR og merge
+
+Gå til GitHub → opprett PR fra branchen → vent på grønn CI → merge.
+Netlify publiserer automatisk når `main` oppdateres.
+
+---
+
+## Kategoristatus
+
+| Kategori | Manifest | Bilder | Aktivert |
+|---|---|---|---|
+| Romvesener | `kort-manifest-romvesener.json` | ✅ 38 WebP | ✅ |
+| Planeter | `kort-manifest-planeter.json` | — | — |
+| Skandinaviske mytiske skapninger | — | — | — |
+
+---
+
+## Kostnader (juni 2026)
+
+| Modell | Pris/bilde | 38-korts kategori |
+|---|---|---|
+| gpt-image-1-mini (standard) | ~$0.005 | ~$0.19 |
+| gpt-image-1.5 (full kvalitet) | ~$0.08 | ~$3.00 |
