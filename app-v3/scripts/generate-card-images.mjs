@@ -22,13 +22,21 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Felles stil for alle kort — matcher de EKSISTERENDE kortene i samlingen
-// (jf. images/dyr, images/guder): malerisk illustrasjon, ett sentrert motiv,
-// myk gradient-bakgrunn, 1:1. Ikke flat cartoon.
-const STANDARD_STIL =
-  'digital trading card art, painterly illustration style, single centered subject, ' +
-  'soft gradient background, dramatic lighting, high detail, vibrant colors, ' +
-  'kid-friendly, card game aesthetic, no text or letters in the image';
+// Master-stilen fra de eksisterende kortene (jf. det opprinnelige
+// Midjourney-generator-dokumentet): [NAVN], [beskrivelse], [KATEGORI-STIL],
+// [RARITY-BAKGRUNN], high detail, card game aesthetic. Kategoristilen kan
+// overstyres per manifest med feltet "kategoriStil".
+const STANDARD_KATEGORI_STIL =
+  'digital trading card art style, painterly illustration, single centered subject, ' +
+  'vibrant colors, kid-friendly';
+
+// Bakgrunnen koder sjeldenheten — samme posisjonsformel som kortData.ts getRarity.
+function rarityBakgrunn(nummer) {
+  if (nummer >= 36) return 'golden glow to yellow gradient background';   // legendary
+  if (nummer >= 31) return 'purple to dark purple gradient background';   // epic
+  if (nummer >= 21) return 'light blue to blue gradient background';      // rare
+  return 'white to light gray gradient background';                      // common
+}
 
 const STANDARD_MODELL = 'gpt-image-1-mini';
 const STORRELSE = '1024x1024'; // 1:1 — samme kvadratiske format som eksisterende kort
@@ -84,7 +92,7 @@ const repoRot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const utMappe = join(repoRot, 'images', manifest.mappe);
 mkdirSync(utMappe, { recursive: true });
 
-const stil = manifest.stilPrefix ?? STANDARD_STIL;
+const kategoriStil = manifest.kategoriStil ?? manifest.stilPrefix ?? STANDARD_KATEGORI_STIL;
 let generert = 0;
 let hoppet = 0;
 
@@ -96,7 +104,9 @@ for (const kort of manifest.kort) {
     hoppet++;
     continue;
   }
-  const prompt = `${kort.prompt}. Character name concept: "${kort.navn}". Style: ${stil}`;
+  const nummer = parseInt(kort.fil.slice(0, 3), 10);
+  const prompt = `${kort.navn}, ${kort.prompt}, ${kategoriStil}, ${rarityBakgrunn(nummer)}, ` +
+    'high detail, card game aesthetic, no text or letters in the image';
   process.stdout.write(`Genererer ${kort.fil} (${modell})… `);
   try {
     writeFileSync(pngSti, await genererBilde(apiKey, modell, prompt));
