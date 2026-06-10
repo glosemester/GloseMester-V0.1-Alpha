@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layers, Trophy, Rocket, Lock, Recycle, X } from 'lucide-react';
 import { hentSamling, samlingStats, panteKort } from '../features/kort/kortSamling';
-import { getKortById, kortData, RARITY_CONFIG, type Rarity } from '../features/kort/kortData';
+import { getKortById, glodStil, kortData, RARITY_CONFIG, type Rarity } from '../features/kort/kortData';
 import type { Kort } from '../lib/storage';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
@@ -182,7 +182,9 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
               role="button"
               tabIndex={0}
               aria-label={eid ? `${k.navn}, ${cfg.tekst}. Trykk for detaljer.` : `Låst kort, ${cfg.tekst}. Trykk for å se hvordan du låser det opp.`}
+              className={eid ? 'kort-glod' : undefined}
               style={{
+                ...(eid ? glodStil(k.rarity) : {}),
                 background: 'var(--color-surface)',
                 border: `2px solid ${eid ? cfg.farge : 'var(--color-border)'}`,
                 borderRadius: 'var(--radius-lg)',

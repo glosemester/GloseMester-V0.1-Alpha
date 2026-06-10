@@ -1,10 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { getTotalKortCount } from '../src/features/kort/kortData';
 
 /**
  * Røyktester for v3 — verifiserer at de offentlige (gjest-tilgjengelige) sidene
  * laster og at øvemodusen faktisk reagerer på svar. Innloggede sider (hjem,
  * lærer, min side) krever Firebase-auth og dekkes ikke her.
  */
+
+// Galleriet viser «N av <totalt> samlet» — antallet følger aktive kortpakker.
+const TOTALT_KORT = getTotalKortCount();
 
 test('landingssiden har elev- og lærer-innlogging', async ({ page }) => {
   await page.goto('/');
@@ -83,9 +87,9 @@ test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
   await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
 });
 
-test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) => {
+test('galleri: alle kort vises, ikke-samlede grået ut', async ({ page }) => {
   await page.goto('/galleri');
-  await expect(page.getByText(/av 152 samlet/)).toBeVisible();
+  await expect(page.getByText(new RegExp(`av ${TOTALT_KORT} samlet`))).toBeVisible();
   // Uten samlede kort skal låste «???»-kort vises.
   await expect(page.getByText('???').first()).toBeVisible();
 });
@@ -101,7 +105,7 @@ test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
   // html/body er overflow:hidden — appen scroller i .gm-scroll-root (Layout).
   await page.setViewportSize({ width: 1280, height: 600 });
   await page.goto('/galleri');
-  await expect(page.getByText(/av 152 samlet/)).toBeVisible();
+  await expect(page.getByText(new RegExp(`av ${TOTALT_KORT} samlet`))).toBeVisible();
   // Splash-en (#loading-screen, fixed + z-index 9999) fanger wheel-events til
   // main.tsx fjerner den — vent til den er borte før vi scroller.
   await page.locator('#loading-screen').waitFor({ state: 'detached' });
