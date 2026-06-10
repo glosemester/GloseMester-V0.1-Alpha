@@ -171,8 +171,7 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'dino', mappe: 'dinosaurer', navn: 'Dinosaurer', aktiv: true, rader: dinosaurer },
   { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
-  // Staget: bilder genereres/optimaliseres — slå på når de er committet.
-  { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: false, rader: romvesener },
+  { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
 
