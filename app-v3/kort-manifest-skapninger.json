@@ -1,12 +1,12 @@
 {
   "mappe": "skapninger",
-  "kategoriStil": "Scandinavian folklore creature, painterly digital illustration in Nordic fairytale art style, detailed, atmospheric, kid-friendly, single centered subject",
+  "kategoriStil": "Scandinavian folklore creature, painterly digital illustration in Nordic fairytale art style, detailed, atmospheric, kid-friendly, full body figure fully visible from head to toe, complete subject centered with ample space above the head, not cropped",
   "variasjoner": [
-    "full view centered, facing forward",
-    "three-quarter view, gentle dynamic pose",
-    "close-up portrait with rich detail filling the frame",
-    "side profile view, characterful silhouette",
-    "slightly low angle view, storybook composition"
+    "full body centered, facing forward, entire figure visible",
+    "three-quarter view, full body visible, gentle dynamic pose",
+    "wide shot, complete figure with room to breathe, storybook composition",
+    "side profile, full body from head to toe clearly visible",
+    "slightly low angle, full figure visible, characterful silhouette"
   ],
   "kort": [
     { "fil": "001-nisse.png", "navn": "Nisse", "prompt": "small Norwegian gnome with red pointed cap, long white beard, gray wool clothes, kind wrinkled face, holding a wooden spoon" },
