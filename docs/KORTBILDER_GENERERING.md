@@ -162,7 +162,16 @@ Netlify publiserer automatisk når `main` oppdateres.
 
 ## Kostnader (juni 2026)
 
-| Modell | Pris/bilde | 38-korts kategori |
+**Viktig:** prisen avhenger av `quality`-parameteren — uten den velger API-et
+«auto» (i praksis high), som er ~7× dyrere enn nødvendig. Skriptet sender
+derfor `medium` som standard (overstyr med `--quality low|medium|high`).
+
+| Modell + kvalitet | Pris/bilde (1024×1024) | 38-korts kategori |
 |---|---|---|
-| gpt-image-1-mini (standard) | ~$0.005 | ~$0.19 |
-| gpt-image-1.5 (full kvalitet) | ~$0.08 | ~$3.00 |
+| gpt-image-1-mini, low | ~$0.005 | ~$0.19 |
+| **gpt-image-1-mini, medium (standard)** | ~$0.011–0.02 | ~$0.40–0.75 |
+| gpt-image-1-mini, high | ~$0.036 | ~$1.40 |
+| gpt-image-1.5, high | ~$0.17+ | ~$6.50+ |
+
+Husk at regenereringer (stil-iterasjoner, avkuttede hoder osv.) fort dobler
+eller tredobler antall bilder — budsjettér deretter.
