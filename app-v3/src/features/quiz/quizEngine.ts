@@ -58,14 +58,15 @@ export function byggSporsmalsliste(prove: Prove): Sporsmal[] {
     }));
   }
 
-  // Gloser / Norsk: ordliste-basert med 4 alternativer.
-  const stokket = stokkArray(ordliste);
-  return stokket.map((ord) => {
+  // Gloser / Norsk: ordliste-basert med 4 alternativer. Lærerens bland-valg
+  // styrer ordrekkefølgen; svaralternativene stokkes uansett.
+  const rekkefolge = prove.bland === false ? [...ordliste] : stokkArray(ordliste);
+  return rekkefolge.map((ord) => {
     const riktig = fag === 'norsk' ? ord.s : ord.e;
     const vises = fag === 'norsk' ? ord.e || ord.s : ord.s;
     const feil = lagFeilAlternativer(
       riktig,
-      stokket.map((o) => (fag === 'norsk' ? o.s : o.e)),
+      rekkefolge.map((o) => (fag === 'norsk' ? o.s : o.e)),
     );
     return {
       type: 'flervalg' as const,

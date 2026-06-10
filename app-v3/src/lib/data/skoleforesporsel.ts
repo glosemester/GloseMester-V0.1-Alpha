@@ -21,9 +21,12 @@ export interface ForesporselResultat {
   feil?: string;
 }
 
+// Sender til Netlify-funksjonen, som nå automagisk videresender til agenten
+const WEBHOOK_URL = '/.netlify/functions/school-inquiry'; 
+
 export async function sendSkoleforesporsel(data: SkoleForesporsel): Promise<ForesporselResultat> {
   try {
-    const response = await fetch('/.netlify/functions/school-inquiry', {
+    const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

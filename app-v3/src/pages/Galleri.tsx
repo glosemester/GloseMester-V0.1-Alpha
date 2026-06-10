@@ -178,7 +178,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
             <div
               key={k.id}
               onClick={eid ? () => setValgtEid(k) : () => setValgtLaast(k)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (eid) { setValgtEid(k); } else { setValgtLaast(k); } } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (eid) setValgtEid(k); else setValgtLaast(k); } }}
               role="button"
               tabIndex={0}
               aria-label={eid ? `${k.navn}, ${cfg.tekst}. Trykk for detaljer.` : `Låst kort, ${cfg.tekst}. Trykk for å se hvordan du låser det opp.`}

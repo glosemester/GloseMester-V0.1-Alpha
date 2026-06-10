@@ -6,7 +6,16 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuthStore } from '../state/useAuthStore';
 import { useTradeStore } from '../state/useTradeStore';
 import { handleFeideCallback } from '../lib/auth';
+import { provSendResultatKo } from '../lib/data/resultatKo';
 import { toast } from '../state/useToastStore';
+
+/** Tøm offline-køen med prøveresultater og si fra når noe faktisk ble sendt. */
+async function sendKoedeResultater() {
+  const { sendt } = await provSendResultatKo();
+  if (sendt > 0) {
+    toast.success(sendt === 1 ? '1 prøveresultat sendt til læreren.' : `${sendt} prøveresultater sendt til læreren.`);
+  }
+}
 
 export function AuthBootstrap({ children }: { children: ReactNode }) {
   const initAuth = useAuthStore((s) => s.initAuth);
@@ -40,7 +49,15 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       }
     }
 
-    return unsubscribe;
+    // Prøveresultater som ble køet offline: prøv ved oppstart og når nettet kommer tilbake.
+    void sendKoedeResultater();
+    const vedOnline = () => void sendKoedeResultater();
+    window.addEventListener('online', vedOnline);
+
+    return () => {
+      window.removeEventListener('online', vedOnline);
+      unsubscribe();
+    };
   }, [initAuth, settPendingKode]);
 
   return (

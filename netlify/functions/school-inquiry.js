@@ -236,6 +236,19 @@ to: 'kontakt@glosemester.no',
             console.error('⚠️ Autosvar til skolen feilet:', replyError.message);
         }
 
+        // ✅ AUMAGISK: SEND DIREKTE TIL GLOSEMESTER AGENTEN
+        try {
+            console.log('🤖 Sender lead til agenten...');
+            await fetch('https://agent.glosemester.no/api/webhooks/n8n/lead-gen', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            console.log('✅ Lead sendt til agenten!');
+        } catch (agentError) {
+            console.error('⚠️ Klarte ikke sende til agent:', agentError.message);
+        }
+
         return {
             statusCode: 200,
             headers,
