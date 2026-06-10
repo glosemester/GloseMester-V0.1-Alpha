@@ -21,9 +21,13 @@ så mini-kvalitet holder. Enkeltkort kan regenereres med `--model gpt-image-1.5`
    ```
 
    38 kort per kategori; rekkefølgen styrer sjeldenhet (1–20 common, 21–30 rare,
-   31–35 epic, 36–38 legendary — jf. `getRarity` i `kortData.ts`). Prompt-idéer:
-   gjenbruk beskrivelsene fra Midjourney-dokumentet, uten `--ar`/`--v`-flaggene
-   (felles stilprefiks som matcher eksisterende kort legges på automatisk).
+   31–35 epic, 36–38 legendary — jf. `getRarity` i `kortData.ts`). Bakgrunnen
+   koder sjeldenheten automatisk (hvit/grå → blå → lilla → gyllen).
+
+   **Mangfold:** legg gjerne inn `"variasjoner": [ … ]` (komposisjons-/positur-
+   fraser som fordeles rundgang på kortene) og skriv per-kort-promptene med
+   ulike detaljer — se `kort-manifest-planeter.json` som mal. Per-kort-felt
+   `"stil"` overstyrer kategoristilen for enkeltkort.
 
 2. **Generer** (API-nøkkelen settes i miljøet, aldri i repoet):
 

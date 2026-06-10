@@ -9,8 +9,9 @@
  * Manifest (JSON):
  *   {
  *     "mappe": "romvesener",            // → images/<mappe>/
- *     "stilPrefix": "…valgfri overstyring…",
- *     "kort": [ { "fil": "001-zorg.png", "navn": "Zorg", "prompt": "friendly green alien …" }, … ]
+ *     "kategoriStil": "…valgfri felles stil…",
+ *     "variasjoner": ["…komposisjon 1…", "…2…"],   // valgfritt — fordeles rundgang på kortene for mangfold
+ *     "kort": [ { "fil": "001-zorg.png", "navn": "Zorg", "prompt": "friendly green alien …", "stil": "…valgfri per kort…" }, … ]
  *   }
  *
  * Skriptet er idempotent: filer som allerede finnes (.png eller .webp) hoppes
@@ -108,6 +109,9 @@ const utMappe = join(repoRot, 'images', manifest.mappe);
 mkdirSync(utMappe, { recursive: true });
 
 const kategoriStil = manifest.kategoriStil ?? manifest.stilPrefix ?? STANDARD_KATEGORI_STIL;
+// Valgfrie komposisjonsvariasjoner — fordeles fast (rundgang på kortnummer)
+// så kortene i en kategori ikke blir for like, men re-kjøringer er stabile.
+const variasjoner = Array.isArray(manifest.variasjoner) ? manifest.variasjoner : [];
 let generert = 0;
 let hoppet = 0;
 
@@ -120,7 +124,8 @@ for (const kort of manifest.kort) {
     continue;
   }
   const nummer = parseInt(kort.fil.slice(0, 3), 10);
-  const prompt = `${kort.navn}, ${kort.prompt}, ${kategoriStil}, ${rarityBakgrunn(nummer)}, ` +
+  const variasjon = variasjoner.length ? `, ${variasjoner[(nummer - 1) % variasjoner.length]}` : '';
+  const prompt = `${kort.navn}, ${kort.prompt}, ${kort.stil ?? kategoriStil}${variasjon}, ${rarityBakgrunn(nummer)}, ` +
     'high detail, full-bleed edge-to-edge artwork, no card frame, no border, no text or letters in the image';
   process.stdout.write(`Genererer ${kort.fil} (${modell})… `);
   try {
