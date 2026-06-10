@@ -11,7 +11,7 @@ import { toast } from '../state/useToastStore';
 import { aktiverKampanjekode } from '../lib/data/kampanje';
 import { eksporterMinData, slettMinKonto } from '../lib/data/gdpr';
 import { hentSamling, samlingStats } from '../features/kort/kortSamling';
-import { getKortById, getTotalKortCount, RARITY_CONFIG } from '../features/kort/kortData';
+import { getKortById, getTotalKortCount, glodStil, RARITY_CONFIG } from '../features/kort/kortData';
 import { TokenBalance } from '../components/TokenBalance';
 import { ABONNEMENT_ETIKETT, hentTilgangsliste } from '../lib/tilgang';
 import { pushStøttes, abonnerPåVarsler, avmelding, erAbonnert } from '../lib/push';
@@ -145,7 +145,7 @@ export function MinSide() {
               {samling.unike.slice(0, 8).map((kort) => {
                 const cfg = RARITY_CONFIG[kort.rarity];
                 return (
-                  <div key={kort.id} title={`${kort.name} · ${cfg.tekst}`} style={{ ...miniKort, borderColor: cfg.farge, boxShadow: `0 0 0 1px ${cfg.farge}33` }}>
+                  <div key={kort.id} title={`${kort.name} · ${cfg.tekst}`} className="kort-glod" style={{ ...miniKort, ...glodStil(kort.rarity), borderColor: cfg.farge }}>
                     <img src={kort.image} alt={kort.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
                 );
