@@ -51,12 +51,18 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // Users - admin kan lese/skrive alle
+    // Users - alle innloggede kan lese hoveddokumentet (trengs for klasse-roster).
+    // Sensitive felt (pushSubscription) er skilt ut i /private/data-subkolleksjon.
     match /users/{userId} {
-      allow read: if request.auth != null && 
-                     (request.auth.uid == userId || isAdmin());
-      allow write: if request.auth != null && 
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
                       (request.auth.uid == userId || isAdmin());
+
+      // Privat subkolleksjon: kun eier og admin.
+      match /private/{docId} {
+        allow read, write: if request.auth != null &&
+                              (request.auth.uid == userId || isAdmin());
+      }
     }
     
     // Prøver - støtter multi-fag (gloser, matte, norsk)

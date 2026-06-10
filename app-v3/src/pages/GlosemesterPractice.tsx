@@ -219,7 +219,7 @@ export function GlosemesterPractice() {
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
-    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak],
+    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak, tilgjengeligeKategorier],
   );
 
   // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).

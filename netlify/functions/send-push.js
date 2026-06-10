@@ -64,7 +64,9 @@ export const handler = async (event) => {
   resultater.forEach((d) => sett.set(d.id, d));
 
   const utsendinger = [...sett.values()].map(async (d) => {
-    const { pushSubscription } = d.data();
+    // pushSubscription er nå lagret i private-subkolleksjon.
+    const privSnap = await d.ref.collection('private').doc('data').get();
+    const { pushSubscription } = privSnap.exists ? privSnap.data() : {};
     if (!pushSubscription) return;
     try {
       await webPush.sendNotification(
@@ -78,7 +80,7 @@ export const handler = async (event) => {
     } catch (err) {
       if (err.statusCode === 410 || err.statusCode === 404) {
         // Utløpt abonnement — rydd opp.
-        await d.ref.update({ pushSubscription: null });
+        await privSnap.ref.update({ pushSubscription: null });
       }
     }
   });

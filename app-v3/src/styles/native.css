@@ -29,13 +29,17 @@ textarea,
 
 /* #10 html og body er IKKE scroll-containere — all scroll skjer i .gm-scroll-root
    (Layout-divet). Dette løser at Chrome sin wheel-event-dispatch er upålitelig
-   når html er scroll-container i SPA-er: drag på scrollbar virket, men hjul ikke. */
+   når html er scroll-container i SPA-er: drag på scrollbar virket, men hjul ikke.
+   iOS PWA standalone: height:100% alene er ikke pålitelig; -webkit-fill-available
+   brukes som fallback slik at høyden faktisk dekker hele skjermen. */
 html {
-  height: 100%;
+  height: -webkit-fill-available;
+  height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
 }
 body {
+  min-height: -webkit-fill-available;
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
@@ -54,6 +58,8 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: none;
+  /* iOS PWA: momentum-scroll og korrekt touch-scroll i standalone-modus */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* #8 Momentum-scroll (iOS) + scroll-containment gjelder bevisst KUN indre
