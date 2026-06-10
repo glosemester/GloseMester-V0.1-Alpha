@@ -5,14 +5,14 @@ import {
   getRandomKort,
   checkWinCondition,
 } from './kortReward';
-import { kortData, getTotalKortCount } from './kortData';
+import { kortData, getTotalKortCount, aktiveKortpakker } from './kortData';
 
 describe('kortData', () => {
-  it('har 152 kort (4×38)', () => {
-    expect(getTotalKortCount()).toBe(152);
+  it('har 38 kort per aktiv pakke', () => {
+    expect(getTotalKortCount()).toBe(aktiveKortpakker.length * 38);
   });
   it('har unike ID-er', () => {
-    expect(new Set(kortData.map((k) => k.id)).size).toBe(152);
+    expect(new Set(kortData.map((k) => k.id)).size).toBe(getTotalKortCount());
   });
   it('utleder sjeldenhet fra posisjon (38 = legendary)', () => {
     const bil38 = kortData.find((k) => k.id === 'bil_038');
