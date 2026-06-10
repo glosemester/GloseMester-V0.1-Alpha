@@ -58,7 +58,8 @@ export function Admin() {
   function toggleOrg(org: string) {
     setApneOrg((prev) => {
       const neste = new Set(prev);
-      neste.has(org) ? neste.delete(org) : neste.add(org);
+      if (neste.has(org)) neste.delete(org);
+      else neste.add(org);
       return neste;
     });
   }

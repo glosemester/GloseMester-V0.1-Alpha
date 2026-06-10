@@ -41,6 +41,13 @@ body {
   overscroll-behavior: none;
 }
 
+/* #10b Høydekjeden må nå helt ned til scroll-roten: uten height på #root får
+   .gm-scroll-root (height: 100%) innholdshøyde i stedet for viewport-høyde,
+   og ingenting kan scrolles (html/body er overflow: hidden). */
+#root {
+  height: 100%;
+}
+
 /* Hoved-scroll-container for hele appen. Brukes på Layout-divet. */
 .gm-scroll-root {
   height: 100%;

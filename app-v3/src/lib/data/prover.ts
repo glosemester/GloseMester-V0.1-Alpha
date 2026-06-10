@@ -49,6 +49,8 @@ export interface Prove {
   niva?: string | number;
   ordliste?: ProveOrd[];
   oppgaver?: ProveOppgave[];
+  /** false = behold ordlistens rekkefølge i prøven; svaralternativer stokkes uansett. */
+  bland?: boolean;
   opprettet_av?: string | null;
   opprettetAvNavn?: string;
   /** Hvor mange dager prøven er tilgjengelig for elevene (1–14). */

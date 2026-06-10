@@ -10,7 +10,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, Layers, Home, FileText, LogIn, UserRound, Repeat, type LucideIcon } from 'lucide-react';
+import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, CloudOff, Layers, Home, FileText, ListChecks, LogIn, UserRound, Repeat, type LucideIcon } from 'lucide-react';
 import {
   byggSporsmalsliste,
   erSvarRiktig,
@@ -18,7 +18,8 @@ import {
   type Sporsmal,
 } from '../features/quiz/quizEngine';
 import { hentProveMedKode, erProveUtloept, type Prove } from '../lib/data/prover';
-import { lagreResultat, type SvarRad } from '../lib/data/resultater';
+import { byggResultatDokument, lagreResultatDokument, type SvarRad } from '../lib/data/resultater';
+import { leggIResultatKo } from '../lib/data/resultatKo';
 import { registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
@@ -57,8 +58,11 @@ export function Quiz() {
   const [state, setState] = useState<QuizState | null>(null);
   const [feedback, setFeedback] = useState<{ riktig: boolean; fasit: string } | null>(null);
   const [valgtSvar, setValgtSvar] = useState<string | null>(null);
-  const [lagret, setLagret] = useState<boolean | null>(null);
+  const [lagret, setLagret] = useState<'sendt' | 'koet' | null>(null);
   const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
+  const [visSvar, setVisSvar] = useState(false);
+  // Guard mot dobbel lagring (StrictMode/re-render) — settes idet lagring starter.
+  const harLagretRef = useRef(false);
 
   // Pågående prøve som hentes via kode (QR eller skjema).
   async function startMedKode(rawKode: string) {
@@ -205,7 +209,7 @@ export function Quiz() {
   if (fase === 'quiz' && state) {
     const totalt = state.sporsmal.length;
     if (state.index >= totalt && !state.ovemodus) {
-      void avsluttOgLagre(state);
+      // Lagringen trigges fra svarPa (siste svar) — her vises kun ventetilstand.
       return <div style={{ padding: 'var(--space-8)', textAlign: 'center' }}>Lagrer resultat…</div>;
     }
     const spm = state.sporsmal[state.index];
@@ -288,9 +292,17 @@ export function Quiz() {
             </div>
           </div>
         )}
-        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, color: lagret ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-          {lagret === null ? '' : lagret ? <><CheckCircle2 size={18} aria-hidden="true" /> Resultat sendt til læreren.</> : 'Resultat kunne ikke sendes (ingen nettverkstilgang).'}
+        <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, color: lagret === 'sendt' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+          {lagret === null ? '' : lagret === 'sendt'
+            ? <><CheckCircle2 size={18} aria-hidden="true" /> Resultat sendt til læreren.</>
+            : <><CloudOff size={18} aria-hidden="true" /> Du er offline — resultatet sendes til læreren når du er på nett.</>}
         </p>
+        {state.svar.length > 0 && (
+          <button type="button" onClick={() => setVisSvar((v) => !v)} style={svarKnapp}>
+            <ListChecks size={18} aria-hidden="true" /> {visSvar ? 'Skjul svarene' : 'Se svarene dine'}
+          </button>
+        )}
+        {visSvar && <SvarGjennomgang svar={state.svar} />}
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           {vunnetKort && (
             <button type="button" onClick={() => navigate(ROUTES.GALLERY)} style={primaerKnapp}><Layers size={18} aria-hidden="true" /> Se samlingen</button>
@@ -310,7 +322,7 @@ export function Quiz() {
     const spm = s.sporsmal[s.index];
     const riktig = erSvarRiktig(brukersvar, spm.riktigSvar);
     void (riktig ? hapticLett() : hapticTung()); // #17 haptikk på svar
-    const nySvar: SvarRad = { sporsmal: spm.sporsmal, brukersvar, riktig };
+    const nySvar: SvarRad = { sporsmal: spm.sporsmal, brukersvar, fasit: spm.riktigSvar, riktig };
     setValgtSvar(brukersvar);
     setFeedback({ riktig, fasit: spm.riktigSvar });
     window.setTimeout(() => {
@@ -319,12 +331,15 @@ export function Quiz() {
         // Øve-til-prøve: stokk om og start runden på nytt (endeløs repetisjon).
         setState({ ...s, sporsmal: byggSporsmalsliste(s.prove), index: 0, riktige: 0, svar: [] });
       } else {
-        setState({
+        const neste: QuizState = {
           ...s,
           index: nesteIndex,
           riktige: s.riktige + (riktig ? 1 : 0),
           svar: [...s.svar, nySvar],
-        });
+        };
+        setState(neste);
+        // Siste spørsmål besvart: lagre herfra (én gang) — ikke fra render.
+        if (!s.ovemodus && nesteIndex >= s.sporsmal.length) void avsluttOgLagre(neste);
       }
       setFeedback(null);
       setValgtSvar(null);
@@ -332,22 +347,26 @@ export function Quiz() {
   }
 
   async function avsluttOgLagre(s: QuizState) {
-    if (fase === 'resultat') return; // unngå dobbel lagring
+    if (harLagretRef.current) return; // unngå dobbel lagring
+    harLagretRef.current = true;
     setFase('resultat');
     const { riktige, totalt, prosent } = beregnResultat(s.riktige, s.sporsmal.length);
     const tidSekunder = Math.round((Date.now() - s.startTid) / 1000);
     const elevNavn = firebaseUser
       ? bruker?.displayName ?? firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'Elev'
       : navn.trim() || null;
+    // Dokumentet bygges ferdig FØR sending, så det kan køes uendret ved nettfeil.
+    const dok = byggResultatDokument({
+      prove: s.prove, riktige, totalt, prosent, svar: s.svar, tidSekunder,
+      elevNavn, elevUid: firebaseUser?.uid ?? null,
+    });
     try {
-      await lagreResultat({
-        prove: s.prove, riktige, totalt, prosent, svar: s.svar, tidSekunder,
-        elevNavn, elevUid: firebaseUser?.uid ?? null,
-      });
-      setLagret(true);
+      await lagreResultatDokument(dok);
+      setLagret('sendt');
     } catch (e) {
-      console.warn('Kunne ikke lagre resultat:', e);
-      setLagret(false);
+      console.warn('Kunne ikke sende resultat — legger i offline-kø:', e);
+      await leggIResultatKo(dok);
+      setLagret('koet');
     }
 
     // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
@@ -375,6 +394,36 @@ function Skjema({ tittel, beskrivelse, children }: { tittel: string; beskrivelse
         <p style={{ color: 'var(--color-text-muted)', fontSize: 15, marginBottom: 24 }}>{beskrivelse}</p>
         {children}
       </div>
+    </div>
+  );
+}
+
+/** Elevens svargjennomgang etter prøven: hvert spørsmål med eget svar og fasit. */
+function SvarGjennomgang({ svar }: { svar: SvarRad[] }) {
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}>
+      {svar.map((rad, i) => (
+        <div
+          key={i}
+          style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+            background: rad.riktig ? 'var(--color-success-light)' : 'var(--color-error-light)',
+            border: `2px solid ${rad.riktig ? 'var(--color-success)' : 'var(--color-error)'}`,
+            borderRadius: 14, padding: '10px 14px',
+          }}
+        >
+          <div>
+            <div style={{ fontWeight: 800, color: 'var(--color-text)' }}>{rad.sporsmal}</div>
+            <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+              Du svarte: {rad.brukersvar}
+              {!rad.riktig && rad.fasit ? <> — Fasit: <strong>{rad.fasit}</strong></> : null}
+            </div>
+          </div>
+          {rad.riktig
+            ? <Check size={18} color="var(--color-success)" aria-label="Riktig" />
+            : <X size={18} color="var(--color-error)" aria-label="Feil" />}
+        </div>
+      ))}
     </div>
   );
 }
@@ -415,6 +464,12 @@ const valgBoks: React.CSSProperties = {
 };
 const valgTittel: React.CSSProperties = { fontWeight: 800, fontSize: 16, color: 'var(--color-text)', marginTop: 4 };
 const valgTekst: React.CSSProperties = { fontSize: 13, color: 'var(--color-text-muted)', lineHeight: 1.4 };
+const svarKnapp: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)', border: 'none',
+  borderRadius: 14, padding: '12px 20px', fontSize: 15, fontWeight: 700,
+  cursor: 'pointer', fontFamily: 'var(--font-primary)',
+};
 const avsluttKnapp: React.CSSProperties = {
   background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)',
   borderRadius: 'var(--radius-full)', padding: '4px 14px', fontWeight: 700, fontSize: 13,

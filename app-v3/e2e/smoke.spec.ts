@@ -98,19 +98,23 @@ test('kvitteringsside vises etter kjøp (/oppgrader/takk)', async ({ page }) => 
 
 test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
   // Liten viewport-høyde + mye innhold (galleriet) → siden må kunne scrolles.
+  // html/body er overflow:hidden — appen scroller i .gm-scroll-root (Layout).
   await page.setViewportSize({ width: 1280, height: 600 });
   await page.goto('/galleri');
   await expect(page.getByText(/av 152 samlet/)).toBeVisible();
+  // Splash-en (#loading-screen, fixed + z-index 9999) fanger wheel-events til
+  // main.tsx fjerner den — vent til den er borte før vi scroller.
+  await page.locator('#loading-screen').waitFor({ state: 'detached' });
   const kanScrolle = await page.evaluate(() => {
-    const el = document.scrollingElement || document.documentElement;
-    return el.scrollHeight > el.clientHeight + 50;
+    const el = document.querySelector('.gm-scroll-root');
+    return !!el && el.scrollHeight > el.clientHeight + 50;
   });
   expect(kanScrolle).toBe(true);
   // Faktisk hjul-scroll skal flytte posisjonen (poll bort timing-flakiness).
   await page.mouse.move(640, 300);
   await page.mouse.wheel(0, 1000);
   await expect
-    .poll(() => page.evaluate(() => (document.scrollingElement || document.documentElement).scrollTop))
+    .poll(() => page.evaluate(() => document.querySelector('.gm-scroll-root')?.scrollTop ?? 0))
     .toBeGreaterThan(0);
 });
 

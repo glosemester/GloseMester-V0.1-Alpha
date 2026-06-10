@@ -1,23 +1,29 @@
 /**
  * Henter lærerens prøver + tilhørende resultater, og avleder enkel statistikk.
  * Port av v2 teacher-module loadTests/_loadResults, men som React-hook.
+ * Resultatene grupperes per elev («Ta på nytt» = flere forsøk i samme gruppe);
+ * snitt og klassestatus bruker beste forsøk per elev.
  */
 import { useCallback, useEffect, useState } from 'react';
 import { hentLaererProver, type Prove } from '../../lib/data/prover';
-import { hentResultaterForProver, type ProveResultat } from '../../lib/data/resultater';
+import { hentResultaterForLaerer, type ProveResultat } from '../../lib/data/resultater';
+import { grupperResultaterPerElev, beregnSnitt, type ElevGruppe } from './resultatGruppering';
 
 export interface ProveMedResultat extends Prove {
+  /** Alle innleveringer (rå, inkl. omtak). */
   resultater: ProveResultat[];
-  /** Gjennomsnittlig prosent over resultatene (0 hvis ingen). */
+  /** Innleveringene gruppert per elev (gjester = én rad per innlevering). */
+  grupper: ElevGruppe[];
+  /** Snitt-% over beste forsøk per elev (0 hvis ingen). */
   snitt: number;
 }
 
 export interface LaererData {
   prover: ProveMedResultat[];
   laster: boolean;
-  /** Sum gjennomføringer på tvers av prøver. */
+  /** Antall elever/gjester som har gjennomført, på tvers av prøver. */
   totaltGjennomforinger: number;
-  /** Snitt-% på tvers av alle resultater. */
+  /** Snitt-% på tvers av alle prøver (beste forsøk per elev). */
   totaltSnitt: number;
   reload: () => void;
 }
@@ -35,11 +41,11 @@ export function useLaererProver(uid: string | undefined): LaererData {
     setLaster(true);
     try {
       const p = await hentLaererProver(uid);
-      const resultater = p.length ? await hentResultaterForProver(p.map((x) => x.id)) : [];
+      const resultater = p.length ? await hentResultaterForLaerer(uid) : [];
       const medResultat: ProveMedResultat[] = p.map((prove) => {
         const egne = resultater.filter((r) => r.prove_id === prove.id);
-        const snitt = egne.length ? Math.round(egne.reduce((s, r) => s + r.prosent, 0) / egne.length) : 0;
-        return { ...prove, resultater: egne, snitt };
+        const grupper = grupperResultaterPerElev(egne);
+        return { ...prove, resultater: egne, grupper, snitt: beregnSnitt(grupper) };
       });
       setProver(medResultat);
     } catch (e) {
@@ -54,15 +60,13 @@ export function useLaererProver(uid: string | undefined): LaererData {
     void last();
   }, [last]);
 
-  const alleResultater = prover.flatMap((p) => p.resultater);
-  const totaltSnitt = alleResultater.length
-    ? Math.round(alleResultater.reduce((s, r) => s + r.prosent, 0) / alleResultater.length)
-    : 0;
+  const alleGrupper = prover.flatMap((p) => p.grupper);
+  const totaltSnitt = beregnSnitt(alleGrupper);
 
   return {
     prover,
     laster,
-    totaltGjennomforinger: alleResultater.length,
+    totaltGjennomforinger: alleGrupper.length,
     totaltSnitt,
     reload: () => void last(),
   };

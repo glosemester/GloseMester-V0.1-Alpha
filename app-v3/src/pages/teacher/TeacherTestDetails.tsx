@@ -3,17 +3,20 @@
  * Viser prøvekode + QR (lenke til /prove?kode=), elevresultater, og knapper for
  * å kopiere kode/lenke, redigere og slette prøven.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Copy, Link as LinkIcon, Pencil, Trash2, Users, CheckCircle2, Circle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
+import { beregnOrdStatistikk } from '../../features/teacher/resultatGruppering';
 import { slettProve, erProveUtloept } from '../../lib/data/prover';
 import { hentKlasseRoster, type KlasseElev } from '../../lib/data/users';
 import { toast } from '../../state/useToastStore';
 import { ROUTES } from '../../routes/paths';
 import { TEACHER_ROUTES } from './teacherPaths';
+import { ResultatListe } from './ResultatListe';
+import { OrdAnalyse } from './OrdAnalyse';
 
 export function TeacherTestDetails() {
   const navigate = useNavigate();
@@ -24,6 +27,12 @@ export function TeacherTestDetails() {
   const [roster, setRoster] = useState<KlasseElev[]>([]);
 
   const prove = prover.find((p) => p.id === testId);
+
+  // Ordanalyse over beste forsøk per elev — tom når ingen svardata finnes (legacy).
+  const ordStats = useMemo(
+    () => (prove ? beregnOrdStatistikk(prove.grupper, prove) : []),
+    [prove],
+  );
 
   // Hent klasse-roster når prøven er lastet og har tildelte grupper.
   useEffect(() => {
@@ -124,8 +133,7 @@ export function TeacherTestDetails() {
 
       {/* Klasse-roster — kun synlig når prøven er tildelt en klasse */}
       {roster.length > 0 && (() => {
-        const gjortUider = new Set(prove.resultater.map((r) => r.elev_id).filter(Boolean));
-        const antallGjort = roster.filter((e) => gjortUider.has(e.uid)).length;
+        const antallGjort = roster.filter((e) => prove.grupper.some((g) => g.elevId === e.uid)).length;
         return (
           <div style={{ marginBottom: 28 }}>
             <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 4 }}>
@@ -140,19 +148,21 @@ export function TeacherTestDetails() {
                 <div style={{ height: '100%', width: `${roster.length ? (antallGjort / roster.length) * 100 : 0}%`, background: 'var(--color-success)', transition: 'width 0.5s ease' }} />
               </div>
               {roster.map((elev) => {
-                const resultat = prove.resultater.find((r) => r.elev_id === elev.uid);
-                const gjort = !!resultat;
+                const gruppe = prove.grupper.find((g) => g.elevId === elev.uid);
                 return (
                   <div key={elev.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderTop: '1px solid var(--color-border)', fontSize: 14, gap: 12 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text)' }}>
-                      {gjort
+                      {gruppe
                         ? <CheckCircle2 size={16} color="var(--color-success)" aria-hidden="true" />
                         : <Circle size={16} color="var(--color-text-muted)" aria-hidden="true" />}
                       {elev.navn}
+                      {gruppe && gruppe.antallForsok > 1 && (
+                        <span style={forsokPille}>{gruppe.antallForsok} forsøk</span>
+                      )}
                     </span>
-                    {gjort
-                      ? <span style={{ fontWeight: 700, color: resultat.prosent >= 70 ? 'var(--color-success)' : resultat.prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)' }}>
-                          {resultat.prosent}%
+                    {gruppe
+                      ? <span style={{ fontWeight: 700, color: gruppe.beste.prosent >= 70 ? 'var(--color-success)' : gruppe.beste.prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)' }}>
+                          {gruppe.beste.prosent}%
                         </span>
                       : <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Ikke gjennomført</span>}
                   </div>
@@ -160,35 +170,38 @@ export function TeacherTestDetails() {
               })}
             </div>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 8 }}>
-              Viser elever som har logget inn i GloseMester med Feide.
+              Viser elever som har logget inn i GloseMester med Feide. Ved flere forsøk telles det beste.
             </p>
           </div>
         );
       })()}
 
-      {/* Resultater — alle innleveringer inkl. gjester og duplikater */}
+      {/* Ordanalyse — hvilke gloser klassen sliter med (beste forsøk per elev) */}
+      {ordStats.length > 0 && (
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 4 }}>
+            Ordanalyse
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 13, marginBottom: 12 }}>
+            Disse glosene sliter klassen mest med
+          </p>
+          <OrdAnalyse stats={ordStats} />
+        </div>
+      )}
+
+      {/* Resultater — gruppert per elev, gjester som egne rader */}
       <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)', marginBottom: 12 }}>
-        Resultater ({prove.resultater.length})
+        Resultater ({prove.grupper.length})
       </h2>
-      {prove.resultater.length === 0 ? (
+      {prove.grupper.length === 0 ? (
         <p style={{ color: 'var(--color-text-muted)' }}>Ingen resultater ennå. Del prøven med klassen for å samle inn besvarelser.</p>
       ) : (
-        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', background: 'var(--color-primary-light)', fontWeight: 700, fontSize: 14, color: 'var(--color-text-muted)' }}>
-            Snitt: {prove.snitt}%
+        <>
+          <div style={{ padding: '12px 16px', background: 'var(--color-primary-light)', fontWeight: 700, fontSize: 14, color: 'var(--color-text-muted)', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
+            Snitt: {prove.snitt}% (beste forsøk)
           </div>
-          {prove.resultater
-            .slice()
-            .sort((a, b) => b.prosent - a.prosent)
-            .map((r, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid var(--color-border)', fontSize: 14 }}>
-                <span style={{ color: 'var(--color-text)' }}>{r.elevNavn}</span>
-                <span style={{ fontWeight: 700, color: r.prosent >= 70 ? 'var(--color-success)' : r.prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)' }}>
-                  {r.prosent}% ({r.poengsum}/{r.maksPoeng})
-                </span>
-              </div>
-            ))}
-        </div>
+          <ResultatListe grupper={prove.grupper} />
+        </>
       )}
     </div>
   );
@@ -218,4 +231,9 @@ const gruppePille: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center',
   background: 'var(--color-primary-light)', color: 'var(--color-primary)',
   borderRadius: 'var(--radius-full)', padding: '3px 12px', fontSize: 13, fontWeight: 700,
+};
+const forsokPille: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center',
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+  borderRadius: 'var(--radius-full)', padding: '2px 10px', fontSize: 12, fontWeight: 700,
 };
