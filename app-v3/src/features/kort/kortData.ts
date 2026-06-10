@@ -5,7 +5,7 @@
  */
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder';
+export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener';
 
 export interface KortDef {
   id: string;
@@ -126,6 +126,28 @@ const guder: Rad[] = [
   ['037-fenrir.png', 'Fenrisulven'], ['038-jormungandr.png', 'Midgardsormen'],
 ];
 
+const romvesener: Rad[] = [
+  ['001-zorg.png', 'Zorg'], ['002-beep.png', 'Beep'],
+  ['003-glorp.png', 'Glorp'], ['004-pip.png', 'Pip'],
+  ['005-nova.png', 'Nova'], ['006-spark.png', 'Spark'],
+  ['007-flip.png', 'Flip'], ['008-dusty.png', 'Dusty'],
+  ['009-frosty.png', 'Frosty'], ['010-bubbles.png', 'Bubbles'],
+  ['011-echo.png', 'Echo'], ['012-glow.png', 'Glow'],
+  ['013-zoom.png', 'Zoom'], ['014-patches.png', 'Patches'],
+  ['015-orbit.png', 'Orbit'], ['016-spike.png', 'Spike'],
+  ['017-wisp.png', 'Wisp'], ['018-byte.png', 'Byte'],
+  ['019-sprout.png', 'Sprout'], ['020-marble.png', 'Marble'],
+  ['021-prism.png', 'Prism'], ['022-twirl.png', 'Twirl'],
+  ['023-pixel.png', 'Pixel'], ['024-shimmer.png', 'Shimmer'],
+  ['025-fluff.png', 'Fluff'], ['026-tide.png', 'Tide'],
+  ['027-ember.png', 'Ember'], ['028-breeze.png', 'Breeze'],
+  ['029-terra.png', 'Terra'], ['030-zenith.png', 'Zenith'],
+  ['031-aurora.png', 'Aurora'], ['032-cosmos.png', 'Cosmos'],
+  ['033-quantum.png', 'Quantum'], ['034-stardust.png', 'Stardust'],
+  ['035-eclipse.png', 'Eclipse'], ['036-supernova.png', 'Supernova'],
+  ['037-nebula.png', 'Nebula'], ['038-galaxia.png', 'Galaxia'],
+];
+
 /**
  * Kortpakke. Sett `aktiv: false` for å STAGE en pakke i koden uten å rulle den
  * ut ennå (kortene vises ikke i galleri/belønning før den slås på).
@@ -149,6 +171,8 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'dino', mappe: 'dinosaurer', navn: 'Dinosaurer', aktiv: true, rader: dinosaurer },
   { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
+  // Staget: bilder genereres/optimaliseres — slå på når de er committet.
+  { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: false, rader: romvesener },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
 

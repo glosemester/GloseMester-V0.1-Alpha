@@ -5,17 +5,23 @@
  * Oppdater deretter bygg() i kortData.ts til .webp (gjort).
  */
 import sharp from 'sharp';
-import { readdirSync, statSync, unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = '/home/user/GloseMester-V0.1-Alpha/images';
-const KATEGORIER = ['biler', 'dinosaurer', 'dyr', 'guder'];
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'images');
+// Kategorier kan angis som argumenter (f.eks. `node … romvesener`); uten
+// argumenter tas alle. Mapper uten .png-filer hoppes uansett over.
+const KATEGORIER = process.argv.slice(2).length
+  ? process.argv.slice(2)
+  : ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter'];
 const MAKS = 320;
 const KVALITET = 82;
 
 let f0 = 0, f1 = 0, n = 0;
 for (const kat of KATEGORIER) {
   const dir = join(ROOT, kat);
+  if (!existsSync(dir)) continue;
   for (const fil of readdirSync(dir)) {
     if (!fil.endsWith('.png')) continue;
     const src = join(dir, fil);
