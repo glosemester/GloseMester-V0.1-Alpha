@@ -154,9 +154,9 @@ Netlify publiserer automatisk når `main` oppdateres.
 
 | Kategori | Manifest | Bilder | Aktivert |
 |---|---|---|---|
-| Romvesener | `kort-manifest-romvesener.json` | ✅ 38 WebP | ✅ |
-| Planeter | `kort-manifest-planeter.json` | — | — |
-| Skandinaviske mytiske skapninger | — | — | — |
+| Romvesener | `kort-manifest-romvesener.json` | ✅ 38 WebP | ✅ (PR #94) |
+| Planeter | `kort-manifest-planeter.json` | genereres | staget (`aktiv: false`) |
+| Mytiske skapninger | `kort-manifest-skapninger.json` | — | staget (`aktiv: false`) |
 
 ---
 
