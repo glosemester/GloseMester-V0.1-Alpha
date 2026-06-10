@@ -4,6 +4,8 @@
  * posisjon (samme formel som v2 getRarity), så listene holdes kompakte.
  */
 
+import type { CSSProperties } from 'react';
+
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
 export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger';
 
@@ -19,14 +21,25 @@ export interface KortDef {
 export interface RarityConfig {
   tekst: string;
   farge: string;
+  /** Radius (px) for animert glød — sterkere jo sjeldnere kortet er. */
+  glodRadius: number;
 }
 
 export const RARITY_CONFIG: Record<Rarity, RarityConfig> = {
-  common: { tekst: 'Vanlig', farge: '#a1a1a1' },
-  rare: { tekst: 'Sjelden', farge: '#0071e3' },
-  epic: { tekst: 'Episk', farge: '#8e44ad' },
-  legendary: { tekst: 'Legendarisk', farge: '#f1c40f' },
+  common: { tekst: 'Vanlig', farge: '#a1a1a1', glodRadius: 5 },
+  rare: { tekst: 'Sjelden', farge: '#0071e3', glodRadius: 8 },
+  epic: { tekst: 'Episk', farge: '#8e44ad', glodRadius: 12 },
+  legendary: { tekst: 'Legendarisk', farge: '#f1c40f', glodRadius: 16 },
 };
+
+/** Inline CSS-variabler for `.kort-glod` (base.css) — animert glød i sjeldenhetsfargen. */
+export function glodStil(rarity: Rarity): CSSProperties {
+  const cfg = RARITY_CONFIG[rarity];
+  return {
+    '--glod-farge': cfg.farge,
+    '--glod-radius': `${cfg.glodRadius}px`,
+  } as CSSProperties;
+}
 
 /** Sjeldenhet ut fra kortnummer 1–38 (jf. v2 getRarity). */
 function getRarity(num: number): Rarity {
@@ -215,8 +228,8 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'dino', mappe: 'dinosaurer', navn: 'Dinosaurer', aktiv: true, rader: dinosaurer },
   { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
+  { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
   // Staget: bilder genereres/optimaliseres — slå på når de er committet.
-  { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: false, rader: romvesener },
   { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: false, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
