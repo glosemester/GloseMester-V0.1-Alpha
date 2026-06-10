@@ -52,10 +52,25 @@ function lesArgs() {
     const i = args.indexOf(navn);
     return i >= 0 ? args[i + 1] : undefined;
   };
+  // --kun: PowerShell splitter ukvoterte kommalister til separate argumenter
+  // og stripper ledende nuller (001,002 → 1 2) — samle alt frem til neste
+  // flagg og normaliser til tresifret kortnummer.
+  let kun;
+  const kunIndex = args.indexOf('--kun');
+  if (kunIndex >= 0) {
+    kun = [];
+    for (let j = kunIndex + 1; j < args.length && !args[j].startsWith('--'); j++) {
+      kun.push(...args[j].split(','));
+    }
+    kun = kun
+      .map((v) => parseInt(v.trim(), 10))
+      .filter((n) => Number.isFinite(n))
+      .map((n) => String(n).padStart(3, '0'));
+  }
   return {
     manifestSti,
     modell: flagg('--model') ?? STANDARD_MODELL,
-    kun: flagg('--kun')?.split(',').map((s) => s.trim()),
+    kun,
   };
 }
 
