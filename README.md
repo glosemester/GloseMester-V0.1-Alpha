@@ -11,6 +11,24 @@ GloseMester er en Progressive Web App (PWA) som gjør glosepugging om til en ska
 
 ---
 
+## 🔁 Huskeregelen for hver arbeidsøkt (så ingenting overskrives)
+
+```bash
+git checkout main
+git pull                         # hent siste FØR du begynner (også det Claude gjør i skyøkter)
+git checkout -b min-endring      # jobb alltid i en branch, aldri rett på main
+# ...jobb, commit underveis...
+git push -u origin min-endring   # → opprett PR på GitHub → merge når CI er grønn
+```
+
+Netlify publiserer automatisk til glosemester.no når PR-en merges til `main`.
+Git nekter å overskrive ting på GitHub av seg selv — får du feilmelding ved push,
+er det bare å kjøre `git pull` først og prøve igjen. **Aldri `git push --force` på main.**
+
+Fullt førstegangsoppsett (Windows, VS Code/Cursor, .env): se [docs/UTVIKLING.md](docs/UTVIKLING.md).
+
+---
+
 ## 🆕 NYTT I v2.5.0-ALPHA (30. mai 2026) — Arkitektur-opprydding (Del A)
 
 ### ✅ Fjernet kodeoverlapp fra halvferdig V1→V2-migrering
