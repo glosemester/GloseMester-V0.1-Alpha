@@ -230,7 +230,7 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
   { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
   // Staget: bilder genereres/optimaliseres — slå på når de er committet.
-  { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: false, rader: planeter },
+  { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
