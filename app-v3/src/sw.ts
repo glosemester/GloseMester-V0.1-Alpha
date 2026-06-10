@@ -1,7 +1,15 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { clientsClaim } from 'workbox-core';
 
 declare const self: ServiceWorkerGlobalScope;
+
+// Ny versjon tar over umiddelbart — uten dette blir den nye service workeren
+// stående i «waiting» til ALLE faner/appen lukkes helt, og brukerne fortsetter
+// på den gamle precachede versjonen lenge etter deploy.
+self.skipWaiting();
+clientsClaim();
+cleanupOutdatedCaches();
 
 // VitePWA injiserer precache-manifestet her.
 precacheAndRoute(self.__WB_MANIFEST);
