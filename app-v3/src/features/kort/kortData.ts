@@ -26,10 +26,10 @@ export interface RarityConfig {
 }
 
 export const RARITY_CONFIG: Record<Rarity, RarityConfig> = {
-  common: { tekst: 'Vanlig', farge: '#a1a1a1', glodRadius: 5 },
-  rare: { tekst: 'Sjelden', farge: '#0071e3', glodRadius: 8 },
-  epic: { tekst: 'Episk', farge: '#8e44ad', glodRadius: 12 },
-  legendary: { tekst: 'Legendarisk', farge: '#f1c40f', glodRadius: 16 },
+  common: { tekst: 'Vanlig', farge: '#a1a1a1', glodRadius: 8 },
+  rare: { tekst: 'Sjelden', farge: '#0071e3', glodRadius: 12 },
+  epic: { tekst: 'Episk', farge: '#8e44ad', glodRadius: 16 },
+  legendary: { tekst: 'Legendarisk', farge: '#f1c40f', glodRadius: 22 },
 };
 
 /** Inline CSS-variabler for `.kort-glod` (base.css) — animert glød i sjeldenhetsfargen. */
