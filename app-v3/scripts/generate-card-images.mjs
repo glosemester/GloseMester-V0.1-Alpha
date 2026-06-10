@@ -27,15 +27,15 @@ import { fileURLToPath } from 'node:url';
 // [RARITY-BAKGRUNN], high detail, card game aesthetic. Kategoristilen kan
 // overstyres per manifest med feltet "kategoriStil".
 const STANDARD_KATEGORI_STIL =
-  'digital trading card art style, painterly illustration, single centered subject, ' +
+  'digital trading card art style, detailed digital illustration, single centered subject, ' +
   'vibrant colors, kid-friendly';
 
 // Bakgrunnen koder sjeldenheten — samme posisjonsformel som kortData.ts getRarity.
 function rarityBakgrunn(nummer) {
-  if (nummer >= 36) return 'golden glow to yellow gradient background';   // legendary
-  if (nummer >= 31) return 'purple to dark purple gradient background';   // epic
-  if (nummer >= 21) return 'light blue to blue gradient background';      // rare
-  return 'white to light gray gradient background';                      // common
+  if (nummer >= 36) return 'golden glow to yellow gradient background, warm radiant lighting';   // legendary
+  if (nummer >= 31) return 'purple to dark purple gradient background, mystical lighting';        // epic
+  if (nummer >= 21) return 'light blue to blue gradient background, bright lighting';             // rare
+  return 'soft white to light gray gradient background, bright airy lighting';                   // common
 }
 
 const STANDARD_MODELL = 'gpt-image-1-mini';
@@ -121,7 +121,7 @@ for (const kort of manifest.kort) {
   }
   const nummer = parseInt(kort.fil.slice(0, 3), 10);
   const prompt = `${kort.navn}, ${kort.prompt}, ${kategoriStil}, ${rarityBakgrunn(nummer)}, ` +
-    'high detail, card game aesthetic, no text or letters in the image';
+    'high detail, full-bleed edge-to-edge artwork, no card frame, no border, no text or letters in the image';
   process.stdout.write(`Genererer ${kort.fil} (${modell})… `);
   try {
     writeFileSync(pngSti, await genererBilde(apiKey, modell, prompt));
