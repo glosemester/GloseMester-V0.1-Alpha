@@ -4,7 +4,7 @@
     {
       "fil": "001-zorg.png",
       "navn": "Zorg",
-      "prompt": "friendly green alien with big eyes and antenna, smiling, wearing space suit with Norwegian flag patch, floating in space, vibrant colors"
+      "prompt": "friendly green alien with big eyes and antenna, smiling, wearing space suit with Norwegian flag patch, vibrant colors"
     },
     {
       "fil": "002-beep.png",
@@ -14,7 +14,7 @@
     {
       "fil": "003-glorp.png",
       "navn": "Glorp",
-      "prompt": "purple blob-like alien with tentacles, happy face, bouncing on moon surface, vibrant space colors"
+      "prompt": "purple blob-like alien with tentacles, happy face, vibrant space colors"
     },
     {
       "fil": "004-pip.png",
@@ -24,7 +24,7 @@
     {
       "fil": "005-nova.png",
       "navn": "Nova",
-      "prompt": "pink alien with crystal antennae, glowing softly, sitting on colorful planet"
+      "prompt": "pink alien with crystal antennae, glowing softly"
     },
     {
       "fil": "006-spark.png",
@@ -34,7 +34,7 @@
     {
       "fil": "007-flip.png",
       "navn": "Flip",
-      "prompt": "acrobatic teal alien doing backflip in zero gravity, bright colors"
+      "prompt": "bright colors"
     },
     {
       "fil": "008-dusty.png",
@@ -64,17 +64,17 @@
     {
       "fil": "013-zoom.png",
       "navn": "Zoom",
-      "prompt": "racing through asteroid belt, dynamic pose, bright colors"
+      "prompt": "dynamic pose, bright colors"
     },
     {
       "fil": "014-patches.png",
       "navn": "Patches",
-      "prompt": "colorful patchwork alien made of different textures, sitting on rainbow planet"
+      "prompt": "colorful patchwork alien made of different textures"
     },
     {
       "fil": "015-orbit.png",
       "navn": "Orbit",
-      "prompt": "circular alien spinning in orbit"
+      "prompt": ""
     },
     {
       "fil": "016-spike.png",
@@ -192,5 +192,5 @@
       "prompt": "supreme cosmic being, entire galaxy visible in transparent body, surrounded by orbiting stars and planets, godlike but friendly, golden and holographic effects"
     }
   ],
-  "kategoriStil": "friendly alien character, digital trading card art style, futuristic sci-fi illustration, painterly, expressive features, vibrant colors, kid-friendly"
+  "kategoriStil": "cute friendly alien character, digital trading card art style, detailed sci-fi illustration, expressive features, vibrant colors, kid-friendly"
 }
