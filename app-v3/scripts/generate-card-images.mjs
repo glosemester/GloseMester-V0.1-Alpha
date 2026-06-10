@@ -22,15 +22,16 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Felles stil for alle kort — samme retningslinjer som Midjourney-promptene
-// (digital trading card, romtema, barnevennlig), uten Midjourney-flaggene.
+// Felles stil for alle kort — matcher de EKSISTERENDE kortene i samlingen
+// (jf. images/dyr, images/guder): malerisk illustrasjon, ett sentrert motiv,
+// myk gradient-bakgrunn, 1:1. Ikke flat cartoon.
 const STANDARD_STIL =
-  'Digital trading card art, vibrant colors, playful and educational, cartoon style, ' +
-  'high quality illustration, clean composition, colorful gradient space background, ' +
-  'kid-friendly design, sharp details, portrait trading card format, no text or letters in the image';
+  'digital trading card art, painterly illustration style, single centered subject, ' +
+  'soft gradient background, dramatic lighting, high detail, vibrant colors, ' +
+  'kid-friendly, card game aesthetic, no text or letters in the image';
 
 const STANDARD_MODELL = 'gpt-image-1-mini';
-const STORRELSE = '1024x1536'; // 2:3 — trading card-formatet kortene bruker
+const STORRELSE = '1024x1024'; // 1:1 — samme kvadratiske format som eksisterende kort
 
 function lesArgs() {
   const args = process.argv.slice(2);

@@ -2,8 +2,9 @@
 
 Erstatter den manuelle Midjourney-flyten (`docs/arkiv/MIDJOURNEY_MATTEMESTER_KORT.md`).
 Motor: **OpenAI gpt-image-1-mini** (~$0.005/bilde → en hel 38-korts kategori for ca. $0.19).
-Formatet er 1024×1536 (2:3, samme som eksisterende kort), og sluttbildene blir uansett
-320px WebP, så mini-kvalitet holder. Enkeltkort kan regenereres med `--model gpt-image-1.5`.
+Formatet er 1024×1024 (1:1, samme som eksisterende kort), stilen er malerisk
+illustrasjon som matcher dagens samling, og sluttbildene blir uansett 320px WebP,
+så mini-kvalitet holder. Enkeltkort kan regenereres med `--model gpt-image-1.5`.
 
 ## Slik lager du en ny kategori
 
@@ -22,7 +23,7 @@ Formatet er 1024×1536 (2:3, samme som eksisterende kort), og sluttbildene blir 
    38 kort per kategori; rekkefølgen styrer sjeldenhet (1–20 common, 21–30 rare,
    31–35 epic, 36–38 legendary — jf. `getRarity` i `kortData.ts`). Prompt-idéer:
    gjenbruk beskrivelsene fra Midjourney-dokumentet, uten `--ar`/`--v`-flaggene
-   (felles stilprefiks legges på automatisk).
+   (felles stilprefiks som matcher eksisterende kort legges på automatisk).
 
 2. **Generer** (API-nøkkelen settes i miljøet, aldri i repoet):
 
