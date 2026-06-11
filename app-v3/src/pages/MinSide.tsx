@@ -5,13 +5,16 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock, CheckCircle2, Circle, Bell, BellOff } from 'lucide-react';
+import { Layers, Package, Gift, User, ShieldCheck, MessageCircle, Download, Trash2, FileText, Lock, CheckCircle2, Circle, Bell, BellOff, TrendingUp, Unlock } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { aktiverKampanjekode } from '../lib/data/kampanje';
 import { eksporterMinData, slettMinKonto } from '../lib/data/gdpr';
 import { hentSamling, samlingStats } from '../features/kort/kortSamling';
 import { getKortById, getTotalKortCount, glodStil, RARITY_CONFIG } from '../features/kort/kortData';
+import { getTotalCorrect } from '../lib/storage';
+import { nivaProgresjon, nesteOpplasning } from '../features/niva/nivaSystem';
+import { NivaRing } from '../components/NivaBadge';
 import { TokenBalance } from '../components/TokenBalance';
 import { ABONNEMENT_ETIKETT, hentTilgangsliste } from '../lib/tilgang';
 import { pushStøttes, abonnerPåVarsler, avmelding, erAbonnert } from '../lib/push';
@@ -161,6 +164,31 @@ export function MinSide() {
             </button>
           </>
         )}
+      </Kort>
+
+      {/* Elevnivå — utledet fra total XP (riktige svar) */}
+      <Kort tittel={<><TrendingUp size={20} color="var(--color-primary)" aria-hidden="true" /> Nivået ditt</>}>
+        {(() => {
+          const p = nivaProgresjon(getTotalCorrect('gloser'));
+          const neste = nesteOpplasning(p.niva);
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <NivaRing niva={p.niva} prosent={p.prosent} storrelse={84} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontWeight: 800, fontSize: 18 }}>Nivå {p.niva}</span>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
+                  {p.erMaks ? 'Du har nådd toppen — alle kort er låst opp!' : `${p.xpTilNeste} XP til nivå ${p.niva + 1}. Hvert riktige svar gir 1 XP.`}
+                </span>
+                {neste && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>
+                    <Unlock size={14} color={RARITY_CONFIG[neste.rarity].farge} aria-hidden="true" />
+                    Neste opplåsing: {neste.etikett} (nivå {neste.niva})
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </Kort>
 
       {/* Byttesjetonger */}

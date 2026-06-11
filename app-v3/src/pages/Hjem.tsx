@@ -8,6 +8,8 @@ import { BookOpen, FileText, Layers, User, Target, Flame, ClipboardList, type Lu
 import { useAuthStore } from '../state/useAuthStore';
 import { hentLaererProver } from '../lib/data/prover';
 import { lesStreak } from '../lib/streak';
+import { getTotalCorrect } from '../lib/storage';
+import { NivaBadge } from '../components/NivaBadge';
 import { OnboardingModal } from '../components/OnboardingModal';
 import { ROUTES } from '../routes/paths';
 // «Logg ut» ligger nå i den globale AppHeader (tilgjengelig fra alle sider).
@@ -29,6 +31,8 @@ export function Hjem() {
   const [hover, setHover] = useState<string | null>(null);
   // Bug 6: streaken er en motivator også utenfor øvemodus.
   const streak = lesStreak();
+  // Elevnivå utledes fra total XP (riktige svar) — vises som ring med fremdrift.
+  const xp = getTotalCorrect('gloser');
 
   // #19 Forhåndslast lærerens prøver mens brukeren er på hjem, så lærerpanelet
   // vises umiddelbart ved navigering (og varmer offline-cachen, jf. #20).
@@ -60,18 +64,21 @@ export function Hjem() {
         <h1 style={{ fontSize: 'clamp(28px, 5vw, 38px)', fontWeight: 900, lineHeight: 1.1 }}>
           Hei{bruker?.displayName ? `, ${bruker.displayName}` : ''}!
         </h1>
-        {streak >= 2 && (
-          <div
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12,
-              background: 'var(--color-primary-light)', color: 'var(--color-primary)',
-              borderRadius: 999, padding: '6px 14px', fontWeight: 800, fontSize: 14,
-            }}
-            aria-label={`Streak: ${streak} riktige på rad`}
-          >
-            <Flame size={16} aria-hidden="true" /> {streak} på rad
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 12, flexWrap: 'wrap' }}>
+          <NivaBadge xp={xp} storrelse={52} visEtikett />
+          {streak >= 2 && (
+            <div
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+                borderRadius: 999, padding: '6px 14px', fontWeight: 800, fontSize: 14,
+              }}
+              aria-label={`Streak: ${streak} riktige på rad`}
+            >
+              <Flame size={16} aria-hidden="true" /> {streak} på rad
+            </div>
+          )}
+        </div>
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>

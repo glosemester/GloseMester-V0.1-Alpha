@@ -4,6 +4,7 @@
  * av dubletter. rng er injiserbar for deterministisk testing.
  */
 import { kortData, type Category, type KortDef, type Rarity } from './kortData';
+import { erKortLaast } from '../niva/nivaSystem';
 
 type Rng = () => number;
 
@@ -34,19 +35,25 @@ export function getCategoriesForLevel(
   tilgjengeligeKategorier?: readonly Category[],
 ): Category[] {
   const level = typeof niva === 'string' ? parseInt(niva.replace('niva', ''), 10) : niva;
-  const base: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder'];
+  const base: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter'];
   // Filter by Feide access first, then apply level rules (guder only niva 3–4).
   const allowed = tilgjengeligeKategorier ? base.filter((c) => tilgjengeligeKategorier.includes(c)) : base;
   if (level === 1 || level === 2) return allowed.filter((c) => c !== 'guder');
   return allowed;
 }
 
-/** Trekker et tilfeldig kort av ønsket sjeldenhet, evt. nivå- og tilgangsfiltrert. */
+/**
+ * Trekker et tilfeldig kort av ønsket sjeldenhet, evt. nivå- og tilgangsfiltrert.
+ * `elevNiva` (1–10, null = gjest) filtrerer bort nivålåste kort FØR
+ * sjeldenhetssplitten — gratis-pakkene er aldri låst, så poolen tømmes aldri
+ * og en rullet episk/legendarisk på lavt nivå lander i en gratis-pakke.
+ */
 export function getRandomKort(
   rarity: Rarity,
   niva: number | string | null = null,
   rng: Rng = Math.random,
   tilgjengeligeKategorier?: readonly Category[],
+  elevNiva: number | null = null,
 ): KortDef {
   let pool = kortData.filter((k) => k.fag === 'gloser');
   if (niva) {
@@ -55,6 +62,7 @@ export function getRandomKort(
   } else if (tilgjengeligeKategorier) {
     pool = pool.filter((k) => tilgjengeligeKategorier.includes(k.category));
   }
+  if (elevNiva !== null) pool = pool.filter((k) => !erKortLaast(k, elevNiva));
   let mulige = pool.filter((k) => k.rarity === rarity);
   if (mulige.length === 0) mulige = pool;
   return mulige[Math.floor(rng() * mulige.length)];
@@ -69,9 +77,10 @@ export function checkWinCondition(
   niva: number | string | null = null,
   rng: Rng = Math.random,
   tilgjengeligeKategorier?: readonly Category[],
+  elevNiva: number | null = null,
 ): KortDef | null {
   if (totalQuestions <= 0) return null;
   const percentage = Math.round((correctCount / totalQuestions) * 100);
   if (percentage < 80) return null;
-  return getRandomKort(calculateRarity(percentage, rng), niva, rng, tilgjengeligeKategorier);
+  return getRandomKort(calculateRarity(percentage, rng), niva, rng, tilgjengeligeKategorier, elevNiva);
 }
