@@ -38,13 +38,13 @@
     { "fil": "027-hugin-og-munin.png", "navn": "Hugin og Munin", "prompt": "two majestic black ravens perched together, glossy feathers with blue sheen, intelligent knowing eyes, one whispering to the other" },
     { "fil": "028-heidrun.png", "navn": "Heidrun", "prompt": "magnificent white goat with golden horns, standing proudly, droplets of golden mead glistening at her muzzle" },
     { "fil": "029-gullinbuste.png", "navn": "Gullinbuste", "prompt": "magnificent boar with bristles of pure shining gold that glow like sunlight, powerful stance, gleaming tusks" },
-    { "fil": "030-selkje.png", "navn": "Selkje", "prompt": "seal shapeshifter, gentle young woman half-emerged from a silvery seal skin draped over her shoulders, sea-gray eyes" },
-    { "fil": "031-valkyrje.png", "navn": "Valkyrje", "prompt": "winged warrior maiden with shining chainmail, raised spear and shield, white swan wings, braided blond hair, fierce noble gaze" },
-    { "fil": "032-jotne.png", "navn": "Jotne", "prompt": "colossal frost giant with ice-blue skin, frost-covered beard like icicles, fur cloak, breath visible as freezing mist" },
-    { "fil": "033-garm.png", "navn": "Garm", "prompt": "giant guardian hound with blood-red chest, massive black fur, glowing eyes, chained collar of heavy iron links" },
+    { "fil": "030-selkje.png", "navn": "Selkje", "prompt": "zoomed out wide shot, full body seal shapeshifter, gentle young woman half-emerged from a silvery seal skin draped over her shoulders, sea-gray eyes, ample space above head, do not crop" },
+    { "fil": "031-valkyrje.png", "navn": "Valkyrje", "prompt": "zoomed out wide shot, full body winged warrior maiden with shining chainmail, raised spear and shield, white swan wings, braided blond hair, fierce noble gaze, ample space above head, do not crop" },
+    { "fil": "032-jotne.png", "navn": "Jotne", "prompt": "zoomed out wide shot, full body colossal frost giant with ice-blue skin, frost-covered beard like icicles, fur cloak, breath visible as freezing mist, ample space above head, do not crop" },
+    { "fil": "033-garm.png", "navn": "Garm", "prompt": "zoomed out wide shot, full body giant guardian hound with blood-red chest, massive black fur, glowing eyes, chained collar of heavy iron links, ample space above head, do not crop" },
     { "fil": "034-hresvelg.png", "navn": "Hræsvelg", "prompt": "enormous eagle giant with storm-gray feathers, wings spread wide creating wind, ancient piercing eyes" },
     { "fil": "035-sleipner.png", "navn": "Sleipner", "prompt": "majestic gray eight-legged horse in full gallop, flowing silver mane and tail, muscular and otherworldly" },
-    { "fil": "036-dovregubben.png", "navn": "Dovregubben", "prompt": "the troll mountain king on his stone throne, enormous old troll with a crown of gold and antlers, glowing crystal scepter, moss-covered royal robes" },
+    { "fil": "036-dovregubben.png", "navn": "Dovregubben", "prompt": "zoomed out wide shot, full body the troll mountain king on his stone throne, enormous old troll with a crown of gold and antlers, glowing crystal scepter, moss-covered royal robes, ample space above head, do not crop" },
     { "fil": "037-kraken.png", "navn": "Kraken", "prompt": "legendary giant octopus sea monster, massive curling tentacles with golden suckers, huge intelligent eye, barnacle-crusted hide" },
     { "fil": "038-nidhogg.png", "navn": "Nidhogg", "prompt": "fearsome dark dragon with obsidian scales and golden underbelly, gnawing on a massive ancient root, smoldering eyes, tattered wings" }
   ]
