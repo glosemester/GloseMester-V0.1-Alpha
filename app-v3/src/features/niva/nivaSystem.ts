@@ -33,6 +33,29 @@ export function nivaFarge(niva: number): string {
 /** Kumulativ XP (riktige svar) som kreves for å NÅ nivå n (index 0 = nivå 1). */
 export const NIVA_TERSKLER = [0, 50, 125, 225, 350, 500, 700, 950, 1250, 1600] as const;
 
+/**
+ * Rangnavn per nivå (1–10) — vises på badge, i nivåoversikten og i feiringen.
+ * Stigende «glose»-tema som topper i appens eget navn på maksnivå.
+ */
+export const NIVA_TITLER = [
+  'Nybegynner',   // 1
+  'Lærling',      // 2
+  'Ordsamler',    // 3
+  'Ordjeger',     // 4
+  'Glosekjenner', // 5
+  'Ordkunstner',  // 6
+  'Språkspeider', // 7
+  'Glosehelt',    // 8
+  'Ordmester',    // 9
+  'Glosemester',  // 10
+] as const;
+
+/** Rangnavnet for et nivå (klamret til 1–10). */
+export function nivaTittel(niva: number): string {
+  const klamret = Math.min(MAKS_NIVA, Math.max(1, Math.round(niva)));
+  return NIVA_TITLER[klamret - 1];
+}
+
 /** Elevnivå 1–10 ut fra total XP. Tåler NaN/negativ (→ 1). */
 export function beregnElevNiva(xp: number): number {
   if (!Number.isFinite(xp) || xp < 0) return 1;

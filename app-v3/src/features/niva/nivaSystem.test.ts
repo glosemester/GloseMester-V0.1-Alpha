@@ -2,16 +2,35 @@ import { describe, it, expect } from 'vitest';
 import {
   MAKS_NIVA,
   NIVA_TERSKLER,
+  NIVA_TITLER,
   OPPLASNINGER,
   beregnElevNiva,
   erKortLaast,
   nesteOpplasning,
   nivaProgresjon,
+  nivaTittel,
   opplasningerVedNiva,
   opplastVedNiva,
   sjekkNivaOpp,
 } from './nivaSystem';
 import { GRATIS_KORTPAKKER } from '../../lib/tilgang';
+
+describe('nivaTittel', () => {
+  it('har ett rangnavn per nivå', () => {
+    expect(NIVA_TITLER).toHaveLength(MAKS_NIVA);
+  });
+
+  it('gir riktig navn for nivå 1, 3 og maksnivå', () => {
+    expect(nivaTittel(1)).toBe('Nybegynner');
+    expect(nivaTittel(3)).toBe('Ordsamler');
+    expect(nivaTittel(MAKS_NIVA)).toBe('Glosemester');
+  });
+
+  it('klamrer utenfor 1–10', () => {
+    expect(nivaTittel(0)).toBe(NIVA_TITLER[0]);
+    expect(nivaTittel(99)).toBe(NIVA_TITLER[MAKS_NIVA - 1]);
+  });
+});
 
 describe('beregnElevNiva', () => {
   it('grensetilfeller rundt tersklene', () => {
