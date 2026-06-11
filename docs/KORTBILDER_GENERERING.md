@@ -1,7 +1,71 @@
 # Generering av kortbilder — komplett guide
 
-Erstatter den manuelle Midjourney-flyten (`docs/arkiv/MIDJOURNEY_MATTEMESTER_KORT.md`).
-Motor: **OpenAI gpt-image-1-mini** (~$0.005/bilde → en hel 38-korts kategori for ca. $0.19).
+To metoder:
+
+- **Metode A — Midjourney + import (ANBEFALT for stil).** Midjourney gir den
+  stiliserte samlekort-kunsten vi vil ha. OpenAI gpt-image gir en seig, malerisk
+  realisme som ikke lar seg styre mot tegneserie-/TCG-stil uansett prompt — så
+  for figurer (skapninger, romvesener osv.) bruker vi Midjourney.
+- **Metode B — OpenAI gpt-image (helautomatisk).** Greit til ikke-figurmotiver
+  (landemerker, kjøretøy) der malerisk realisme er ok, og når du vil ha alt
+  automatisk uten manuell nedlasting.
+
+---
+
+## Metode A — Midjourney + automatisk import (anbefalt)
+
+Midjourney lager bildene; et script tar seg av omdøping + WebP-nedskalering.
+
+### 1 — Manifest (samme fil som metode B)
+
+Lag/bruk `app-v3/kort-manifest-<kategori>.json` (se malen lenger ned). Promptene
+og navnene gjenbrukes til Midjourney.
+
+### 2 — Få ferdige Midjourney-prompts
+
+```powershell
+cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha\app-v3
+node scripts/midjourney-prompts.mjs kort-manifest-<kategori>.json > prompts.txt
+```
+
+`prompts.txt` får én nummerert prompt per kort, med felles stil, raritetsbakgrunn
+og `--ar 2:3` (kortformat) allerede påført. Lim dem inn i Midjourney.
+
+### 3 — Generer og last ned
+
+For hvert kort: generer i Midjourney, oppskaler det beste (U1–U4), last ned det
+enkelte bildet. **Gi filen kortnummeret som navn:** `1.png`, `2.png`, … `38.png`
+(ledende nuller valgfritt; png/jpg/webp godtas).
+
+Legg alle i: `midjourney-innboks/<mappe>/` (i repo-roten — mappen er git-ignorert).
+
+### 4 — Importer (omdøping + WebP i ett)
+
+```powershell
+node scripts/import-midjourney-images.mjs kort-manifest-<kategori>.json
+```
+
+Scriptet leser manifestet, skalerer hvert bilde til 320px WebP og skriver
+`images/<mappe>/001-navn.webp` … Til slutt sier det hvilke numre som mangler, så
+du kan ta resten senere (kjør på nytt — det er trygt å gjenta).
+
+### 5 — Commit, push, aktiver
+
+```powershell
+cd ..
+git checkout -b <kategori>-bilder
+git add images/<kategori>
+git commit -m "<Kategori>-kortbilder: 38 WebP fra Midjourney"
+git push -u origin <kategori>-bilder
+```
+
+Be så Claude aktivere pakken i `kortData.ts` (`aktiv: true`) og opprette PR.
+
+---
+
+## Metode B — OpenAI gpt-image (helautomatisk)
+
+Motor: **gpt-image-2** (portrait 1024×1536, ~$0.005–0.165/bilde).
 
 ---
 
