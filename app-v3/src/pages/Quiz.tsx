@@ -10,7 +10,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, CloudOff, Layers, Home, FileText, ListChecks, LogIn, UserRound, Repeat, type LucideIcon } from 'lucide-react';
+import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, CloudOff, Layers, Home, FileText, ListChecks, LogIn, UserRound, Repeat, Zap, type LucideIcon } from 'lucide-react';
 import {
   byggSporsmalsliste,
   erSvarRiktig,
@@ -23,6 +23,9 @@ import { leggIResultatKo } from '../lib/data/resultatKo';
 import { registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { glodStil, RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { registrerRiktigeSvar } from '../lib/rewards';
+import { beregnElevNiva, nivaProgresjon, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
+import { NivaOppOverlay } from '../components/NivaOppOverlay';
 import { startFeideLogin } from '../lib/auth';
 import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
@@ -61,6 +64,10 @@ export function Quiz() {
   const [lagret, setLagret] = useState<'sendt' | 'koet' | null>(null);
   const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
   const [visSvar, setVisSvar] = useState(false);
+  // XP etter levering (til «+N XP»-chip og nivåfremdrift på resultatskjermen).
+  const [xpEtter, setXpEtter] = useState<number | null>(null);
+  // Nivå-opp-feiring (kun innloggede).
+  const [nivaOpp, setNivaOpp] = useState<NivaOppResultat | null>(null);
   // Guard mot dobbel lagring (StrictMode/re-render) — settes idet lagring starter.
   const harLagretRef = useRef(false);
 
@@ -272,13 +279,33 @@ export function Quiz() {
     const { riktige, prosent } = beregnResultat(state.riktige, state.sporsmal.length);
     const ResultatIkon: LucideIcon = prosent >= 90 ? Trophy : prosent >= 70 ? Star : prosent >= 50 ? ThumbsUp : Dumbbell;
     const farge = prosent >= 70 ? 'var(--color-success)' : prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
+    const nivaInfo = firebaseUser && xpEtter !== null ? nivaProgresjon(xpEtter) : null;
     return (
       <div style={{ minHeight: '100vh', padding: '40px 20px', maxWidth: 560, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
+        {nivaOpp && (
+          <NivaOppOverlay nyttNiva={nivaOpp.nyttNiva} opplasninger={nivaOpp.opplasninger} onLukk={() => setNivaOpp(null)} />
+        )}
         <ResultatIkon size={80} color={farge} aria-hidden="true" />
         <h1 style={{ fontSize: 32, fontWeight: 800 }}>Prøven er ferdig!</h1>
         <div style={{ background: 'var(--color-surface)', borderRadius: 24, padding: '32px 40px', boxShadow: 'var(--shadow-card)', width: '100%' }}>
           <div style={{ fontSize: 64, fontWeight: 900, color: farge, lineHeight: 1 }}>{prosent}%</div>
           <div style={{ color: 'var(--color-text-muted)', marginTop: 8 }}>{riktige} av {state.sporsmal.length} riktige</div>
+          {riktige > 0 && xpEtter !== null && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14, background: 'var(--color-accent-light)', color: 'var(--color-text)', borderRadius: 999, padding: '6px 14px', fontWeight: 800, fontSize: 14 }}>
+              <Zap size={16} color="var(--color-accent)" aria-hidden="true" /> +{riktige} XP
+            </div>
+          )}
+          {nivaInfo && (
+            <div style={{ marginTop: 14, textAlign: 'left' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+                <span>Nivå {nivaInfo.niva}</span>
+                <span>{nivaInfo.erMaks ? 'Maks nivå!' : `${nivaInfo.xpTilNeste} XP til nivå ${nivaInfo.niva + 1}`}</span>
+              </div>
+              <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '100%', background: 'var(--color-accent)', borderRadius: 999, transform: `scaleX(${nivaInfo.prosent / 100})`, transformOrigin: 'left', transition: 'transform 0.6s ease', willChange: 'transform' }} />
+              </div>
+            </div>
+          )}
         </div>
         {vunnetKort && (
           <div className="kort-glod" style={{ ...glodStil(vunnetKort.rarity), background: 'var(--color-surface)', border: `2px solid ${RARITY_CONFIG[vunnetKort.rarity].farge}`, borderRadius: 20, padding: 20, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -367,11 +394,19 @@ export function Quiz() {
       setLagret('koet');
     }
 
+    // XP: prøvens riktige svar gir +1 XP hver, som i øvemodus. Gjelder også
+    // gjester (XP-en merges inn i kontoen ved innlogging, som kortene).
+    const { xpFoer, nyXP, diamanterTildelt } = registrerRiktigeSvar(riktige);
+    setXpEtter(nyXP);
+    if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
+    if (firebaseUser) setNivaOpp(sjekkNivaOpp(xpFoer, nyXP));
+
     // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
     // som øvemodus — ikke et engangskort. Gjelder også gjester (samlingen
-    // lagres i 'gjest'-namespace).
+    // lagres i 'gjest'-namespace). Nivålåste kort filtreres bort for innloggede.
     const tilgjengeligeKategorier = harAlleKortpakker(bruker) ? ALLE_KORTPAKKER : GRATIS_KORTPAKKER;
-    const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null, Math.random, tilgjengeligeKategorier);
+    const elevNiva = firebaseUser ? beregnElevNiva(nyXP) : null;
+    const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null, Math.random, tilgjengeligeKategorier, elevNiva);
     if (kort.length > 0) {
       void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
       kort.forEach((k) => leggTilKort(k));

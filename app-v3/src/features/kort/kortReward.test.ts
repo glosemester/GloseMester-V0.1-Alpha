@@ -6,6 +6,7 @@ import {
   checkWinCondition,
 } from './kortReward';
 import { kortData, getTotalKortCount, aktiveKortpakker } from './kortData';
+import { ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../../lib/tilgang';
 
 describe('kortData', () => {
   it('har 38 kort per aktiv pakke', () => {
@@ -62,5 +63,33 @@ describe('getRandomKort', () => {
       const kort = getRandomKort('common', 'niva1', Math.random);
       expect(kort.category).not.toBe('guder');
     }
+  });
+
+  it('elevnivå 1: episke/legendariske trekk lander alltid i gratis-pakkene', () => {
+    for (let i = 0; i < 20; i++) {
+      const episk = getRandomKort('epic', null, Math.random, ALLE_KORTPAKKER, 1);
+      expect(GRATIS_KORTPAKKER as readonly string[]).toContain(episk.category);
+      expect(episk.rarity).toBe('epic');
+      const legendarisk = getRandomKort('legendary', null, Math.random, ALLE_KORTPAKKER, 1);
+      expect(GRATIS_KORTPAKKER as readonly string[]).toContain(legendarisk.category);
+      expect(legendarisk.rarity).toBe('legendary');
+    }
+  });
+
+  it('elevnivå 10: episke trekk kan også komme fra Feide-pakkene', () => {
+    const kategorier = new Set<string>();
+    for (let i = 0; i < 20; i++) {
+      kategorier.add(getRandomKort('epic', null, () => i / 20, ALLE_KORTPAKKER, 10).category);
+    }
+    const utenforGratis = [...kategorier].filter((c) => !(GRATIS_KORTPAKKER as readonly string[]).includes(c));
+    expect(utenforGratis.length).toBeGreaterThan(0);
+  });
+
+  it('elevNiva null (gjest): uendret oppførsel — alle kategorier mulig', () => {
+    const kategorier = new Set<string>();
+    for (let i = 0; i < 20; i++) {
+      kategorier.add(getRandomKort('epic', null, () => i / 20, ALLE_KORTPAKKER, null).category);
+    }
+    expect(kategorier.size).toBeGreaterThan(2);
   });
 });

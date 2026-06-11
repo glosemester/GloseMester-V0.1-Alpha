@@ -36,6 +36,8 @@ import { registrerRiktigSvar } from '../lib/rewards';
 import { KORT_PER_RIKTIGE, lesKortProgresjon, registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
+import { beregnElevNiva, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
+import { NivaOppOverlay } from '../components/NivaOppOverlay';
 import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut } from 'lucide-react';
 import { lesOpp, talesynteseStottes } from '../lib/speech';
 import { lesStreak, settStreak } from '../lib/streak';
@@ -125,6 +127,8 @@ export function GlosemesterPractice() {
   const [vunnetKort, setVunnetKort] = useState<KortDef | null>(null);
   // Fase 4 (storskjerm): kort vunnet i denne økten — vises i kortbunken til høyre.
   const [oktKort, setOktKort] = useState<KortDef[]>([]);
+  // Nivå-opp-feiring (kun innloggede). Vises ETTER evt. vunnet-kort-popup.
+  const [nivaOpp, setNivaOpp] = useState<NivaOppResultat | null>(null);
 
   // Bygger neste spørsmål basert på Leitner-vekting.
   const nesteSporsmal = useCallback(() => {
@@ -190,7 +194,7 @@ export function GlosemesterPractice() {
         void hapticLett(); // #17 lett dunk ved riktig svar
         setRiktige((n) => n + 1);
         oppdaterStreak((n) => n + 1);
-        const { diamanterTildelt } = registrerRiktigSvar();
+        const { nyXP, diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
         // Oppdater byttesjetong-saldoen (XP kan nettopp ha krysset en milepæl).
@@ -198,11 +202,18 @@ export function GlosemesterPractice() {
         oppdaterSjetonger();
         if (tilgjengeligeSjetonger() > forUt) toast.success('Du tjente en byttesjetong!');
 
+        // Nivå-opp? Sammenlign nivået før/etter dette svaret (kun innloggede).
+        const elevNiva = innlogget ? beregnElevNiva(nyXP) : null;
+        if (innlogget) {
+          const opp = sjekkNivaOpp(nyXP - 1, nyXP);
+          if (opp) setNivaOpp(opp);
+        }
+
         // Kortbelønning via den felles telleren (deles med prøvemodus). Hvert
         // 10. riktige svar gir et kort; kortet legges IKKE til automatisk —
-        // eleven bekrefter via popup-knappen.
+        // eleven bekrefter via popup-knappen. Nivålåste kort filtreres bort.
         {
-          const { kort, rest } = registrerRiktigeMotKort(1, level, Math.random, tilgjengeligeKategorier);
+          const { kort, rest } = registrerRiktigeMotKort(1, level, Math.random, tilgjengeligeKategorier, elevNiva);
           setKortProgresjon(rest);
           if (kort.length > 0) {
             void hapticSuksess(); // #17 suksess-haptikk ved vunnet kort
@@ -219,7 +230,7 @@ export function GlosemesterPractice() {
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
-    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak, tilgjengeligeKategorier],
+    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak, tilgjengeligeKategorier, innlogget],
   );
 
   // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).
@@ -299,6 +310,11 @@ export function GlosemesterPractice() {
             </div>
           </div>
         </div>
+      )}
+      {/* Nivå-opp-feiring vises etter at vunnet-kort-popupen er lukket, så de
+          to overlayene aldri kolliderer på samme svar. */}
+      {!vunnetKort && nivaOpp && (
+        <NivaOppOverlay nyttNiva={nivaOpp.nyttNiva} opplasninger={nivaOpp.opplasninger} onLukk={() => setNivaOpp(null)} />
       )}
       {visAvslutt && (
         <div style={kortOverlay} role="dialog" aria-label="Avslutte økten?">

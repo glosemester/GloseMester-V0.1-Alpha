@@ -56,4 +56,13 @@ describe('kortProgress — felles teller for øving + prøve', () => {
   it('KORT_PER_RIKTIGE er 10', () => {
     expect(KORT_PER_RIKTIGE).toBe(10);
   });
+
+  it('elevnivå tres gjennom til korttrekket (episk på nivå 1 → gratis-pakke)', async () => {
+    const { ALLE_KORTPAKKER, GRATIS_KORTPAKKER } = await import('../../lib/tilgang');
+    // rng 0.9: calculateRarity(100) gir episk; samme rng styrer pool-indeksen.
+    const { kort } = registrerRiktigeMotKort(10, null, () => 0.9, ALLE_KORTPAKKER, 1);
+    expect(kort).toHaveLength(1);
+    expect(kort[0].rarity).toBe('epic');
+    expect(GRATIS_KORTPAKKER as readonly string[]).toContain(kort[0].category);
+  });
 });
