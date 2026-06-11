@@ -1,12 +1,12 @@
 {
   "mappe": "landemerker",
-  "kategoriStil": "iconic world landmark, detailed digital illustration in vibrant storybook style, dramatic sky, cinematic composition, kid-friendly, no people, no text or letters",
+  "kategoriStil": "iconic world landmark, collector's trading card game illustration, TCG card art, vibrant digital painting, dramatic cinematic sky, dynamic lighting with deep shadows and bright highlights, rich saturated colors, epic sense of scale, kid-friendly, no people, no text or letters",
   "variasjoner": [
-    "wide establishing shot, full landmark centered with dramatic sky filling the upper frame",
-    "slightly low angle, monument fills most of the frame, epic sense of scale",
-    "golden hour lighting, warm amber and orange sky, majestic atmosphere",
-    "dramatic storm clouds behind landmark, powerful epic composition",
-    "aerial perspective slightly overhead, landmark surrounded by landscape"
+    "wide establishing shot, landmark centered with dramatic sky, epic card art composition",
+    "low angle hero shot, monument towers dramatically, powerful collector card framing",
+    "golden hour lighting, warm amber glow, long shadows, majestic atmosphere",
+    "moody dramatic clouds, deep contrast, powerful epic TCG composition",
+    "slightly aerial perspective, landmark surrounded by sweeping landscape, grand scale"
   ],
   "kort": [
     { "fil": "001-eiffeltarnet.png",       "navn": "Eiffeltårnet",          "prompt": "Eiffel Tower in Paris, tall elegant iron lattice tower, glittering golden lights, twilight blue sky" },

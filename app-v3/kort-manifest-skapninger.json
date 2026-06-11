@@ -1,12 +1,12 @@
 {
   "mappe": "skapninger",
-  "kategoriStil": "Scandinavian folklore creature, painterly digital illustration in Nordic fairytale art style, detailed, atmospheric, kid-friendly, full body figure fully visible from head to toe, complete subject centered with ample space above the head, not cropped",
+  "kategoriStil": "Scandinavian folklore creature, collector's trading card game illustration, TCG card art, painterly digital painting in Nordic fairytale art style, dramatic cinematic lighting, vibrant rich colors, detailed character design, atmospheric, kid-friendly, full body figure fully visible from head to toe, complete subject centered with ample space above the head, not cropped",
   "variasjoner": [
-    "full body centered, facing forward, entire figure visible",
-    "three-quarter view, full body visible, gentle dynamic pose",
-    "wide shot, complete figure with room to breathe, storybook composition",
-    "side profile, full body from head to toe clearly visible",
-    "slightly low angle, full figure visible, characterful silhouette"
+    "full body centered, facing forward, entire figure visible, heroic card portrait composition",
+    "three-quarter view, full body visible, dynamic pose, dramatic depth",
+    "wide shot, complete figure centered with room to breathe, epic card art framing",
+    "side profile, full body from head to toe clearly visible, strong silhouette",
+    "slightly low angle, full figure visible, powerful upward perspective, characterful presence"
   ],
   "kort": [
     { "fil": "001-nisse.png", "navn": "Nisse", "prompt": "small Norwegian gnome with red pointed cap, long white beard, gray wool clothes, kind wrinkled face, holding a wooden spoon" },
@@ -17,8 +17,8 @@
     { "fil": "006-julebukk.png", "navn": "Julebukk", "prompt": "yule goat woven from golden straw with red ribbon bands, proud curved horns, festive folk-art look" },
     { "fil": "007-lyktemann.png", "navn": "Lyktemann", "prompt": "will-o-the-wisp spirit, small translucent figure of pale blue flame holding a flickering lantern, mysterious friendly glow" },
     { "fil": "008-skogstroll.png", "navn": "Skogstroll", "prompt": "forest troll with moss and small fir trees growing on his back, big friendly nose, bark-like skin, branch club" },
-    { "fil": "009-fjelltroll.png", "navn": "Fjelltroll", "prompt": "mountain troll with craggy stone-gray skin, lichen beard, heavy brow, snow dusted on his boulder shoulders", "stil": "Scandinavian folklore creature, painterly digital illustration in Nordic fairytale art style, kid-friendly, zoomed-out wide shot, the entire figure small in the center of the frame with large empty margins on all sides, whole head and feet clearly inside the frame, nothing cropped" },
-    { "fil": "010-brotroll.png", "navn": "Brotroll", "prompt": "grumpy bridge troll with warty green-gray skin, big ears, crooked teeth, clutching a wooden toll club", "stil": "Scandinavian folklore creature, painterly digital illustration in Nordic fairytale art style, kid-friendly, zoomed-out wide shot, the entire figure small in the center of the frame with large empty margins on all sides, whole head and feet clearly inside the frame, nothing cropped" },
+    { "fil": "009-fjelltroll.png", "navn": "Fjelltroll", "prompt": "mountain troll with craggy stone-gray skin, lichen beard, heavy brow, snow dusted on his boulder shoulders", "stil": "Scandinavian folklore creature, collector's trading card game illustration, TCG card art, painterly digital painting in Nordic fairytale art style, kid-friendly, zoomed-out wide shot, the entire figure small in the center of the frame with large empty margins on all sides, whole head and feet clearly inside the frame, nothing cropped" },
+    { "fil": "010-brotroll.png", "navn": "Brotroll", "prompt": "grumpy bridge troll with warty green-gray skin, big ears, crooked teeth, clutching a wooden toll club", "stil": "Scandinavian folklore creature, collector's trading card game illustration, TCG card art, painterly digital painting in Nordic fairytale art style, kid-friendly, zoomed-out wide shot, the entire figure small in the center of the frame with large empty margins on all sides, whole head and feet clearly inside the frame, nothing cropped" },
     { "fil": "011-dverg.png", "navn": "Dverg", "prompt": "Norse dwarf blacksmith with braided copper beard, leather apron, hammer raised over a glowing rune-carved sword" },
     { "fil": "012-alv.png", "navn": "Alv", "prompt": "graceful light elf with luminous pale skin, silver-blond hair, leaf-patterned tunic, soft white glow" },
     { "fil": "013-mare.png", "navn": "Mare", "prompt": "shadowy dream spirit, wispy dark feminine figure with flowing smoke-like hair and faint glowing eyes, drifting gently" },

@@ -131,7 +131,8 @@ for (const kort of manifest.kort) {
   const nummer = parseInt(kort.fil.slice(0, 3), 10);
   const variasjon = variasjoner.length ? `, ${variasjoner[(nummer - 1) % variasjoner.length]}` : '';
   const prompt = `${kort.navn}, ${kort.prompt}, ${kort.stil ?? kategoriStil}${variasjon}, ${rarityBakgrunn(nummer)}, ` +
-    'high detail, full-bleed edge-to-edge artwork, no card frame, no border, no text or letters in the image';
+    'trading card game art, collector card illustration, high detail, dramatic dynamic lighting, vibrant saturated colors, ' +
+    'full-bleed edge-to-edge artwork, no card frame, no border, no text or letters in the image';
   process.stdout.write(`Genererer ${kort.fil} (${modell}, ${kvalitet})… `);
   try {
     writeFileSync(pngSti, await genererBilde(apiKey, modell, kvalitet, prompt));
