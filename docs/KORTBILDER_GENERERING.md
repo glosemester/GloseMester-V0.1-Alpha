@@ -190,10 +190,10 @@ Etterpå: `node app-v3/scripts/optimize-card-images.mjs <kategori>` → 320×320
 
 | Kategori | Manifest | Bilder | Aktivert |
 |---|---|---|---|
-| Romvesener | `kort-manifest-romvesener.json` | ✅ 38 WebP | ✅ (PR #94) |
+| Romvesener | `kort-manifest-romvesener.json` | ✅ 38 generert (Higgsfield recraft-v4-1, 1:1) — venter på nedlasting | ✅ eksisterende WebP fra PR #94 (erstattes etter nedlasting) |
 | Mytiske skapninger | `kort-manifest-skapninger.json` | ✅ 38 generert (Higgsfield recraft-v4-1) — venter på nedlasting | staget (`aktiv: false`) |
 | Glosehelter | `kort-manifest-glosehelter.json` | ✅ 38 generert (Higgsfield recraft-v4-1, 2:3 portrait) — venter på nedlasting | staget (`aktiv: false`) |
-| Planeter | `kort-manifest-planeter.json` | genereres | staget (`aktiv: false`) |
+| Planeter | `kort-manifest-planeter.json` | 001–022 generert (Higgsfield); 023–038 lages med Midjourney | staget (`aktiv: false`) |
 
 ---
 
