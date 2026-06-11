@@ -34,7 +34,7 @@
     {
       "fil": "007-flip.png",
       "navn": "Flip",
-      "prompt": "bright colors"
+      "prompt": "acrobatic green alien doing a backflip, springy limbs, joyful expression, bright colors"
     },
     {
       "fil": "008-dusty.png",
@@ -49,7 +49,7 @@
     {
       "fil": "010-bubbles.png",
       "navn": "Bubbles",
-      "prompt": ""
+      "prompt": "round teal alien blowing glowing soap bubbles, cheerful round face, floating bubbles all around, bright colors"
     },
     {
       "fil": "011-echo.png",
@@ -64,7 +64,7 @@
     {
       "fil": "013-zoom.png",
       "navn": "Zoom",
-      "prompt": "dynamic pose, bright colors"
+      "prompt": "speedy red alien zipping by with motion-streak trails, goggles, dynamic pose, bright colors"
     },
     {
       "fil": "014-patches.png",
@@ -74,7 +74,7 @@
     {
       "fil": "015-orbit.png",
       "navn": "Orbit",
-      "prompt": ""
+      "prompt": "cheerful alien with a small moon circling its head, ringed-planet belly, curious eyes, bright colors"
     },
     {
       "fil": "016-spike.png",
@@ -192,5 +192,6 @@
       "prompt": "supreme cosmic being, entire galaxy visible in transparent body, surrounded by orbiting stars and planets, godlike but friendly, golden and holographic effects"
     }
   ],
-  "kategoriStil": "cute friendly alien character, digital trading card art style, detailed sci-fi illustration, expressive features, vibrant colors, kid-friendly"
+  "storrelse": "1024x1536",
+  "kategoriStil": "a cute friendly alien character, fantasy TCG collector card illustration, expressive cartoon design, vibrant saturated colors, kid-friendly, full body visible with clear space above head and below feet"
 }

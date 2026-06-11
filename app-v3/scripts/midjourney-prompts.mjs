@@ -29,9 +29,10 @@ const variasjoner = Array.isArray(manifest.variasjoner) ? manifest.variasjoner :
 for (const kort of manifest.kort) {
   const nummer = parseInt(kort.fil.slice(0, 3), 10);
   const variasjon = variasjoner.length ? `, ${variasjoner[(nummer - 1) % variasjoner.length]}` : '';
+  // Innramming styres av hver kategoris kategoriStil/variasjoner (figurer vil
+  // ha «full body», kart vil fylle rammen, osv.) — ikke tvunget her.
   const prompt =
     `${kort.navn}, ${kort.prompt}, ${kort.stil ?? kategoriStil}${variasjon}, ` +
-    `${rarityBakgrunn(nummer)}, full body centered with breathing room, ` +
-    `no text or letters --ar 2:3`;
+    `${rarityBakgrunn(nummer)}, no text or letters in the image --ar 2:3`;
   console.log(`${String(nummer).padStart(2, '0')}. ${prompt}\n`);
 }

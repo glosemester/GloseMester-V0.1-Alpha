@@ -32,6 +32,25 @@ const MAKS = 320; // samme som optimize-card-images.mjs — kortene vises maks ~
 const KVALITET = 82;
 const GODTATTE = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 
+// Skarp serie-etikett (f.eks. «GloseMester-serien») komposittes på hvert kort.
+// Tekst legges som vektor-SVG — aldri AI-generert tekst (som blir forvrengt).
+function xmlEsc(s) {
+  return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+}
+function lagBannerSvg(tekst, bredde, hoyde) {
+  const bannerH = Math.max(22, Math.round(hoyde * 0.11));
+  const y = hoyde - bannerH;
+  const fontSize = Math.round(bannerH * 0.48);
+  return Buffer.from(
+    `<svg width="${bredde}" height="${hoyde}" xmlns="http://www.w3.org/2000/svg">` +
+      `<rect x="0" y="${y}" width="${bredde}" height="${bannerH}" rx="0" fill="#141420" fill-opacity="0.78"/>` +
+      `<text x="${bredde / 2}" y="${y + bannerH * 0.68}" text-anchor="middle" ` +
+      `font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="${fontSize}" ` +
+      `letter-spacing="1" fill="#ffffff">${xmlEsc(tekst)}</text>` +
+      `</svg>`,
+  );
+}
+
 function lesArgs() {
   const args = process.argv.slice(2);
   const manifestSti = args.find((a) => !a.startsWith('--'));
@@ -90,10 +109,15 @@ for (const [nummer, base] of [...nummerTilBase.entries()].sort((a, b) => a[0] - 
   if (!kilde) continue;
   const ut = join(utMappe, `${base}.webp`);
   const fantes = existsSync(ut);
-  await sharp(kilde)
+  const skalert = await sharp(kilde)
     .resize(MAKS, MAKS, { fit: 'inside', withoutEnlargement: true })
-    .webp({ quality: KVALITET })
-    .toFile(ut);
+    .toBuffer();
+  let bilde = sharp(skalert);
+  if (manifest.banner) {
+    const { width, height } = await sharp(skalert).metadata();
+    bilde = bilde.composite([{ input: lagBannerSvg(manifest.banner, width, height), top: 0, left: 0 }]);
+  }
+  await bilde.webp({ quality: KVALITET }).toFile(ut);
   console.log(`  ${fantes ? 'oppdaterte' : 'la til'}  ${base}.webp`);
   importert++;
 }
