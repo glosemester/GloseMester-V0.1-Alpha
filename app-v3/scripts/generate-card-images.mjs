@@ -136,12 +136,18 @@ for (const kort of manifest.kort) {
   }
   const nummer = parseInt(kort.fil.slice(0, 3), 10);
   const variasjon = variasjoner.length ? `, ${variasjoner[(nummer - 1) % variasjoner.length]}` : '';
+  // VIKTIG: GPT Image vekter starten av prompten tyngst og har en sterk
+  // malerisk-realisme-bias. Stilen MÅ derfor komme først og aggressivt, med
+  // eksplisitt negativ styring, ellers maler modellen motivet realistisk.
   const prompt =
-    `${kort.navn}, ${kort.prompt}, ${kort.stil ?? kategoriStil}${variasjon}, ` +
-    `${rarityBakgrunn(nummer)}, ` +
-    'trading card game art, collector card illustration, high detail, soft dramatic lighting, ' +
-    'vibrant saturated colors, subject centered with breathing room, ' +
-    'no card frame, no border, no text or letters in the image';
+    'Flat 2D cartoon trading card game illustration in the style of Pokémon TCG artwork. ' +
+    'Cel-shaded digital art with bold clean black outlines, bright vibrant saturated colors, ' +
+    'simple stylized cartoon shapes, smooth flat color fills. ' +
+    'NOT photorealistic, NOT a painting, NOT painterly, NOT a pencil sketch, NOT realistic, no fine soft shading. ' +
+    `Subject: ${kort.navn} — ${kort.prompt}. ` +
+    `${kort.stil ?? kategoriStil}${variasjon}. ` +
+    `Background: ${rarityBakgrunn(nummer)}. ` +
+    'The whole character is centered with breathing room around it, no card frame, no border, no text or letters.';
   process.stdout.write(`Genererer ${kort.fil}… `);
   try {
     writeFileSync(pngSti, await genererBilde(apiKey, modell, kvalitet, storrelse, prompt));
