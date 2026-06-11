@@ -51,18 +51,50 @@ export function NivaOppOverlay({ nyttNiva, opplasninger, onLukk }: {
               />
             );
           })}
-          <NivaRing niva={nyttNiva} prosent={100} storrelse={140} />
+          <span
+            className="kort-glod"
+            style={{
+              position: 'relative', display: 'inline-block', borderRadius: '50%',
+              '--glod-farge': farge, '--glod-radius': '22px',
+            } as React.CSSProperties}
+          >
+            {/* Sjokkbølger som ekspanderer ut fra ringen (to, forskjøvet). */}
+            {!reduserBevegelse && (
+              <>
+                <span className="niva-bolge" aria-hidden="true" style={{ '--bolge-farge': farge } as React.CSSProperties} />
+                <span className="niva-bolge" aria-hidden="true" style={{ '--bolge-farge': 'var(--color-accent)', animationDelay: '0.35s' } as React.CSSProperties} />
+              </>
+            )}
+            <NivaRing niva={nyttNiva} prosent={100} storrelse={140} />
+          </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 28, color: 'var(--color-text)' }}>
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 20, delay: 0.18 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 28, color: 'var(--color-text)' }}
+        >
           <Sparkles size={26} color={farge} aria-hidden="true" /> Nivå {nyttNiva}!
-        </div>
+        </motion.div>
         {opplasninger.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-            {opplasninger.map((o) => (
-              <div key={`${o.category}-${o.rarity}`} style={{ ...opplasningRad, borderColor: RARITY_CONFIG[o.rarity].farge }}>
+            {opplasninger.map((o, i) => (
+              <motion.div
+                key={`${o.category}-${o.rarity}`}
+                className="kort-glod"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 24, delay: 0.35 + i * 0.12 }}
+                style={{
+                  ...opplasningRad,
+                  borderColor: RARITY_CONFIG[o.rarity].farge,
+                  '--glod-farge': RARITY_CONFIG[o.rarity].farge,
+                  '--glod-radius': '8px',
+                } as React.CSSProperties}
+              >
                 <Unlock size={18} color={RARITY_CONFIG[o.rarity].farge} aria-hidden="true" />
                 <span style={{ fontWeight: 700, fontSize: 14 }}>{o.etikett} låst opp!</span>
-              </div>
+              </motion.div>
             ))}
           </div>
         ) : (

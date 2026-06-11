@@ -14,7 +14,7 @@ import { hentSamling, samlingStats } from '../features/kort/kortSamling';
 import { getKortById, getTotalKortCount, glodStil, RARITY_CONFIG } from '../features/kort/kortData';
 import { getTotalCorrect } from '../lib/storage';
 import { nivaProgresjon, nesteOpplasning } from '../features/niva/nivaSystem';
-import { NivaRing } from '../components/NivaBadge';
+import { NivaBadge } from '../components/NivaBadge';
 import { TokenBalance } from '../components/TokenBalance';
 import { ABONNEMENT_ETIKETT, hentTilgangsliste } from '../lib/tilgang';
 import { pushStøttes, abonnerPåVarsler, avmelding, erAbonnert } from '../lib/push';
@@ -169,15 +169,17 @@ export function MinSide() {
       {/* Elevnivå — utledet fra total XP (riktige svar) */}
       <Kort tittel={<><TrendingUp size={20} color="var(--color-primary)" aria-hidden="true" /> Nivået ditt</>}>
         {(() => {
-          const p = nivaProgresjon(getTotalCorrect('gloser'));
+          const xp = getTotalCorrect('gloser');
+          const p = nivaProgresjon(xp);
           const neste = nesteOpplasning(p.niva);
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <NivaRing niva={p.niva} prosent={p.prosent} storrelse={84} />
+              <NivaBadge xp={xp} storrelse={84} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <span style={{ fontWeight: 800, fontSize: 18 }}>Nivå {p.niva}</span>
                 <span style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>
                   {p.erMaks ? 'Du har nådd toppen — alle kort er låst opp!' : `${p.xpTilNeste} XP til nivå ${p.niva + 1}. Hvert riktige svar gir 1 XP.`}
+                  {' '}Trykk på ringen for å se hele nivåoversikten.
                 </span>
                 {neste && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>
