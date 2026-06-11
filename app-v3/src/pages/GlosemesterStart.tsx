@@ -7,6 +7,9 @@ import { BookOpen, Flame } from 'lucide-react';
 import { getAvailableLevels, getWordCountForLevel, getWordsForLevel, levelMetadata } from '../features/glosemester/vocabulary';
 import { loadLeitnerState, nivaProsent } from '../features/glosemester/leitner';
 import { lesStreak } from '../lib/streak';
+import { getTotalCorrect } from '../lib/storage';
+import { useAuthStore } from '../state/useAuthStore';
+import { NivaBadge } from '../components/NivaBadge';
 import { ROUTES } from '../routes/paths';
 
 export function GlosemesterStart() {
@@ -14,6 +17,10 @@ export function GlosemesterStart() {
   const levels = getAvailableLevels();
   // Bug 6: vis den vedvarende streaken her også, ikke bare inne i øvemodus.
   const streak = lesStreak();
+  // Nivået vises også for gjester (XP-en lagres i 'gjest'-namespace og merges
+  // ved innlogging). Badgen åpner nivåoversikten — for gjester med Feide-hint.
+  const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
+  const xp = getTotalCorrect('gloser');
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)', paddingBottom: 40 }}>
@@ -42,6 +49,19 @@ export function GlosemesterStart() {
           </div>
         )}
       </header>
+
+      {/* Nivå-kort — synlig for alle, også gjester. Trykk åpner nivåoversikten. */}
+      <div style={{ maxWidth: 740, margin: '0 auto 24px', padding: '0 20px' }}>
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', gap: 16,
+            background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)', padding: '16px 20px', boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <NivaBadge xp={xp} storrelse={56} visEtikett gjest={!innlogget} />
+        </div>
+      </div>
 
       <div
         style={{

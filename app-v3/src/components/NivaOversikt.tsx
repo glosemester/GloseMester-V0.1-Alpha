@@ -3,17 +3,18 @@
  * låses opp på hvert nivå. Åpnes ved å trykke på nivå-badgen (NivaBadge).
  * Nådde nivåer hukes av; fremtidige opplåsinger vises med lås.
  */
-import { Check, Lock, Unlock, X, Zap } from 'lucide-react';
+import { Check, Lock, LogIn, Unlock, X, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import {
   NIVA_TERSKLER,
   nivaFarge,
   nivaProgresjon,
+  nivaTittel,
   opplasningerVedNiva,
 } from '../features/niva/nivaSystem';
 import { RARITY_CONFIG } from '../features/kort/kortData';
 
-export function NivaOversikt({ xp, onLukk }: { xp: number; onLukk: () => void }) {
+export function NivaOversikt({ xp, onLukk, gjest = false }: { xp: number; onLukk: () => void; gjest?: boolean }) {
   const p = nivaProgresjon(xp);
   return (
     <div style={overlay} role="dialog" aria-modal="true" aria-label="Nivåoversikt" onClick={onLukk}>
@@ -32,7 +33,7 @@ export function NivaOversikt({ xp, onLukk }: { xp: number; onLukk: () => void })
         </div>
         <p style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600, margin: 0 }}>
           <Zap size={14} color="var(--color-accent)" aria-hidden="true" />
-          Du er på nivå {p.niva}. {p.erMaks ? 'Maks nivå — alt er låst opp!' : `${p.xpTilNeste} XP til nivå ${p.niva + 1} — hvert riktige svar gir 1 XP.`}
+          Du er <strong>{nivaTittel(p.niva)}</strong> (nivå {p.niva}). {p.erMaks ? 'Maks nivå — alt er låst opp!' : `${p.xpTilNeste} XP til nivå ${p.niva + 1} — hvert riktige svar gir 1 XP.`}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
@@ -67,8 +68,8 @@ export function NivaOversikt({ xp, onLukk }: { xp: number; onLukk: () => void })
                   {niva}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <span style={{ fontWeight: 800, fontSize: 14 }}>Nivå {niva}</span>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 800, fontSize: 14 }}>Nivå {niva} · {nivaTittel(niva)}</span>
                     <span style={{ color: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600 }}>
                       {terskel === 0 ? 'start' : `fra ${terskel} XP`}
                     </span>
@@ -88,9 +89,16 @@ export function NivaOversikt({ xp, onLukk }: { xp: number; onLukk: () => void })
           })}
         </div>
 
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 12, textAlign: 'center', margin: 0 }}>
-          Kortpakkene Biler og Dinosaurer har alle kort åpne fra start.
-        </p>
+        {gjest ? (
+          <p style={{ display: 'flex', alignItems: 'flex-start', gap: 6, color: 'var(--color-text-muted)', fontSize: 12, textAlign: 'left', margin: 0 }}>
+            <LogIn size={14} aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }} />
+            Biler og Dinosaurer er åpne for alle. Logg inn med Feide for å låse opp de episke og legendariske kortene over når du går opp i nivå.
+          </p>
+        ) : (
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 12, textAlign: 'center', margin: 0 }}>
+            Kortpakkene Biler og Dinosaurer har alle kort åpne fra start.
+          </p>
+        )}
       </motion.div>
     </div>
   );
