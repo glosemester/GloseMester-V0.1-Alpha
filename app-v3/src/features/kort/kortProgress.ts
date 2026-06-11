@@ -32,13 +32,14 @@ export function registrerRiktigeMotKort(
   niva: number | string | null = null,
   rng: Rng = Math.random,
   tilgjengeligeKategorier?: readonly Category[],
+  elevNiva: number | null = null,
 ): { kort: KortDef[]; rest: number } {
   let total = lesKortProgresjon() + Math.max(0, Math.floor(antallRiktige));
   const kort: KortDef[] = [];
   while (total >= KORT_PER_RIKTIGE) {
     total -= KORT_PER_RIKTIGE;
     // calculateRarity(100) gir samme sjeldenhetsodds som da et fullt øve-sett ga kort.
-    kort.push(getRandomKort(calculateRarity(100, rng), niva, rng, tilgjengeligeKategorier));
+    kort.push(getRandomKort(calculateRarity(100, rng), niva, rng, tilgjengeligeKategorier, elevNiva));
   }
   saveKortProgresjon(total, 'gloser');
   return { kort, rest: total };

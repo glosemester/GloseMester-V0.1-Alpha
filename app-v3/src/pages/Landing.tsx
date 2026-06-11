@@ -27,7 +27,7 @@ interface TilgangRad {
 const TILGANG_RADER: TilgangRad[] = [
   { tekst: 'Øving — alle 4 nivåer', gratis: true, feide: true },
   { tekst: 'Kortpakker: Biler & Dinosaurer', gratis: true, feide: true },
-  { tekst: 'Kortpakker: Dyr & Guder', gratis: false, feide: true },
+  { tekst: 'Kortpakker: Dyr, Guder, Romvesener & Planeter', gratis: false, feide: true },
   { tekst: 'Bytte av kort med andre', gratis: false, feide: true },
   { tekst: 'Mine prøver (tildelt av lærer)', gratis: false, feide: true },
 ];

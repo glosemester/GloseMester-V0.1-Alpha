@@ -1,7 +1,8 @@
 /**
- * Belønningslogikk for øvemodus — XP og diamanter. Portet fra v2
+ * Belønningslogikk for øving OG prøve — XP og diamanter. Portet fra v2
  * (handleMultipleChoiceAnswer / awardDiamondBonus i glosemester.js):
  * hvert riktige svar gir +1 XP; hver 100. XP gir en bonus på 10 diamanter.
+ * Øvemodus registrerer svar enkeltvis; prøvemodus i batch ved levering.
  */
 import { getTotalCorrect, saveTotalCorrect, getCredits, saveCredits } from './storage';
 
@@ -14,17 +15,31 @@ export interface RewardResult {
   diamanterTildelt: number;
 }
 
+export interface BatchRewardResult extends RewardResult {
+  /** XP før tildelingen — til nivå-opp-deteksjon (sjekkNivaOpp). */
+  xpFoer: number;
+}
+
 const FAG = 'gloser';
 
-/** Registrerer ett riktig svar. Returnerer ny XP og evt. diamantbonus. */
-export function registrerRiktigSvar(): RewardResult {
-  const nyXP = getTotalCorrect(FAG) + 1;
-  saveTotalCorrect(nyXP, FAG);
+/**
+ * Registrerer flere riktige svar på én gang (prøve). Diamantbonus gis for
+ * hvert 100-XP-merke som krysses i intervallet (xpFoer, nyXP].
+ */
+export function registrerRiktigeSvar(antall: number): BatchRewardResult {
+  const xpFoer = getTotalCorrect(FAG);
+  const trygt = Math.max(0, Math.floor(antall));
+  const nyXP = xpFoer + trygt;
+  if (trygt > 0) saveTotalCorrect(nyXP, FAG);
 
-  let diamanterTildelt = 0;
-  if (nyXP > 0 && nyXP % 100 === 0) {
-    saveCredits(getCredits(FAG) + DIAMANTER_PER_BONUS, FAG);
-    diamanterTildelt = DIAMANTER_PER_BONUS;
-  }
+  const bonuser = Math.floor(nyXP / 100) - Math.floor(xpFoer / 100);
+  const diamanterTildelt = bonuser > 0 ? bonuser * DIAMANTER_PER_BONUS : 0;
+  if (diamanterTildelt > 0) saveCredits(getCredits(FAG) + diamanterTildelt, FAG);
+  return { xpFoer, nyXP, diamanterTildelt };
+}
+
+/** Registrerer ett riktig svar (øvemodus). Returnerer ny XP og evt. diamantbonus. */
+export function registrerRiktigSvar(): RewardResult {
+  const { nyXP, diamanterTildelt } = registrerRiktigeSvar(1);
   return { nyXP, diamanterTildelt };
 }
