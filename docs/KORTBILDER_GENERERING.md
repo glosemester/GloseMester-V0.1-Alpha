@@ -150,13 +150,49 @@ Netlify publiserer automatisk når `main` oppdateres.
 
 ---
 
+## Alternativ motor: Higgsfield (recraft-v4-1)
+
+Brukes når OpenAI-kvaliteten ikke er god nok. Arbeidsflyt er Claude-drevet via MCP —
+Claude leser manifest.json og kaller `generate_image` direkte; ingen lokal node-prosess nødvendig.
+
+### Modell og priser (juni 2026)
+
+| Modell | Kvalitet | Kreditter/bilde | 38-korts kategori |
+|---|---|---|---|
+| **recraft-v4-1 (standard, 1k)** | høy illustrasjonskvalitet | 1.25 kr | ~47.5 kr |
+| nano_banana_flash (standard, 1k) | rask/god | 1.0 kr | ~38 kr |
+| seedream_v4_5 (standard, 1k) | illustrasjon/anime | 1.0 kr | ~38 kr |
+
+Starterplan = maks 4 samtidige jobber. Send i bolker på 4, poll til ferdig, send neste.
+
+### Prompt-format (recraft-v4-1)
+
+```
+<navn>, <prompt>, <kategoriStil>, <variasjon[(nummer-1)%5]>, <rarityBakgrunn>,
+trading card game illustration, high detail, full-bleed edge-to-edge artwork,
+no card frame, no border, no text or letters in the image
+```
+
+Kategoristil, variasjoner og raritetsbakgrunn hentes fra manifest.json på samme måte som
+`generate-card-images.mjs` — se scriptets `rarityBakgrunn()`-funksjon for detaljer.
+
+### Nedlasting av genererte bilder
+
+CDN-URLen (`d8j0ntlcm91z4.cloudfront.net`) er autentisert og kan ikke nås fra dette
+miljøet. Last ned bildene manuelt fra **higgsfield.ai → History** og legg dem i
+`images/<kategori>/` med korrekte filnavn fra manifestet.
+
+Etterpå: `node app-v3/scripts/optimize-card-images.mjs <kategori>` → 320×320 WebP.
+
+---
+
 ## Kategoristatus
 
 | Kategori | Manifest | Bilder | Aktivert |
 |---|---|---|---|
 | Romvesener | `kort-manifest-romvesener.json` | ✅ 38 WebP | ✅ (PR #94) |
 | Planeter | `kort-manifest-planeter.json` | genereres | staget (`aktiv: false`) |
-| Mytiske skapninger | `kort-manifest-skapninger.json` | — | staget (`aktiv: false`) |
+| Mytiske skapninger | `kort-manifest-skapninger.json` | ✅ 38 generert (Higgsfield recraft-v4-1) — venter på nedlasting | staget (`aktiv: false`) |
 
 ---
 
