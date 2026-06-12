@@ -7,7 +7,7 @@
 import type { CSSProperties } from 'react';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger';
+export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger' | 'landemerker';
 
 export interface KortDef {
   id: string;
@@ -205,6 +205,28 @@ const skapninger: Rad[] = [
   ['037-kraken.png', 'Kraken'], ['038-nidhogg.png', 'Nidhogg'],
 ];
 
+const landemerker: Rad[] = [
+  ['001-eiffeltarnet.png', 'Eiffeltårnet'], ['002-big-ben.png', 'Big Ben'],
+  ['003-frihetsgudinnen.png', 'Frihetsguddinnen'], ['004-tower-bridge.png', 'Tower Bridge'],
+  ['005-sagrada-familia.png', 'Sagrada Familia'], ['006-brandenburger-tor.png', 'Brandenburger Tor'],
+  ['007-pisa-tarnet.png', 'Det skjeve tårnet i Pisa'], ['008-operahuset-sydney.png', 'Operahuset i Sydney'],
+  ['009-operahuset-oslo.png', 'Operahuset i Oslo'], ['010-akershus-festning.png', 'Akershus festning'],
+  ['011-nidarosdomen.png', 'Nidarosdomen'], ['012-bryggen.png', 'Bryggen i Bergen'],
+  ['013-den-lille-havfrue.png', 'Den lille havfrue'], ['014-burj-khalifa.png', 'Burj Khalifa'],
+  ['015-kreml.png', 'Kreml'], ['016-atomium.png', 'Atomium'],
+  ['017-arc-de-triomphe.png', 'Arc de Triomphe'], ['018-akropolis.png', 'Akropolis'],
+  ['019-cn-tower.png', 'CN Tower'], ['020-colosseum.png', 'Colosseum'],
+  ['021-machu-picchu.png', 'Machu Picchu'], ['022-chichen-itza.png', 'Chichen Itzá'],
+  ['023-angkor-wat.png', 'Angkor Wat'], ['024-petra.png', 'Petra'],
+  ['025-moai.png', 'Moai-statuene'], ['026-borobudur.png', 'Borobudur'],
+  ['027-mont-saint-michel.png', 'Mont Saint-Michel'], ['028-alhambra.png', 'Alhambra'],
+  ['029-potala-palasset.png', 'Potala-palasset'], ['030-abu-simbel.png', 'Abu Simbel'],
+  ['031-stonehenge.png', 'Stonehenge'], ['032-hagia-sofia.png', 'Hagia Sofia'],
+  ['033-peterskirken.png', 'Peterskirken'], ['034-den-forbudte-by.png', 'Den forbudte by'],
+  ['035-neuschwanstein.png', 'Neuschwanstein slott'], ['036-pyramidene-giza.png', 'Pyramidene i Giza'],
+  ['037-taj-mahal.png', 'Taj Mahal'], ['038-kinesiske-mur.png', 'Den kinesiske mur'],
+];
+
 /**
  * Kortpakke. Sett `aktiv: false` for å STAGE en pakke i koden uten å rulle den
  * ut ennå (kortene vises ikke i galleri/belønning før den slås på).
@@ -232,6 +254,7 @@ export const PAKKER: Kortpakke[] = [
   // Staget: bilder genereres/optimaliseres — slå på når de er committet.
   { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
+  { prefix: 'land', mappe: 'landemerker', navn: 'Landemerker', aktiv: false, rader: landemerker },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
 

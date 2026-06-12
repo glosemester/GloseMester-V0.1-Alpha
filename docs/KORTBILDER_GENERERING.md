@@ -194,6 +194,7 @@ Etterpå: `node app-v3/scripts/optimize-card-images.mjs <kategori>` → 320×320
 | Mytiske skapninger | `kort-manifest-skapninger.json` | ✅ 38 generert (Higgsfield recraft-v4-1) — venter på nedlasting | staget (`aktiv: false`) |
 | Glosehelter | `kort-manifest-glosehelter.json` | ✅ 38 generert (Higgsfield recraft-v4-1, 2:3 portrait) — venter på nedlasting | staget (`aktiv: false`) |
 | Planeter | `kort-manifest-planeter.json` | 001–022 generert (Higgsfield); 023–038 lages med Midjourney | staget (`aktiv: false`) |
+| Landemerker | `kort-manifest-landemerker.json` | ✅ 38 generert (Higgsfield recraft-v4-1, 1:1) — venter på nedlasting | staget (`aktiv: false`) |
 
 ---
 
