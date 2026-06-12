@@ -28,3 +28,6 @@ dist/
 
 # TS build cache
 *.tsbuildinfo
+
+# Rå Midjourney-nedlastinger (importeres til images/ via import-midjourney-images.mjs)
+midjourney-innboks/

@@ -6,7 +6,7 @@
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { nivaFarge, nivaProgresjon } from '../features/niva/nivaSystem';
+import { nivaFarge, nivaProgresjon, nivaTittel } from '../features/niva/nivaSystem';
 import { NivaOversikt } from './NivaOversikt';
 
 /** Ren ring med nivåtall — brukes av badgen og nivå-opp-feiringen. */
@@ -45,16 +45,17 @@ export function NivaRing({ niva, prosent, storrelse = 64 }: { niva: number; pros
  * nivå 4»). Tar total XP og regner selv ut nivå og fremgang; trykk åpner
  * nivåoversikten.
  */
-export function NivaBadge({ xp, storrelse = 56, visEtikett = false }: { xp: number; storrelse?: number; visEtikett?: boolean }) {
+export function NivaBadge({ xp, storrelse = 56, visEtikett = false, gjest = false }: { xp: number; storrelse?: number; visEtikett?: boolean; gjest?: boolean }) {
   const [visOversikt, setVisOversikt] = useState(false);
   const p = nivaProgresjon(xp);
   const farge = nivaFarge(p.niva);
+  const tittel = nivaTittel(p.niva);
   return (
     <>
       <button
         type="button"
         onClick={() => setVisOversikt(true)}
-        aria-label={`Nivå ${p.niva} — trykk for å se nivåoversikten`}
+        aria-label={`Nivå ${p.niva}, ${tittel} — trykk for å se nivåoversikten`}
         style={badgeKnapp}
       >
         <span
@@ -68,14 +69,14 @@ export function NivaBadge({ xp, storrelse = 56, visEtikett = false }: { xp: numb
         </span>
         {visEtikett && (
           <span style={{ textAlign: 'left' }}>
-            <span style={{ display: 'block', fontWeight: 800, fontSize: 15, color: 'var(--color-text)' }}>Nivå {p.niva}</span>
+            <span style={{ display: 'block', fontWeight: 800, fontSize: 15, color: 'var(--color-text)' }}>Nivå {p.niva} · {tittel}</span>
             <span style={{ display: 'block', fontWeight: 600, fontSize: 12, color: 'var(--color-text-muted)' }}>
               {p.erMaks ? 'Maks nivå!' : `${p.xpTilNeste} XP til nivå ${p.niva + 1}`}
             </span>
           </span>
         )}
       </button>
-      {visOversikt && <NivaOversikt xp={xp} onLukk={() => setVisOversikt(false)} />}
+      {visOversikt && <NivaOversikt xp={xp} gjest={gjest} onLukk={() => setVisOversikt(false)} />}
     </>
   );
 }

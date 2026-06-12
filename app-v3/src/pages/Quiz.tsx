@@ -24,7 +24,7 @@ import { registrerRiktigeMotKort } from '../features/kort/kortProgress';
 import { leggTilKort } from '../features/kort/kortSamling';
 import { glodStil, RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { registrerRiktigeSvar } from '../lib/rewards';
-import { beregnElevNiva, nivaProgresjon, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
+import { beregnElevNiva, nivaProgresjon, nivaTittel, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
 import { NivaOppOverlay } from '../components/NivaOppOverlay';
 import { startFeideLogin } from '../lib/auth';
 import { settVentendeProve } from '../lib/provePending';
@@ -279,11 +279,17 @@ export function Quiz() {
     const { riktige, prosent } = beregnResultat(state.riktige, state.sporsmal.length);
     const ResultatIkon: LucideIcon = prosent >= 90 ? Trophy : prosent >= 70 ? Star : prosent >= 50 ? ThumbsUp : Dumbbell;
     const farge = prosent >= 70 ? 'var(--color-success)' : prosent >= 50 ? 'var(--color-warning)' : 'var(--color-error)';
-    const nivaInfo = firebaseUser && xpEtter !== null ? nivaProgresjon(xpEtter) : null;
+    const nivaInfo = xpEtter !== null ? nivaProgresjon(xpEtter) : null;
     return (
       <div style={{ minHeight: '100vh', padding: '40px 20px', maxWidth: 560, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, textAlign: 'center' }}>
         {nivaOpp && (
-          <NivaOppOverlay nyttNiva={nivaOpp.nyttNiva} opplasninger={nivaOpp.opplasninger} onLukk={() => setNivaOpp(null)} />
+          <NivaOppOverlay
+            nyttNiva={nivaOpp.nyttNiva}
+            opplasninger={nivaOpp.opplasninger}
+            gjest={!firebaseUser}
+            onLoggInn={startFeideLogin}
+            onLukk={() => setNivaOpp(null)}
+          />
         )}
         <ResultatIkon size={80} color={farge} aria-hidden="true" />
         <h1 style={{ fontSize: 32, fontWeight: 800 }}>Prøven er ferdig!</h1>
@@ -298,7 +304,7 @@ export function Quiz() {
           {nivaInfo && (
             <div style={{ marginTop: 14, textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 4 }}>
-                <span>Nivå {nivaInfo.niva}</span>
+                <span>Nivå {nivaInfo.niva} · {nivaTittel(nivaInfo.niva)}</span>
                 <span>{nivaInfo.erMaks ? 'Maks nivå!' : `${nivaInfo.xpTilNeste} XP til nivå ${nivaInfo.niva + 1}`}</span>
               </div>
               <div style={{ height: 8, background: 'var(--color-border)', borderRadius: 999, overflow: 'hidden' }}>
@@ -399,7 +405,8 @@ export function Quiz() {
     const { xpFoer, nyXP, diamanterTildelt } = registrerRiktigeSvar(riktige);
     setXpEtter(nyXP);
     if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
-    if (firebaseUser) setNivaOpp(sjekkNivaOpp(xpFoer, nyXP));
+    // Nivå-opp gjelder også gjester (enklere feiring med Feide-oppfordring).
+    setNivaOpp(sjekkNivaOpp(xpFoer, nyXP));
 
     // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
     // som øvemodus — ikke et engangskort. Gjelder også gjester (samlingen

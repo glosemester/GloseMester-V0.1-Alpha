@@ -38,6 +38,7 @@ import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { beregnElevNiva, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
 import { NivaOppOverlay } from '../components/NivaOppOverlay';
+import { startFeideLogin } from '../lib/auth';
 import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut } from 'lucide-react';
 import { lesOpp, talesynteseStottes } from '../lib/speech';
 import { lesStreak, settStreak } from '../lib/streak';
@@ -202,12 +203,12 @@ export function GlosemesterPractice() {
         oppdaterSjetonger();
         if (tilgjengeligeSjetonger() > forUt) toast.success('Du tjente en byttesjetong!');
 
-        // Nivå-opp? Sammenlign nivået før/etter dette svaret (kun innloggede).
+        // Nivå-opp? Sammenlign nivået før/etter dette svaret. Gjelder også
+        // gjester (de får en enklere feiring med Feide-oppfordring). elevNiva
+        // holdes null for gjester slik at korttrekket ikke nivå-gates.
         const elevNiva = innlogget ? beregnElevNiva(nyXP) : null;
-        if (innlogget) {
-          const opp = sjekkNivaOpp(nyXP - 1, nyXP);
-          if (opp) setNivaOpp(opp);
-        }
+        const opp = sjekkNivaOpp(nyXP - 1, nyXP);
+        if (opp) setNivaOpp(opp);
 
         // Kortbelønning via den felles telleren (deles med prøvemodus). Hvert
         // 10. riktige svar gir et kort; kortet legges IKKE til automatisk —
@@ -314,7 +315,13 @@ export function GlosemesterPractice() {
       {/* Nivå-opp-feiring vises etter at vunnet-kort-popupen er lukket, så de
           to overlayene aldri kolliderer på samme svar. */}
       {!vunnetKort && nivaOpp && (
-        <NivaOppOverlay nyttNiva={nivaOpp.nyttNiva} opplasninger={nivaOpp.opplasninger} onLukk={() => setNivaOpp(null)} />
+        <NivaOppOverlay
+          nyttNiva={nivaOpp.nyttNiva}
+          opplasninger={nivaOpp.opplasninger}
+          gjest={!innlogget}
+          onLoggInn={startFeideLogin}
+          onLukk={() => setNivaOpp(null)}
+        />
       )}
       {visAvslutt && (
         <div style={kortOverlay} role="dialog" aria-label="Avslutte økten?">

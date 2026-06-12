@@ -14,7 +14,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'image
 // argumenter tas alle. Mapper uten .png-filer hoppes uansett over.
 const KATEGORIER = process.argv.slice(2).length
   ? process.argv.slice(2)
-  : ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter', 'skapninger'];
+  : ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter', 'skapninger', 'landemerker'];
 const MAKS = 320;
 const KVALITET = 82;
 
