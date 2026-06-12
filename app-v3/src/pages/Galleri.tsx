@@ -261,7 +261,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
           : null;
         return (
           <div style={laastOverlay} role="dialog" aria-modal="true" aria-label={`Detaljer for ${valgtEid.navn}`} onClick={() => setValgtEid(null)}>
-            <div style={{ ...laastPopup, maxWidth: 340 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ ...laastPopup, maxWidth: 340, borderColor: cfg.farge }} onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => setValgtEid(null)}
@@ -347,34 +347,6 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 </button>
               )}
               <button type="button" onClick={() => setValgtLaast(null)} style={chip}>
-                Lukk
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Detalj-popup for et eid kort: stort kort, sjeldenhet, antall, ev. pant. */}
-      {valgtEid && (
-        <div style={laastOverlay} role="dialog" aria-modal="true" aria-label={valgtEid.navn} onClick={() => setValgtEid(null)}>
-          <div style={{ ...laastPopup, borderColor: RARITY_CONFIG[valgtEid.rarity].farge }} onClick={(e) => e.stopPropagation()}>
-            <img src={valgtEid.bilde} alt={valgtEid.navn} style={{ width: 200, height: 200, objectFit: 'contain' }} />
-            <div style={{ fontWeight: 800, fontSize: 20 }}>{valgtEid.navn}</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: RARITY_CONFIG[valgtEid.rarity].farge }}>
-              {RARITY_CONFIG[valgtEid.rarity].tekst}
-            </div>
-            {valgtEid.antall > 1 && (
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)' }}>
-                Du har {valgtEid.antall} av dette kortet
-              </div>
-            )}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
-              {!visAlle && valgtEid.antall >= 3 && (
-                <button type="button" onClick={() => { pant(valgtEid.id); setValgtEid(null); }} style={primaerKnapp}>
-                  <Recycle size={16} aria-hidden="true" /> Pant 2 → nytt kort
-                </button>
-              )}
-              <button type="button" onClick={() => setValgtEid(null)} style={chip}>
                 Lukk
               </button>
             </div>
