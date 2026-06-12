@@ -151,6 +151,10 @@ async function handleSubscriptionCancelled(subscription) {
     const userRef = db.collection('users').doc(userId);
 
     await userRef.update({
+        // Premium gates utelukkende på abonnement.type — den MÅ settes til 'free'
+        // for å faktisk fjerne tilgangen (subscription.status leses ikke i appen).
+        'abonnement.type': 'free',
+        'abonnement.expiresAt': admin.firestore.FieldValue.delete(),
         'subscription.status': 'free',
         'subscription.cancelledAt': admin.firestore.FieldValue.serverTimestamp()
     });
@@ -172,9 +176,18 @@ async function handleSubscriptionUpdated(subscription) {
     if (subscription.status === 'canceled' || subscription.status === 'past_due') {
         const userRef = db.collection('users').doc(userId);
 
-        await userRef.update({
+        const oppdatering = {
             'subscription.status': subscription.status === 'canceled' ? 'free' : 'past_due'
-        });
+        };
+        // 'canceled' fjerner tilgangen umiddelbart. 'past_due' beholder premium
+        // gjennom Stripe sin retry-/grace-periode — tilgangen revokeres først når
+        // abonnementet faktisk slettes (customer.subscription.deleted).
+        if (subscription.status === 'canceled') {
+            oppdatering['abonnement.type'] = 'free';
+            oppdatering['abonnement.expiresAt'] = admin.firestore.FieldValue.delete();
+        }
+
+        await userRef.update(oppdatering);
 
         console.log(`User ${userId} subscription status: ${subscription.status}`);
     }

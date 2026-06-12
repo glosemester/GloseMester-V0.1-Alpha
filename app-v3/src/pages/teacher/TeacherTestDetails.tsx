@@ -97,7 +97,7 @@ export function TeacherTestDetails() {
     if (!window.confirm(`Slette prøven «${prove.tittel}»? Dette kan ikke angres.`)) return;
     setSletter(true);
     try {
-      await slettProve(prove.id);
+      await slettProve(prove.id, prove.opprettet_av ?? firebaseUser?.uid ?? '');
       toast.success('Prøve slettet.');
       reload();
       navigate(TEACHER_ROUTES.MY_TESTS);

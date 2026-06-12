@@ -9,7 +9,8 @@ import { db } from '../firebase';
 export type Rolle = 'laerer' | 'elev' | 'admin';
 
 export interface Abonnement {
-  type: 'free' | 'premium' | 'skole' | 'skolepakke';
+  // Verdiene må matche firestore.rules og kampanje.ts ('skolepakke', ikke 'skole').
+  type: 'free' | 'premium' | 'skolepakke';
 }
 
 /** En Feide-klasse/gruppe brukeren er medlem av (jf. feide-roles.hentRelevanteGrupper). */
@@ -29,6 +30,9 @@ export interface BrukerData {
   abonnement: Abonnement;
   /** Feide-klasser (settes server-side ved Feide-innlogging). */
   feide_grupper?: FeideGruppe[];
+  /** Antall prøver brukeren har opprettet. Brukes til å håndheve gratis-grensen
+   *  server-side (firestore.rules). Vedlikeholdes atomisk av opprettProve/slettProve. */
+  proveAntall?: number;
   opprettetDato?: unknown;
 }
 

@@ -55,11 +55,11 @@ exports.handler = async function (event, context) {
 
         if (plan === 'premium_monthly') {
             priceId = process.env.STRIPE_PRICE_MONTHLY;
-            amount = 9900; // 99 NOK in øre
+            amount = 2900; // 29 NOK in øre
             description = "GloseMester Premium - Månedlig";
         } else if (plan === 'premium_yearly') {
             priceId = process.env.STRIPE_PRICE_YEARLY;
-            amount = 80000; // 800 NOK in øre
+            amount = 29000; // 290 NOK in øre (2 måneder gratis vs. månedlig)
             description = "GloseMester Premium - Årlig";
         } else {
             return {

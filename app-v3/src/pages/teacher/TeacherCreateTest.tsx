@@ -9,6 +9,7 @@ import { X, Sparkles } from 'lucide-react';
 import {
   opprettProve, oppdaterProve, type ProveOrd,
   MIN_TILGJENGELIG_DAGER, MAX_TILGJENGELIG_DAGER, STANDARD_TILGJENGELIG_DAGER,
+  GRATIS_MAKS_PROVER, kanOppretteProve,
 } from '../../lib/data/prover';
 import { useAuthStore } from '../../state/useAuthStore';
 import { toast } from '../../state/useToastStore';
@@ -27,9 +28,14 @@ export function TeacherCreateTest() {
   const { testId } = useParams();
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const bruker = useAuthStore((s) => s.bruker);
-  const { prover } = useLaererProver(firebaseUser?.uid);
+  const { prover, laster: proverLaster } = useLaererProver(firebaseUser?.uid);
 
   const eksisterende = testId ? prover.find((p) => p.id === testId) : undefined;
+
+  // Gratisbrukere er begrenset til GRATIS_MAKS_PROVER prøver (gjelder kun ny
+  // oppretting, ikke redigering av eksisterende). Vent til lista er lastet.
+  const naaddGrense =
+    !eksisterende && !proverLaster && !kanOppretteProve(bruker?.abonnement?.type, prover.length);
 
   const [tittel, setTittel] = useState(eksisterende?.tittel ?? '');
   const [bland, setBland] = useState(true);
@@ -76,6 +82,11 @@ export function TeacherCreateTest() {
       toast.error('Du må være innlogget.');
       return;
     }
+    if (naaddGrense) {
+      toast.warning(`Gratis gir opptil ${GRATIS_MAKS_PROVER} prøver. Oppgrader til Premium for ubegrenset.`);
+      navigate('/oppgrader');
+      return;
+    }
 
     const tildeltGruppeNavn = grupper.filter((g) => valgteGrupper.includes(g.id)).map((g) => g.navn);
 
@@ -113,6 +124,18 @@ export function TeacherCreateTest() {
       <h1 style={{ fontWeight: 900, fontSize: 'var(--font-size-2xl)', margin: '16px 0 24px' }}>
         {eksisterende ? 'Rediger prøve' : 'Lag prøve'}
       </h1>
+
+      {naaddGrense && (
+        <div style={grenseBanner}>
+          <span>
+            Du har nådd grensen på {GRATIS_MAKS_PROVER} prøver med gratisplanen.
+            Oppgrader til Premium for ubegrenset antall prøver.
+          </span>
+          <button type="button" onClick={() => navigate('/oppgrader')} style={oppgraderKnapp}>
+            Se Premium
+          </button>
+        </div>
+      )}
 
       <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontWeight: 600 }}>
@@ -191,7 +214,7 @@ export function TeacherCreateTest() {
           </span>
         </div>
 
-        <button type="submit" disabled={lagrer} style={primaerKnapp}>
+        <button type="submit" disabled={lagrer || naaddGrense} style={primaerKnapp}>
           {lagrer ? 'Lagrer…' : eksisterende ? 'Lagre endringer' : <><Sparkles size={16} aria-hidden="true" /> Opprett prøve</>}
         </button>
       </form>
@@ -199,6 +222,17 @@ export function TeacherCreateTest() {
   );
 }
 
+const grenseBanner: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+  flexWrap: 'wrap', background: 'var(--color-primary-light)', color: 'var(--color-text)',
+  border: '1px solid var(--color-primary)', borderRadius: 'var(--radius-md)',
+  padding: '14px 16px', marginBottom: 20, fontWeight: 600,
+};
+const oppgraderKnapp: React.CSSProperties = {
+  background: 'var(--color-primary)', color: '#fff', border: 'none',
+  borderRadius: 'var(--radius-full)', padding: '8px 16px', fontWeight: 700,
+  cursor: 'pointer', fontFamily: 'var(--font-primary)', whiteSpace: 'nowrap',
+};
 const input: React.CSSProperties = {
   padding: '12px 14px', fontSize: 16, border: '2px solid var(--color-border)',
   borderRadius: 'var(--radius-md)', outline: 'none', fontFamily: 'var(--font-primary)',
