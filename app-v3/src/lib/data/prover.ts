@@ -8,11 +8,11 @@ import {
   query,
   where,
   getDocs,
-  addDoc,
   updateDoc,
-  deleteDoc,
   doc,
   serverTimestamp,
+  writeBatch,
+  increment,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { cacheHent, cacheSett } from '../nativeCache';
@@ -67,6 +67,18 @@ export interface Prove {
 export const MIN_TILGJENGELIG_DAGER = 1;
 export const MAX_TILGJENGELIG_DAGER = 14;
 export const STANDARD_TILGJENGELIG_DAGER = 7;
+
+/** Maks antall prøver en gratisbruker kan ha. Premium/skolepakke = ubegrenset. */
+export const GRATIS_MAKS_PROVER = 3;
+
+/**
+ * Kan brukeren opprette en ny prøve? Gratisbrukere er begrenset til
+ * GRATIS_MAKS_PROVER; alle betalte abonnement er ubegrenset.
+ */
+export function kanOppretteProve(abonnementType: string | undefined, antallNaa: number): boolean {
+  if (abonnementType && abonnementType !== 'free') return true;
+  return antallNaa < GRATIS_MAKS_PROVER;
+}
 
 /** Er prøven utløpt nå? (utloperDato 0/undefined = aldri utløpt.) */
 export function erProveUtloept(prove: Pick<Prove, 'utloperDato'>, naa = Date.now()): boolean {
@@ -158,7 +170,11 @@ export async function opprettProve(
 ): Promise<{ id: string; kode: string }> {
   const kode = genererProvekode();
   const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
-  const ref = await addDoc(collection(db, 'prover'), {
+  // Opprett prøven og øk brukerens teller i ÉN atomisk skriv. firestore.rules
+  // håndhever gratis-grensen ved å kreve nettopp denne +1-økningen (≤ grense).
+  const proveRef = doc(collection(db, 'prover'));
+  const batch = writeBatch(db);
+  batch.set(proveRef, {
     kode,
     fag: data.fag ?? 'gloser',
     tittel: data.tittel,
@@ -174,6 +190,8 @@ export async function opprettProve(
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
   });
+  batch.update(doc(db, 'users', laerer.uid), { proveAntall: increment(1) });
+  await batch.commit();
 
   // Send push-varsel til elever i tildelte grupper (fire-and-forget).
   if ((data.tildeltGrupper?.length ?? 0) > 0) {
@@ -184,7 +202,7 @@ export async function opprettProve(
     }).catch(() => {}); // varselfeil skal ikke blokkere oppretting
   }
 
-  return { id: ref.id, kode };
+  return { id: proveRef.id, kode };
 }
 
 /**
@@ -210,6 +228,13 @@ export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
   await updateDoc(doc(db, 'prover', id), oppdatering);
 }
 
-export async function slettProve(id: string): Promise<void> {
-  await deleteDoc(doc(db, 'prover', id));
+/**
+ * Sletter en prøve og dekrementerer eierens teller (frigjør gratis-grensen).
+ * `eierUid` er prøvens `opprettet_av` — den hvis teller skal reduseres.
+ */
+export async function slettProve(id: string, eierUid: string): Promise<void> {
+  const batch = writeBatch(db);
+  batch.delete(doc(db, 'prover', id));
+  if (eierUid) batch.update(doc(db, 'users', eierUid), { proveAntall: increment(-1) });
+  await batch.commit();
 }

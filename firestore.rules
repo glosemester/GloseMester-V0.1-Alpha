@@ -10,6 +10,27 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rolle == 'admin';
     }
 
+    // --- Gratis-grense på antall prøver ---
+    // Firestore-regler kan ikke telle dokumenter i en collection, så vi holder en
+    // teller `proveAntall` på brukerdokumentet. Gratisbrukere (abonnement.type
+    // == 'free') må øke telleren med nøyaktig 1 i SAMME atomiske skriv som de
+    // oppretter en prøve, og resultatet må holde seg ≤ 3 (jf. GRATIS_MAKS_PROVER
+    // i app-v3). Betalte abonnement er ubegrenset.
+    function brukerData(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+    function brukerDataEtter(uid) {
+      return getAfter(/databases/$(database)/documents/users/$(uid)).data;
+    }
+    function aboType(uid) {
+      return brukerData(uid).get('abonnement', {'type': 'free'}).get('type', 'free');
+    }
+    function gratisProveOk(uid) {
+      return brukerDataEtter(uid).get('proveAntall', 0)
+               == brukerData(uid).get('proveAntall', 0) + 1
+          && brukerDataEtter(uid).get('proveAntall', 0) <= 3;
+    }
+
     // ============================================
     // GLOSEMESTER
     // ============================================
@@ -70,8 +91,12 @@ service cloud.firestore {
     // Skriv: Kun innloggede lærere (rollesjekk mot users-dokumentet)
     match /prover/{proveId} {
       allow read: if true;
-      allow create: if request.auth != null &&
-                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rolle in ['laerer', 'admin'];
+      // Oppretting: må stemple seg selv som eier. Gratisbrukere håndheves mot
+      // 3-grensen via teller (se gratisProveOk); betalte er ubegrenset.
+      allow create: if request.auth != null
+                       && request.resource.data.opprettet_av == request.auth.uid
+                       && (aboType(request.auth.uid) != 'free'
+                           || gratisProveOk(request.auth.uid));
       allow update, delete: if request.auth != null &&
                               (resource.data.opprettet_av == request.auth.uid || isAdmin());
     }
