@@ -7,7 +7,7 @@
 import type { CSSProperties } from 'react';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener';
+export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger';
 
 export interface KortDef {
   id: string;
@@ -161,6 +161,50 @@ const romvesener: Rad[] = [
   ['037-nebula.png', 'Nebula'], ['038-galaxia.png', 'Galaxia'],
 ];
 
+const planeter: Rad[] = [
+  ['001-merkur.png', 'Merkur'], ['002-venus.png', 'Venus'],
+  ['003-jorden.png', 'Jorden'], ['004-mars.png', 'Mars'],
+  ['005-jupiter.png', 'Jupiter'], ['006-saturn.png', 'Saturn'],
+  ['007-uranus.png', 'Uranus'], ['008-neptun.png', 'Neptun'],
+  ['009-manen.png', 'Månen'], ['010-pluto.png', 'Pluto'],
+  ['011-ceres.png', 'Ceres'], ['012-europa.png', 'Europa'],
+  ['013-titan.png', 'Titan'], ['014-io.png', 'Io'],
+  ['015-enceladus.png', 'Enceladus'], ['016-ganymedes.png', 'Ganymedes'],
+  ['017-callisto.png', 'Callisto'], ['018-triton.png', 'Triton'],
+  ['019-fobos.png', 'Fobos'], ['020-halley.png', 'Halleys komet'],
+  ['021-eris.png', 'Eris'], ['022-haumea.png', 'Haumea'],
+  ['023-makemake.png', 'Makemake'], ['024-sedna.png', 'Sedna'],
+  ['025-vesta.png', 'Vesta'], ['026-proxima-b.png', 'Proxima b'],
+  ['027-trappist-1e.png', 'TRAPPIST-1e'], ['028-kepler-452b.png', 'Kepler-452b'],
+  ['029-diamantplaneten.png', 'Diamantplaneten'], ['030-glassregnplaneten.png', 'Glassregn-planeten'],
+  ['031-sola.png', 'Sola'], ['032-betelgeuse.png', 'Betelgeuse'],
+  ['033-sirius.png', 'Sirius'], ['034-oriontaken.png', 'Oriontåken'],
+  ['035-krabbetaken.png', 'Krabbetåken'], ['036-melkeveien.png', 'Melkeveien'],
+  ['037-andromeda.png', 'Andromedagalaksen'], ['038-sort-hull.png', 'Sort hull'],
+];
+
+const skapninger: Rad[] = [
+  ['001-nisse.png', 'Nisse'], ['002-fjosnisse.png', 'Fjøsnisse'],
+  ['003-tusse.png', 'Tusse'], ['004-vette.png', 'Vette'],
+  ['005-trollkatt.png', 'Trollkatt'], ['006-julebukk.png', 'Julebukk'],
+  ['007-lyktemann.png', 'Lyktemann'], ['008-skogstroll.png', 'Skogstroll'],
+  ['009-fjelltroll.png', 'Fjelltroll'], ['010-brotroll.png', 'Brotroll'],
+  ['011-dverg.png', 'Dverg'], ['012-alv.png', 'Alv'],
+  ['013-mare.png', 'Mare'], ['014-kirkegrim.png', 'Kirkegrim'],
+  ['015-klabautermann.png', 'Klabautermann'], ['016-bekkahesten.png', 'Bekkahesten'],
+  ['017-havfrue.png', 'Havfrue'], ['018-havmann.png', 'Havmann'],
+  ['019-fossegrim.png', 'Fossegrim'], ['020-mosekall.png', 'Mosekall'],
+  ['021-hulder.png', 'Hulder'], ['022-nokken.png', 'Nøkken'],
+  ['023-draugen.png', 'Draugen'], ['024-sjoormen.png', 'Sjøormen'],
+  ['025-lindormen.png', 'Lindormen'], ['026-ratatosk.png', 'Ratatosk'],
+  ['027-hugin-og-munin.png', 'Hugin og Munin'], ['028-heidrun.png', 'Heidrun'],
+  ['029-gullinbuste.png', 'Gullinbuste'], ['030-selkje.png', 'Selkje'],
+  ['031-valkyrje.png', 'Valkyrje'], ['032-jotne.png', 'Jotne'],
+  ['033-garm.png', 'Garm'], ['034-hresvelg.png', 'Hræsvelg'],
+  ['035-sleipner.png', 'Sleipner'], ['036-dovregubben.png', 'Dovregubben'],
+  ['037-kraken.png', 'Kraken'], ['038-nidhogg.png', 'Nidhogg'],
+];
+
 /**
  * Kortpakke. Sett `aktiv: false` for å STAGE en pakke i koden uten å rulle den
  * ut ennå (kortene vises ikke i galleri/belønning før den slås på).
@@ -185,6 +229,9 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
   { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
+  // Staget: bilder genereres/optimaliseres — slå på når de er committet.
+  { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
+  { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
 

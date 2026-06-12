@@ -4,7 +4,7 @@
  *
  * Bruk:
  *   export OPENAI_API_KEY=sk-…           (aldri i repoet!)
- *   cd app-v3 && node scripts/generate-card-images.mjs <manifest.json> [--model gpt-image-1-mini] [--kun 001,005]
+ *   cd app-v3 && node scripts/generate-card-images.mjs <manifest.json> [--model gpt-image-1-mini] [--quality medium] [--kun 001,005]
  *
  * Manifest (JSON):
  *   {
@@ -41,6 +41,10 @@ function rarityBakgrunn(nummer) {
 
 const STANDARD_MODELL = 'gpt-image-1-mini';
 const STORRELSE = '1024x1024'; // 1:1 — samme kvadratiske format som eksisterende kort
+// VIKTIG: uten eksplisitt quality velger API-et «auto» (i praksis high) — ~7× dyrere.
+// Sluttbildene blir uansett 320px WebP, så medium holder i massevis.
+// (mini, 1024×1024: low ≈ $0.005, medium ≈ $0.011–0.02, high ≈ $0.036 per bilde)
+const STANDARD_KVALITET = 'medium';
 
 function lesArgs() {
   const args = process.argv.slice(2);
@@ -71,15 +75,16 @@ function lesArgs() {
   return {
     manifestSti,
     modell: flagg('--model') ?? STANDARD_MODELL,
+    kvalitet: flagg('--quality') ?? STANDARD_KVALITET,
     kun,
   };
 }
 
-async function genererBilde(apiKey, modell, prompt) {
+async function genererBilde(apiKey, modell, kvalitet, prompt) {
   const res = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: modell, prompt, size: STORRELSE, n: 1 }),
+    body: JSON.stringify({ model: modell, prompt, size: STORRELSE, quality: kvalitet, n: 1 }),
   });
   if (!res.ok) {
     throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 300)}`);
@@ -96,7 +101,7 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const { manifestSti, modell, kun } = lesArgs();
+const { manifestSti, modell, kvalitet, kun } = lesArgs();
 const manifest = JSON.parse(readFileSync(manifestSti, 'utf8'));
 if (!manifest.mappe || !Array.isArray(manifest.kort)) {
   console.error('Manifestet må ha "mappe" og "kort" (liste av {fil, navn, prompt}).');
@@ -127,9 +132,9 @@ for (const kort of manifest.kort) {
   const variasjon = variasjoner.length ? `, ${variasjoner[(nummer - 1) % variasjoner.length]}` : '';
   const prompt = `${kort.navn}, ${kort.prompt}, ${kort.stil ?? kategoriStil}${variasjon}, ${rarityBakgrunn(nummer)}, ` +
     'high detail, full-bleed edge-to-edge artwork, no card frame, no border, no text or letters in the image';
-  process.stdout.write(`Genererer ${kort.fil} (${modell})… `);
+  process.stdout.write(`Genererer ${kort.fil} (${modell}, ${kvalitet})… `);
   try {
-    writeFileSync(pngSti, await genererBilde(apiKey, modell, prompt));
+    writeFileSync(pngSti, await genererBilde(apiKey, modell, kvalitet, prompt));
     generert++;
     console.log('ok');
   } catch (e) {

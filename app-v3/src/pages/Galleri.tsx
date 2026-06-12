@@ -7,7 +7,9 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layers, Trophy, Rocket, Lock, Recycle, X } from 'lucide-react';
 import { hentSamling, samlingStats, panteKort } from '../features/kort/kortSamling';
-import { getKortById, glodStil, kortData, RARITY_CONFIG, type Rarity } from '../features/kort/kortData';
+import { getKortById, glodStil, kortData, RARITY_CONFIG, type Category, type Rarity } from '../features/kort/kortData';
+import { beregnElevNiva, erKortLaast, opplastVedNiva } from '../features/niva/nivaSystem';
+import { getTotalCorrect } from '../lib/storage';
 import type { Kort } from '../lib/storage';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
@@ -17,6 +19,11 @@ import { ROUTES } from '../routes/paths';
 type Sortering = 'nyeste' | 'sjeldenhet' | 'navn';
 
 const RARITY_RANG: Record<Rarity, number> = { legendary: 4, epic: 3, rare: 2, common: 1 };
+
+const KATEGORI_NAVN: Record<string, string> = {
+  biler: 'Biler', dinosaurer: 'Dinosaurer', dyr: 'Dyr', guder: 'Guder',
+  romvesener: 'Romvesener', planeter: 'Planeter', skapninger: 'Mytiske skapninger',
+};
 
 interface VisKort {
   id: string;
@@ -31,7 +38,10 @@ interface VisKort {
 export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   const navigate = useNavigate();
   const bruker = useAuthStore((s) => s.bruker);
+  const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const harFeide = harAlleKortpakker(bruker);
+  // Elevnivå (1–10) — nivålåste kort i Feide-pakkene merkes «Låses opp på nivå N».
+  const elevNiva = firebaseUser ? beregnElevNiva(getTotalCorrect('gloser')) : null;
   const [sortering, setSortering] = useState<Sortering>('nyeste');
   const [versjon, setVersjon] = useState(0); // tving re-les etter pant
   // Bug 5: klikk på et låst kort viser hint-popup.
@@ -174,6 +184,10 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
         {kort.map((k) => {
           const cfg = RARITY_CONFIG[k.rarity];
           const eid = k.antall > 0;
+          // Nivåkrav vises kun der nivået faktisk er hinderet (Feide-tilgang OK).
+          const nivaKrav = !eid && harFeide && erKortLaast({ category: k.category as Category, rarity: k.rarity }, elevNiva)
+            ? opplastVedNiva({ category: k.category as Category, rarity: k.rarity })
+            : null;
           return (
             <div
               key={k.id}
@@ -209,6 +223,11 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                 {!eid && (
                   <span style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }} aria-hidden="true"><Lock size={32} color="var(--color-text-muted)" /></span>
                 )}
+                {nivaKrav && (
+                  <span style={{ position: 'absolute', bottom: 4, left: '50%', transform: 'translateX(-50%)', background: cfg.farge, color: '#fff', borderRadius: 999, padding: '2px 10px', fontSize: 11, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    Nivå {nivaKrav}
+                  </span>
+                )}
                 {k.antall > 1 && (
                   <span style={{ position: 'absolute', top: 4, right: 4, background: 'var(--color-primary)', color: '#fff', borderRadius: 999, padding: '2px 8px', fontSize: 12, fontWeight: 700 }}>
                     ×{k.antall}
@@ -232,7 +251,6 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
         const dato = valgtEid.forstVunnet
           ? new Date(valgtEid.forstVunnet).toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' })
           : null;
-        const kategoriNavn: Record<string, string> = { biler: 'Biler', dinosaurer: 'Dinosaurer', dyr: 'Dyr', guder: 'Guder' };
         return (
           <div style={laastOverlay} role="dialog" aria-modal="true" aria-label={`Detaljer for ${valgtEid.navn}`} onClick={() => setValgtEid(null)}>
             <div style={{ ...laastPopup, maxWidth: 340 }} onClick={(e) => e.stopPropagation()}>
@@ -255,7 +273,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
                   {cfg.tekst}
                 </span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-muted)', background: 'var(--color-border)', borderRadius: 999, padding: '3px 12px' }}>
-                  {kategoriNavn[valgtEid.category] ?? valgtEid.category}
+                  {KATEGORI_NAVN[valgtEid.category] ?? valgtEid.category}
                 </span>
               </div>
               <div style={{ fontSize: 14, color: 'var(--color-text-muted)', textAlign: 'center' }}>
@@ -297,8 +315,13 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
             </div>
             {!harFeide && !GRATIS_KORTPAKKER.includes(valgtLaast.category as typeof GRATIS_KORTPAKKER[number]) ? (
               <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
-                Kortpakken <strong>{valgtLaast.category === 'dyr' ? 'Dyr' : 'Guder'}</strong> krever Feide-innlogging.
+                Kortpakken <strong>{KATEGORI_NAVN[valgtLaast.category] ?? valgtLaast.category}</strong> krever Feide-innlogging.
                 Logg inn med Feide-kontoen din fra skolen for å låse opp.
+              </p>
+            ) : erKortLaast({ category: valgtLaast.category as Category, rarity: valgtLaast.rarity }, elevNiva) ? (
+              <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
+                Dette kortet låses opp på <strong>nivå {opplastVedNiva({ category: valgtLaast.category as Category, rarity: valgtLaast.rarity })}</strong>.
+                Fortsett å øve for å gå opp i nivå!
               </p>
             ) : (
               <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
