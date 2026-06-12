@@ -1,0 +1,202 @@
+{
+  "mappe": "kart",
+  "storrelse": "1024x1536",
+  "kategoriStil": "fantasy TCG collector card art, stylized country map silhouette filled with national flag colors and pattern, bold outline around borders, glowing world map grid in background, dramatic lighting, vibrant saturated colors, holographic sheen, centered portrait composition",
+  "variasjoner": [
+    "slight drop shadow under country shape, clean white background",
+    "soft glow around country border, light parchment map background",
+    "country shape slightly tilted, minimal compass rose in corner"
+  ],
+  "kort": [
+    {
+      "fil": "001-norge.png",
+      "navn": "Norge",
+      "prompt": "silhouette of Norway filled with the Norwegian flag (red with blue and white cross), long coastal shape with fjords visible on edges"
+    },
+    {
+      "fil": "002-sverige.png",
+      "navn": "Sverige",
+      "prompt": "silhouette of Sweden filled with the Swedish flag (blue with yellow cross), elongated Scandinavian shape"
+    },
+    {
+      "fil": "003-danmark.png",
+      "navn": "Danmark",
+      "prompt": "silhouette of Denmark filled with the Danish flag (red with white cross), compact shape with peninsula"
+    },
+    {
+      "fil": "004-finland.png",
+      "navn": "Finland",
+      "prompt": "silhouette of Finland filled with the Finnish flag (white with blue cross), irregular eastern border"
+    },
+    {
+      "fil": "005-island.png",
+      "navn": "Island",
+      "prompt": "silhouette of Iceland filled with the Icelandic flag (blue with red and white cross), island shape with volcanic texture hint"
+    },
+    {
+      "fil": "006-storbritannia.png",
+      "navn": "Storbritannia",
+      "prompt": "silhouette of United Kingdom filled with the Union Jack flag pattern (red, white, blue), island shape"
+    },
+    {
+      "fil": "007-frankrike.png",
+      "navn": "Frankrike",
+      "prompt": "silhouette of France filled with the French tricolor flag (blue, white, red vertical stripes), hexagonal shape"
+    },
+    {
+      "fil": "008-tyskland.png",
+      "navn": "Tyskland",
+      "prompt": "silhouette of Germany filled with the German flag (black, red, gold horizontal stripes), central European shape"
+    },
+    {
+      "fil": "009-spania.png",
+      "navn": "Spania",
+      "prompt": "silhouette of Spain filled with the Spanish flag (red and yellow stripes with coat of arms), Iberian peninsula shape"
+    },
+    {
+      "fil": "010-italia.png",
+      "navn": "Italia",
+      "prompt": "silhouette of Italy filled with the Italian flag (green, white, red vertical stripes), distinctive boot shape"
+    },
+    {
+      "fil": "011-nederland.png",
+      "navn": "Nederland",
+      "prompt": "silhouette of Netherlands filled with the Dutch flag (red, white, blue horizontal stripes), small compact shape"
+    },
+    {
+      "fil": "012-polen.png",
+      "navn": "Polen",
+      "prompt": "silhouette of Poland filled with the Polish flag (white and red horizontal stripes), rectangular central European shape"
+    },
+    {
+      "fil": "013-hellas.png",
+      "navn": "Hellas",
+      "prompt": "silhouette of Greece filled with the Greek flag (blue and white stripes with cross), jagged coastal outline with island hints"
+    },
+    {
+      "fil": "014-portugal.png",
+      "navn": "Portugal",
+      "prompt": "silhouette of Portugal filled with the Portuguese flag (green and red with coat of arms), narrow vertical strip of Iberia"
+    },
+    {
+      "fil": "015-sveits.png",
+      "navn": "Sveits",
+      "prompt": "silhouette of Switzerland filled with the Swiss flag (red with white cross), small square-ish alpine shape"
+    },
+    {
+      "fil": "016-osterrike.png",
+      "navn": "Østerrike",
+      "prompt": "silhouette of Austria filled with the Austrian flag (red, white, red horizontal stripes), elongated alpine shape"
+    },
+    {
+      "fil": "017-belgia.png",
+      "navn": "Belgia",
+      "prompt": "silhouette of Belgium filled with the Belgian flag (black, yellow, red vertical stripes), small square shape"
+    },
+    {
+      "fil": "018-russland.png",
+      "navn": "Russland",
+      "prompt": "silhouette of Russia filled with the Russian flag (white, blue, red stripes), massive wide shape spanning two continents"
+    },
+    {
+      "fil": "019-ukraina.png",
+      "navn": "Ukraina",
+      "prompt": "silhouette of Ukraine filled with the Ukrainian flag (blue top, yellow bottom), large Eastern European shape"
+    },
+    {
+      "fil": "020-tyrkia.png",
+      "navn": "Tyrkia",
+      "prompt": "silhouette of Turkey filled with the Turkish flag (red with white crescent and star), bridge between Europe and Asia"
+    },
+    {
+      "fil": "021-usa.png",
+      "navn": "USA",
+      "prompt": "silhouette of United States filled with the American flag (stars and stripes, red white blue), large continental shape"
+    },
+    {
+      "fil": "022-canada.png",
+      "navn": "Canada",
+      "prompt": "silhouette of Canada filled with the Canadian flag (red with white center and maple leaf), massive northern shape"
+    },
+    {
+      "fil": "023-mexico.png",
+      "navn": "Mexico",
+      "prompt": "silhouette of Mexico filled with the Mexican flag (green, white, red with eagle emblem), triangular southern shape"
+    },
+    {
+      "fil": "024-brasil.png",
+      "navn": "Brasil",
+      "prompt": "silhouette of Brazil filled with the Brazilian flag (green with yellow diamond and blue globe), large South American shape"
+    },
+    {
+      "fil": "025-argentina.png",
+      "navn": "Argentina",
+      "prompt": "silhouette of Argentina filled with the Argentinian flag (light blue and white stripes with sun), long southern cone shape"
+    },
+    {
+      "fil": "026-kina.png",
+      "navn": "Kina",
+      "prompt": "silhouette of China filled with the Chinese flag (red with yellow stars), large East Asian shape"
+    },
+    {
+      "fil": "027-japan.png",
+      "navn": "Japan",
+      "prompt": "silhouette of Japan filled with the Japanese flag (white with red circle), island arc shape"
+    },
+    {
+      "fil": "028-india.png",
+      "navn": "India",
+      "prompt": "silhouette of India filled with the Indian flag (saffron, white with Ashoka wheel, green), triangular subcontinent shape"
+    },
+    {
+      "fil": "029-australia.png",
+      "navn": "Australia",
+      "prompt": "silhouette of Australia filled with the Australian flag (blue with Union Jack and Southern Cross stars), large island continent shape"
+    },
+    {
+      "fil": "030-egypt.png",
+      "navn": "Egypt",
+      "prompt": "silhouette of Egypt filled with the Egyptian flag (red, white, black stripes with golden eagle), square Nile delta shape"
+    },
+    {
+      "fil": "031-kenya.png",
+      "navn": "Kenya",
+      "prompt": "silhouette of Kenya filled with the Kenyan flag (black, red, green stripes with Maasai shield), East African shape"
+    },
+    {
+      "fil": "032-nigeria.png",
+      "navn": "Nigeria",
+      "prompt": "silhouette of Nigeria filled with the Nigerian flag (green, white, green vertical stripes), West African shape"
+    },
+    {
+      "fil": "033-sor-afrika.png",
+      "navn": "Sør-Afrika",
+      "prompt": "silhouette of South Africa filled with the South African flag (colorful Y-shape design, green, black, gold, red, white, blue), southern tip of Africa"
+    },
+    {
+      "fil": "034-saudi-arabia.png",
+      "navn": "Saudi-Arabia",
+      "prompt": "silhouette of Saudi Arabia filled with the Saudi Arabian flag (green with white Arabic inscription and sword), Arabian peninsula shape"
+    },
+    {
+      "fil": "035-indonesia.png",
+      "navn": "Indonesia",
+      "prompt": "silhouette of Indonesia filled with the Indonesian flag (red and white horizontal stripes), scattered island archipelago shape"
+    },
+    {
+      "fil": "036-marokko.png",
+      "navn": "Marokko",
+      "prompt": "silhouette of Morocco filled with the Moroccan flag (red with green pentagram star), northwestern African shape, enhanced detail"
+    },
+    {
+      "fil": "037-antarktis.png",
+      "navn": "Antarktis",
+      "prompt": "silhouette of Antarctica filled with icy blue and white snowflake patterns and glacial textures, circular continent shape, mystical frozen appearance, purple border glow"
+    },
+    {
+      "fil": "038-verden.png",
+      "navn": "Verden",
+      "prompt": "full globe map showing all continents in bright distinct colors, surrounded by a golden cosmic glow, all countries outlined, legendary holographic effect, the entire world visible"
+    }
+  ]
+}
