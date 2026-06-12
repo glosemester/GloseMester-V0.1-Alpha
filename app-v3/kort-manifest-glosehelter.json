@@ -2,13 +2,13 @@
   "mappe": "glosehelter",
   "storrelse": "1024x1536",
   "banner": "GloseMester-serien",
-  "kategoriStil": "a cute anthropomorphic mascot character with a friendly face, arms and legs, big expressive eyes, kawaii sticker-mascot style, bold clean black outlines, smooth bright saturated colors, simple flat shapes, consistent GloseMester mascot series look, kid-friendly, full body centered with breathing room",
+  "kategoriStil": "fantasy TCG collector card art, cute anthropomorphic character with a friendly face, arms and legs, big expressive eyes, vibrant saturated colors, dynamic lighting, expressive and detailed design, full body visible, centered on card, kid-friendly, collectible card game art style",
   "variasjoner": [
-    "standing and waving cheerfully, front view",
-    "happy jumping pose, full of energy",
-    "cute three-quarter pose with a little personality gesture",
-    "winking and giving a thumbs up",
-    "playful dynamic pose, full body visible"
+    "standing and waving cheerfully, front view, dramatic rim lighting",
+    "happy jumping pose, full of energy, glowing aura",
+    "cute three-quarter pose with a little personality gesture, rich background details",
+    "winking and giving a thumbs up, colorful particle effects",
+    "playful dynamic pose, full body visible, vibrant color splash"
   ],
   "kort": [
     { "fil": "001-cucumber.png",   "navn": "Cucumber",   "prompt": "a cool green cucumber character wearing sunglasses, relaxed and chill, leaning back confidently" },
@@ -18,11 +18,11 @@
     { "fil": "005-tomato.png",     "navn": "Tomato",     "prompt": "a round red tomato character with a little green crown, blushing and giggling" },
     { "fil": "006-strawberry.png", "navn": "Strawberry", "prompt": "a sweet red strawberry character with tiny seeds and a leafy top, hearts in its eyes" },
     { "fil": "007-pineapple.png",  "navn": "Pineapple",  "prompt": "a happy golden pineapple character with a spiky green crown, wearing tiny sunglasses, tropical vibe" },
-    { "fil": "008-broccoli.png",   "navn": "Broccoli",   "prompt": "a proud green broccoli character with a bushy tree-like top, flexing like a superhero" },
+    { "fil": "008-broccoli.png",   "navn": "Broccoli",   "prompt": "a proud green broccoli character with a bushy tree-like top, flexing like a superhero, plain soft white to light gray gradient background, no forest, no trees, clean simple background" },
     { "fil": "009-lemon.png",      "navn": "Lemon",      "prompt": "a zesty yellow lemon character with a puckered sour face, tiny arms on hips" },
     { "fil": "010-mushroom.png",   "navn": "Mushroom",   "prompt": "a cute red-capped mushroom character with white spots, shy and smiling" },
     { "fil": "011-egg.png",        "navn": "Egg",        "prompt": "a happy white egg character cheering with both arms up, 'eggcellent' energy, big grin" },
-    { "fil": "012-cheese.png",     "navn": "Cheese",     "prompt": "a yellow cheese wedge character with holes and a wide cheesy smile, saying cheese" },
+    { "fil": "012-cheese.png",     "navn": "Cheese",     "prompt": "a chunky yellow swiss cheese wedge character with big round holes, friendly face with big eyes and a wide grin, tiny arms raised in celebration, warm golden glow around the character, soft white to light gray gradient background" },
     { "fil": "013-cookie.png",     "navn": "Cookie",     "prompt": "a round chocolate-chip cookie character with a happy face, one bite missing, winking" },
     { "fil": "014-cupcake.png",    "navn": "Cupcake",    "prompt": "a sweet cupcake character with swirly pink frosting and a cherry on top, twirling happily" },
     { "fil": "015-bread.png",      "navn": "Bread",      "prompt": "a fluffy loaf of bread character with a warm golden crust and a cozy smile" },
