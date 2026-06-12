@@ -66,8 +66,8 @@ export function OnboardingModal() {
           ikon: <Trophy size={40} color="var(--color-primary)" aria-hidden="true" />,
           tittel: 'Samlekort',
           tekst: harFeide
-            ? 'Du har tilgang til alle fire kortpakker: Biler, Dinosaurer, Dyr og Guder. Vinn ett kort for hver 10. riktige svar.'
-            : 'Du kan vinne kort fra Biler og Dinosaurer gratis. Logg inn med Feide for å låse opp Dyr og Guder.',
+            ? 'Du har tilgang til alle kortpakkene: Biler, Dinosaurer, Dyr, Guder, Romvesener, Planeter, Kart og GloseMester-serien. Vinn ett kort for hver 10. riktige svar.'
+            : 'Du kan vinne kort fra Biler, Dinosaurer og GloseMester-serien gratis. Logg inn med Feide for å låse opp Dyr, Guder, Romvesener, Planeter og Kart.',
         },
         {
           ikon: <Repeat size={40} color="var(--color-primary)" aria-hidden="true" />,

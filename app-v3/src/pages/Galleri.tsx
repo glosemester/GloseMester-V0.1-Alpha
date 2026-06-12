@@ -1,7 +1,7 @@
 /**
  * Kortsamling / galleri — React-port av v2 KortGalleri, med to visninger:
  *  - «Mine Kort» (visAlle=false): kun kort eleven eier, med antall + panting.
- *  - «Galleri»   (visAlle=true):  alle 152 kort; ikke-samlede vises grået ut.
+ *  - «Galleri»   (visAlle=true):  alle aktive kort; ikke-samlede vises grået ut.
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +22,9 @@ const RARITY_RANG: Record<Rarity, number> = { legendary: 4, epic: 3, rare: 2, co
 
 const KATEGORI_NAVN: Record<string, string> = {
   biler: 'Biler', dinosaurer: 'Dinosaurer', dyr: 'Dyr', guder: 'Guder',
-  romvesener: 'Romvesener', planeter: 'Planeter', skapninger: 'Mytiske skapninger',
+  romvesener: 'Romvesener', planeter: 'Planeter', kart: 'Kart',
+  glosehelter: 'GloseMester-serien', skapninger: 'Mytiske skapninger',
+  landemerker: 'Landemerker',
 };
 
 interface VisKort {

@@ -35,7 +35,7 @@ export function getCategoriesForLevel(
   tilgjengeligeKategorier?: readonly Category[],
 ): Category[] {
   const level = typeof niva === 'string' ? parseInt(niva.replace('niva', ''), 10) : niva;
-  const base: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter'];
+  const base: Category[] = ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter', 'kart', 'glosehelter'];
   // Filter by Feide access first, then apply level rules (guder only niva 3–4).
   const allowed = tilgjengeligeKategorier ? base.filter((c) => tilgjengeligeKategorier.includes(c)) : base;
   if (level === 1 || level === 2) return allowed.filter((c) => c !== 'guder');
