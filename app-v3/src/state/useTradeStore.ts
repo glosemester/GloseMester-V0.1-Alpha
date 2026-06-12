@@ -110,11 +110,17 @@ export const useTradeStore = create<TradeState>((set, get) => ({
       const { tradeId, code } = await tradeData.createTrade({ initiatorUid: uid, initiatorName: navn, offeredKort: offered });
       await get().refreshTrades(uid);
       return { code, tradeId };
-    } catch {
+    } catch (e) {
       // Skriving feilet → refunder sjetongen vi nettopp brukte.
       refunderSjetong();
       set({ fremgang: sjetongFremgang() });
-      toast.error('Kunne ikke opprette bytte — sjekk nettilkoblingen.');
+      const kode = (e as { code?: string })?.code;
+      console.error('createTrade feilet:', kode ?? '(ukjent)', e);
+      toast.error(
+        kode === 'permission-denied'
+          ? 'Byttet ble avvist av serveren (rettigheter). Prøv igjen senere.'
+          : 'Kunne ikke opprette bytte — sjekk nettilkoblingen.',
+      );
       return null;
     }
   },
