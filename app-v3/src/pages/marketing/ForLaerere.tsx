@@ -38,7 +38,7 @@ export function ForLaerere() {
         id="laerer"
         to="/oppgrader"
         tittel="Kjøp Premium"
-        info="Ubegrenset prøver og standardprøver — fra 49 kr/mnd."
+        info="Ubegrenset prøver og standardprøver — fra 29 kr/mnd."
       />
     </MarketingLayout>
   );

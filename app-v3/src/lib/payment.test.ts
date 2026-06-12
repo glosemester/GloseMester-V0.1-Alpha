@@ -59,7 +59,7 @@ describe('startStripeCheckout', () => {
       plan: 'premium_yearly',
       userId: 'bruker-1',
       userEmail: 'larer@skole.no',
-      successUrl: `${ORIGIN}/oppgrader`,
+      successUrl: `${ORIGIN}/oppgrader/takk`,
       cancelUrl: `${ORIGIN}/oppgrader`,
     });
     // Klienten forlater appen mot Stripe.

@@ -1,7 +1,8 @@
 /**
- * Kortdata — portet 1:1 fra v2 (src/core/kort/kort-data.js).
- * 4 kategorier × 38 kort = 152 samlekort. ID og sjeldenhet utledes fra
- * posisjon (samme formel som v2 getRarity), så listene holdes kompakte.
+ * Kortdata — portet fra v2 (src/core/kort/kort-data.js).
+ * Hver pakke har 38 kort; totalt antall utledes dynamisk fra de aktive pakkene
+ * (per nå 8 aktive × 38 = 304 samlekort, jf. PAKKER nederst). ID og sjeldenhet
+ * utledes fra posisjon (samme formel som v2 getRarity), så listene holdes kompakte.
  */
 
 import type { CSSProperties } from 'react';

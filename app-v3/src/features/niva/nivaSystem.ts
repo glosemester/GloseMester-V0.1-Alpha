@@ -112,10 +112,12 @@ export const OPPLASNINGER: Opplasning[] = [
   { niva: 3, category: 'dyr', rarity: 'epic', etikett: 'Episke dyrekort' },
   { niva: 4, category: 'guder', rarity: 'epic', etikett: 'Episke gudekort' },
   { niva: 5, category: 'romvesener', rarity: 'epic', etikett: 'Episke romvesenkort' },
+  { niva: 5, category: 'kart', rarity: 'epic', etikett: 'Episke kartkort' },
   { niva: 6, category: 'dyr', rarity: 'legendary', etikett: 'Legendariske dyrekort' },
   { niva: 7, category: 'planeter', rarity: 'epic', etikett: 'Episke planetkort' },
   { niva: 8, category: 'guder', rarity: 'legendary', etikett: 'Legendariske gudekort' },
   { niva: 9, category: 'romvesener', rarity: 'legendary', etikett: 'Legendariske romvesenkort' },
+  { niva: 9, category: 'kart', rarity: 'legendary', etikett: 'Legendariske kartkort' },
   { niva: 10, category: 'planeter', rarity: 'legendary', etikett: 'Legendariske planetkort' },
 ];
 

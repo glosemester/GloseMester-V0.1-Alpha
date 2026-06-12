@@ -471,7 +471,7 @@ Alle rettigheter forbeholdt.
 **Utviklet:** November 2024 — mars 2026
 **Kodebasis:** ~18.000 linjer (JS, HTML, CSS)
 **Standardprøver:** 16 LK20-alignerte prøver
-**Samlebokskort:** 50+ unike kort (4 sjeldenhetsgrader)
+**Samlebokskort:** 304 unike kort (8 pakker à 38, 4 sjeldenhetsgrader)
 **Støttede plattformer:** Web, iOS, Android (PWA)
 
 ---
