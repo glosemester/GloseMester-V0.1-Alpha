@@ -15,7 +15,9 @@
       "mcp__c37e2353-4b15-4186-ad68-e121d842a5d6__stripe_api_write",
       "mcp__0d87fed9-2004-41af-bde4-dd886fbb8abf__notion-update-page",
       "mcp__Stripe__search_stripe_resources",
-      "mcp__Stripe__fetch_stripe_resources"
+      "mcp__Stripe__fetch_stripe_resources",
+      "mcp__Netlify__netlify-project-services-reader",
+      "mcp__Netlify__netlify-project-services-updater"
     ]
   }
 }
