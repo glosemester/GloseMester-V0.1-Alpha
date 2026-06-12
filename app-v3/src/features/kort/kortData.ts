@@ -7,7 +7,7 @@
 import type { CSSProperties } from 'react';
 
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
-export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger' | 'landemerker';
+export type Category = 'biler' | 'dinosaurer' | 'dyr' | 'guder' | 'romvesener' | 'planeter' | 'skapninger' | 'landemerker' | 'kart' | 'glosehelter';
 
 export interface KortDef {
   id: string;
@@ -227,6 +227,50 @@ const landemerker: Rad[] = [
   ['037-machu-picchu.png', 'Machu Picchu'], ['038-pyramidene.png', 'Pyramidene i Giza'],
 ];
 
+const glosehelter: Rad[] = [
+  ['001-cucumber.png', 'Cucumber'], ['002-banana.png', 'Banana'],
+  ['003-apple.png', 'Apple'], ['004-carrot.png', 'Carrot'],
+  ['005-tomato.png', 'Tomato'], ['006-strawberry.png', 'Strawberry'],
+  ['007-pineapple.png', 'Pineapple'], ['008-broccoli.png', 'Broccoli'],
+  ['009-lemon.png', 'Lemon'], ['010-mushroom.png', 'Mushroom'],
+  ['011-egg.png', 'Egg'], ['012-cheese.png', 'Cheese'],
+  ['013-cookie.png', 'Cookie'], ['014-cupcake.png', 'Cupcake'],
+  ['015-bread.png', 'Bread'], ['016-fox.png', 'Fox'],
+  ['017-owl.png', 'Owl'], ['018-bee.png', 'Bee'],
+  ['019-frog.png', 'Frog'], ['020-snail.png', 'Snail'],
+  ['021-penguin.png', 'Penguin'], ['022-octopus.png', 'Octopus'],
+  ['023-cat.png', 'Cat'], ['024-dog.png', 'Dog'],
+  ['025-whale.png', 'Whale'], ['026-clock.png', 'Clock'],
+  ['027-book.png', 'Book'], ['028-umbrella.png', 'Umbrella'],
+  ['029-balloon.png', 'Balloon'], ['030-key.png', 'Key'],
+  ['031-cloud.png', 'Cloud'], ['032-star.png', 'Star'],
+  ['033-moon.png', 'Moon'], ['034-rainbow.png', 'Rainbow'],
+  ['035-rocket.png', 'Rocket'], ['036-sun.png', 'Sun'],
+  ['037-dragon.png', 'Dragon'], ['038-glosemester.png', 'GloseMester'],
+];
+
+const kart: Rad[] = [
+  ['001-norge.png', 'Norge'], ['002-sverige.png', 'Sverige'],
+  ['003-danmark.png', 'Danmark'], ['004-finland.png', 'Finland'],
+  ['005-island.png', 'Island'], ['006-storbritannia.png', 'Storbritannia'],
+  ['007-frankrike.png', 'Frankrike'], ['008-tyskland.png', 'Tyskland'],
+  ['009-spania.png', 'Spania'], ['010-italia.png', 'Italia'],
+  ['011-nederland.png', 'Nederland'], ['012-polen.png', 'Polen'],
+  ['013-hellas.png', 'Hellas'], ['014-portugal.png', 'Portugal'],
+  ['015-sveits.png', 'Sveits'], ['016-osterrike.png', 'Østerrike'],
+  ['017-belgia.png', 'Belgia'], ['018-russland.png', 'Russland'],
+  ['019-ukraina.png', 'Ukraina'], ['020-tyrkia.png', 'Tyrkia'],
+  ['021-usa.png', 'USA'], ['022-canada.png', 'Canada'],
+  ['023-mexico.png', 'Mexico'], ['024-brasil.png', 'Brasil'],
+  ['025-argentina.png', 'Argentina'], ['026-kina.png', 'Kina'],
+  ['027-japan.png', 'Japan'], ['028-india.png', 'India'],
+  ['029-australia.png', 'Australia'], ['030-egypt.png', 'Egypt'],
+  ['031-kenya.png', 'Kenya'], ['032-nigeria.png', 'Nigeria'],
+  ['033-sor-afrika.png', 'Sør-Afrika'], ['034-saudi-arabia.png', 'Saudi-Arabia'],
+  ['035-indonesia.png', 'Indonesia'], ['036-marokko.png', 'Marokko'],
+  ['037-antarktis.png', 'Antarktis'], ['038-verden.png', 'Verden'],
+];
+
 /**
  * Kortpakke. Sett `aktiv: false` for å STAGE en pakke i koden uten å rulle den
  * ut ennå (kortene vises ikke i galleri/belønning før den slås på).
@@ -255,6 +299,8 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
   { prefix: 'land', mappe: 'landemerker', navn: 'Landemerker', aktiv: false, rader: landemerker },
+  { prefix: 'kar', mappe: 'kart', navn: 'Kart', aktiv: true, rader: kart },
+  { prefix: 'glo', mappe: 'glosehelter', navn: 'GloseMester-serien', aktiv: true, rader: glosehelter },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
 ];
 
