@@ -15,6 +15,8 @@ import {
   isAnswerCorrect,
   shouldBeMultipleChoice,
   buildAlternatives,
+  lagHint,
+  maksHint,
   type Direction,
   type QuestionMode,
 } from '../features/glosemester/practiceEngine';
@@ -39,7 +41,7 @@ import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { beregnElevNiva, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
 import { NivaOppOverlay } from '../components/NivaOppOverlay';
 import { startFeideLogin } from '../lib/auth';
-import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut } from 'lucide-react';
+import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut, Lightbulb } from 'lucide-react';
 import { lesOpp, talesynteseStottes } from '../lib/speech';
 import { lesStreak, settStreak } from '../lib/streak';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
@@ -118,6 +120,9 @@ export function GlosemesterPractice() {
   }, []);
   const [valgtSvar, setValgtSvar] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState(false);
+  // Hint (skrivemodus): antall bokstaver eleven har bedt om å få avslørt.
+  // Nullstilles for hvert nye spørsmål. Jf. TODO L1 i README.
+  const [hintNivaa, setHintNivaa] = useState(0);
   // Bug 4: «Avslutt» midt i en økt ber om bekreftelse i stedet for å hoppe ut.
   const [visAvslutt, setVisAvslutt] = useState(false);
   const forrigeRef = useRef<Word | undefined>(undefined);
@@ -148,6 +153,7 @@ export function GlosemesterPractice() {
     setTypedAnswer('');
     setFeedback(null);
     setValgtSvar(null);
+    setHintNivaa(0);
   }, [words, level]);
 
   // Init: last Leitner-tilstand og lag første spørsmål.
@@ -465,24 +471,43 @@ export function GlosemesterPractice() {
             })}
           </div>
         ) : (
-          <form
-            onSubmit={(e) => { e.preventDefault(); if (feedback) return; registrerSvar(word, isAnswerCorrect(typedAnswer, word, direction), typedAnswer); }}
-            style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 440 }}
-          >
-            <input
-              autoFocus
-              value={typedAnswer}
-              onChange={(e) => setTypedAnswer(e.target.value)}
-              disabled={feedback !== null}
-              placeholder="Skriv svaret…"
-              style={{
-                flex: 1, padding: '14px 18px', fontSize: 17, fontFamily: 'var(--font-primary)',
-                border: `2px solid ${feedback?.type === 'correct' ? 'var(--color-success)' : feedback?.type === 'wrong' ? 'var(--color-error)' : 'var(--color-border)'}`,
-                borderRadius: 'var(--radius-md)', outline: 'none', transition: 'border-color 0.2s',
-              }}
-            />
-            <button type="submit" disabled={feedback !== null} style={primaerKnapp}>Sjekk</button>
-          </form>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 440, alignItems: 'center' }}>
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (feedback) return; registrerSvar(word, isAnswerCorrect(typedAnswer, word, direction), typedAnswer); }}
+              style={{ display: 'flex', gap: 12, width: '100%' }}
+            >
+              <input
+                autoFocus
+                value={typedAnswer}
+                onChange={(e) => setTypedAnswer(e.target.value)}
+                disabled={feedback !== null}
+                placeholder="Skriv svaret…"
+                style={{
+                  flex: 1, padding: '14px 18px', fontSize: 17, fontFamily: 'var(--font-primary)',
+                  border: `2px solid ${feedback?.type === 'correct' ? 'var(--color-success)' : feedback?.type === 'wrong' ? 'var(--color-error)' : 'var(--color-border)'}`,
+                  borderRadius: 'var(--radius-md)', outline: 'none', transition: 'border-color 0.2s',
+                }}
+              />
+              <button type="submit" disabled={feedback !== null} style={primaerKnapp}>Sjekk</button>
+            </form>
+            {/* Hint-knapp (TODO L1): avslører én bokstav om gangen, men aldri
+                hele svaret. Skjult når svaret er gitt. */}
+            {!feedback && (
+              <button
+                type="button"
+                onClick={() => setHintNivaa((n) => n + 1)}
+                disabled={hintNivaa >= maksHint(korrektSvar)}
+                style={{ ...tilbakeKnapp, opacity: hintNivaa >= maksHint(korrektSvar) ? 0.5 : 1, cursor: hintNivaa >= maksHint(korrektSvar) ? 'default' : 'pointer' }}
+              >
+                <Lightbulb size={16} aria-hidden="true" /> Hint
+              </button>
+            )}
+            {hintNivaa > 0 && (
+              <p aria-live="polite" style={{ fontFamily: 'monospace', fontSize: 22, fontWeight: 700, letterSpacing: 2, color: 'var(--color-text-muted)', margin: 0 }}>
+                {lagHint(korrektSvar, hintNivaa)}
+              </p>
+            )}
+          </div>
         )}
 
         {feedback?.type === 'correct' && (
