@@ -1,7 +1,7 @@
 /**
  * Kortdata — portet fra v2 (src/core/kort/kort-data.js).
  * Hver pakke har 38 kort; totalt antall utledes dynamisk fra de aktive pakkene
- * (per nå 8 aktive × 38 = 304 samlekort, jf. PAKKER nederst). ID og sjeldenhet
+ * (per nå 9 aktive × 38 = 342 samlekort, jf. PAKKER nederst). ID og sjeldenhet
  * utledes fra posisjon (samme formel som v2 getRarity), så listene holdes kompakte.
  */
 
@@ -296,7 +296,6 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'dyr', mappe: 'dyr', navn: 'Dyr', aktiv: true, rader: dyr },
   { prefix: 'gud', mappe: 'guder', navn: 'Guder', aktiv: true, rader: guder },
   { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
-  // Staget: bilder genereres/optimaliseres — slå på når de er committet.
   { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
   { prefix: 'land', mappe: 'landemerker', navn: 'Landemerker', aktiv: true, rader: landemerker },
