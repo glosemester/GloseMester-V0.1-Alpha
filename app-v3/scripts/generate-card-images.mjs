@@ -112,9 +112,9 @@ if (!manifest.mappe || !Array.isArray(manifest.kort)) {
   process.exit(1);
 }
 
-// Bildene ligger i <repo-rot>/images/<mappe>/
+// Kortbildene bor i app-v3/public/images/<mappe>/ (eneste kilde — kopieres til dist/ av Vite).
 const repoRot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const utMappe = join(repoRot, 'images', manifest.mappe);
+const utMappe = join(repoRot, 'app-v3', 'public', 'images', manifest.mappe);
 mkdirSync(utMappe, { recursive: true });
 
 // Størrelse: --size flagg → manifest.storrelse → STANDARD_STORRELSE

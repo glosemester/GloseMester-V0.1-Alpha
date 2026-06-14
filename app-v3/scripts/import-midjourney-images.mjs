@@ -18,7 +18,7 @@
  *         node scripts/import-midjourney-images.mjs kort-manifest-<kategori>.json
  *
  * Skriptet leser manifestet for å vite hvilket navn hvert nummer skal ha
- * (1 → 001-nisse.webp), skalerer til 320px WebP og skriver til images/<mappe>/.
+ * (1 → 001-nisse.webp), skalerer til 320px WebP og skriver til app-v3/public/images/<mappe>/.
  * Til slutt rapporteres hvilke kortnumre som mangler, så du ser hva som gjenstår.
  *
  * Overstyr innboksmappen med  --fra <sti>  ved behov.
@@ -71,7 +71,8 @@ if (!manifest.mappe || !Array.isArray(manifest.kort)) {
 
 const repoRot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const innboks = fra ? resolve(fra) : join(repoRot, 'midjourney-innboks', manifest.mappe);
-const utMappe = join(repoRot, 'images', manifest.mappe);
+// Kortbildene bor i app-v3/public/images/ (eneste kilde — kopieres til dist/ av Vite).
+const utMappe = join(repoRot, 'app-v3', 'public', 'images', manifest.mappe);
 mkdirSync(utMappe, { recursive: true });
 
 if (!existsSync(innboks)) {
@@ -101,7 +102,7 @@ for (const fil of readdirSync(innboks)) {
 }
 
 console.log(`Innboks: ${innboks}`);
-console.log(`Fant ${nummerTilKilde.size} bilder → images/${manifest.mappe}/\n`);
+console.log(`Fant ${nummerTilKilde.size} bilder → app-v3/public/images/${manifest.mappe}/\n`);
 
 let importert = 0;
 for (const [nummer, base] of [...nummerTilBase.entries()].sort((a, b) => a[0] - b[0])) {
@@ -130,5 +131,5 @@ if (ukjente.length) console.warn(`\nAdvarsel: ignorerte filer med ukjent kortnum
 const mangler = [...nummerTilBase.keys()].filter((n) => !nummerTilKilde.has(n)).sort((a, b) => a - b);
 console.log(`\nFerdig: ${importert} importert. ${mangler.length ? `Mangler ennå: ${mangler.join(', ')}` : 'Alle 38 kort på plass!'}`);
 if (!mangler.length) {
-  console.log('Neste steg: git add images/' + manifest.mappe + ' → commit → push → si fra, så aktiverer Claude pakken.');
+  console.log('Neste steg: git add app-v3/public/images/' + manifest.mappe + ' → commit → push → si fra, så aktiverer Claude pakken.');
 }

@@ -2,12 +2,14 @@
  * Kopierer statiske rot-assets som v3 refererer, men som ikke er en del av
  * Vite-bygget, inn i dist/ etter bygg. Kjøres som postbuild (se package.json).
  *
- * v3 bruker:
- *  - images/  (alle 152 samlekort + vokabularbilder)  → images/{biler,...}/*
- *  - personvern.html, vilkar.html (lenket fra Min side / marketing-footer)
- *  - icon.png (apple-touch-icon / PWA)
+ * Kortbilder ligger nå i app-v3/public/images/ og kopieres automatisk til dist/
+ * av Vite (public/ er Vites statiske mappe) — de håndteres IKKE her lenger.
+ * Tidligere kopierte denne rot-images/ oppå, noe som overskrev public/ og ga
+ * duplisering + dev/prod-sprik. Rot-images/ er fjernet; public/ er eneste kilde.
  *
- * sounds/ brukes ikke av v3 og kopieres ikke.
+ * Denne kopierer kun rot-HTML og PWA-ikon som v3 lenker til:
+ *  - personvern.html, vilkar.html, databehandleravtale.html, skoleavtale.html
+ *  - icon.png (apple-touch-icon / PWA)
  */
 import { existsSync, cpSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -22,18 +24,7 @@ if (!existsSync(dist)) {
   process.exit(1);
 }
 
-const mapper = ['images'];
 const filer = ['personvern.html', 'vilkar.html', 'databehandleravtale.html', 'skoleavtale.html', 'icon.png'];
-
-for (const m of mapper) {
-  const kilde = join(repoRoot, m);
-  if (existsSync(kilde)) {
-    cpSync(kilde, join(dist, m), { recursive: true });
-    console.log(`Kopierte ${m}/ → dist/${m}/`);
-  } else {
-    console.warn(`[advarsel] Mangler ${m}/ i rot — hopper over.`);
-  }
-}
 
 for (const f of filer) {
   const kilde = join(repoRoot, f);
