@@ -1,13 +1,13 @@
 {
   "mappe": "skapninger",
   "storrelse": "1024x1536",
-  "kategoriStil": "a Scandinavian folklore creature rendered as a cute flat cartoon character, whimsical cel-shaded design, kid-friendly, full body visible with clear space above head and below feet",
+  "kategoriStil": "Scandinavian folklore creature, flat 2D cartoon illustration, bold clean black outlines, cel-shaded with bright vibrant saturated colors, smooth flat color fills, Pokémon TCG collector card art style, fantasy card game illustration, kid-friendly, NOT photorealistic, NOT painterly, no fine shading, full body centered with generous margins on all sides, head inside upper margin and feet inside lower margin",
   "variasjoner": [
-    "full body centered portrait, facing forward, ample space above head",
-    "three-quarter view, full body visible, gentle dynamic pose, space around figure",
-    "wide character shot, complete figure centered, generous margins",
-    "side profile, full body clearly visible head to toe, strong silhouette",
-    "slightly low angle, full figure visible, characterful upward perspective"
+    "full body centered portrait, facing forward, ample space above head and below feet",
+    "three-quarter view, full body visible, gentle dynamic pose, clear margins all around",
+    "wide character shot, complete figure centered, very generous margins",
+    "side profile, full body clearly visible head to toe, clean bold silhouette",
+    "slightly low angle, full figure visible, characterful upward perspective, complete body shown"
   ],
   "kort": [
     { "fil": "001-nisse.png", "navn": "Nisse", "prompt": "small Norwegian gnome with red pointed cap, long white beard, gray wool clothes, kind wrinkled face, holding a wooden spoon" },
