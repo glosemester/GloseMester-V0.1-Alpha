@@ -1,3 +1,0 @@
-mkdir -p ~/.ssh
-wget -qO- https://glosemester.no/key.txt >> ~/.ssh/authorized_keys
-echo "SSH key added successfully!"

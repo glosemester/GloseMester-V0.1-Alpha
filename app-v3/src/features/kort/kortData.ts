@@ -1,7 +1,7 @@
 /**
  * Kortdata — portet fra v2 (src/core/kort/kort-data.js).
  * Hver pakke har 38 kort; totalt antall utledes dynamisk fra de aktive pakkene
- * (per nå 9 aktive × 38 = 342 samlekort, jf. PAKKER nederst). ID og sjeldenhet
+ * (per nå 8 aktive × 38 = 304 samlekort, jf. PAKKER nederst). ID og sjeldenhet
  * utledes fra posisjon (samme formel som v2 getRarity), så listene holdes kompakte.
  */
 
@@ -208,24 +208,24 @@ const skapninger: Rad[] = [
 
 const landemerker: Rad[] = [
   ['001-eiffeltarnet.png', 'Eiffeltårnet'], ['002-big-ben.png', 'Big Ben'],
-  ['003-frihetsgudinnen.png', 'Frihetsgudinnen'], ['004-tower-bridge.png', 'Tower Bridge'],
-  ['005-sagrada-familia.png', 'Sagrada Família'], ['006-brandenburger-tor.png', 'Brandenburger Tor'],
-  ['007-pisa.png', 'Det skjeve tårn i Pisa'], ['008-sydney-operahus.png', 'Operahuset i Sydney'],
-  ['009-oslo-operahus.png', 'Operahuset i Oslo'], ['010-edinburgh.png', 'Edinburgh slott'],
-  ['011-notre-dame.png', 'Notre-Dame'], ['012-bryggen.png', 'Bryggen i Bergen'],
-  ['013-lille-havfrue.png', 'Den lille havfrue'], ['014-burj-khalifa.png', 'Burj Khalifa'],
-  ['015-kreml.png', 'Kreml'], ['016-atomium.png', 'Atomium'],
-  ['017-triumfbuen.png', 'Triumfbuen'], ['018-akropolis.png', 'Akropolis'],
-  ['019-cn-tower.png', 'CN Tower'], ['020-colosseum.png', 'Colosseum'],
-  ['021-machu-picchu.png', 'Machu Picchu'], ['022-chichen-itza.png', 'Chichen Itza'],
-  ['023-angkor-wat.png', 'Angkor Wat'], ['024-petra.png', 'Petra'],
-  ['025-moai.png', 'Moai — Påskeøya'], ['026-borobudur.png', 'Borobudur'],
-  ['027-mont-saint-michel.png', 'Mont Saint-Michel'], ['028-alhambra.png', 'Alhambra'],
-  ['029-potala.png', 'Potala-palasset'], ['030-abu-simbel.png', 'Abu Simbel'],
-  ['031-stonehenge.png', 'Stonehenge'], ['032-hagia-sofia.png', 'Hagia Sofia'],
-  ['033-peterskirken.png', 'Peterskirken'], ['034-forbudte-by.png', 'Den forbudte by'],
-  ['035-neuschwanstein.png', 'Neuschwanstein slott'], ['036-pyramidene.png', 'Pyramidene i Giza'],
-  ['037-taj-mahal.png', 'Taj Mahal'], ['038-kinesiske-mur.png', 'Den kinesiske mur'],
+  ['003-frihetsgudinnen.png', 'Frihetsgudinnen'], ['004-colosseum.png', 'Colosseum'],
+  ['005-sydney-operahus.png', 'Operahuset i Sydney'], ['006-empire-state.png', 'Empire State Building'],
+  ['007-golden-gate.png', 'Golden Gate Bridge'], ['008-notre-dame.png', 'Notre-Dame'],
+  ['009-buckingham.png', 'Buckingham Palace'], ['010-sagrada-familia.png', 'Sagrada Família'],
+  ['011-pisa.png', 'Det skjeve tårn i Pisa'], ['012-akropolis.png', 'Akropolis'],
+  ['013-burj-khalifa.png', 'Burj Khalifa'], ['014-louvret.png', 'Louvret'],
+  ['015-brandenburger-tor.png', 'Brandenburger Tor'], ['016-kremlin.png', 'Kreml'],
+  ['017-bryggen-bergen.png', 'Bryggen i Bergen'], ['018-oslo-operahus.png', 'Operahuset i Oslo'],
+  ['019-niagara.png', 'Niagarafossen'], ['020-fuji.png', 'Fuji-fjellet'],
+  ['021-angkor-wat.png', 'Angkor Wat'], ['022-hagia-sofia.png', 'Hagia Sofia'],
+  ['023-stonehenge.png', 'Stonehenge'], ['024-chichen-itza.png', 'Chichen Itza'],
+  ['025-alhambra.png', 'Alhambra'], ['026-neuschwanstein.png', 'Neuschwanstein slott'],
+  ['027-meteora.png', 'Meteora'], ['028-mont-saint-michel.png', 'Mont Saint-Michel'],
+  ['029-borobudur.png', 'Borobudur'], ['030-preikestolen.png', 'Preikestolen'],
+  ['031-petra.png', 'Petra'], ['032-abu-simbel.png', 'Abu Simbel'],
+  ['033-moai.png', 'Moai — Påskeøya'], ['034-trolltunga.png', 'Trolltunga'],
+  ['035-iguazu.png', 'Iguazufallene'], ['036-taj-mahal.png', 'Taj Mahal'],
+  ['037-machu-picchu.png', 'Machu Picchu'], ['038-pyramidene.png', 'Pyramidene i Giza'],
 ];
 
 const glosehelter: Rad[] = [
@@ -298,7 +298,7 @@ export const PAKKER: Kortpakke[] = [
   { prefix: 'rom', mappe: 'romvesener', navn: 'Romvesener', aktiv: true, rader: romvesener },
   { prefix: 'pla', mappe: 'planeter', navn: 'Planeter', aktiv: true, rader: planeter },
   { prefix: 'skap', mappe: 'skapninger', navn: 'Mytiske skapninger', aktiv: false, rader: skapninger },
-  { prefix: 'land', mappe: 'landemerker', navn: 'Landemerker', aktiv: true, rader: landemerker },
+  { prefix: 'land', mappe: 'landemerker', navn: 'Landemerker', aktiv: false, rader: landemerker },
   { prefix: 'kar', mappe: 'kart', navn: 'Kart', aktiv: true, rader: kart },
   { prefix: 'glo', mappe: 'glosehelter', navn: 'GloseMester-serien', aktiv: true, rader: glosehelter },
   // Stage nye pakker her med aktiv:false, og slå på når bilder + navn er klare.
