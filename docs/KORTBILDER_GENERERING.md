@@ -12,6 +12,16 @@ To metoder:
 
 ---
 
+## Struktur (viktig)
+
+Kortbildene har **én kilde**: `app-v3/public/images/<kategori>/`. Vite kopierer
+`public/` til `dist/` automatisk ved bygg, så bildene havner i `dist/images/`.
+Tidligere lå de også i repo-rotas `images/`, som `copy-static.mjs` kopierte oppå
+— det ga duplisering og dev/prod-sprik, og er nå fjernet. Scriptene under skriver
+derfor direkte til `app-v3/public/images/`.
+
+---
+
 ## Metode A — Midjourney + automatisk import (anbefalt)
 
 Midjourney lager bildene; et script tar seg av omdøping + WebP-nedskalering.
@@ -46,7 +56,7 @@ node scripts/import-midjourney-images.mjs kort-manifest-<kategori>.json
 ```
 
 Scriptet leser manifestet, skalerer hvert bilde til 320px WebP og skriver
-`images/<mappe>/001-navn.webp` … Til slutt sier det hvilke numre som mangler, så
+`app-v3/public/images/<mappe>/001-navn.webp` … Til slutt sier det hvilke numre som mangler, så
 du kan ta resten senere (kjør på nytt — det er trygt å gjenta).
 
 ### 5 — Commit, push, aktiver
@@ -54,7 +64,7 @@ du kan ta resten senere (kjør på nytt — det er trygt å gjenta).
 ```powershell
 cd ..
 git checkout -b <kategori>-bilder
-git add images/<kategori>
+git add app-v3/public/images/<kategori>
 git commit -m "<Kategori>-kortbilder: 38 WebP fra Midjourney"
 git push -u origin <kategori>-bilder
 ```
@@ -152,7 +162,7 @@ cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha\app-v3
 node scripts/generate-card-images.mjs kort-manifest-<kategori>.json --kun 001,002,003
 ```
 
-Sjekk bildene i `images/<kategori>/` og juster promptene ved behov.
+Sjekk bildene i `app-v3/public/images/<kategori>/` og juster promptene ved behov.
 
 ### 3 — Generer alle 38 kort
 
@@ -176,7 +186,7 @@ node scripts/generate-card-images.mjs kort-manifest-<kategori>.json --kun 036,03
 node scripts/optimize-card-images.mjs <kategori>
 ```
 
-Reduserer ~71 MB PNG → ~0.5 MB WebP. Bildene lander i `images/<kategori>/` som `.webp`.
+Reduserer ~71 MB PNG → ~0.5 MB WebP. Bildene lander i `app-v3/public/images/<kategori>/` som `.webp`.
 
 ### 5 — Commit og push
 
@@ -184,7 +194,7 @@ Reduserer ~71 MB PNG → ~0.5 MB WebP. Bildene lander i `images/<kategori>/` som
 cd C:\Users\<ditt-navn>\GloseMester-V0.1-Alpha
 
 git checkout -b <kategori>-bilder
-git add images/<kategori>
+git add app-v3/public/images/<kategori>
 git commit -m "<Kategori>-kortbilder: 38 WebP generert med gpt-image-1-mini"
 git push -u origin <kategori>-bilder
 ```

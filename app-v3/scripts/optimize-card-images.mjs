@@ -9,7 +9,7 @@ import { existsSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'images');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'images');
 // Kategorier kan angis som argumenter (f.eks. `node … romvesener`); uten
 // argumenter tas alle. Mapper uten .png-filer hoppes uansett over.
 const KATEGORIER = process.argv.slice(2).length
