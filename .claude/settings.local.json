@@ -20,7 +20,10 @@
       "mcp__Netlify__netlify-project-services-updater",
       "mcp__Notion__notion-update-page",
       "mcp__Google_Drive__get_file_metadata",
-      "mcp__Google_Drive__list_recent_files"
+      "mcp__Google_Drive__list_recent_files",
+      "Bash(cp \"/root/.claude/uploads/0b8240a1-714c-558b-84e0-010cb254764f/a819a6e1-Logge_inn_med_Feide_og_lage_pr_ve.webm\" reklame/kampanje-skolestart-2026/media/video-laerer_feide-lag-prove.webm)",
+      "Bash(cp \"/root/.claude/uploads/0b8240a1-714c-558b-84e0-010cb254764f/7ec83399-_vedelen_og_vinne_kort.webm\" reklame/kampanje-skolestart-2026/media/video-elev_oving-vinne-kort.webm)",
+      "mcp__Gamma__generate"
     ]
   }
 }
