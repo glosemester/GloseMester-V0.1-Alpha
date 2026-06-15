@@ -9,6 +9,8 @@ import {
   createSession,
   currentQuestion,
   isSessionComplete,
+  lagHint,
+  maksHint,
 } from './practiceEngine';
 import { getWordsForLevel, type Word } from './vocabulary';
 
@@ -30,6 +32,27 @@ describe('isAnswerCorrect', () => {
     expect(isAnswerCorrect('  dog ', ord, 'en')).toBe(true);
     expect(isAnswerCorrect('DOG', ord, 'en')).toBe(true);
     expect(isAnswerCorrect('cat', ord, 'en')).toBe(false);
+  });
+});
+
+describe('lagHint', () => {
+  it('tomt svar gir tom streng', () => {
+    expect(lagHint('', 1)).toBe('');
+  });
+  it('null avslørte bokstaver maskerer alt', () => {
+    expect(lagHint('Dog', 0)).toBe('_ _ _');
+  });
+  it('avslører de første bokstavene gradvis', () => {
+    expect(lagHint('Dog', 1)).toBe('D _ _');
+    expect(lagHint('Horse', 2)).toBe('H o _ _ _');
+  });
+  it('bevarer mellomrom i flerords-svar', () => {
+    expect(lagHint('Big dog', 2)).toBe('B i _   _ _ _');
+  });
+  it('avslører aldri mer enn halvparten av bokstavene', () => {
+    // «Horse» har 5 bokstaver → maks 3 avsløres, selv om vi ber om flere.
+    expect(maksHint('Horse')).toBe(3);
+    expect(lagHint('Horse', 99)).toBe('H o r _ _');
   });
 });
 

@@ -35,6 +35,31 @@ export function promptFor(word: Word, direction: Direction): string {
   return direction === 'en' ? word.s : word.e;
 }
 
+/** Maks antall bokstaver et hint får avsløre (aldri hele svaret). */
+export const maksHint = (svar: string): number =>
+  Math.ceil([...svar].filter((t) => t !== ' ').length / 2);
+
+/**
+ * Bygger et gradvis bokstavhint: de første `antall` bokstavene vises, resten
+ * maskeres med «_». Mellomrom beholdes så ordlengde/struktur synes. Avslører
+ * aldri hele svaret (maks halvparten av bokstavene), så det forblir et hint.
+ * Tegnene skilles med mellomrom for lesbarhet, f.eks. «h _ _ _».
+ */
+export function lagHint(svar: string, antall: number): string {
+  const grense = Math.min(Math.max(antall, 0), maksHint(svar));
+  let avslort = 0;
+  return [...svar]
+    .map((tegn) => {
+      if (tegn === ' ') return ' ';
+      if (avslort < grense) {
+        avslort += 1;
+        return tegn;
+      }
+      return '_';
+    })
+    .join(' ');
+}
+
 /** Avgjør om et spørsmål skal være flervalg, basert på nivå (jf. v2). */
 export function shouldBeMultipleChoice(level: LevelId): boolean {
   if (level === 'niva1' || level === 'niva2') return true;
