@@ -1,7 +1,11 @@
 # media-gen — ferdige prompter for kampanjegrafikk
 
-Kjør disse lokalt (der `media-gen`-skillen og `FAL_KEY` finnes). Lim inn én blokk
-av gangen i Claude Code. All grafikk lagres i `reklame/kampanje-skolestart-2026/media/`.
+Kjør disse lokalt (der `media-gen`-skillen og `FAL_KEY` finnes). All grafikk
+lagres i `reklame/kampanje-skolestart-2026/media/`.
+
+**Slik bruker du fila:** åpne `11-mediegen-oppskrift.md`, lim inn blokk for blokk
+i den lokale Claude Code-chatten, så havner filene i `media/`. Start gjerne med
+**blokk 1 (cover)** for å se at stilen treffer før du kjører resten.
 
 > **Regel (jf. `00-kampanjeplan.md` §8):** media-gen lager **kun** cover, bakgrunner
 > og dekor — aldri falske app-skjermbilder/mockups. Ekte app-skjerm limes inn manuelt
