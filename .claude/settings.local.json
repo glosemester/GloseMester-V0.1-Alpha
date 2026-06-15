@@ -17,7 +17,8 @@
       "mcp__Stripe__search_stripe_resources",
       "mcp__Stripe__fetch_stripe_resources",
       "mcp__Netlify__netlify-project-services-reader",
-      "mcp__Netlify__netlify-project-services-updater"
+      "mcp__Netlify__netlify-project-services-updater",
+      "mcp__Notion__notion-update-page"
     ]
   }
 }
