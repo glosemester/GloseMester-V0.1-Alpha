@@ -21,6 +21,24 @@ elevnavn). Lagre filene med kode-navn så de er enkle å gjenfinne.
 | `SKJERM-09` | Klassestatus: hvem har gjennomført (fremgangslinje) | Lærer › prøvedetaljer | 16:9 |
 | `SKJERM-10` | «Mine prøver» hos Feide-elev | Elev › `MineProver` | 9:16 |
 
+## Status (oppdatert 2026-06-15)
+
+Fanget så langt (ligger i [`media/`](./media/)):
+
+- ✅ `SKJERM-01a` — video `video-laerer_feide-lag-prove.webm` (Feide-innlogging + lag prøve)
+- ✅ `SKJERM-02` + `SKJERM-06` — video `video-elev_oving-vinne-kort.webm` (øving + vinne kort)
+- ✅ `SKJERM-04` — skjermbilde kortgalleri («20 av 228 samlet»)
+- ✅ `SKJERM-07` — skjermbilde resultater («Snitt 76 %»)
+- ✅ `SKJERM-08` — skjermbilde ordanalyse («bare → just»)
+- ✅ Nivåoversikt (støtter `SKJERM-05`) + bonus hero/«Hva er gratis?»-grafikk
+
+Mangler fortsatt: `SKJERM-01b` (kode + QR), `SKJERM-03` (elev skriver kode),
+`SKJERM-09` (klassestatus), `SKJERM-10` (mine prøver), og selve
+nivå-opp-feiringen i `SKJERM-05`.
+
+> Skjermbildene over kom limt inn i chat (ikke som filer). For å bruke dem i
+> grafikk/repo må de lastes opp som **filer** til `media/` eller Drive-mappa.
+
 ## Bruksoversikt (hvilket innlegg trenger hva)
 
 - **Instagram:** 01a/01b/02/04/05/06/07/08
