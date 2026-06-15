@@ -18,7 +18,8 @@
       "mcp__Stripe__fetch_stripe_resources",
       "mcp__Netlify__netlify-project-services-reader",
       "mcp__Netlify__netlify-project-services-updater",
-      "mcp__Notion__notion-update-page"
+      "mcp__Notion__notion-update-page",
+      "mcp__Google_Drive__get_file_metadata"
     ]
   }
 }
