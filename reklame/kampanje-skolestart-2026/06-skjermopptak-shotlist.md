@@ -23,21 +23,28 @@ elevnavn). Lagre filene med kode-navn så de er enkle å gjenfinne.
 
 ## Status (oppdatert 2026-06-15)
 
-Fanget så langt (ligger i [`media/`](./media/)):
+Fanget så langt:
 
+Videoer i [`media/`](./media/):
 - ✅ `SKJERM-01a` — video `video-laerer_feide-lag-prove.webm` (Feide-innlogging + lag prøve)
 - ✅ `SKJERM-02` + `SKJERM-06` — video `video-elev_oving-vinne-kort.webm` (øving + vinne kort)
-- ✅ `SKJERM-04` — skjermbilde kortgalleri («20 av 228 samlet»)
-- ✅ `SKJERM-07` — skjermbilde resultater («Snitt 76 %»)
-- ✅ `SKJERM-08` — skjermbilde ordanalyse («bare → just»)
-- ✅ Nivåoversikt (støtter `SKJERM-05`) + bonus hero/«Hva er gratis?»-grafikk
+
+Stillbilder i [`media/app-skjermbilder/`](./media/app-skjermbilder/) (importert som filer 2026-06-15):
+- ✅ `SKJERM-04_galleri.png` — kortgalleri («20 av 228 samlet»)
+- ✅ `SKJERM-05_xp-nivaoversikt.png` — XP-nivåoversikt (støtter `SKJERM-05`)
+- ✅ `SKJERM-06_ovemodus-flervalg.png` + `SKJERM-06_ovemodus-skrivesvar.png` — øvemodus (flervalg + skriv svar)
+- ✅ `SKJERM-07_resultater.png` — resultater («Snitt 76 %»)
+- ✅ `SKJERM-08_ordanalyse.png` — ordanalyse («bare → just»)
+- ✅ `BONUS_niva-valg.png` + `BONUS_fremside-hva-er-gratis.png` — bonus-grafikk
 
 Mangler fortsatt: `SKJERM-01b` (kode + QR), `SKJERM-03` (elev skriver kode),
 `SKJERM-09` (klassestatus), `SKJERM-10` (mine prøver), og selve
-nivå-opp-feiringen i `SKJERM-05`.
+nivå-opp-**feiringen** i `SKJERM-05` (overlay).
 
-> Skjermbildene over kom limt inn i chat (ikke som filer). For å bruke dem i
-> grafikk/repo må de lastes opp som **filer** til `media/` eller Drive-mappa.
+> ⚠️ Stillbildene er **rå skjermbilder** (ikke beskåret til 4:5/9:16/1:1 ennå).
+> Beskjær til riktig format når de settes inn i karusellene.
+> ✅ Kortantall avklart: koden (`kortData.ts`) har 380 kort (10 pakker × 38). «228»
+> i galleriet var testkontoens opplåste delmengde (6 × 38), ikke totalen.
 
 ## Bruksoversikt (hvilket innlegg trenger hva)
 
