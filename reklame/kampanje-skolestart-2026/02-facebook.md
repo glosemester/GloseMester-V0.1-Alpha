@@ -4,6 +4,12 @@ Facebook er der barneskolelærere deler tips med hverandre. Vinkel: kollega-til-
 kollega, ikke reklame. Gjenbruk bilder/karuseller fra `01-instagram.md`. Hvert
 innlegg viser **ekte app-skjerm** (`[SKJERM-xx]` → `06-skjermopptak-shotlist.md`).
 
+> **Markedsfunn (kilde `07-markedsanalyse.md`):** Lærergrupper på Facebook (f.eks.
+> «Digitale lærere», ~50–60k) + kollega-anbefaling er den sterkeste
+> adopsjonsdriveren. Bruk **kollega-tips/case-vinkel**, ikke harde annonser, og
+> fremhev «gratis å prøve» + Feide. **Beste tider:** ti–to 09:00–12:00 + etter
+> 13:00. Start lærer-rettet trykk i august (lærere har ferie i juli).
+
 ---
 
 ## Sideinnlegg 1 — Introduksjon (fase 1)

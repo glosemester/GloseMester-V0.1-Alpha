@@ -4,6 +4,12 @@ Mål: fange lærere som googler gloseverktøy, og drive trafikk/kjennskap til
 glosemester.no. Skru på ved uke 31, trapp opp uke 32–34 (søketopp ved skolestart).
 Alle tekster må følge sannhets-guardrails i `00-kampanjeplan.md`.
 
+> **Markedsdata:** søkeord, sesong og SERP-konkurranse er dokumentert i
+> `07-markedsanalyse.md` (med kilder). Kort oppsummert: tydelig sesongtopp
+> juli–august + sekundærtopp jan–feb; lav–moderat konkurranse (Quizlet/NDLA/
+> Glosepus rangerer i dag). Norske søkevolum er små — hent eksakte tall i Google
+> Keyword Planner før oppstart.
+
 > Sluttdestinasjon: https://glosemester.no (vurder egen landingsside «for lærere»:
 > `app-v3/src/pages/marketing/ForLaerere.tsx`).
 
@@ -44,22 +50,37 @@ Alle tekster må følge sannhets-guardrails i `00-kampanjeplan.md`.
 
 ---
 
-## Søkeord (start-grupper)
+## Søkeord (start-grupper, prioritert etter intensjon)
 
-**Annonsegruppe «Gloseprøve» (phrase/exact):**
-- "gloseprøve", "lag gloseprøve", "digital gloseprøve", "gloseprøve på nett",
-  "gloseprøve engelsk"
+**Annonsegruppe «Gloseprøve» (primær — høyest intensjon):**
+- "gloseprøve", "øve gloser", "øve til gloseprøve", "lag gloseprøve",
+  "digital gloseprøve", "gloseprøve på nett", "gloseprøve engelsk"
 
-**Annonsegruppe «Glosetrening/øving»:**
-- "glosetrening", "øve gloser", "glose app", "glose app skole",
-  "gloser engelsk barneskole"
+**Annonsegruppe «Glose-app/trening» (primær):**
+- "glose app", "gratis gloseapp", "glosetrening", "glose app skole",
+  "beste app til glosetrening"
+
+**Annonsegruppe «Engelsk gloser» (sekundær — bredere):**
+- "engelsk gloser", "gloser engelsk", "engelskøving", "gloser engelsk barneskole"
 
 **Annonsegruppe «Verktøy for lærere»:**
 - "verktøy engelsk barneskole", "quiz til klassen", "lage prøve til elever",
   "engelskundervisning verktøy"
 
 **Negative søkeord:** "gratis nedlasting crack", "jobb", "stillinger", "wordwall
-gratis svar", "fasit", "quizlet login" (juster løpende basert på søkeordrapport).
+gratis svar", "fasit", "quizlet login", "duolingo" (juster løpende basert på
+søkeordrapport).
+
+## Budsjettplan (sesongstyrt — kilde: `07-markedsanalyse.md`)
+
+| Periode | Budsjett | Begrunnelse |
+|---|---|---|
+| Juni | Lav oppvarming (+30–40 %) | Tidlig planlegging før ferien |
+| Juli | Moderat–på (mot foreldre/elever) | Lærere på ferie, men søk stiger mot skolestart |
+| Uke 31–35 (aug) | **Maks** | Skolestart ~17. aug = søketopp |
+| September | Trapp gradvis ned | Etter skolestart |
+| Jan–feb | Sekundær økning | Ny prøvesesong etter jul |
+| Øvrige måneder | Lav «always-on» (engelskøving) | Vedlikehold |
 
 ---
 

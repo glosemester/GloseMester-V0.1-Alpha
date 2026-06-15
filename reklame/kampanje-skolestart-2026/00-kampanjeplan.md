@@ -23,6 +23,13 @@
 
 ## 2. Posisjonering og budskapshierarki
 
+> **Konkurransekontekst (kilde: `07-markedsanalyse.md`):** Quizlet dominerer
+> organisk på «gloser», og Salaby (Gyldendal) er den eneste etablerte norsk-
+> fokuserte barneskole-aktøren. GloseMester skiller seg på fire ting som faktisk
+> stemmer: **samlekort som kjernemekanikk**, **Feide-native innlogging**, **norsk
+> barneskolefokus** og **innsikt per elev + ordanalyse**. (Ikke mark­edsfør
+> «morfologi» — vår ordanalyse er klassens feilmønster, ikke morfemoppdeling.)
+
 **Kjernepåstand:** *Glosepugging elevene faktisk gleder seg til — og du ser hvem
 som mestrer hva.*
 
@@ -59,6 +66,12 @@ Kilde: `Brand/brand-guidelines.md`, `app-v3/src/styles/tokens.css`.
 
 ## 5. Tidslinje og innholdskalender
 
+> **Juli-nyanse (kilde: `07-markedsanalyse.md`):** Norske lærere har ferie i hele
+> juli. Organiske *lærer-rettede* innlegg holdes lave i juli og ramper opp fra
+> august. Google Ads kan stå på i juli mot foreldre/elever (søk stiger mot
+> skolestart). **Beste publiseringstider:** IG ti–to ~11 + 18–21; FB ti–to 09–12
+> + etter 13; TikTok 15–21 (lør/man sterkest).
+
 ### Fase 1 — Mykstart (uke 25–30, 16. juni–24. juli)
 Lav frekvens, etablere konto/tone før ferien og tidlig planlegging.
 - **Uke 25:** «Hei, vi er GloseMester» – introinnlegg (IG/FB) + første Reel (appen i 15 sek).
@@ -79,9 +92,12 @@ Høyere frekvens (3–4 innlegg/uke pr. hovedkanal), Google Ads aktiv, e-post #2
 ## 6. Faste virkemidler (gjennkjennelig rød tråd)
 
 - Hvert innlegg viser **ekte app-skjerm** (aldri mockup uten reelt innhold).
+- Prioriter Reels/karusell foran statiske bilder (best rekkevidde), og lag innhold
+  lærere vil **dele** med en kollega (sends/delinger veier tungt i algoritmene).
 - Fast avslutning: **«Følg oss for flere tips — prøv gratis på glosemester.no».**
-- Hashtags-basis: `#glosemester #engelskpåbarnetrinnet #lærertips #gloser
-  #norsklærer #digitaltverktøy #skolestart2026`.
+- Hashtags: **Instagram maks ~5** (anbefaling des. 2025); TikTok 8–12 med nisje.
+  Basis: `#glosemester #lærertips #engelsk #gloser #skolestart2026`
+  (+ `#TeacherTok`/`#teachersofinstagram` på video).
 
 ## 7. KPI-er (kjennskap/følgermål)
 

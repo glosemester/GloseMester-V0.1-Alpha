@@ -3,6 +3,8 @@
 Tone: varm, du/deg, heiende. Korall/Amber-grafikk, Nunito. Hvert innlegg viser
 **ekte app-skjerm** (se kode i `[SKJERM-xx]` → `06-skjermopptak-shotlist.md`).
 Feed-bilder i 4:5 (1080×1350), Reels/Stories 9:16. Mykt CTA: følg + prøv gratis.
+**Beste tider (kilde `07-markedsanalyse.md`):** ti–to ~11:00 + 18:00–21:00.
+**Maks ~5 hashtags** (IG-anbefaling des. 2025). Prioriter Reels/karusell.
 
 ---
 
@@ -40,7 +42,7 @@ Feed-bilder i 4:5 (1080×1350), Reels/Stories 9:16. Mykt CTA: følg + prøv grat
 > Motivasjonen kommer av seg selv når gloseøving blir en skattejakt 💎 Gratis å
 > komme i gang på glosemester.no. Følg for flere tips!
 >
-> #gloser #engelsk #barnetrinnet #lærertips #motivasjon #glosemester
+> #glosemester #gloser #engelsk #lærertips #motivasjon
 
 ---
 

@@ -6,6 +6,12 @@ listet i `06-skjermopptak-shotlist.md`. Caption kort + 3–5 hashtags. Mykt CTA.
 
 > Generelt: hold videoene 8–20 sek. Tekst stor og lesbar. Vis ALLTID ekte app —
 > aldri tom mockup. Avslutt gjerne med logo + «glosemester.no».
+>
+> **Beste tider (kilde `07-markedsanalyse.md`):** TikTok 15:00–21:00 (lør/man
+> sterkest), Reels ti–to ~11 + 18–21. Hold mest mulig under 15 sek for nye seere.
+> Captions er kritisk (mange ser med lyd av). Hashtags 8–12 inkl. nisje
+> (#TeacherTok, #lærertips). Lærer-rettet organisk innhold rampes opp fra **august**
+> (norske lærere har ferie i juli).
 
 ---
 
