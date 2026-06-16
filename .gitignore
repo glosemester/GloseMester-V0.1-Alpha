@@ -31,3 +31,8 @@ dist/
 
 # Rå Midjourney-nedlastinger (importeres til images/ via import-midjourney-images.mjs)
 midjourney-innboks/
+
+# Lokal agent-/skill-cache og editor-config (per maskin, ikke delt i repoet)
+.agents/
+.claude/
+skills-lock.json
