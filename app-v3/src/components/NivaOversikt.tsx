@@ -1,5 +1,5 @@
 /**
- * Nivåoversikt — popup som viser alle nivåene (1–10), XP-kravene og hva som
+ * Nivåoversikt — popup som viser alle nivåene (1–15), XP-kravene og hva som
  * låses opp på hvert nivå. Åpnes ved å trykke på nivå-badgen (NivaBadge).
  * Nådde nivåer hukes av; fremtidige opplåsinger vises med lås.
  */
