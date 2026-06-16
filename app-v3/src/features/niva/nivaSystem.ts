@@ -1,5 +1,5 @@
 /**
- * Elevnivå (1–10) — ren logikk, utledet fra total XP (riktige svar).
+ * Elevnivå (1–15) — ren logikk, utledet fra total XP (riktige svar).
  *
  * Nivået er en ren funksjon av `xp_gloser` (samme mønster som
  * features/trade/byttesjetonger.ts): ingen egen lagring, ingen drift, og
@@ -8,33 +8,36 @@
  * enhet aldri utløser feiring — eleven står stille på riktig nivå.
  *
  * Terskler: en øvingsrunde er 10 ord og en typisk økt gir 20–50 riktige svar,
- * så nivå 2 nås etter 1–2 økter (rask første belønning). Deretter øker gapene
- * (+75, +100, …, +350); nivå 10 ved 1600 XP tilsvarer omtrent et semester med
- * jevn bruk. Spiller på lag med diamantbonus (hver 100. XP) og byttesjetonger.
+ * så nivå 2 nås etter én økt (rask første belønning). Deretter øker gapene
+ * jevnt (+60, +90, …, +420); nivå 15 ved 3100 XP er en lengre reise over flere
+ * måneder. Spiller på lag med diamantbonus (hver 100. XP) og byttesjetonger.
  *
- * Fordel ved å gå opp i nivå: episke og legendariske kort i Feide-pakkene
- * låses opp utover nivåene (OPPLASNINGER). Gratis-pakkene (GRATIS_KORTPAKKER)
- * og alle vanlige/sjeldne kort er ALDRI nivålåst.
+ * Fordel ved å gå opp i nivå: episke og legendariske kort i de 7 Feide-pakkene
+ * låses opp utover nivåene (OPPLASNINGER) — én opplåsing per nivå 2–15, med
+ * legendariske kort spredt både tidlig og sent. Gratis-pakkene
+ * (GRATIS_KORTPAKKER) og alle vanlige/sjeldne kort er ALDRI nivålåst.
  */
 import type { Category, Rarity } from '../kort/kortData';
 import { GRATIS_KORTPAKKER } from '../../lib/tilgang';
 
-export const MAKS_NIVA = 10;
+export const MAKS_NIVA = 15;
 
 /** Ringfarge per nivå (CSS-tokens) — gjenbruker nivåfargene; gull på toppen. */
 export function nivaFarge(niva: number): string {
   if (niva >= MAKS_NIVA) return 'var(--color-accent)';
-  if (niva >= 8) return 'var(--level-4)';
-  if (niva >= 6) return 'var(--level-3)';
-  if (niva >= 4) return 'var(--level-2)';
+  if (niva >= 12) return 'var(--level-4)';
+  if (niva >= 9) return 'var(--level-3)';
+  if (niva >= 5) return 'var(--level-2)';
   return 'var(--level-1)';
 }
 
 /** Kumulativ XP (riktige svar) som kreves for å NÅ nivå n (index 0 = nivå 1). */
-export const NIVA_TERSKLER = [0, 50, 125, 225, 350, 500, 700, 950, 1250, 1600] as const;
+export const NIVA_TERSKLER = [
+  0, 40, 100, 190, 310, 460, 640, 850, 1080, 1340, 1630, 1950, 2300, 2680, 3100,
+] as const;
 
 /**
- * Rangnavn per nivå (1–10) — vises på badge, i nivåoversikten og i feiringen.
+ * Rangnavn per nivå (1–15) — vises på badge, i nivåoversikten og i feiringen.
  * Stigende «glose»-tema som topper i appens eget navn på maksnivå.
  */
 export const NIVA_TITLER = [
@@ -45,12 +48,17 @@ export const NIVA_TITLER = [
   'Glosekjenner', // 5
   'Ordkunstner',  // 6
   'Språkspeider', // 7
-  'Glosehelt',    // 8
-  'Ordmester',    // 9
-  'Glosemester',  // 10
+  'Ordvokter',    // 8
+  'Glosehelt',    // 9
+  'Språkviser',   // 10
+  'Ordmester',    // 11
+  'Glosevirtuos', // 12
+  'Språkmester',  // 13
+  'Stormester',   // 14
+  'Glosemester',  // 15
 ] as const;
 
-/** Rangnavnet for et nivå (klamret til 1–10). */
+/** Rangnavnet for et nivå (klamret til 1–15). */
 export function nivaTittel(niva: number): string {
   const klamret = Math.min(MAKS_NIVA, Math.max(1, Math.round(niva)));
   return NIVA_TITLER[klamret - 1];
@@ -105,20 +113,26 @@ export interface Opplasning {
 }
 
 /**
- * Nivå-opplåsinger — episke/legendariske kort i Feide-pakkene, spredt over
- * nivåene så hvert nivå-opp gir noe konkret. Gratis-pakker skal ALDRI inn her.
+ * Nivå-opplåsinger — episke/legendariske kort i de 7 Feide-pakkene, én per nivå
+ * 2–15. Episke kort kommer først (nivå 2–9), legendariske spres tidlig–sent
+ * (Dyr alt på nivå 5, finalen Planeter på nivå 15). Alle Feide-pakker er dekket
+ * med både episk og legendarisk; gratis-pakker skal ALDRI inn her.
  */
 export const OPPLASNINGER: Opplasning[] = [
-  { niva: 3, category: 'dyr', rarity: 'epic', etikett: 'Episke dyrekort' },
-  { niva: 4, category: 'guder', rarity: 'epic', etikett: 'Episke gudekort' },
-  { niva: 5, category: 'romvesener', rarity: 'epic', etikett: 'Episke romvesenkort' },
-  { niva: 5, category: 'kart', rarity: 'epic', etikett: 'Episke kartkort' },
-  { niva: 6, category: 'dyr', rarity: 'legendary', etikett: 'Legendariske dyrekort' },
-  { niva: 7, category: 'planeter', rarity: 'epic', etikett: 'Episke planetkort' },
-  { niva: 8, category: 'guder', rarity: 'legendary', etikett: 'Legendariske gudekort' },
-  { niva: 9, category: 'romvesener', rarity: 'legendary', etikett: 'Legendariske romvesenkort' },
-  { niva: 9, category: 'kart', rarity: 'legendary', etikett: 'Legendariske kartkort' },
-  { niva: 10, category: 'planeter', rarity: 'legendary', etikett: 'Legendariske planetkort' },
+  { niva: 2, category: 'dyr', rarity: 'epic', etikett: 'Episke dyrekort' },
+  { niva: 3, category: 'guder', rarity: 'epic', etikett: 'Episke gudekort' },
+  { niva: 4, category: 'romvesener', rarity: 'epic', etikett: 'Episke romvesenkort' },
+  { niva: 5, category: 'dyr', rarity: 'legendary', etikett: 'Legendariske dyrekort' },
+  { niva: 6, category: 'kart', rarity: 'epic', etikett: 'Episke kartkort' },
+  { niva: 7, category: 'skapninger', rarity: 'epic', etikett: 'Episke skapningskort' },
+  { niva: 8, category: 'planeter', rarity: 'epic', etikett: 'Episke planetkort' },
+  { niva: 9, category: 'landemerker', rarity: 'epic', etikett: 'Episke landemerkekort' },
+  { niva: 10, category: 'romvesener', rarity: 'legendary', etikett: 'Legendariske romvesenkort' },
+  { niva: 11, category: 'kart', rarity: 'legendary', etikett: 'Legendariske kartkort' },
+  { niva: 12, category: 'skapninger', rarity: 'legendary', etikett: 'Legendariske skapningskort' },
+  { niva: 13, category: 'landemerker', rarity: 'legendary', etikett: 'Legendariske landemerkekort' },
+  { niva: 14, category: 'guder', rarity: 'legendary', etikett: 'Legendariske gudekort' },
+  { niva: 15, category: 'planeter', rarity: 'legendary', etikett: 'Legendariske planetkort' },
 ];
 
 /**

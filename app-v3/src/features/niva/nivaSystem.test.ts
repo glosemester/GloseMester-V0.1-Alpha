@@ -13,11 +13,20 @@ import {
   opplastVedNiva,
   sjekkNivaOpp,
 } from './nivaSystem';
+import type { Category } from '../kort/kortData';
 import { GRATIS_KORTPAKKER } from '../../lib/tilgang';
 
+/** De 7 Feide-pakkene som skal være nivålåst på episk + legendarisk. */
+const FEIDE_PAKKER: Category[] = ['dyr', 'guder', 'romvesener', 'planeter', 'skapninger', 'landemerker', 'kart'];
+
 describe('nivaTittel', () => {
-  it('har ett rangnavn per nivå', () => {
+  it('har ett rangnavn per nivå (15)', () => {
     expect(NIVA_TITLER).toHaveLength(MAKS_NIVA);
+    expect(MAKS_NIVA).toBe(15);
+  });
+
+  it('NIVA_TERSKLER har én terskel per nivå', () => {
+    expect(NIVA_TERSKLER).toHaveLength(MAKS_NIVA);
   });
 
   it('gir riktig navn for nivå 1, 3 og maksnivå', () => {
@@ -26,7 +35,7 @@ describe('nivaTittel', () => {
     expect(nivaTittel(MAKS_NIVA)).toBe('Glosemester');
   });
 
-  it('klamrer utenfor 1–10', () => {
+  it('klamrer utenfor 1–15', () => {
     expect(nivaTittel(0)).toBe(NIVA_TITLER[0]);
     expect(nivaTittel(99)).toBe(NIVA_TITLER[MAKS_NIVA - 1]);
   });
@@ -35,11 +44,11 @@ describe('nivaTittel', () => {
 describe('beregnElevNiva', () => {
   it('grensetilfeller rundt tersklene', () => {
     expect(beregnElevNiva(0)).toBe(1);
-    expect(beregnElevNiva(49)).toBe(1);
-    expect(beregnElevNiva(50)).toBe(2);
-    expect(beregnElevNiva(1599)).toBe(9);
-    expect(beregnElevNiva(1600)).toBe(10);
-    expect(beregnElevNiva(99999)).toBe(10);
+    expect(beregnElevNiva(39)).toBe(1);
+    expect(beregnElevNiva(40)).toBe(2);
+    expect(beregnElevNiva(3099)).toBe(14);
+    expect(beregnElevNiva(3100)).toBe(15);
+    expect(beregnElevNiva(99999)).toBe(15);
   });
 
   it('tåler ugyldig XP', () => {
@@ -60,25 +69,25 @@ describe('beregnElevNiva', () => {
 
 describe('nivaProgresjon', () => {
   it('midt i et nivå', () => {
-    // Nivå 2 går fra 50 til 125; 80 XP = 30 av 75.
-    const p = nivaProgresjon(80);
+    // Nivå 2 går fra 40 til 100; 70 XP = 30 av 60.
+    const p = nivaProgresjon(70);
     expect(p.niva).toBe(2);
     expect(p.xpIDetteNiva).toBe(30);
-    expect(p.xpTilNeste).toBe(45);
-    expect(p.prosent).toBe(40);
+    expect(p.xpTilNeste).toBe(30);
+    expect(p.prosent).toBe(50);
     expect(p.erMaks).toBe(false);
   });
 
   it('maksnivå', () => {
-    const p = nivaProgresjon(2000);
-    expect(p.niva).toBe(10);
+    const p = nivaProgresjon(3500);
+    expect(p.niva).toBe(15);
     expect(p.xpTilNeste).toBe(0);
     expect(p.prosent).toBe(100);
     expect(p.erMaks).toBe(true);
   });
 
   it('prosent holder seg innenfor 0–100', () => {
-    for (const xp of [0, 1, 49, 50, 124, 125, 1599, 1600, 5000]) {
+    for (const xp of [0, 1, 39, 40, 99, 100, 3099, 3100, 9000]) {
       const p = nivaProgresjon(xp);
       expect(p.prosent).toBeGreaterThanOrEqual(0);
       expect(p.prosent).toBeLessThanOrEqual(100);
@@ -100,44 +109,60 @@ describe('erKortLaast', () => {
     expect(erKortLaast({ category: 'guder', rarity: 'rare' }, 1)).toBe(false);
   });
 
-  it('episke dyrekort låses opp på nivå 3', () => {
-    expect(erKortLaast({ category: 'dyr', rarity: 'epic' }, 2)).toBe(true);
-    expect(erKortLaast({ category: 'dyr', rarity: 'epic' }, 3)).toBe(false);
+  it('episke dyrekort låses opp på nivå 2', () => {
+    expect(erKortLaast({ category: 'dyr', rarity: 'epic' }, 1)).toBe(true);
+    expect(erKortLaast({ category: 'dyr', rarity: 'epic' }, 2)).toBe(false);
   });
 
-  it('legendariske gudekort låses opp på nivå 8', () => {
-    expect(erKortLaast({ category: 'guder', rarity: 'legendary' }, 7)).toBe(true);
-    expect(erKortLaast({ category: 'guder', rarity: 'legendary' }, 8)).toBe(false);
+  it('legendariske gudekort låses opp på nivå 14', () => {
+    expect(erKortLaast({ category: 'guder', rarity: 'legendary' }, 13)).toBe(true);
+    expect(erKortLaast({ category: 'guder', rarity: 'legendary' }, 14)).toBe(false);
+  });
+
+  it('nye pakker (skapninger, landemerker) er nå nivålåst', () => {
+    expect(erKortLaast({ category: 'skapninger', rarity: 'epic' }, 6)).toBe(true);
+    expect(erKortLaast({ category: 'skapninger', rarity: 'epic' }, 7)).toBe(false);
+    expect(erKortLaast({ category: 'landemerker', rarity: 'legendary' }, 12)).toBe(true);
+    expect(erKortLaast({ category: 'landemerker', rarity: 'legendary' }, 13)).toBe(false);
   });
 
   it('gjest (null) er aldri låst', () => {
     expect(erKortLaast({ category: 'guder', rarity: 'legendary' }, null)).toBe(false);
   });
-
-  it('ukjent kombinasjon er åpen (nye pakker hard-låses ikke)', () => {
-    expect(erKortLaast({ category: 'skapninger', rarity: 'epic' }, 1)).toBe(false);
-  });
 });
 
 describe('opplåsingstabellen', () => {
-  it('opplasningerVedNiva(6) gir nøyaktig nivå-6-radene', () => {
-    const rader = opplasningerVedNiva(6);
+  it('dekker alle 7 Feide-pakker med både episk og legendarisk', () => {
+    expect(OPPLASNINGER).toHaveLength(14);
+    for (const cat of FEIDE_PAKKER) {
+      expect(OPPLASNINGER.some((o) => o.category === cat && o.rarity === 'epic')).toBe(true);
+      expect(OPPLASNINGER.some((o) => o.category === cat && o.rarity === 'legendary')).toBe(true);
+    }
+  });
+
+  it('én opplåsing per nivå 2–15', () => {
+    const nivaer = OPPLASNINGER.map((o) => o.niva).sort((a, b) => a - b);
+    expect(nivaer).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+  });
+
+  it('opplasningerVedNiva(5) gir dyr-legendarisk', () => {
+    const rader = opplasningerVedNiva(5);
     expect(rader).toHaveLength(1);
     expect(rader[0]).toMatchObject({ category: 'dyr', rarity: 'legendary' });
   });
 
-  it('opplastVedNiva: gratis-kort er null, dyr-legendarisk er 6', () => {
+  it('opplastVedNiva: gratis-kort er null, dyr-legendarisk er 5', () => {
     expect(opplastVedNiva({ category: 'biler', rarity: 'legendary' })).toBeNull();
-    expect(opplastVedNiva({ category: 'dyr', rarity: 'legendary' })).toBe(6);
+    expect(opplastVedNiva({ category: 'dyr', rarity: 'legendary' })).toBe(5);
   });
 
   it('nesteOpplasning peker på første rad over nivået', () => {
-    expect(nesteOpplasning(1)?.niva).toBe(3);
-    expect(nesteOpplasning(9)?.niva).toBe(10);
-    expect(nesteOpplasning(10)).toBeNull();
+    expect(nesteOpplasning(1)?.niva).toBe(2);
+    expect(nesteOpplasning(14)?.niva).toBe(15);
+    expect(nesteOpplasning(15)).toBeNull();
   });
 
-  it('konsistensvakt: kun ikke-gratis kategorier, kun episk/legendarisk, nivå 2–10', () => {
+  it('konsistensvakt: kun ikke-gratis kategorier, kun episk/legendarisk, nivå 2–15', () => {
     for (const o of OPPLASNINGER) {
       expect(GRATIS_KORTPAKKER as readonly string[]).not.toContain(o.category);
       expect(['epic', 'legendary']).toContain(o.rarity);
@@ -149,22 +174,22 @@ describe('opplåsingstabellen', () => {
 
 describe('sjekkNivaOpp', () => {
   it('kryssing av én terskel gir nytt nivå', () => {
-    expect(sjekkNivaOpp(49, 50)).toMatchObject({ nyttNiva: 2 });
+    expect(sjekkNivaOpp(39, 40)).toMatchObject({ nyttNiva: 2 });
   });
 
   it('ingen kryssing gir null', () => {
-    expect(sjekkNivaOpp(40, 49)).toBeNull();
-    expect(sjekkNivaOpp(50, 50)).toBeNull();
+    expect(sjekkNivaOpp(30, 39)).toBeNull();
+    expect(sjekkNivaOpp(40, 40)).toBeNull();
   });
 
   it('kryssing av flere nivåer gir høyeste nivå og union av opplåsinger', () => {
-    // 49 XP = nivå 1 → 130 XP = nivå 3: krysser nivå 2 og 3.
-    const res = sjekkNivaOpp(49, 130);
+    // 39 XP = nivå 1 → 110 XP = nivå 3: krysser nivå 2 og 3.
+    const res = sjekkNivaOpp(39, 110);
     expect(res?.nyttNiva).toBe(3);
-    expect(res?.opplasninger.map((o) => o.niva)).toEqual([3]);
+    expect(res?.opplasninger.map((o) => o.niva)).toEqual([2, 3]);
   });
 
   it('over maksnivå gir null', () => {
-    expect(sjekkNivaOpp(1600, 1700)).toBeNull();
+    expect(sjekkNivaOpp(3100, 3200)).toBeNull();
   });
 });
