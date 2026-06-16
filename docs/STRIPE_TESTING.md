@@ -29,8 +29,8 @@ Bruk **test**-verdier (`sk_test_…`, `price_…` fra testmodus):
 | Variabel | Beskrivelse |
 |----------|-------------|
 | `STRIPE_SECRET_KEY` | Hemmelig nøkkel (`sk_test_…`) |
-| `STRIPE_PRICE_MONTHLY` | Price-ID for månedlig plan (99 kr) |
-| `STRIPE_PRICE_YEARLY` | Price-ID for årlig plan (800 kr) |
+| `STRIPE_PRICE_MONTHLY` | Price-ID for månedlig plan (49 kr) — live: `price_1Tg7br8T0fEZM9GZDvDuh2yh` |
+| `STRIPE_PRICE_YEARLY` | Price-ID for årlig plan (490 kr) — live: `price_1Tg7bs8T0fEZM9GZJ2jNPTeU` |
 | `STRIPE_WEBHOOK_SECRET` | Signeringshemmelighet for webhooken (`whsec_…`) |
 | `BASE_URL` | Brukes kun som fallback for retur-URL (v3 sender egen `successUrl`) |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON for Firebase Admin (server-side skriving) |
