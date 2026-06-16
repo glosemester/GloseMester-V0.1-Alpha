@@ -31,9 +31,15 @@ Bruk **test**-verdier (`sk_test_…`, `price_…` fra testmodus):
 | `STRIPE_SECRET_KEY` | Hemmelig nøkkel (`sk_test_…`) |
 | `STRIPE_PRICE_MONTHLY` | Price-ID for månedlig plan (49 kr) — live: `price_1Tg7br8T0fEZM9GZDvDuh2yh` |
 | `STRIPE_PRICE_YEARLY` | Price-ID for årlig plan (490 kr) — live: `price_1Tg7bs8T0fEZM9GZJ2jNPTeU` |
-| `STRIPE_WEBHOOK_SECRET` | Signeringshemmelighet for webhooken (`whsec_…`) |
+| `STRIPE_WEBHOOK_SECRET` | Signeringshemmelighet for webhooken (`whsec_…`) — må matche akkurat det webhook-endepunktet i Stripe |
 | `BASE_URL` | Brukes kun som fallback for retur-URL (v3 sender egen `successUrl`) |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON for Firebase Admin (server-side skriving) |
+
+> ⚠️ **Webhook-URL må bruke apex-domenet uten `www`:**
+> `https://glosemester.no/.netlify/functions/stripe-webhook`
+> Netlify 308-redirecter `www.glosemester.no` → `glosemester.no`, og Stripe følger
+> **ikke** redirects — et `www`-endepunkt gir 100 % feilede leveringer (308) og
+> Premium aktiveres aldri. Gjelder også agent-webhooken (`/webhook/stripe`).
 
 ## Lokal testkjøring
 
