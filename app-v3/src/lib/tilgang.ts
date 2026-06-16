@@ -109,6 +109,21 @@ export function hentTilgangsliste(
       forklaring: laerer ? undefined : 'Kun for lærere med Feide.',
     },
     {
+      tekst: 'Ubegrenset antall prøver',
+      tilgjengelig: harPremiumEllerOver(abo),
+      forklaring: harPremiumEllerOver(abo) ? undefined : 'Gratis gir opptil 3 prøver — oppgrader til Premium for ubegrenset.',
+    },
+    {
+      tekst: 'Standardprøver — ferdige prøver å dele',
+      tilgjengelig: harPremiumEllerOver(abo),
+      forklaring: harPremiumEllerOver(abo) ? undefined : 'Krever Premium.',
+    },
+    {
+      tekst: 'Avansert statistikk',
+      tilgjengelig: harPremiumEllerOver(abo),
+      forklaring: harPremiumEllerOver(abo) ? undefined : 'Krever Premium.',
+    },
+    {
       tekst: 'Tildel prøver til klassen via Feide',
       tilgjengelig: laerer && feide,
       forklaring: laerer && feide ? undefined : laerer ? 'Krever Feide-innlogging som lærer.' : 'Kun for lærere.',
