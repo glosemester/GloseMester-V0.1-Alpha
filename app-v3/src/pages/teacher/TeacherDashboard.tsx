@@ -5,11 +5,17 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, FileText, Users } from 'lucide-react';
+import { Sparkles, FileText, Users, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
 import { SkeletonKort } from '../../components/Skeleton';
 import { TEACHER_ROUTES } from './teacherPaths';
+import {
+  beregnOnboardingSteg,
+  alleStegFullfort,
+  nesteSteg,
+  type OnboardingSteg,
+} from '../../features/teacher/onboardingSteg';
 
 export function TeacherDashboard() {
   const navigate = useNavigate();
@@ -23,6 +29,17 @@ export function TeacherDashboard() {
     () => prover.filter((p) => (p.tittel ?? '').toLowerCase().includes(sok.toLowerCase())),
     [prover, sok],
   );
+
+  // «Kom i gang»-sjekkliste — vises til læreren har fullført alle stegene.
+  const onboardingSteg = useMemo(() => {
+    const antallTildelte = prover.filter((p) => (p.tildeltGruppeNavn ?? []).length > 0).length;
+    return beregnOnboardingSteg({
+      antallProver: prover.length,
+      antallTildelte,
+      totaltGjennomforinger: totaltGjennomforinger,
+    });
+  }, [prover, totaltGjennomforinger]);
+  const visKomIGang = !laster && !alleStegFullfort(onboardingSteg);
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px 48px' }}>
@@ -44,6 +61,10 @@ export function TeacherDashboard() {
         <StatKort tall={totaltGjennomforinger} etikett="Elever gjennomført" />
         <StatKort tall={`${totaltSnitt}%`} etikett="Snitt" />
       </div>
+
+      {visKomIGang && (
+        <KomIGang steg={onboardingSteg} onLag={() => navigate(TEACHER_ROUTES.CREATE_TEST)} />
+      )}
 
       {/* Dine Feide-klasser — bekrefter at klassene ble fanget ved innlogging,
           og er gruppene du kan tildele prøver til. */}
@@ -118,6 +139,52 @@ function StatKort({ tall, etikett }: { tall: number | string; etikett: string })
   );
 }
 
+function KomIGang({ steg, onLag }: { steg: OnboardingSteg[]; onLag: () => void }) {
+  const antallFullfort = steg.filter((s) => s.fullfort).length;
+  const nesteIdx = nesteSteg(steg);
+
+  return (
+    <section
+      aria-label="Kom i gang"
+      style={{
+        background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)', padding: '20px 22px', marginBottom: 24,
+        boxShadow: 'var(--shadow-card)',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
+        <h2 style={{ fontWeight: 800, fontSize: 'var(--font-size-lg)' }}>Kom i gang</h2>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)' }}>
+          {antallFullfort} av {steg.length} fullført
+        </span>
+      </div>
+
+      <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 14 }}>
+        {steg.map((s, i) => (
+          <li key={s.id} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            {s.fullfort ? (
+              <CheckCircle2 size={26} color="var(--color-primary)" aria-hidden="true" style={{ flexShrink: 0 }} />
+            ) : (
+              <span style={stegNummer} aria-hidden="true">{i + 1}</span>
+            )}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, color: s.fullfort ? 'var(--color-text-muted)' : 'var(--color-text)', textDecoration: s.fullfort ? 'line-through' : 'none' }}>
+                {s.tittel}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{s.beskrivelse}</div>
+              {i === nesteIdx && s.id === 'lag' && (
+                <button type="button" onClick={onLag} style={{ ...primaerKnapp, marginTop: 10 }}>
+                  <Sparkles size={16} aria-hidden="true" /> Lag prøve
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 function TomTilstand({ onLag }: { onLag: () => void }) {
   return (
     <div style={{ textAlign: 'center', padding: '48px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
@@ -144,6 +211,12 @@ const proveKort: React.CSSProperties = {
   background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-lg)', padding: '16px 18px', cursor: 'pointer',
   textAlign: 'left', fontFamily: 'var(--font-primary)', boxShadow: 'var(--shadow-card)',
+};
+const stegNummer: React.CSSProperties = {
+  flexShrink: 0, width: 26, height: 26, borderRadius: '50%',
+  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  fontWeight: 800, fontSize: 14,
 };
 const klassePille: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center',
