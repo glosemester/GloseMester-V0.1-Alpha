@@ -1,0 +1,38 @@
+# GloseMester — linjeending-policy
+# Repoet lagrer ALL tekst med LF, og leverer LF i arbeidstreet på alle OS.
+# Dette stopper CRLF/LF-churn mellom Windows, Linux-CI og AI-verktøy.
+
+# Standard: la git oppdage tekst vs binær, normaliser tekst til LF.
+* text=auto eol=lf
+
+# --- Binærfiler: aldri linjeending-konvertering ---
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.svg   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.eot   binary
+*.mp3   binary
+*.mp4   binary
+*.webm  binary
+*.zip   binary
+*.gz    binary
+*.jar   binary
+*.keystore binary
+*.jks   binary
+
+# --- Windows-spesifikke skript skal beholde CRLF ---
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# --- Shell/Gradle må være LF (kjøres på Linux-CI) ---
+*.sh    text eol=lf
+gradlew text eol=lf
