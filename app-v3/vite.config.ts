@@ -35,6 +35,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, '../dist'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-ui': ['lucide-react', 'qrcode.react'],
+        },
+      },
+    },
   },
   server: {
     port: 5173,
