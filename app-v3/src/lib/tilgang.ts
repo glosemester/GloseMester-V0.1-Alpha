@@ -45,7 +45,7 @@ export function harAlleKortpakker(bruker: BrukerData | null | undefined): boolea
 /** Kortpakker (kategorier) tilgjengelig uten Feide. */
 export const GRATIS_KORTPAKKER = ['biler', 'dinosaurer', 'glosehelter'] as const;
 /** Alle kortpakker. */
-export const ALLE_KORTPAKKER = ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter', 'kart', 'glosehelter'] as const;
+export const ALLE_KORTPAKKER = ['biler', 'dinosaurer', 'dyr', 'guder', 'romvesener', 'planeter', 'skapninger', 'landemerker', 'kart', 'glosehelter'] as const;
 
 export type Kortpakke = typeof ALLE_KORTPAKKER[number];
 
@@ -79,7 +79,7 @@ export function hentTilgangsliste(
       forklaring: 'Gratis for alle.',
     },
     {
-      tekst: 'Kortpakker: Dyr, Guder, Romvesener, Planeter og Kart',
+      tekst: 'Kortpakker: Dyr, Guder, Romvesener, Planeter, Kart, Mytiske skapninger og Landemerker',
       tilgjengelig: harAlleKortpakker(bruker),
       forklaring: harAlleKortpakker(bruker) ? undefined : 'Krever Feide-innlogging.',
     },
