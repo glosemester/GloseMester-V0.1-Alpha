@@ -61,7 +61,15 @@ exports.handler = async (event) => {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             groupsData = groupsRes.data;
-        } catch {}
+        } catch (groupsErr) {
+            // fc:gogroup (klasser) krever scopet `groups-edu`. Logg feil EKSPLISITT
+            // — tidligere svelget en tom catch feilen, så manglende klasser var usynlig.
+            console.error('feide-auth groups-API feilet:', JSON.stringify({
+                status: groupsErr.response && groupsErr.response.status,
+                data: groupsErr.response && groupsErr.response.data,
+                message: groupsErr.message
+            }));
+        }
 
         // 4. Bygg UID
         let feideId = feideUser.sub;
@@ -80,7 +88,10 @@ exports.handler = async (event) => {
             rolle,
             primaryAffiliation: feideUser.eduPersonPrimaryAffiliation || null,
             affiliation: feideUser.eduPersonAffiliation || null,
-            antallGrupper: grupper.length
+            groupsHentet: Array.isArray(groupsData),
+            antallGrupper: grupper.length,
+            antallKlasser: grupper.filter((g) => g.type === 'fc:gogroup').length,
+            antallOrg: grupper.filter((g) => g.type === 'fc:org').length
         }));
 
         // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved

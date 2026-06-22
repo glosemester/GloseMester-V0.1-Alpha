@@ -60,7 +60,13 @@ exports.handler = async (event) => {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
             groupsData = groupsRes.data;
-        } catch {}
+        } catch (groupsErr) {
+            console.error('feide-mobile-auth groups-API feilet:', JSON.stringify({
+                status: groupsErr.response && groupsErr.response.status,
+                data: groupsErr.response && groupsErr.response.data,
+                message: groupsErr.message
+            }));
+        }
 
         // 4. Bygg Firebase-bruker-ID
         let feideId = feideUser.sub;

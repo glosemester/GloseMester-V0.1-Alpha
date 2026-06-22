@@ -12,12 +12,26 @@ import { auth, googleProvider } from './firebase';
 
 const FEIDE_CLIENT_ID = '82131d17-cccd-48da-8397-4e9d70434d4d';
 const FEIDE_AUTHORIZE = 'https://auth.dataporten.no/oauth/authorization';
+// OIDC end-session-endepunkt (RP-initiated logout). Logger brukeren ut av selve
+// Feide SSO-sesjonen — ikke bare GloseMester — så neste bruker på en delt PC
+// faktisk får brukervalg i stedet for å arve forrige innlogging.
+const FEIDE_ENDSESSION = 'https://auth.dataporten.no/openid/endsession';
 // Samme scope som v2 — Netlify-funksjonen (bestemRolle) forventer disse claimene.
-const FEIDE_SCOPE = 'openid userid-feide email userinfo-name groups-org groups-edu';
+const FEIDE_SCOPE = 'openid userid-feide email userinfo-name userinfo-title groups-org groups-edu';
 const FEIDE_STATE_KEY = 'feide_state';
 
 function getFeideRedirectUri(): string {
   return `${window.location.origin}/`;
+}
+
+/**
+ * Sender nettleseren til Feides end-session-endepunkt. MÅ kalles ETTER at den
+ * lokale Firebase-sesjonen er drept (jf. Feide-docs: «kill local session first,
+ * then redirect to the end session endpoint»). Full sidenavigasjon — returnerer
+ * ikke. Brukes kun for Feide-innloggede; Google-brukere trenger den ikke.
+ */
+export function redirectTilFeideLogout(): void {
+  window.location.href = FEIDE_ENDSESSION;
 }
 
 /** Starter Feide-innlogging ved å redirecte til Dataporten authorize-endepunktet. */

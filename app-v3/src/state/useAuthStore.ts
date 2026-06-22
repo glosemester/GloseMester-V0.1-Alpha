@@ -11,6 +11,8 @@ import type { User } from 'firebase/auth';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { hentEllerOpprettBruker, type BrukerData } from '../lib/data/users';
+import { erFeidebruker } from '../lib/tilgang';
+import { redirectTilFeideLogout } from '../lib/auth';
 import { onLogin, onLogout } from '../lib/progressSync';
 
 interface AuthState {
@@ -51,6 +53,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loggUt: async () => {
+    // Fang innloggingskilde FØR signOut nullstiller bruker-doc-en.
+    const brukerVarFeide = erFeidebruker(useAuthStore.getState().bruker);
+    // 1. Drep lokal Firebase-sesjon (jf. Feide-docs: kill local session first).
     await signOut(auth);
+    // 2. Feide-brukere: kjed til Feide SLO så SSO-sesjonen faktisk tømmes.
+    //    Kritisk på delte skole-PC-er — ellers arver neste bruker innloggingen.
+    //    Full sidenavigasjon; resten kjører ikke videre.
+    if (brukerVarFeide) {
+      redirectTilFeideLogout();
+    }
   },
 }));

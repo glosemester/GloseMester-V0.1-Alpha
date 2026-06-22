@@ -6,6 +6,9 @@
 const LAERER_AFFILIATIONS = ['employee', 'faculty', 'staff'];
 const ELEV_AFFILIATIONS = ['student', 'pupil'];
 const LAERER_NOKKELORD = ['teacher', 'ansatt', 'tilsatt', 'laerer', 'lærer'];
+// Tittel-baserte lærersignaler (userinfo-title). Tiebreaker når affiliation/
+// grupper ikke avgjør rollen — jf. begrunnelsen i Feide-konfig.
+const LAERER_TITTEL_NOKKELORD = ['laerer', 'lærer', 'teacher', 'adjunkt', 'lektor', 'rektor', 'pedagog', 'inspektor', 'inspektør', 'undervis'];
 const ELEV_NOKKELORD = ['student', 'elev', 'pupil'];
 
 function lower(value) {
@@ -67,7 +70,12 @@ function bestemRolle(userinfo, groupsData = null) {
     }
   }
 
-  // 4. Nøkkelord (siste utvei). Elev sjekkes FØR lærer, så en org-/skolestreng
+  // 4. Tittel (userinfo-title) som tiebreaker. Pedagogiske titler peker på
+  //    lærer. Sjekkes før det svakere navn-/e-post-nøkkelordet.
+  const title = lower(userinfo.title || userinfo['https://n.feide.no/claims/title']);
+  if (title && LAERER_TITTEL_NOKKELORD.some((w) => title.includes(w))) return 'laerer';
+
+  // 5. Nøkkelord (siste utvei). Elev sjekkes FØR lærer, så en org-/skolestreng
   //    ikke feilklassifiserer en elev som lærer.
   const principalName = lower(
     userinfo.eduPersonPrincipalName ||
@@ -97,7 +105,10 @@ function hentRelevanteGrupper(groupsData) {
       id: String(g.id),
       navn: String(g.displayName || g.id),
       type: String(g.type),
-      // go_type 'u' = undervisningsgruppe, 'b' = basisgruppe, 'a' = årstrinn.
+      // go_type 'u' = undervisningsgruppe (fag), 'b' = basisgruppe (klasse),
+      // 'a' = årstrinn. Lagres eksplisitt så lærer-UI kan skille fag fra klasse
+      // — alle tre deler type 'fc:gogroup' (jf. Feide-docs).
+      go_type: g.go_type ? String(g.go_type) : undefined,
       undervisning: g.go_type === 'u',
     }));
 }
