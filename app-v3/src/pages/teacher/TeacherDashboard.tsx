@@ -85,6 +85,28 @@ export function TeacherDashboard() {
         )}
       </div>
 
+      {/* MIDLERTIDIG Feide-diagnose — kun for eier-UID, fjernes etter feilsøking.
+          Viser de rå lagrede feide_grupper (alle typer) for å avgjøre om skolen
+          (fc:org) er lagret (= groups-edu-konfig mangler) eller om lista er tom
+          (= groups-API-kallet feilet). */}
+      {bruker?.uid === 'feide_7ea12b17-83dd-43a3-aac4-f1f1bfed6723' && (
+        <pre
+          style={{
+            fontSize: 11, lineHeight: 1.5, background: '#fff4e6',
+            border: '1px dashed var(--color-primary)', borderRadius: 8,
+            padding: 12, marginBottom: 20, overflowX: 'auto', whiteSpace: 'pre-wrap',
+          }}
+        >
+          {[
+            '🔧 Feide-diagnose (midlertidig)',
+            `feide_grupper: ${bruker.feide_grupper === undefined ? 'undefined (ikke lagret)' : `${bruker.feide_grupper.length} stk`}`,
+            ...(bruker.feide_grupper ?? []).map(
+              (g) => `  • ${g.navn} — type=${g.type}${g.go_type ? ` go_type=${g.go_type}` : ''}`,
+            ),
+          ].join('\n')}
+        </pre>
+      )}
+
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         <button type="button" onClick={() => navigate(TEACHER_ROUTES.CREATE_TEST)} style={primaerKnapp}>
           <Sparkles size={16} aria-hidden="true" /> Lag ny prøve
