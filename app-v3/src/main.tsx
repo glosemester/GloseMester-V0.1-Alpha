@@ -31,12 +31,16 @@ import { OmOss } from './pages/marketing/OmOss';
 import { Faq } from './pages/marketing/Faq';
 import { Oppgrader } from './pages/marketing/Oppgrader';
 import { OppgraderTakk } from './pages/marketing/OppgraderTakk';
+import { IkkeFunnet } from './pages/IkkeFunnet';
 
 // Rute-tre. Beskyttede ruter pakkes i <ProtectedRoute>. Flere sider kobles på
 // utover i fase B3 (galleri, lærer-dashboard, min-side ...).
 const router = createBrowserRouter([
   {
     element: <Layout />,
+    // Vennlig feilside i stedet for React Routers rå «Unexpected Application
+    // Error!» når en rute kaster (f.eks. en loader/komponent-feil).
+    errorElement: <IkkeFunnet />,
     children: [
       { path: ROUTES.LANDING, element: <Landing /> },
       {
@@ -61,12 +65,12 @@ const router = createBrowserRouter([
       { path: ROUTES.TRADE, element: <ProtectedRoute><Bytte /></ProtectedRoute> },
       // Mine prøver (elev): prøver tildelt elevens Feide-klasse(r).
       { path: ROUTES.STUDENT_PROVER, element: <ProtectedRoute><MineProver /></ProtectedRoute> },
-      // Lærer-modul (krever innlogging).
-      { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
-      { path: ROUTES.MY_TESTS, element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
-      { path: ROUTES.CREATE_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
-      { path: TEACHER_ROUTE_PATTERNS.EDIT_TEST, element: <ProtectedRoute><TeacherCreateTest /></ProtectedRoute> },
-      { path: TEACHER_ROUTE_PATTERNS.TEST_DETAILS, element: <ProtectedRoute><TeacherTestDetails /></ProtectedRoute> },
+      // Lærer-modul (krever lærer-/admin-rolle — elever sendes til /hjem).
+      { path: ROUTES.TEACHER_HOME, element: <ProtectedRoute krav="laerer"><TeacherDashboard /></ProtectedRoute> },
+      { path: ROUTES.MY_TESTS, element: <ProtectedRoute krav="laerer"><TeacherDashboard /></ProtectedRoute> },
+      { path: ROUTES.CREATE_TEST, element: <ProtectedRoute krav="laerer"><TeacherCreateTest /></ProtectedRoute> },
+      { path: TEACHER_ROUTE_PATTERNS.EDIT_TEST, element: <ProtectedRoute krav="laerer"><TeacherCreateTest /></ProtectedRoute> },
+      { path: TEACHER_ROUTE_PATTERNS.TEST_DETAILS, element: <ProtectedRoute krav="laerer"><TeacherTestDetails /></ProtectedRoute> },
       // Min side (profil/abonnement/GDPR) — krever innlogging.
       { path: ROUTES.PROFILE, element: <ProtectedRoute><MinSide /></ProtectedRoute> },
       // Admin — tilgangsvakt inne i komponenten (sjekker rolle === 'admin').
@@ -78,6 +82,8 @@ const router = createBrowserRouter([
       { path: '/faq', element: <Faq /> },
       { path: '/oppgrader', element: <Oppgrader /> },
       { path: ROUTES.OPPGRADER_TAKK, element: <OppgraderTakk /> },
+      // Catch-all: ukjente URL-er får vennlig 404 i stedet for rå feilside.
+      { path: '*', element: <IkkeFunnet /> },
     ],
   },
 ]);

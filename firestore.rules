@@ -30,6 +30,12 @@ service cloud.firestore {
                == brukerData(uid).get('proveAntall', 0) + 1
           && brukerDataEtter(uid).get('proveAntall', 0) <= 3;
     }
+    // Rollesjekk: kun lærere/admin kan opprette og eie prøver. Elever har
+    // ingenting å gjøre i prøveopprettingen (jf. klient-rute-vakt i ProtectedRoute).
+    function erLaererEllerAdmin(uid) {
+      let r = brukerData(uid).get('rolle', 'elev');
+      return r == 'laerer' || r == 'admin';
+    }
 
     // ============================================
     // GLOSEMESTER
@@ -45,33 +51,33 @@ service cloud.firestore {
       // Skriv: KUN ADMIN (du godkjenner og deler)
       allow write: if isAdmin();
     }
-    
+
     // GloseBank - admin har full tilgang
     match /glosebank/{glosebankId} {
-      allow read: if request.auth != null && 
+      allow read: if request.auth != null &&
                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'skolepakke'
                       || isAdmin());
-      
+
       allow write: if isAdmin();
     }
-    
+
     // GloseBank Ratings
     match /glosebank_ratings/{ratingId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
       allow update: if request.auth != null && resource.data.bruker_id == request.auth.uid;
     }
-    
+
     // Standardprøver - premium/skolepakke + admin
     match /standardprover/{proveId} {
-      allow read: if request.auth != null && 
+      allow read: if request.auth != null &&
                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'premium'
                       || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.abonnement.type == 'skolepakke'
                       || isAdmin());
-      
+
       allow write: if isAdmin();
     }
-    
+
     // Users - alle innloggede kan lese hoveddokumentet (trengs for klasse-roster).
     // Sensitive felt (pushSubscription) er skilt ut i /private/data-subkolleksjon.
     match /users/{userId} {
@@ -85,16 +91,17 @@ service cloud.firestore {
                               (request.auth.uid == userId || isAdmin());
       }
     }
-    
+
     // Prøver - støtter multi-fag (gloser, matte, norsk)
     // Les: Alle kan lese (elever er ikke innlogget, skanner QR-kode)
     // Skriv: Kun innloggede lærere (rollesjekk mot users-dokumentet)
     match /prover/{proveId} {
       allow read: if true;
-      // Oppretting: må stemple seg selv som eier. Gratisbrukere håndheves mot
-      // 3-grensen via teller (se gratisProveOk); betalte er ubegrenset.
+      // Oppretting: må stemple seg selv som eier OG være lærer/admin.
+      // Gratisbrukere håndheves mot 3-grensen via teller (se gratisProveOk).
       allow create: if request.auth != null
                        && request.resource.data.opprettet_av == request.auth.uid
+                       && erLaererEllerAdmin(request.auth.uid)
                        && (aboType(request.auth.uid) != 'free'
                            || gratisProveOk(request.auth.uid));
       allow update, delete: if request.auth != null &&
@@ -168,14 +175,14 @@ service cloud.firestore {
       allow update, delete: if request.auth != null &&
                               (resource.data.prove_eier == request.auth.uid || isAdmin());
     }
-    
+
     // School inquiries (Skolepakke-forespørsler)
     match /school_inquiries/{inquiryId} {
       allow read: if isAdmin();
       allow create: if true;
       allow update, delete: if isAdmin();
     }
-    
+
     // Orders (Stripe-betalinger)
     match /orders/{orderId} {
       allow read: if request.auth != null &&

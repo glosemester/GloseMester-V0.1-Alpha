@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import type { Kort } from '../storage';
 
 export interface ProgressData {
@@ -30,6 +30,13 @@ export async function hentProgress(uid: string): Promise<ProgressData | null | '
 }
 
 export async function lagreProgress(uid: string, data: Partial<ProgressData>): Promise<void> {
+  // Vakt mot «Missing or insufficient permissions»: reglene for user_progress
+  // krever request.auth.uid == userId. En debounced/flush-skriving kan utløses
+  // i auth-overgangen (rett etter signOut, eller før token er knyttet på) — da
+  // mangler auth.currentUser eller peker på en annen uid. Hopp stille over.
+  const aktiv = auth.currentUser;
+  if (!aktiv || aktiv.uid !== uid) return;
+
   try {
     await setDoc(
       doc(db, 'user_progress', uid),

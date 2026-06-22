@@ -18,6 +18,8 @@ export interface FeideGruppe {
   id: string;
   navn: string;
   type: string;
+  /** Feide go_type: 'u'=undervisningsgruppe (fag), 'b'=basisgruppe (klasse), 'a'=årstrinn. */
+  go_type?: string;
   undervisning?: boolean;
 }
 
