@@ -15,7 +15,11 @@ const FEIDE_CLIENT_ID = "82131d17-cccd-48da-8397-4e9d70434d4d";
 const FEIDE_CLIENT_SECRET = process.env.FEIDE_CLIENT_SECRET;
 const FEIDE_TOKEN_URL = "https://auth.dataporten.no/oauth/token";
 const FEIDE_USERINFO_URL = "https://auth.dataporten.no/openid/userinfo";
-const FEIDE_GROUPS_URL = "https://groups-api.dataporten.no/groups/me/groups";
+// showAll=true: ta MED utløpte/inaktive grupper. Skoleårsgrupper (klasser/fag)
+// utløper midt i juni, så uten dette satt lærere hele sommeren igjen med kun
+// skoletilhørighet (fc:org utløper aldri). hentRelevanteGrupper filtrerer så
+// til aktive + ev. forrige skoleår. Jf. Feide groups-API docs.
+const FEIDE_GROUPS_URL = "https://groups-api.dataporten.no/groups/me/groups?showAll=true";
 const MOBILE_REDIRECT_URI = "https://glosemester.no/.netlify/functions/feide-mobile-auth";
 const APP_SCHEME = "no.glosemester.app://auth";
 

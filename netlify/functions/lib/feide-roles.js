@@ -88,19 +88,56 @@ function bestemRolle(userinfo, groupsData = null) {
   return 'elev';
 }
 
+// Hvor langt etter utløp en skoleårsgruppe fortsatt regnes som «forrige
+// skoleår». Brukes som fallback i sommerferien (skoleåret slutter midt i juni,
+// nytt år starter midt i august) så lærerens klasser ikke forsvinner mellom to
+// skoleår. ~6 mnd dekker sommergapet med margin, men dropper eldre årganger.
+const FORRIGE_SKOLEAR_DAGER = 184;
+
+/** Er gruppa aktiv/fremtidig nå? fc:org og gogroup uten notAfter regnes alltid aktiv. */
+function erAktivGruppe(group, naaMs) {
+  if (!group.notAfter) return true;
+  const ms = Date.parse(group.notAfter);
+  return Number.isNaN(ms) ? true : ms >= naaMs;
+}
+
 /**
  * Plukker ut klasser/grupper vi kan tildele prøver til (Feide «gogroup» =
  * basis-/undervisningsgrupper) i en kompakt, lagrbar form. Brukt til:
  *  - lærer: liste å velge blant ved tildeling.
  *  - elev:  match mot prøver tildelt en gruppe-id.
  *
+ * Feide groups-API kalles med `showAll=true` (ellers utelates utløpte grupper
+ * — og skoleårsgrupper utløper midt i juni, så hele sommeren satt lærere igjen
+ * med «kun skoletilhørighet»). Vi filtrerer derfor selv: behold alltid skolen
+ * (fc:org, utløper aldri) + aktive/fremtidige klasser. Hvis ingen klasser er
+ * aktive (sommerferie) faller vi tilbake til forrige skoleårs klasser, men
+ * dropper eldre årganger så lista ikke samler opp døde klasser over tid.
+ *
  * @param {Array|null} groupsData
+ * @param {Date} [naa] - referansetidspunkt (injiserbart for test)
  * @returns {Array<{id:string, navn:string, type:string, undervisning:boolean}>}
  */
-function hentRelevanteGrupper(groupsData) {
+function hentRelevanteGrupper(groupsData, naa = new Date()) {
   if (!Array.isArray(groupsData)) return [];
-  return groupsData
-    .filter((g) => g && g.id && (g.type === 'fc:gogroup' || g.type === 'fc:org'))
+  const naaMs = naa.getTime();
+  const nadeMs = FORRIGE_SKOLEAR_DAGER * 24 * 60 * 60 * 1000;
+
+  const relevante = groupsData.filter(
+    (g) => g && g.id && (g.type === 'fc:gogroup' || g.type === 'fc:org'),
+  );
+  const harAktivGogruppe = relevante.some(
+    (g) => g.type === 'fc:gogroup' && erAktivGruppe(g, naaMs),
+  );
+
+  return relevante
+    .filter((g) => {
+      if (g.type !== 'fc:gogroup') return true; // fc:org (skole): alltid med
+      if (erAktivGruppe(g, naaMs)) return true; // aktive/fremtidige klasser
+      if (harAktivGogruppe) return false; // skoleåret går: dropp utløpte
+      const ms = Date.parse(g.notAfter); // sommerferie: behold forrige skoleår
+      return !Number.isNaN(ms) && ms >= naaMs - nadeMs;
+    })
     .map((g) => ({
       id: String(g.id),
       navn: String(g.displayName || g.id),
