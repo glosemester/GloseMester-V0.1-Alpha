@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sparkles, FileText, Users, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
+import { kunKlasser } from '../../features/teacher/feideKlasser';
 import { SkeletonKort } from '../../components/Skeleton';
 import { TEACHER_ROUTES } from './teacherPaths';
 import {
@@ -23,7 +24,8 @@ export function TeacherDashboard() {
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const { prover, laster, totaltGjennomforinger, totaltSnitt } = useLaererProver(firebaseUser?.uid);
   const [sok, setSok] = useState('');
-  const klasser = bruker?.feide_grupper ?? [];
+  // Kun ekte klasser (fc:gogroup) — ikke org-nivå (skole/kommune). Jf. kunKlasser.
+  const klasser = kunKlasser(bruker?.feide_grupper);
 
   const filtrert = useMemo(
     () => prover.filter((p) => (p.tittel ?? '').toLowerCase().includes(sok.toLowerCase())),
