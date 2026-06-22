@@ -14,6 +14,7 @@ import {
 import { useAuthStore } from '../../state/useAuthStore';
 import { toast } from '../../state/useToastStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
+import { kunKlasser } from '../../features/teacher/feideKlasser';
 import { TEACHER_ROUTES } from './teacherPaths';
 
 const MIN_PAR = 4;
@@ -47,9 +48,9 @@ export function TeacherCreateTest() {
   });
   const [lagrer, setLagrer] = useState(false);
 
-  // D: tildel prøven til en eller flere av lærerens Feide-klasser.
-  // fc:org = skole/kommune-nivå (ikke relevant her) — vis kun fc:gogroup (klasser).
-  const grupper = (bruker?.feide_grupper ?? []).filter((g) => g.type === 'fc:gogroup');
+  // D: tildel prøven til en eller flere av lærerens Feide-klasser (fc:gogroup) —
+  // org-nivå (skole/kommune) er ikke en klasse, jf. kunKlasser.
+  const grupper = kunKlasser(bruker?.feide_grupper);
   const [valgteGrupper, setValgteGrupper] = useState<string[]>(eksisterende?.tildeltGrupper ?? []);
   function veksleGruppe(id: string) {
     setValgteGrupper((v) => (v.includes(id) ? v.filter((g) => g !== id) : [...v, id]));
