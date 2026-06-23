@@ -138,16 +138,22 @@ function hentRelevanteGrupper(groupsData, naa = new Date()) {
       const ms = Date.parse(g.notAfter); // sommerferie: behold forrige skoleår
       return !Number.isNaN(ms) && ms >= naaMs - nadeMs;
     })
-    .map((g) => ({
-      id: String(g.id),
-      navn: String(g.displayName || g.id),
-      type: String(g.type),
+    .map((g) => {
+      const ut = {
+        id: String(g.id),
+        navn: String(g.displayName || g.id),
+        type: String(g.type),
+        undervisning: g.go_type === 'u',
+      };
       // go_type 'u' = undervisningsgruppe (fag), 'b' = basisgruppe (klasse),
-      // 'a' = årstrinn. Lagres eksplisitt så lærer-UI kan skille fag fra klasse
-      // — alle tre deler type 'fc:gogroup' (jf. Feide-docs).
-      go_type: g.go_type ? String(g.go_type) : undefined,
-      undervisning: g.go_type === 'u',
-    }));
+      // 'a' = årstrinn — alle tre deler type 'fc:gogroup' (jf. Feide-docs).
+      // VIKTIG: fc:org-grupper (skole/kommune) har ingen go_type. Ta med feltet
+      // KUN når det finnes — Firestore avviser `undefined`-verdier, og en
+      // `go_type:undefined` på skole-gruppa fikk hele innloggings-skrivingen til
+      // å kaste (set() feilet → 500 → Feide-login knakk).
+      if (g.go_type) ut.go_type = String(g.go_type);
+      return ut;
+    });
 }
 
 module.exports = { bestemRolle, hentRelevanteGrupper };
