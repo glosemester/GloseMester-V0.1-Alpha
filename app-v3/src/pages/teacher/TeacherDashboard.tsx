@@ -103,6 +103,34 @@ export function TeacherDashboard() {
             ...(bruker.feide_grupper ?? []).map(
               (g) => `  • ${g.navn} — type=${g.type}${g.go_type ? ` go_type=${g.go_type}` : ''}`,
             ),
+            ...(bruker.feide_diag
+              ? [
+                  '',
+                  '── rå Feide-svar (siste web-innlogging) ──',
+                  `tid: ${bruker.feide_diag.tidspunkt}`,
+                  `innvilget scope: ${bruker.feide_diag.innvilgetScope}`,
+                  `  → groups-edu innvilget: ${
+                    bruker.feide_diag.innvilgetScope.includes('groups-edu') ? 'JA' : 'NEI ⚠️'
+                  }`,
+                  `groups-API hentet: ${bruker.feide_diag.groupsHentet ? 'ja' : 'NEI'}`,
+                  ...(bruker.feide_diag.groupsFeil
+                    ? [
+                        `groups-API feil: status=${
+                          bruker.feide_diag.groupsFeil.status ?? '?'
+                        } — ${bruker.feide_diag.groupsFeil.melding}`,
+                      ]
+                    : []),
+                  `rå grupper: ${bruker.feide_diag.raaAntall}${
+                    bruker.feide_diag.typer.length
+                      ? ` — ${bruker.feide_diag.typer.map((t) => `${t.type}×${t.antall}`).join(', ')}`
+                      : ''
+                  }`,
+                  `rå klasser (fc:gogroup): ${
+                    bruker.feide_diag.typer.find((t) => t.type === 'fc:gogroup')?.antall ?? 0
+                  }`,
+                  `lagret: ${bruker.feide_diag.lagretAntall} (klasser=${bruker.feide_diag.lagretKlasser}, org=${bruker.feide_diag.lagretOrg})`,
+                ]
+              : ['', '(ingen feide_diag ennå — logg inn på nytt etter at denne er deployet)']),
           ].join('\n')}
         </pre>
       )}

@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 const axios = require('axios');
-const { bestemRolle, hentRelevanteGrupper } = require('./lib/feide-roles');
+const { bestemRolle, hentRelevanteGrupper, diagnoserRaaGrupper } = require('./lib/feide-roles');
 
 if (!admin.apps.length) {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
@@ -51,6 +51,10 @@ exports.handler = async (event) => {
             client_secret: FEIDE_CLIENT_SECRET
         }));
         const accessToken = tokenRes.data.access_token;
+        // Faktisk INNVILGET scope (kan være snevrere enn det vi ba om). Mangler
+        // `groups-edu` her = klienten/host-org har ikke gitt dataadgang til
+        // grupper → Feide returnerer kun fc:org. Mest avgjørende diagnose-signal.
+        const innvilgetScope = tokenRes.data.scope || '(ukjent)';
 
         // 2. Hent brukerinfo
         const userRes = await axios.get(FEIDE_USERINFO_URL, {
@@ -60,6 +64,7 @@ exports.handler = async (event) => {
 
         // 3. Prøv å hente groups (valgfritt)
         let groupsData = null;
+        let groupsError = null;
         try {
             const groupsRes = await axios.get(FEIDE_GROUPS_URL, {
                 headers: { Authorization: `Bearer ${accessToken}` }
@@ -68,6 +73,10 @@ exports.handler = async (event) => {
         } catch (groupsErr) {
             // fc:gogroup (klasser) krever scopet `groups-edu`. Logg feil EKSPLISITT
             // — tidligere svelget en tom catch feilen, så manglende klasser var usynlig.
+            groupsError = {
+                status: (groupsErr.response && groupsErr.response.status) || null,
+                melding: String(groupsErr.message || 'ukjent')
+            };
             console.error('feide-auth groups-API feilet:', JSON.stringify({
                 status: groupsErr.response && groupsErr.response.status,
                 data: groupsErr.response && groupsErr.response.data,
@@ -98,6 +107,21 @@ exports.handler = async (event) => {
             antallOrg: grupper.filter((g) => g.type === 'fc:org').length
         }));
 
+        // MIDLERTIDIG feilsøking: kompakt oppsummering av RÅ groups-svar + faktisk
+        // innvilget scope, så lærer-dashbordet (TeacherDashboard.tsx) kan vise om
+        // Feide returnerer klasser i det hele tatt. Fjernes sammen med diagnose-
+        // boksen når groups-edu-årsaken er bekreftet.
+        const feide_diag = {
+            tidspunkt: new Date().toISOString(),
+            innvilgetScope,
+            groupsHentet: Array.isArray(groupsData),
+            groupsFeil: groupsError,
+            ...diagnoserRaaGrupper(groupsData),
+            lagretAntall: grupper.length,
+            lagretKlasser: grupper.filter((g) => g.type === 'fc:gogroup').length,
+            lagretOrg: grupper.filter((g) => g.type === 'fc:org').length
+        };
+
         // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved
         //    opprettelse (merge bevarer ev. eksisterende skolelisens).
         const docRef = db.collection('users').doc(uid);
@@ -113,6 +137,7 @@ exports.handler = async (event) => {
             // Flatt id-felt så lærere kan slå opp klasse-roster med
             // array-contains-any (objekt-array kan ikke spørres direkte).
             feide_gruppe_ids: grupper.map((g) => g.id),
+            feide_diag, // MIDLERTIDIG — fjernes etter feilsøking
             ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
