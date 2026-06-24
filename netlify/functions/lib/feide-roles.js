@@ -156,45 +156,4 @@ function hentRelevanteGrupper(groupsData, naa = new Date()) {
     });
 }
 
-/**
- * MIDLERTIDIG feilsøking: oppsummerer det RÅ groups-API-svaret (FØR filtrering i
- * hentRelevanteGrupper) i en kompakt, Firestore-trygg form. Brukt av feide-auth.js
- * til å skrive et `feide_diag`-felt, så lærer-dashbordet kan vise direkte om Feide
- * returnerer klasser (fc:gogroup) i det hele tatt — eller bare skolen (fc:org).
- * Fjernes sammen med diagnose-boksen når groups-edu-årsaken er bekreftet.
- *
- * Personvern: tar IKKE med navn/id — kun type, go_type og utløpt-flagg.
- *
- * @param {Array|null} groupsData - rått svar fra groups-API
- * @param {Date} [naa] - referansetidspunkt (injiserbart for test)
- * @returns {{raaAntall:number, typer:Array<{type:string,antall:number}>, prove:Array<object>}}
- */
-function diagnoserRaaGrupper(groupsData, naa = new Date()) {
-  const liste = Array.isArray(groupsData) ? groupsData : [];
-  const naaMs = naa.getTime();
-
-  const teller = {};
-  for (const g of liste) {
-    const t = (g && g.type) || 'ukjent';
-    teller[t] = (teller[t] || 0) + 1;
-  }
-
-  return {
-    raaAntall: liste.length,
-    // Array (ikke map) så type-strenger aldri blir Firestore-feltnavn.
-    typer: Object.keys(teller).map((t) => ({ type: t, antall: teller[t] })),
-    // Liten metadata-prøve. Bygges felt-for-felt så objektet aldri får en
-    // `undefined`-verdi (Firestore avviser undefined — jf. go_type-krasjen).
-    prove: liste.slice(0, 15).map((g) => {
-      const rad = { type: (g && g.type) || 'ukjent' };
-      if (g && g.go_type) rad.go_type = String(g.go_type);
-      if (g && g.notAfter) {
-        const ms = Date.parse(g.notAfter);
-        if (!Number.isNaN(ms)) rad.utlopt = ms < naaMs;
-      }
-      return rad;
-    }),
-  };
-}
-
-module.exports = { bestemRolle, hentRelevanteGrupper, diagnoserRaaGrupper };
+module.exports = { bestemRolle, hentRelevanteGrupper };

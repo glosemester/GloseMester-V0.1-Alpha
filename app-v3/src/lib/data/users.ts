@@ -23,25 +23,6 @@ export interface FeideGruppe {
   undervisning?: boolean;
 }
 
-/**
- * MIDLERTIDIG Feide-diagnose — settes server-side ved web-innlogging
- * (feide-auth.js). Speiler det RÅ groups-API-svaret + faktisk innvilget scope, så
- * lærer-dashbordet kan avgjøre om Feide leverer klasser (fc:gogroup) eller bare
- * skolen (fc:org). Fjernes sammen med diagnose-boksen når årsaken er bekreftet.
- */
-export interface FeideDiag {
-  tidspunkt: string;
-  innvilgetScope: string;
-  groupsHentet: boolean;
-  groupsFeil: { status: number | null; melding: string } | null;
-  raaAntall: number;
-  typer: { type: string; antall: number }[];
-  prove: { type: string; go_type?: string; utlopt?: boolean }[];
-  lagretAntall: number;
-  lagretKlasser: number;
-  lagretOrg: number;
-}
-
 export interface BrukerData {
   uid: string;
   email: string | null;
@@ -51,8 +32,6 @@ export interface BrukerData {
   abonnement: Abonnement;
   /** Feide-klasser (settes server-side ved Feide-innlogging). */
   feide_grupper?: FeideGruppe[];
-  /** MIDLERTIDIG diagnose — se FeideDiag. Fjernes etter feilsøking. */
-  feide_diag?: FeideDiag;
   /** Antall prøver brukeren har opprettet. Brukes til å håndheve gratis-grensen
    *  server-side (firestore.rules). Vedlikeholdes atomisk av opprettProve/slettProve. */
   proveAntall?: number;
