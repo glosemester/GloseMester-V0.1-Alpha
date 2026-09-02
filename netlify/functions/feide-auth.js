@@ -98,10 +98,19 @@ exports.handler = async (event) => {
             antallOrg: grupper.filter((g) => g.type === 'fc:org').length
         }));
 
-        // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved
-        //    opprettelse (merge bevarer ev. eksisterende skolelisens).
+        // Elever logger aldri inn — appen er gjest-only for elever. Avvis
+        // FØR vi oppretter brukerdokument/token, slik at en elev aldri får
+        // en Firebase Auth-sesjon.
+        if (rolle === 'elev') {
+            return {
+                statusCode: 403,
+                headers,
+                body: JSON.stringify({ error: 'elev_ikke_stottet' })
+            };
+        }
+
+        // 6. Lagre/oppdater bruker i Firestore.
         const docRef = db.collection('users').doc(uid);
-        const finnes = (await docRef.get()).exists;
         await docRef.set({
             uid,
             displayName: feideUser.name,
@@ -113,7 +122,6 @@ exports.handler = async (event) => {
             // Flatt id-felt så lærere kan slå opp klasse-roster med
             // array-contains-any (objekt-array kan ikke spørres direkte).
             feide_gruppe_ids: grupper.map((g) => g.id),
-            ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 

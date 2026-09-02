@@ -9,12 +9,10 @@ import { X, Sparkles } from 'lucide-react';
 import {
   opprettProve, oppdaterProve, type ProveOrd,
   MIN_TILGJENGELIG_DAGER, MAX_TILGJENGELIG_DAGER, STANDARD_TILGJENGELIG_DAGER,
-  GRATIS_MAKS_PROVER, kanOppretteProve,
 } from '../../lib/data/prover';
 import { useAuthStore } from '../../state/useAuthStore';
 import { toast } from '../../state/useToastStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
-import { kunKlasser } from '../../features/teacher/feideKlasser';
 import { TEACHER_ROUTES } from './teacherPaths';
 
 const MIN_PAR = 4;
@@ -29,14 +27,9 @@ export function TeacherCreateTest() {
   const { testId } = useParams();
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const bruker = useAuthStore((s) => s.bruker);
-  const { prover, laster: proverLaster } = useLaererProver(firebaseUser?.uid);
+  const { prover } = useLaererProver(firebaseUser?.uid);
 
   const eksisterende = testId ? prover.find((p) => p.id === testId) : undefined;
-
-  // Gratisbrukere er begrenset til GRATIS_MAKS_PROVER prøver (gjelder kun ny
-  // oppretting, ikke redigering av eksisterende). Vent til lista er lastet.
-  const naaddGrense =
-    !eksisterende && !proverLaster && !kanOppretteProve(bruker?.abonnement?.type, prover.length);
 
   const [tittel, setTittel] = useState(eksisterende?.tittel ?? '');
   const [bland, setBland] = useState(true);
@@ -47,14 +40,6 @@ export function TeacherCreateTest() {
     return [{ s: '', e: '' }, { s: '', e: '' }, { s: '', e: '' }, { s: '', e: '' }];
   });
   const [lagrer, setLagrer] = useState(false);
-
-  // D: tildel prøven til en eller flere av lærerens Feide-klasser (fc:gogroup) —
-  // org-nivå (skole/kommune) er ikke en klasse, jf. kunKlasser.
-  const grupper = kunKlasser(bruker?.feide_grupper);
-  const [valgteGrupper, setValgteGrupper] = useState<string[]>(eksisterende?.tildeltGrupper ?? []);
-  function veksleGruppe(id: string) {
-    setValgteGrupper((v) => (v.includes(id) ? v.filter((g) => g !== id) : [...v, id]));
-  }
 
   function settRad(i: number, felt: 's' | 'e', verdi: string) {
     setRader((r) => r.map((rad, idx) => (idx === i ? { ...rad, [felt]: verdi } : rad)));
@@ -83,29 +68,18 @@ export function TeacherCreateTest() {
       toast.error('Du må være innlogget.');
       return;
     }
-    if (naaddGrense) {
-      toast.warning(`Gratis gir opptil ${GRATIS_MAKS_PROVER} prøver. Oppgrader til Premium for ubegrenset.`);
-      navigate('/oppgrader');
-      return;
-    }
-
-    const tildeltGruppeNavn = grupper.filter((g) => valgteGrupper.includes(g.id)).map((g) => g.navn);
 
     setLagrer(true);
     try {
       if (eksisterende) {
         await oppdaterProve(eksisterende.id, {
           tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager,
-          tildeltGrupper: valgteGrupper, tildeltGruppeNavn,
         });
         toast.success('Prøve oppdatert!');
         navigate(TEACHER_ROUTES.testDetails(eksisterende.id));
       } else {
         const { id } = await opprettProve(
-          {
-            tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager,
-            tildeltGrupper: valgteGrupper, tildeltGruppeNavn,
-          },
+          { tittel: tittel.trim(), ordliste, bland, tilgjengeligDager: dager },
           { uid: firebaseUser.uid, navn: bruker?.displayName ?? 'Lærer' },
         );
         toast.success('Prøve opprettet!');
@@ -125,18 +99,6 @@ export function TeacherCreateTest() {
       <h1 style={{ fontWeight: 900, fontSize: 'var(--font-size-2xl)', margin: '16px 0 24px' }}>
         {eksisterende ? 'Rediger prøve' : 'Lag prøve'}
       </h1>
-
-      {naaddGrense && (
-        <div style={grenseBanner}>
-          <span>
-            Du har nådd grensen på {GRATIS_MAKS_PROVER} prøver med gratisplanen.
-            Oppgrader til Premium for ubegrenset antall prøver.
-          </span>
-          <button type="button" onClick={() => navigate('/oppgrader')} style={oppgraderKnapp}>
-            Se Premium
-          </button>
-        </div>
-      )}
 
       <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontWeight: 600 }}>
@@ -161,40 +123,6 @@ export function TeacherCreateTest() {
           Bland rekkefølgen for elevene
         </label>
 
-        {/* D: tildel til Feide-klasse(r). Elever i valgte klasser ser prøven
-            under «Mine prøver» med gjennomført-status. */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ fontWeight: 600 }}>Tildel til klasse (valgfritt)</div>
-          {grupper.length === 0 ? (
-            <span style={{ fontWeight: 400, fontSize: 13, color: 'var(--color-text-muted)' }}>
-              Ingen Feide-klasser funnet. Logg inn med Feide for å tildele prøver til en klasse —
-              ellers deler du som vanlig med kode/QR.
-            </span>
-          ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {grupper.map((g) => {
-                const valgt = valgteGrupper.includes(g.id);
-                return (
-                  <button
-                    key={g.id}
-                    type="button"
-                    onClick={() => veksleGruppe(g.id)}
-                    aria-pressed={valgt}
-                    style={{
-                      ...gruppePille,
-                      background: valgt ? 'var(--color-primary)' : 'var(--color-surface)',
-                      color: valgt ? '#fff' : 'var(--color-text)',
-                      borderColor: valgt ? 'var(--color-primary)' : 'var(--color-border)',
-                    }}
-                  >
-                    {g.navn}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontWeight: 600 }}>
           Tilgjengelig i (dager)
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -215,7 +143,7 @@ export function TeacherCreateTest() {
           </span>
         </div>
 
-        <button type="submit" disabled={lagrer || naaddGrense} style={primaerKnapp}>
+        <button type="submit" disabled={lagrer} style={primaerKnapp}>
           {lagrer ? 'Lagrer…' : eksisterende ? 'Lagre endringer' : <><Sparkles size={16} aria-hidden="true" /> Opprett prøve</>}
         </button>
       </form>
@@ -223,17 +151,6 @@ export function TeacherCreateTest() {
   );
 }
 
-const grenseBanner: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-  flexWrap: 'wrap', background: 'var(--color-primary-light)', color: 'var(--color-text)',
-  border: '1px solid var(--color-primary)', borderRadius: 'var(--radius-md)',
-  padding: '14px 16px', marginBottom: 20, fontWeight: 600,
-};
-const oppgraderKnapp: React.CSSProperties = {
-  background: 'var(--color-primary)', color: '#fff', border: 'none',
-  borderRadius: 'var(--radius-full)', padding: '8px 16px', fontWeight: 700,
-  cursor: 'pointer', fontFamily: 'var(--font-primary)', whiteSpace: 'nowrap',
-};
 const input: React.CSSProperties = {
   padding: '12px 14px', fontSize: 16, border: '2px solid var(--color-border)',
   borderRadius: 'var(--radius-md)', outline: 'none', fontFamily: 'var(--font-primary)',
@@ -257,11 +174,6 @@ const dagerPille: React.CSSProperties = {
   background: 'var(--color-primary-light)', color: 'var(--color-primary)',
   borderRadius: 'var(--radius-full)', padding: '6px 14px', fontWeight: 800, fontSize: 14,
   whiteSpace: 'nowrap', minWidth: 78, textAlign: 'center',
-};
-const gruppePille: React.CSSProperties = {
-  border: '2px solid var(--color-border)', borderRadius: 'var(--radius-full)',
-  padding: '8px 16px', fontWeight: 700, fontSize: 14, cursor: 'pointer',
-  fontFamily: 'var(--font-primary)',
 };
 const fjernKnapp: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

@@ -40,18 +40,14 @@ import { leggTilKort } from '../features/kort/kortSamling';
 import { RARITY_CONFIG, type KortDef } from '../features/kort/kortData';
 import { beregnElevNiva, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
 import { NivaOppOverlay } from '../components/NivaOppOverlay';
-import { startFeideLogin } from '../lib/auth';
 import { PartyPopper, Dumbbell, Gift, Plus, Flame, Layers, Volume2, Check, X, LogOut, Lightbulb } from 'lucide-react';
 import { lesOpp, talesynteseStottes } from '../lib/speech';
 import { lesStreak, settStreak } from '../lib/streak';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
-import { harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
+import { ALLE_KORTPAKKER } from '../lib/tilgang';
 import { useUiStore } from '../state/useUiStore';
-import { useTradeStore } from '../state/useTradeStore';
-import { tilgjengeligeSjetonger } from '../features/trade/byttesjetonger';
-import { TokenBalance } from '../components/TokenBalance';
 import { ROUTES } from '../routes/paths';
 
 /** Antall ord per øverunde (= én runde på kort-hjulet). */
@@ -83,10 +79,8 @@ export function GlosemesterPractice() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const innlogget = useAuthStore((s) => Boolean(s.firebaseUser));
-  const bruker = useAuthStore((s) => s.bruker);
-  const tilgjengeligeKategorier = harAlleKortpakker(bruker) ? ALLE_KORTPAKKER : GRATIS_KORTPAKKER;
+  const tilgjengeligeKategorier = ALLE_KORTPAKKER;
   const setBunnmenySkjult = useUiStore((s) => s.setBunnmenySkjult);
-  const oppdaterSjetonger = useTradeStore((s) => s.oppdaterSjetonger);
   // Bug 2: høyttaler-knappen skjules der talesyntese mangler (ellers «død» knapp).
   const harTale = useMemo(() => talesynteseStottes(), []);
   const level = params.get('niva') as LevelId | null;
@@ -204,11 +198,6 @@ export function GlosemesterPractice() {
         const { nyXP, diamanterTildelt } = registrerRiktigSvar();
         if (diamanterTildelt) toast.success(`BONUS! Du fikk ${diamanterTildelt} diamanter!`);
 
-        // Oppdater byttesjetong-saldoen (XP kan nettopp ha krysset en milepæl).
-        const forUt = tilgjengeligeSjetonger();
-        oppdaterSjetonger();
-        if (tilgjengeligeSjetonger() > forUt) toast.success('Du tjente en byttesjetong!');
-
         // Nivå-opp? Sammenlign nivået før/etter dette svaret. Gjelder også
         // gjester (de får en enklere feiring med Feide-oppfordring). elevNiva
         // holdes null for gjester slik at korttrekket ikke nivå-gates.
@@ -237,7 +226,7 @@ export function GlosemesterPractice() {
         setFeedback({ type: 'wrong', correctAnswer: answerFor(word, direction) });
       }
     },
-    [level, gaaVidere, oppdaterSjetonger, oppdaterStreak, tilgjengeligeKategorier, innlogget],
+    [level, gaaVidere, oppdaterStreak, tilgjengeligeKategorier, innlogget],
   );
 
   // Bekreft og legg vunnet kort i samlingen (eleven trykker selv, jf. ønske).
@@ -324,8 +313,6 @@ export function GlosemesterPractice() {
         <NivaOppOverlay
           nyttNiva={nivaOpp.nyttNiva}
           opplasninger={nivaOpp.opplasninger}
-          gjest={!innlogget}
-          onLoggInn={startFeideLogin}
           onLukk={() => setNivaOpp(null)}
         />
       )}
@@ -364,7 +351,6 @@ export function GlosemesterPractice() {
             <Flame size={18} color="var(--color-primary)" aria-hidden="true" /> {streak}
           </span>
         )}
-        {innlogget && <TokenBalance compact />}
       </header>
 
       {/* Kortprogresjon — 10 bokser som fylles mot neste kort (mobil). På

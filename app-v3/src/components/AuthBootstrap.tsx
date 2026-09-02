@@ -4,7 +4,6 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuthStore } from '../state/useAuthStore';
-import { useTradeStore } from '../state/useTradeStore';
 import { handleFeideCallback } from '../lib/auth';
 import { provSendResultatKo } from '../lib/data/resultatKo';
 import { toast } from '../state/useToastStore';
@@ -19,9 +18,7 @@ async function sendKoedeResultater() {
 
 export function AuthBootstrap({ children }: { children: ReactNode }) {
   const initAuth = useAuthStore((s) => s.initAuth);
-  const settPendingKode = useTradeStore((s) => s.settPendingKode);
   const feideHandlet = useRef(false);
-  const byttHandlet = useRef(false);
   // Vis loading-overlay mens Feide-callback behandles (kan ta 2-4 sek).
   const [feideLaster, setFeideLaster] = useState(() =>
     new URLSearchParams(window.location.search).has('code'),
@@ -40,15 +37,6 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       });
     }
 
-    if (!byttHandlet.current) {
-      const m = window.location.hash.match(/#bytt=([A-Z0-9]{4,8})/i);
-      if (m) {
-        byttHandlet.current = true;
-        settPendingKode(m[1].toUpperCase());
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
-    }
-
     // Prøveresultater som ble køet offline: prøv ved oppstart og når nettet kommer tilbake.
     void sendKoedeResultater();
     const vedOnline = () => void sendKoedeResultater();
@@ -58,7 +46,7 @@ export function AuthBootstrap({ children }: { children: ReactNode }) {
       window.removeEventListener('online', vedOnline);
       unsubscribe();
     };
-  }, [initAuth, settPendingKode]);
+  }, [initAuth]);
 
   return (
     <>

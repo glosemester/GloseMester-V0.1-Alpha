@@ -5,10 +5,9 @@
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, FileText, Users, CheckCircle2 } from 'lucide-react';
+import { Sparkles, FileText, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useLaererProver } from '../../features/teacher/useLaererProver';
-import { kunKlasser } from '../../features/teacher/feideKlasser';
 import { SkeletonKort } from '../../components/Skeleton';
 import { TEACHER_ROUTES } from './teacherPaths';
 import {
@@ -24,8 +23,6 @@ export function TeacherDashboard() {
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const { prover, laster, totaltGjennomforinger, totaltSnitt } = useLaererProver(firebaseUser?.uid);
   const [sok, setSok] = useState('');
-  // Kun ekte klasser (fc:gogroup) — ikke org-nivå (skole/kommune). Jf. kunKlasser.
-  const klasser = kunKlasser(bruker?.feide_grupper);
 
   const filtrert = useMemo(
     () => prover.filter((p) => (p.tittel ?? '').toLowerCase().includes(sok.toLowerCase())),
@@ -33,14 +30,10 @@ export function TeacherDashboard() {
   );
 
   // «Kom i gang»-sjekkliste — vises til læreren har fullført alle stegene.
-  const onboardingSteg = useMemo(() => {
-    const antallTildelte = prover.filter((p) => (p.tildeltGruppeNavn ?? []).length > 0).length;
-    return beregnOnboardingSteg({
-      antallProver: prover.length,
-      antallTildelte,
-      totaltGjennomforinger: totaltGjennomforinger,
-    });
-  }, [prover, totaltGjennomforinger]);
+  const onboardingSteg = useMemo(() => beregnOnboardingSteg({
+    antallProver: prover.length,
+    totaltGjennomforinger: totaltGjennomforinger,
+  }), [prover, totaltGjennomforinger]);
   const visKomIGang = !laster && !alleStegFullfort(onboardingSteg);
 
   return (
@@ -67,23 +60,6 @@ export function TeacherDashboard() {
       {visKomIGang && (
         <KomIGang steg={onboardingSteg} onLag={() => navigate(TEACHER_ROUTES.CREATE_TEST)} />
       )}
-
-      {/* Dine Feide-klasser — bekrefter at klassene ble fanget ved innlogging,
-          og er gruppene du kan tildele prøver til. */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Users size={15} aria-hidden="true" /> Dine klasser
-        </div>
-        {klasser.length > 0 ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {klasser.map((k) => <span key={k.id} style={klassePille}>{k.navn}</span>)}
-          </div>
-        ) : (
-          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
-            Ingen Feide-klasser funnet. Logg inn med Feide for å hente klassene dine og tildele prøver til dem.
-          </p>
-        )}
-      </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         <button type="button" onClick={() => navigate(TEACHER_ROUTES.CREATE_TEST)} style={primaerKnapp}>
@@ -116,11 +92,6 @@ export function TeacherDashboard() {
                 <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
                   {(p.ordliste?.length ?? 0)} ord · kode {p.kode} · {p.grupper.length} har gjennomført
                 </div>
-                {(p.tildeltGruppeNavn ?? []).length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: 'var(--color-primary)', fontWeight: 700, marginTop: 6 }}>
-                    <Users size={13} aria-hidden="true" /> {(p.tildeltGruppeNavn ?? []).join(', ')}
-                  </div>
-                )}
               </div>
               <span style={{ color: 'var(--color-text-muted)' }}>→</span>
             </button>
@@ -219,9 +190,4 @@ const stegNummer: React.CSSProperties = {
   background: 'var(--color-primary-light)', color: 'var(--color-primary)',
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   fontWeight: 800, fontSize: 14,
-};
-const klassePille: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center',
-  background: 'var(--color-primary-light)', color: 'var(--color-primary)',
-  borderRadius: 'var(--radius-full)', padding: '4px 14px', fontSize: 13, fontWeight: 700,
 };

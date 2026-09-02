@@ -3,8 +3,8 @@
 # i repoet (index.html, src/, js/) som referanse, men deployes ikke lenger.
 # Eldre v2-deploys finnes i Netlify sin deploy-historikk om rollback trengs.
 #
-# Base holdes i repo-rota slik at rotas package.json (firebase-admin, stripe,
-# resend) installeres — Netlify-funksjonene trenger disse. Byggekommandoen
+# Base holdes i repo-rota slik at rotas package.json (firebase-admin, resend)
+# installeres — Netlify-funksjonene trenger disse. Byggekommandoen
 # installerer og bygger v3 separat. Vite skriver til repo-rot/dist.
 
 [build]
@@ -25,8 +25,7 @@
   force = true
 
 # Gamle v2-URLer (.html) → rene v3-ruter. Bevarer SEO/bokmerker etter at
-# v2-sidene ble fjernet (B5). Netlify viderefører query-string automatisk, så
-# stripe-checkout sin /oppgrader.html?status=... lander riktig på /oppgrader.
+# v2-sidene ble fjernet (B5).
 [[redirects]]
   from = "/index.html"
   to = "/"
@@ -46,10 +45,6 @@
 [[redirects]]
   from = "/faq.html"
   to = "/faq"
-  status = 301
-[[redirects]]
-  from = "/oppgrader.html"
-  to = "/oppgrader"
   status = 301
 [[redirects]]
   from = "/min-side.html"

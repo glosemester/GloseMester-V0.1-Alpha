@@ -6,13 +6,11 @@
  * så AppHeader skjules der for å unngå dobbel chrome.
  */
 import { useEffect, useRef } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { TabBar, TAB_BAR_HOYDE } from './TabBar';
 import { PageTransition } from './PageTransition';
-import { useTradeStore } from '../state/useTradeStore';
 import { useUiStore } from '../state/useUiStore';
-import { useAuthStore } from '../state/useAuthStore';
 import { ROUTES } from '../routes/paths';
 
 // Ruter med egen header — skal IKKE ha den globale AppHeader.
@@ -24,8 +22,6 @@ const UTEN_APP_HEADER = new Set<string>([
   '/for-skoler',
   '/om-oss',
   '/faq',
-  '/oppgrader',
-  ROUTES.OPPGRADER_TAKK,
   ROUTES.PRACTICE,
   ROUTES.QUIZ,
 ]);
@@ -38,7 +34,6 @@ const MED_TABBAR = new Set<string>([
   ROUTES.PRACTICE,
   ROUTES.GALLERY,
   ROUTES.MY_CARDS,
-  ROUTES.TRADE,
 ]);
 
 export function Layout() {
@@ -55,7 +50,6 @@ export function Layout() {
 
   return (
     <div ref={scrollRef} className="gm-scroll-root" style={{ display: 'flex', flexDirection: 'column' }}>
-      <TradeDeepLink />
       {visAppHeader && <AppHeader />}
       <main style={{ flex: 1, paddingBottom: visTabBar ? TAB_BAR_HOYDE + 24 : undefined }}>
         <PageTransition>
@@ -65,28 +59,4 @@ export function Layout() {
       {visTabBar && <TabBar />}
     </div>
   );
-}
-
-/**
- * Navigerer til /bytte når en dyplenke-kode (#bytt=) er fanget av AuthBootstrap.
- * Ligger inne i routeren, så her er navigate tilgjengelig. ProtectedRoute sender
- * uinnloggede til login først; koden ligger i store til de er fremme.
- */
-function TradeDeepLink() {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const pendingKode = useTradeStore((s) => s.pendingTradeCode);
-  const firebaseUser = useAuthStore((s) => s.firebaseUser);
-  const laster = useAuthStore((s) => s.laster);
-
-  useEffect(() => {
-    if (!pendingKode || laster) return;
-    // Utlogget: la ProtectedRoute sende dem til innlogging — koden ligger trygt i
-    // sessionStorage og plukkes opp her når firebaseUser er satt (også etter en
-    // full Feide-redirect). Hindrer samtidig en LANDING↔TRADE-redirectloop.
-    if (!firebaseUser) return;
-    if (pathname !== ROUTES.TRADE) navigate(ROUTES.TRADE);
-  }, [pendingKode, pathname, firebaseUser, laster, navigate]);
-
-  return null;
 }

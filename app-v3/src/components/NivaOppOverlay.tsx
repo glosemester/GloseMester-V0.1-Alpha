@@ -2,12 +2,11 @@
  * Nivå-opp-feiring — fullskjerms overlay som vises når en elev krysser en
  * nivågrense (sjekkNivaOpp). Spring-pop av nivåringen, radierende CSS-partikler
  * (nivaPartikkel i base.css, ingen ekstra avhengighet) og liste over hva som
- * ble låst opp. Gjester får en enklere variant med oppfordring om Feide-
- * innlogging i stedet for opplåsingslisten (de har bare gratis-pakkene).
+ * ble låst opp.
  */
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { LogIn, Unlock, Sparkles } from 'lucide-react';
+import { Unlock, Sparkles } from 'lucide-react';
 import { nivaFarge, nivaTittel, type Opplasning } from '../features/niva/nivaSystem';
 import { RARITY_CONFIG } from '../features/kort/kortData';
 import { NivaRing } from './NivaBadge';
@@ -15,14 +14,10 @@ import { hapticSuksess } from '../lib/native';
 
 const ANTALL_PARTIKLER = 14;
 
-export function NivaOppOverlay({ nyttNiva, opplasninger, onLukk, gjest = false, onLoggInn }: {
+export function NivaOppOverlay({ nyttNiva, opplasninger, onLukk }: {
   nyttNiva: number;
   opplasninger: Opplasning[];
   onLukk: () => void;
-  /** Gjest: vis Feide-oppfordring i stedet for opplåsingsliste. */
-  gjest?: boolean;
-  /** Kalles når gjesten velger å logge inn med Feide. */
-  onLoggInn?: () => void;
 }) {
   const reduserBevegelse = useReducedMotion();
   useEffect(() => {
@@ -85,53 +80,35 @@ export function NivaOppOverlay({ nyttNiva, opplasninger, onLukk, gjest = false, 
           </span>
           <span style={{ fontWeight: 800, fontSize: 15, color: farge }}>{tittel}</span>
         </motion.div>
-        {gjest ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
-              Logg inn med Feide for å låse opp episke og legendariske kort i Dyr, Guder, Romvesener og Planeter når du går opp i nivå!
-            </p>
-            {onLoggInn && (
-              <button type="button" onClick={onLoggInn} style={fortsettKnapp}>
-                <LogIn size={18} aria-hidden="true" /> Logg inn med Feide
-              </button>
-            )}
-            <button type="button" onClick={onLukk} style={sekundaerKnapp} autoFocus>
-              Fortsett uten innlogging
-            </button>
+        {opplasninger.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+            {opplasninger.map((o, i) => (
+              <motion.div
+                key={`${o.category}-${o.rarity}`}
+                className="kort-glod"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 24, delay: 0.35 + i * 0.12 }}
+                style={{
+                  ...opplasningRad,
+                  borderColor: RARITY_CONFIG[o.rarity].farge,
+                  '--glod-farge': RARITY_CONFIG[o.rarity].farge,
+                  '--glod-radius': '8px',
+                } as React.CSSProperties}
+              >
+                <Unlock size={18} color={RARITY_CONFIG[o.rarity].farge} aria-hidden="true" />
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{o.etikett} låst opp!</span>
+              </motion.div>
+            ))}
           </div>
         ) : (
-          <>
-            {opplasninger.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
-                {opplasninger.map((o, i) => (
-                  <motion.div
-                    key={`${o.category}-${o.rarity}`}
-                    className="kort-glod"
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 320, damping: 24, delay: 0.35 + i * 0.12 }}
-                    style={{
-                      ...opplasningRad,
-                      borderColor: RARITY_CONFIG[o.rarity].farge,
-                      '--glod-farge': RARITY_CONFIG[o.rarity].farge,
-                      '--glod-radius': '8px',
-                    } as React.CSSProperties}
-                  >
-                    <Unlock size={18} color={RARITY_CONFIG[o.rarity].farge} aria-hidden="true" />
-                    <span style={{ fontWeight: 700, fontSize: 14 }}>{o.etikett} låst opp!</span>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
-                Sterkt jobba! Fortsett å øve — du nærmer deg neste opplåsning.
-              </p>
-            )}
-            <button type="button" onClick={onLukk} style={fortsettKnapp} autoFocus>
-              Fortsett
-            </button>
-          </>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
+            Sterkt jobba! Fortsett å øve — du nærmer deg neste opplåsning.
+          </p>
         )}
+        <button type="button" onClick={onLukk} style={fortsettKnapp} autoFocus>
+          Fortsett
+        </button>
       </motion.div>
     </div>
   );
@@ -158,10 +135,4 @@ const fortsettKnapp: React.CSSProperties = {
   width: '100%', background: 'var(--color-primary)', color: '#fff', border: 'none',
   borderRadius: 'var(--radius-full)', padding: '12px 20px', fontWeight: 700,
   fontSize: 16, cursor: 'pointer', fontFamily: 'var(--font-primary)', marginTop: 4,
-};
-const sekundaerKnapp: React.CSSProperties = {
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-  width: '100%', background: 'var(--color-primary-light)', color: 'var(--color-primary)',
-  border: 'none', borderRadius: 'var(--radius-full)', padding: '10px 20px',
-  fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'var(--font-primary)',
 };

@@ -83,10 +83,16 @@ exports.handler = async (event) => {
         const rolle = bestemRolle(feideUser, groupsData);
         const grupper = hentRelevanteGrupper(groupsData);
 
-        // 6. Lagre/oppdater bruker i Firestore. abonnement settes kun ved
-        //    opprettelse (merge bevarer ev. eksisterende skolelisens).
+        // Elever logger aldri inn — appen er gjest-only for elever. Avvis
+        // FØR vi oppretter brukerdokument/token, slik at en elev aldri får
+        // en Firebase Auth-sesjon.
+        if (rolle === 'elev') {
+            const errUrl = `${APP_SCHEME}?error=${encodeURIComponent('elev_ikke_stottet')}`;
+            return { statusCode: 302, headers: { Location: errUrl }, body: '' };
+        }
+
+        // 6. Lagre/oppdater bruker i Firestore.
         const docRef = db.collection('users').doc(uid);
-        const finnes = (await docRef.get()).exists;
         await docRef.set({
             uid,
             displayName: feideUser.name || '',
@@ -96,7 +102,6 @@ exports.handler = async (event) => {
             rolle,
             feide_grupper: grupper,
             feide_gruppe_ids: grupper.map((g) => g.id),
-            ...(finnes ? {} : { abonnement: { type: 'free' } }),
             siste_innlogging: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 

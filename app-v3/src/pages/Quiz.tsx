@@ -10,7 +10,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, CloudOff, Layers, Home, FileText, ListChecks, LogIn, UserRound, Repeat, Zap, type LucideIcon } from 'lucide-react';
+import { Rocket, Check, X, Trophy, Star, ThumbsUp, Dumbbell, Gift, CheckCircle2, CloudOff, Layers, Home, FileText, ListChecks, Repeat, Zap, type LucideIcon } from 'lucide-react';
 import {
   byggSporsmalsliste,
   erSvarRiktig,
@@ -26,15 +26,13 @@ import { glodStil, RARITY_CONFIG, type KortDef } from '../features/kort/kortData
 import { registrerRiktigeSvar } from '../lib/rewards';
 import { beregnElevNiva, nivaProgresjon, nivaTittel, sjekkNivaOpp, type NivaOppResultat } from '../features/niva/nivaSystem';
 import { NivaOppOverlay } from '../components/NivaOppOverlay';
-import { startFeideLogin } from '../lib/auth';
-import { settVentendeProve } from '../lib/provePending';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
 import { hapticLett, hapticTung, hapticSuksess } from '../lib/native';
-import { harAlleKortpakker, ALLE_KORTPAKKER, GRATIS_KORTPAKKER } from '../lib/tilgang';
+import { ALLE_KORTPAKKER } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
 
-type Fase = 'kode' | 'valg' | 'modus' | 'navn' | 'quiz' | 'resultat';
+type Fase = 'kode' | 'modus' | 'navn' | 'quiz' | 'resultat';
 
 interface QuizState {
   prove: Prove;
@@ -87,13 +85,8 @@ export function Quiz() {
         return;
       }
       setState({ prove, sporsmal: [], index: 0, riktige: 0, svar: [], startTid: 0 });
-      if (!firebaseUser) {
-        // Gjest: tilby Feide-innlogging (spar kort) eller fortsett uten.
-        setFase('valg');
-      } else {
-        // Innlogget elev: la dem velge «Ta prøven» eller «Øv til prøve».
-        setFase('modus');
-      }
+      // La eleven velge «Ta prøven» eller «Øv til prøve» — ingen innlogging.
+      setFase('modus');
     } catch (e) {
       console.error('Kunne ikke hente prøve:', e);
       toast.error('Noe gikk galt — prøv igjen.');
@@ -115,13 +108,6 @@ export function Quiz() {
     setFeedback(null);
     setValgtSvar(null);
     setFase('quiz');
-  }
-
-  // Eleven valgte Feide-innlogging på valg-skjermen: parker koden og start
-  // innlogging — Landing sender eleven tilbake til prøven etterpå.
-  function loggInnOgFortsett() {
-    if (state?.prove.kode) settVentendeProve(state.prove.kode);
-    startFeideLogin();
   }
 
   // QR-inngang: hvis ?kode= er satt, start automatisk (én gang).
@@ -157,32 +143,13 @@ export function Quiz() {
     );
   }
 
-  // Gjest med gyldig kode: logg inn med Feide (spar kort) eller fortsett uten.
-  if (fase === 'valg' && state) {
-    return (
-      <Skjema tittel={state.prove.tittel ?? 'Prøve'} beskrivelse="Vil du logge inn og samle kort, eller fortsette uten?">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <button type="button" onClick={loggInnOgFortsett} style={valgBoks}>
-            <LogIn size={26} color="var(--color-primary)" aria-hidden="true" />
-            <span style={valgTittel}>Logg inn med Feide og spar kort</span>
-            <span style={valgTekst}>Kortene du vinner lagres i din egen samling.</span>
-          </button>
-          <button type="button" onClick={() => setFase('navn')} style={valgBoks}>
-            <UserRound size={26} color="var(--color-text-muted)" aria-hidden="true" />
-            <span style={valgTittel}>Fortsett uten innlogging</span>
-            <span style={valgTekst}>Ta prøven nå — kort lagres kun på denne enheten.</span>
-          </button>
-        </div>
-      </Skjema>
-    );
-  }
-
-  // Innlogget elev: ta prøven, eller øve-til-prøve (uten å sende resultat).
+  // Velg «Ta prøven» (resultat sendes til læreren, krever navn) eller
+  // «Øv på ordene» (kun trening, sendes ikke inn). Ingen innlogging noe sted.
   if (fase === 'modus' && state) {
     return (
       <Skjema tittel={state.prove.tittel ?? 'Prøve'} beskrivelse="Vil du ta prøven, eller øve på ordene først?">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <button type="button" onClick={() => startQuiz(state.prove)} style={valgBoks}>
+          <button type="button" onClick={() => setFase('navn')} style={valgBoks}>
             <FileText size={26} color="var(--color-primary)" aria-hidden="true" />
             <span style={valgTittel}>Ta prøven</span>
             <span style={valgTekst}>Resultatet sendes til læreren din.</span>
@@ -286,8 +253,6 @@ export function Quiz() {
           <NivaOppOverlay
             nyttNiva={nivaOpp.nyttNiva}
             opplasninger={nivaOpp.opplasninger}
-            gjest={!firebaseUser}
-            onLoggInn={startFeideLogin}
             onLukk={() => setNivaOpp(null)}
           />
         )}
@@ -411,7 +376,7 @@ export function Quiz() {
     // Felles kort-teller: prøvens riktige svar teller mot samme «X av 10»-bar
     // som øvemodus — ikke et engangskort. Gjelder også gjester (samlingen
     // lagres i 'gjest'-namespace). Nivålåste kort filtreres bort for innloggede.
-    const tilgjengeligeKategorier = harAlleKortpakker(bruker) ? ALLE_KORTPAKKER : GRATIS_KORTPAKKER;
+    const tilgjengeligeKategorier = ALLE_KORTPAKKER;
     const elevNiva = firebaseUser ? beregnElevNiva(nyXP) : null;
     const { kort } = registrerRiktigeMotKort(riktige, s.prove.niva ?? null, Math.random, tilgjengeligeKategorier, elevNiva);
     if (kort.length > 0) {

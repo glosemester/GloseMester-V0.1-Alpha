@@ -6,12 +6,9 @@ import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs, query, where
 import type { User } from 'firebase/auth';
 import { db } from '../firebase';
 
-export type Rolle = 'laerer' | 'elev' | 'admin';
-
-export interface Abonnement {
-  // Verdiene må matche firestore.rules og kampanje.ts ('skolepakke', ikke 'skole').
-  type: 'free' | 'premium' | 'skolepakke';
-}
+// 'elev' finnes fortsatt som mulig verdi på gamle Firestore-dokumenter, men
+// ingen nye brukerdokumenter kan få denne rollen — elever logger aldri inn.
+export type Rolle = 'laerer' | 'admin';
 
 /** En Feide-klasse/gruppe brukeren er medlem av (jf. feide-roles.hentRelevanteGrupper). */
 export interface FeideGruppe {
@@ -29,12 +26,8 @@ export interface BrukerData {
   displayName: string | null;
   photoURL: string | null;
   rolle: Rolle;
-  abonnement: Abonnement;
   /** Feide-klasser (settes server-side ved Feide-innlogging). */
   feide_grupper?: FeideGruppe[];
-  /** Antall prøver brukeren har opprettet. Brukes til å håndheve gratis-grensen
-   *  server-side (firestore.rules). Vedlikeholdes atomisk av opprettProve/slettProve. */
-  proveAntall?: number;
   opprettetDato?: unknown;
 }
 
@@ -53,7 +46,6 @@ export async function hentEllerOpprettBruker(user: User): Promise<BrukerData> {
     displayName: user.displayName || 'Lærer',
     photoURL: user.photoURL || null,
     rolle: 'laerer',
-    abonnement: { type: 'free' },
   };
 
   await setDoc(userRef, { ...nyBruker, opprettetDato: serverTimestamp() });
@@ -102,49 +94,3 @@ export async function hentAdminBrukere(): Promise<AdminBrukerRad[]> {
   }
 }
 
-/** Ett elevmedlem i et klasse-roster (avledet fra GloseMester-brukere). */
-export interface KlasseElev {
-  uid: string;
-  navn: string;
-}
-
-/**
- * Bygger klasse-rosteret fra GloseMester-brukere: alle elever der
- * `feide_grupper` inneholder minst én av de oppgitte gruppe-IDene.
- *
- * Merk: dette omfatter kun elever som har logget inn i GloseMester minst én
- * gang — vi henter ikke komplett klasseliste fra Feide groups members-API.
- * Firestore `array-contains-any` tar maks 10 verdier, så vi deler i chunks og
- * kjører på ett felt om gangen (id ligger inni objektene, så vi matcher på en
- * egen flat id-liste `feide_gruppe_ids` om den finnes, ellers filtrerer lokalt).
- */
-export async function hentKlasseRoster(gruppeIds: string[]): Promise<KlasseElev[]> {
-  if (!gruppeIds.length) return [];
-  const settet = new Set(gruppeIds);
-  const funnet = new Map<string, KlasseElev>();
-
-  // array-contains-any krever et flatt array-felt. feide_grupper er objekter,
-  // så vi matcher på det flate hjelpefeltet feide_gruppe_ids når det finnes.
-  for (let i = 0; i < gruppeIds.length; i += 10) {
-    const chunk = gruppeIds.slice(i, i + 10);
-    try {
-      const snap = await getDocs(
-        query(collection(db, 'users'), where('feide_gruppe_ids', 'array-contains-any', chunk)),
-      );
-      snap.docs.forEach((d) => {
-        const data = d.data() as BrukerData & { feide_gruppe_ids?: string[] };
-        if (data.rolle === 'laerer' || data.rolle === 'admin') return; // kun elever
-        funnet.set(d.id, { uid: d.id, navn: data.displayName || 'Elev' });
-      });
-    } catch (e) {
-      console.warn('hentKlasseRoster chunk feil:', e);
-    }
-  }
-
-  // Fallback for brukere som ennå ikke har det flate id-feltet: ingen ekstra
-  // spørring (ville krevd full collection-scan). Disse dukker opp etter neste
-  // innlogging når feide_gruppe_ids skrives. settet brukes for å unngå
-  // lint-advarsel om ubrukt variabel og dokumenterer matche-kriteriet.
-  void settet;
-  return [...funnet.values()].sort((a, b) => a.navn.localeCompare(b.navn));
-}

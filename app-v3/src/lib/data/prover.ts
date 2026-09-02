@@ -10,9 +10,9 @@ import {
   getDocs,
   updateDoc,
   doc,
+  setDoc,
   serverTimestamp,
-  writeBatch,
-  increment,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { cacheHent, cacheSett } from '../nativeCache';
@@ -57,28 +57,12 @@ export interface Prove {
   tilgjengeligDager?: number;
   /** Epoch (ms) når prøven slutter å være tilgjengelig. 0/undefined = aldri. */
   utloperDato?: number;
-  /** Feide-gruppe-IDer prøven er tildelt — elever i disse gruppene ser den. */
-  tildeltGrupper?: string[];
-  /** Visningsnavn for de tildelte gruppene (for elevens «Mine prøver»-liste). */
-  tildeltGruppeNavn?: string[];
 }
 
 /** Standard og grenser for hvor lenge en prøve er tilgjengelig. */
 export const MIN_TILGJENGELIG_DAGER = 1;
 export const MAX_TILGJENGELIG_DAGER = 14;
 export const STANDARD_TILGJENGELIG_DAGER = 7;
-
-/** Maks antall prøver en gratisbruker kan ha. Premium/skolepakke = ubegrenset. */
-export const GRATIS_MAKS_PROVER = 3;
-
-/**
- * Kan brukeren opprette en ny prøve? Gratisbrukere er begrenset til
- * GRATIS_MAKS_PROVER; alle betalte abonnement er ubegrenset.
- */
-export function kanOppretteProve(abonnementType: string | undefined, antallNaa: number): boolean {
-  if (abonnementType && abonnementType !== 'free') return true;
-  return antallNaa < GRATIS_MAKS_PROVER;
-}
 
 /** Er prøven utløpt nå? (utloperDato 0/undefined = aldri utløpt.) */
 export function erProveUtloept(prove: Pick<Prove, 'utloperDato'>, naa = Date.now()): boolean {
@@ -125,36 +109,6 @@ export interface NyProve {
   fag?: Fag;
   /** Tilgjengelig i N dager (1–14). Klemmes til gyldig område. */
   tilgjengeligDager?: number;
-  /** Feide-gruppe-IDer prøven tildeles. */
-  tildeltGrupper?: string[];
-  /** Visningsnavn for de tildelte gruppene. */
-  tildeltGruppeNavn?: string[];
-}
-
-/**
- * Henter ikke-utløpte prøver tildelt en av elevens Feide-grupper (D).
- * array-contains-any tar maks 10 verdier → vi deler opp i chunks og deduper.
- */
-export async function hentProverForGrupper(gruppeIds: string[]): Promise<Prove[]> {
-  if (!gruppeIds.length) return [];
-  const prover: Prove[] = [];
-  const sett = new Set<string>();
-  for (let i = 0; i < gruppeIds.length; i += 10) {
-    const chunk = gruppeIds.slice(i, i + 10);
-    try {
-      const snap = await getDocs(
-        query(collection(db, 'prover'), where('tildeltGrupper', 'array-contains-any', chunk)),
-      );
-      snap.docs.forEach((d) => {
-        if (sett.has(d.id)) return;
-        sett.add(d.id);
-        prover.push({ id: d.id, ...(d.data() as Omit<Prove, 'id'>) });
-      });
-    } catch (e) {
-      console.warn('hentProverForGrupper chunk feil:', e);
-    }
-  }
-  return prover.filter((p) => !erProveUtloept(p));
 }
 
 /** Klem dager til [MIN, MAX] og regn ut utløps-epoch fra et starttidspunkt. */
@@ -170,11 +124,8 @@ export async function opprettProve(
 ): Promise<{ id: string; kode: string }> {
   const kode = genererProvekode();
   const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
-  // Opprett prøven og øk brukerens teller i ÉN atomisk skriv. firestore.rules
-  // håndhever gratis-grensen ved å kreve nettopp denne +1-økningen (≤ grense).
   const proveRef = doc(collection(db, 'prover'));
-  const batch = writeBatch(db);
-  batch.set(proveRef, {
+  await setDoc(proveRef, {
     kode,
     fag: data.fag ?? 'gloser',
     tittel: data.tittel,
@@ -184,23 +135,10 @@ export async function opprettProve(
     bland: data.bland ?? true,
     tilgjengeligDager: dager,
     utloperDato,
-    tildeltGrupper: data.tildeltGrupper ?? [],
-    tildeltGruppeNavn: data.tildeltGruppeNavn ?? [],
     opprettet_av: laerer.uid,
     opprettetAvNavn: laerer.navn,
     opprettetDato: serverTimestamp(),
   });
-  batch.update(doc(db, 'users', laerer.uid), { proveAntall: increment(1) });
-  await batch.commit();
-
-  // Send push-varsel til elever i tildelte grupper (fire-and-forget).
-  if ((data.tildeltGrupper?.length ?? 0) > 0) {
-    void fetch('/.netlify/functions/send-push', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gruppeIds: data.tildeltGrupper, tittel: data.tittel }),
-    }).catch(() => {}); // varselfeil skal ikke blokkere oppretting
-  }
 
   return { id: proveRef.id, kode };
 }
@@ -216,10 +154,6 @@ export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
     antallSporsmal: data.ordliste.length,
     bland: data.bland ?? true,
   };
-  if (data.tildeltGrupper !== undefined) {
-    oppdatering.tildeltGrupper = data.tildeltGrupper;
-    oppdatering.tildeltGruppeNavn = data.tildeltGruppeNavn ?? [];
-  }
   if (data.tilgjengeligDager !== undefined) {
     const { dager, utloperDato } = regnUtloep(data.tilgjengeligDager);
     oppdatering.tilgjengeligDager = dager;
@@ -228,13 +162,7 @@ export async function oppdaterProve(id: string, data: NyProve): Promise<void> {
   await updateDoc(doc(db, 'prover', id), oppdatering);
 }
 
-/**
- * Sletter en prøve og dekrementerer eierens teller (frigjør gratis-grensen).
- * `eierUid` er prøvens `opprettet_av` — den hvis teller skal reduseres.
- */
-export async function slettProve(id: string, eierUid: string): Promise<void> {
-  const batch = writeBatch(db);
-  batch.delete(doc(db, 'prover', id));
-  if (eierUid) batch.update(doc(db, 'users', eierUid), { proveAntall: increment(-1) });
-  await batch.commit();
+/** Sletter en prøve. */
+export async function slettProve(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'prover', id));
 }

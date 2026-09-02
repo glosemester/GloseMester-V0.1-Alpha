@@ -16,17 +16,10 @@ const CREDITS_KEY = 'mester_credits';
 const XP_KEY = 'mester_xp';
 const KORTPROGRESJON_KEY = 'mester_kortprogresjon';
 const ELEV_PROVER_KEY = 'mester_elev_prover';
-const SPENT_TOKENS_KEY = 'mester_trade_tokens_spent';
 const LEGACY_USER_TOKEN = 'Spiller';
 const GUEST_TOKEN = 'gjest';
 
 let currentToken: string = GUEST_TOKEN;
-let _onProgressChange: (() => void) | null = null;
-
-/** Registreres av progressSync for debounced Firestore-push. */
-export function setProgressChangeCallback(cb: () => void): void {
-  _onProgressChange = cb;
-}
 
 /** Settes av auth-store ved innlogging/utlogging. */
 export function setUserToken(uid: string | null): void {
@@ -90,7 +83,6 @@ export function getSamling(fag = 'gloser'): Kort[] {
 
 export function setSamling(nySamling: Kort[], fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${STORAGE_KEY}_${fag}`), JSON.stringify(nySamling));
-  _onProgressChange?.();
 }
 
 export function lagreBrukerKort(kort: Kort, fag = 'gloser'): void {
@@ -112,7 +104,6 @@ export function getCredits(fag = 'gloser'): number {
 
 export function saveCredits(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${CREDITS_KEY}_${fag}`), String(amount));
-  _onProgressChange?.();
 }
 
 // --- TOTAL XP ---
@@ -124,7 +115,6 @@ export function getTotalCorrect(fag = 'gloser'): number {
 
 export function saveTotalCorrect(amount: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${XP_KEY}_${fag}`), String(amount));
-  _onProgressChange?.();
 }
 
 // --- KORTPROGRESJON (felles teller mot neste kort: øving + prøve) ---
@@ -139,21 +129,6 @@ export function getKortProgresjon(fag = 'gloser'): number {
 
 export function saveKortProgresjon(antall: number, fag = 'gloser'): void {
   localStorage.setItem(getUserKey(`${KORTPROGRESJON_KEY}_${fag}`), String(Math.max(0, antall)));
-  _onProgressChange?.();
-}
-
-// --- BYTTESJETONGER (trade tokens) ---
-// Antall sjetonger BRUKT. Tjente sjetonger utledes fra XP (byttesjetonger.ts),
-// så `tilgjengelig = tjent − brukt`. Brukt-telleren er UID-nøklet som credits/XP.
-
-export function getSpentTokens(): number {
-  const raw = localStorage.getItem(getUserKey(SPENT_TOKENS_KEY));
-  return raw ? parseInt(raw, 10) : 0;
-}
-
-export function saveSpentTokens(amount: number): void {
-  localStorage.setItem(getUserKey(SPENT_TOKENS_KEY), String(Math.max(0, amount)));
-  _onProgressChange?.();
 }
 
 // --- ELEV-PRØVER (7-dagers lokal cache) ---

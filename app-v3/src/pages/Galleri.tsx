@@ -13,7 +13,6 @@ import { getTotalCorrect } from '../lib/storage';
 import type { Kort } from '../lib/storage';
 import { toast } from '../state/useToastStore';
 import { useAuthStore } from '../state/useAuthStore';
-import { harAlleKortpakker, GRATIS_KORTPAKKER } from '../lib/tilgang';
 import { ROUTES } from '../routes/paths';
 
 type Sortering = 'nyeste' | 'sjeldenhet' | 'navn';
@@ -39,9 +38,7 @@ interface VisKort {
 
 export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
   const navigate = useNavigate();
-  const bruker = useAuthStore((s) => s.bruker);
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
-  const harFeide = harAlleKortpakker(bruker);
   // Elevnivå (1–10) — nivålåste kort i Feide-pakkene merkes «Låses opp på nivå N».
   const elevNiva = firebaseUser ? beregnElevNiva(getTotalCorrect('gloser')) : null;
   const [sortering, setSortering] = useState<Sortering>('nyeste');
@@ -187,8 +184,8 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
         {kort.map((k) => {
           const cfg = RARITY_CONFIG[k.rarity];
           const eid = k.antall > 0;
-          // Nivåkrav vises kun der nivået faktisk er hinderet (Feide-tilgang OK).
-          const nivaKrav = !eid && harFeide && erKortLaast({ category: k.category as Category, rarity: k.rarity }, elevNiva)
+          // Nivåkrav vises kun der nivået faktisk er hinderet.
+          const nivaKrav = !eid && erKortLaast({ category: k.category as Category, rarity: k.rarity }, elevNiva)
             ? opplastVedNiva({ category: k.category as Category, rarity: k.rarity })
             : null;
           return (
@@ -321,12 +318,7 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
             <div style={{ fontSize: 13, fontWeight: 700, color: RARITY_CONFIG[valgtLaast.rarity].farge }}>
               {RARITY_CONFIG[valgtLaast.rarity].tekst}
             </div>
-            {!harFeide && !GRATIS_KORTPAKKER.includes(valgtLaast.category as typeof GRATIS_KORTPAKKER[number]) ? (
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
-                Kortpakken <strong>{KATEGORI_NAVN[valgtLaast.category] ?? valgtLaast.category}</strong> krever Feide-innlogging.
-                Logg inn med Feide-kontoen din fra skolen for å låse opp.
-              </p>
-            ) : erKortLaast({ category: valgtLaast.category as Category, rarity: valgtLaast.rarity }, elevNiva) ? (
+            {erKortLaast({ category: valgtLaast.category as Category, rarity: valgtLaast.rarity }, elevNiva) ? (
               <p style={{ color: 'var(--color-text-muted)', fontSize: 14, textAlign: 'center', margin: 0 }}>
                 Dette kortet låses opp på <strong>nivå {opplastVedNiva({ category: valgtLaast.category as Category, rarity: valgtLaast.rarity })}</strong>.
                 Fortsett å øve for å gå opp i nivå!
@@ -337,15 +329,9 @@ export function Galleri({ visAlle = false }: { visAlle?: boolean }) {
               </p>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', marginTop: 4 }}>
-              {(!harFeide && !GRATIS_KORTPAKKER.includes(valgtLaast.category as typeof GRATIS_KORTPAKKER[number])) ? (
-                <button type="button" onClick={() => navigate(ROUTES.LANDING)} style={primaerKnapp}>
-                  <Lock size={16} aria-hidden="true" /> Logg inn med Feide
-                </button>
-              ) : (
-                <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={primaerKnapp}>
-                  <Rocket size={16} aria-hidden="true" /> Gå til øving
-                </button>
-              )}
+              <button type="button" onClick={() => navigate(ROUTES.GLOSEMESTER_START)} style={primaerKnapp}>
+                <Rocket size={16} aria-hidden="true" /> Gå til øving
+              </button>
               <button type="button" onClick={() => setValgtLaast(null)} style={chip}>
                 Lukk
               </button>

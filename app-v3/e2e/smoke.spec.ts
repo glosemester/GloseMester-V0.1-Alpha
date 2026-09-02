@@ -66,7 +66,6 @@ test('bunnmeny: synlig på nivåvelger, skjult under aktivt spørsmål', async (
   await page.goto('/gloser');
   await expect(page.getByTestId('tab-ov')).toBeVisible();
   await expect(page.getByTestId('tab-mine')).toBeVisible();
-  await expect(page.getByTestId('tab-bytte')).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toBeVisible();
 
   // Galleri-fanen fører gjesten til galleriet (åpent uten innlogging).
@@ -78,13 +77,6 @@ test('bunnmeny: synlig på nivåvelger, skjult under aktivt spørsmål', async (
   await page.goto('/ov?niva=niva1');
   await expect(page.getByText(/^1\/\d+$/)).toBeVisible();
   await expect(page.getByTestId('tab-galleri')).toHaveCount(0);
-});
-
-test('bytte krever innlogging: gjest sendes til landing', async ({ page }) => {
-  // /bytte er beskyttet — uinnlogget gjest skal ikke nå byttesiden.
-  await page.goto('/bytte');
-  await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
 });
 
 test('galleri: trykk på eget kort åpner detalj-popup', async ({ page }) => {
@@ -102,12 +94,6 @@ test('galleri: alle 152 kort vises, ikke-samlede grået ut', async ({ page }) =>
   await expect(page.getByText(new RegExp(`av ${TOTALT_KORT} samlet`))).toBeVisible();
   // Uten samlede kort skal låste «???»-kort vises.
   await expect(page.getByText('???').first()).toBeVisible();
-});
-
-test('kvitteringsside vises etter kjøp (/oppgrader/takk)', async ({ page }) => {
-  await page.goto('/oppgrader/takk?status=success&orderId=test123');
-  await expect(page.getByRole('heading', { name: /takk for kjøpet/i })).toBeVisible();
-  await expect(page.getByText(/Ordre-ID: test123/)).toBeVisible();
 });
 
 test('desktop: innholdstunge sider kan scrolles', async ({ page }) => {
