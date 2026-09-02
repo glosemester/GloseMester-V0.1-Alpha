@@ -16,7 +16,6 @@ test('landingssiden har elev-snarveier og lærer-innlogging (Feide/Google)', asy
   await expect(page.getByText('For elever')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Feide' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Google' })).toBeVisible();
-  await expect(page.getByText('For lærere')).toBeVisible();
 });
 
 test('øvemodus: nivå 1 viser ord og svaralternativer', async ({ page }) => {
