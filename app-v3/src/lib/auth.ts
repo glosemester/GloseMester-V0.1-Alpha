@@ -1,15 +1,16 @@
 /**
- * Auth-handlinger for v3 — kun Feide (OAuth2 authorization-code), for lærere.
- * Elever logger aldri inn. Portet fra v2 (src/core/auth/auth-service.js) med
- * identiske endepunkter, scope og redirect-URI slik at Feide-oppsettet på
- * serversiden er uendret.
+ * Auth-handlinger for v3 — Feide (OAuth2 authorization-code) og Google
+ * (popup), begge kun for lærere. Elever logger aldri inn. Feide-delen er
+ * portet fra v2 (src/core/auth/auth-service.js) med identiske endepunkter,
+ * scope og redirect-URI slik at Feide-oppsettet på serversiden er uendret.
+ * Google er et alternativ for lærere hvis skole ikke har åpnet Feide ennå.
  *
  * Opprettelse av brukerdokument håndteres sentralt av auth-store
  * (hentEllerOpprettBruker via onAuthStateChanged), så vi unngår å duplisere
  * "sikre bruker"-logikken her.
  */
-import { signInWithCustomToken } from 'firebase/auth';
-import { auth } from './firebase';
+import { signInWithPopup, signInWithCustomToken } from 'firebase/auth';
+import { auth, googleProvider } from './firebase';
 
 const FEIDE_CLIENT_ID = '82131d17-cccd-48da-8397-4e9d70434d4d';
 const FEIDE_AUTHORIZE = 'https://auth.dataporten.no/oauth/authorization';
@@ -108,6 +109,25 @@ export async function handleFeideCallback(): Promise<FeideCallbackResult> {
     console.error('Feide callback feilet:', error);
     return {
       handled: true,
+      success: false,
+      error: error instanceof Error ? error.message : 'ukjent',
+    };
+  }
+}
+
+export interface GoogleLoginResult {
+  success: boolean;
+  error?: string;
+}
+
+/** Google-innlogging via popup. Brukerdokument sikres av auth-store. */
+export async function loggInnMedGoogle(): Promise<GoogleLoginResult> {
+  try {
+    await signInWithPopup(auth, googleProvider);
+    return { success: true };
+  } catch (error) {
+    console.error('Google-innlogging feilet:', error);
+    return {
       success: false,
       error: error instanceof Error ? error.message : 'ukjent',
     };
