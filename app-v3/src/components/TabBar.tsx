@@ -1,12 +1,12 @@
 /**
  * Bunnmeny (tab-bar) for elev-flyten — React-port av v2 menu-system tab-bar.
- * Gir rask veksling mellom Øv, Mine Kort, Bytte og Galleri. Vises på øve-,
- * nivåvalg-, bytte- og galleri-sidene (styres av Layout).
+ * Gir rask veksling mellom Øv, Mine Kort og Galleri. Vises på øve-,
+ * nivåvalg- og galleri-sidene (styres av Layout).
  *
  * Brand: Lucide-ikoner (ingen emoji).
  */
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Pencil, Layers, Repeat, Trophy, type LucideIcon } from 'lucide-react';
+import { Pencil, Layers, Trophy, type LucideIcon } from 'lucide-react';
 import { ROUTES } from '../routes/paths';
 
 interface Fane {
@@ -21,7 +21,6 @@ interface Fane {
 const FANER: Fane[] = [
   { id: 'ov', Ikon: Pencil, label: 'Øv', rute: ROUTES.GLOSEMESTER, match: [ROUTES.GLOSEMESTER, ROUTES.GLOSEMESTER_START, ROUTES.PRACTICE] },
   { id: 'mine', Ikon: Layers, label: 'Mine Kort', rute: ROUTES.MY_CARDS, match: [ROUTES.MY_CARDS] },
-  { id: 'bytte', Ikon: Repeat, label: 'Bytte', rute: ROUTES.TRADE, match: [ROUTES.TRADE] },
   { id: 'galleri', Ikon: Trophy, label: 'Galleri', rute: ROUTES.GALLERY, match: [ROUTES.GALLERY] },
 ];
 

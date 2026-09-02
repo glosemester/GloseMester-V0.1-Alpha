@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ClipboardList, Smartphone, BarChart3, Gamepad2 } from 'lucide-react';
 import { MarketingLayout, InfoKort } from './MarketingLayout';
-import { FlytendeKjop } from '../../components/FlytendeKjop';
 import { ROUTES } from '../../routes/paths';
 
 export function ForLaerere() {
@@ -34,12 +33,6 @@ export function ForLaerere() {
           Kom i gang gratis
         </Link>
       </div>
-      <FlytendeKjop
-        id="laerer"
-        to="/oppgrader"
-        tittel="Kjøp Premium"
-        info="Ubegrenset prøver og standardprøver — fra 49 kr/mnd."
-      />
     </MarketingLayout>
   );
 }

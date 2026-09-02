@@ -15,20 +15,17 @@ export interface OnboardingSteg {
 export interface OnboardingInput {
   /** Antall prøver læreren har laget. */
   antallProver: number;
-  /** Antall prøver som er tildelt minst én Feide-klasse. */
-  antallTildelte: number;
   /** Totalt antall elevbesvarelser på tvers av lærerens prøver. */
   totaltGjennomforinger: number;
 }
 
 /**
- * Beregner sjekkliste-stegene. «Del»-steget regnes som fullført når en prøve
- * er tildelt en klasse ELLER når minst én besvarelse har kommet inn (en
- * besvarelse beviser at koden ble delt og brukt).
+ * Beregner sjekkliste-stegene. «Del»-steget regnes som fullført når minst én
+ * besvarelse har kommet inn (en besvarelse beviser at koden ble delt og brukt).
  */
 export function beregnOnboardingSteg(input: OnboardingInput): OnboardingSteg[] {
   const harProve = input.antallProver > 0;
-  const harDelt = input.antallTildelte > 0 || input.totaltGjennomforinger > 0;
+  const harDelt = input.totaltGjennomforinger > 0;
   const harResultat = input.totaltGjennomforinger > 0;
 
   return [
@@ -41,7 +38,7 @@ export function beregnOnboardingSteg(input: OnboardingInput): OnboardingSteg[] {
     {
       id: 'del',
       tittel: 'Del prøven med klassen',
-      beskrivelse: 'Gi elevene prøvekoden eller QR — eller tildel prøven til en Feide-klasse.',
+      beskrivelse: 'Gi elevene prøvekoden eller QR-koden.',
       fullfort: harDelt,
     },
     {

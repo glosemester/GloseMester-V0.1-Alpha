@@ -13,12 +13,12 @@ import { auth } from '../lib/firebase';
 import { hentEllerOpprettBruker, type BrukerData } from '../lib/data/users';
 import { erFeidebruker } from '../lib/tilgang';
 import { redirectTilFeideLogout } from '../lib/auth';
-import { onLogin, onLogout } from '../lib/progressSync';
+import { setUserToken } from '../lib/storage';
 
 interface AuthState {
   /** Firebase auth-bruker (uid, email, ...). */
   firebaseUser: User | null;
-  /** Beriket brukerdokument fra Firestore (rolle, abonnement, ...). */
+  /** Beriket brukerdokument fra Firestore (rolle, Feide-klasser, ...). */
   bruker: BrukerData | null;
   /** True til første onAuthStateChanged-callback har kjørt. */
   laster: boolean;
@@ -34,8 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   initAuth: () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // onLogin bytter namespace, merger gjest→konto og synkroniserer Firestore
-        await onLogin(user.uid);
+        setUserToken(user.uid);
         let bruker: BrukerData | null = null;
         try {
           bruker = await hentEllerOpprettBruker(user);
@@ -44,8 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
         set({ firebaseUser: user, bruker, laster: false });
       } else {
-        // onLogout flusher ventende endringer og nullstiller namespace
-        await onLogout();
+        setUserToken(null);
         set({ firebaseUser: null, bruker: null, laster: false });
       }
     });

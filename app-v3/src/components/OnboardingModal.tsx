@@ -1,12 +1,11 @@
 /**
- * Velkomst-modal for nye brukere — vises én gang etter første innlogging.
- * Innholdet er rollebevisst: elev vs. lærer.
+ * Velkomst-modal for nye lærere — vises én gang etter første innlogging.
+ * Kun lærere logger inn, så modalen trenger ingen elev-variant.
  * Sett/lest via localStorage-nøkkel per UID slik at den ikke dukker opp igjen.
  */
 import { useEffect, useState } from 'react';
-import { BookOpen, Trophy, Repeat, Target, FileText, X, ChevronRight } from 'lucide-react';
+import { Trophy, Target, FileText, X, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
-import { erLaerer, harAlleKortpakker } from '../lib/tilgang';
 
 const STORAGE_KEY = (uid: string) => `gm_onboarding_vist_${uid}`;
 
@@ -17,7 +16,6 @@ interface Steg {
 }
 
 export function OnboardingModal() {
-  const bruker = useAuthStore((s) => s.bruker);
   const uid = useAuthStore((s) => s.firebaseUser?.uid);
   const [vis, setVis] = useState(false);
   const [steg, setSteg] = useState(0);
@@ -35,46 +33,23 @@ export function OnboardingModal() {
 
   if (!vis || !uid) return null;
 
-  const laerer = erLaerer(bruker);
-  const harFeide = harAlleKortpakker(bruker);
-
-  const stegListe: Steg[] = laerer
-    ? [
-        {
-          ikon: <Target size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: 'Velkommen til GloseMester',
-          tekst: 'Du er logget inn som lærer. Her kan du lage gloser-prøver og dele dem med klassen på sekunder.',
-        },
-        {
-          ikon: <FileText size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: 'Lag og del prøver',
-          tekst: 'Gå til Lærerpanel → Ny prøve. Velg nivå og ord, sett frist, og del koden eller QR-koden med elevene.',
-        },
-        {
-          ikon: <Trophy size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: 'Se resultater',
-          tekst: 'Når elevene har tatt prøven ser du hvem som er ferdig direkte i Klassestatus — uten at du trenger å rette noe.',
-        },
-      ]
-    : [
-        {
-          ikon: <BookOpen size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: `Hei${bruker?.displayName ? `, ${bruker.displayName}` : ''}! Velkommen til GloseMester`,
-          tekst: 'Øv på gloser, svar riktig og vinn samlekort. Jo mer du øver, jo bedre husker du — og samlingen vokser!',
-        },
-        {
-          ikon: <Trophy size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: 'Samlekort',
-          tekst: harFeide
-            ? 'Du har tilgang til alle kortpakkene: Biler, Dinosaurer, Dyr, Guder, Romvesener, Planeter, Kart og GloseMester-serien. Vinn ett kort for hver 10. riktige svar.'
-            : 'Du kan vinne kort fra Biler, Dinosaurer og GloseMester-serien gratis. Logg inn med Feide for å låse opp Dyr, Guder, Romvesener, Planeter og Kart.',
-        },
-        {
-          ikon: <Repeat size={40} color="var(--color-primary)" aria-hidden="true" />,
-          tittel: 'Bytte med andre',
-          tekst: 'Har du dubletter? Bytt kort med medelever via Bytte-siden. Du trenger én byttesjetong — de tjener du ved å øve.',
-        },
-      ];
+  const stegListe: Steg[] = [
+    {
+      ikon: <Target size={40} color="var(--color-primary)" aria-hidden="true" />,
+      tittel: 'Velkommen til GloseMester',
+      tekst: 'Du er logget inn som lærer. Her kan du lage gloser-prøver og dele dem med klassen på sekunder.',
+    },
+    {
+      ikon: <FileText size={40} color="var(--color-primary)" aria-hidden="true" />,
+      tittel: 'Lag og del prøver',
+      tekst: 'Gå til Lærerpanel → Ny prøve. Velg nivå og ord, sett frist, og del koden eller QR-koden med elevene.',
+    },
+    {
+      ikon: <Trophy size={40} color="var(--color-primary)" aria-hidden="true" />,
+      tittel: 'Se resultater',
+      tekst: 'Når elevene har tatt prøven ser du hvem som er ferdig direkte i Klassestatus — uten at du trenger å rette noe.',
+    },
+  ];
 
   const erSiste = steg === stegListe.length - 1;
   const gjeldende = stegListe[steg];

@@ -10,28 +10,11 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rolle == 'admin';
     }
 
-    // --- Gratis-grense på antall prøver ---
-    // Firestore-regler kan ikke telle dokumenter i en collection, så vi holder en
-    // teller `proveAntall` på brukerdokumentet. Gratisbrukere (abonnement.type
-    // == 'free') må øke telleren med nøyaktig 1 i SAMME atomiske skriv som de
-    // oppretter en prøve, og resultatet må holde seg ≤ 3 (jf. GRATIS_MAKS_PROVER
-    // i app-v3). Betalte abonnement er ubegrenset.
     function brukerData(uid) {
       return get(/databases/$(database)/documents/users/$(uid)).data;
     }
-    function brukerDataEtter(uid) {
-      return getAfter(/databases/$(database)/documents/users/$(uid)).data;
-    }
-    function aboType(uid) {
-      return brukerData(uid).get('abonnement', {'type': 'free'}).get('type', 'free');
-    }
-    function gratisProveOk(uid) {
-      return brukerDataEtter(uid).get('proveAntall', 0)
-               == brukerData(uid).get('proveAntall', 0) + 1
-          && brukerDataEtter(uid).get('proveAntall', 0) <= 3;
-    }
-    // Rollesjekk: kun lærere/admin kan opprette og eie prøver. Elever har
-    // ingenting å gjøre i prøveopprettingen (jf. klient-rute-vakt i ProtectedRoute).
+    // Rollesjekk: kun lærere/admin kan opprette og eie prøver. Elever logger
+    // aldri inn (jf. klient-rute-vakt i ProtectedRoute).
     function erLaererEllerAdmin(uid) {
       let r = brukerData(uid).get('rolle', 'elev');
       return r == 'laerer' || r == 'admin';
@@ -79,98 +62,31 @@ service cloud.firestore {
     }
 
     // Users - alle innloggede kan lese hoveddokumentet (trengs for klasse-roster).
-    // Sensitive felt (pushSubscription) er skilt ut i /private/data-subkolleksjon.
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null &&
                       (request.auth.uid == userId || isAdmin());
-
-      // Privat subkolleksjon: kun eier og admin.
-      match /private/{docId} {
-        allow read, write: if request.auth != null &&
-                              (request.auth.uid == userId || isAdmin());
-      }
     }
 
     // Prøver - støtter multi-fag (gloser, matte, norsk)
-    // Les: Alle kan lese (elever er ikke innlogget, skanner QR-kode)
-    // Skriv: Kun innloggede lærere (rollesjekk mot users-dokumentet)
+    // Les: Alle kan lese (elever er ikke innlogget, skanner QR-kode/bruker kode)
+    // Skriv: Kun innloggede lærere (rollesjekk mot users-dokumentet), ubegrenset antall
     match /prover/{proveId} {
       allow read: if true;
-      // Oppretting: må stemple seg selv som eier OG være lærer/admin.
-      // Gratisbrukere håndheves mot 3-grensen via teller (se gratisProveOk).
       allow create: if request.auth != null
                        && request.resource.data.opprettet_av == request.auth.uid
-                       && erLaererEllerAdmin(request.auth.uid)
-                       && (aboType(request.auth.uid) != 'free'
-                           || gratisProveOk(request.auth.uid));
+                       && erLaererEllerAdmin(request.auth.uid);
       allow update, delete: if request.auth != null &&
                               (resource.data.opprettet_av == request.auth.uid || isAdmin());
     }
 
-    // Trades — kortbytte mellom innloggede elever (v3-modell).
-    match /trades/{tradeId} {
-      function signedIn() { return request.auth != null; }
-      function isParticipant() {
-        return signedIn() && (
-          request.auth.uid == resource.data.initiatorUid ||
-          request.auth.uid == resource.data.responderUid
-        );
-      }
-
-      // Lesing krever innlogging (B må kunne slå opp via kode før de er deltaker).
-      allow read: if signedIn();
-
-      // Opprettelse: kun initiativtaker, må stemple seg selv, starte som pending
-      // uten responder.
-      allow create: if signedIn()
-        && request.resource.data.initiatorUid == request.auth.uid
-        && request.resource.data.status == 'pending'
-        && request.resource.data.responderUid == null
-        && request.resource.data.requestedKortId == null
-        && request.resource.data.code is string
-        && request.resource.data.offeredKortId is string;
-
-      // Oppdatering: kun lovlige overganger, uforanderlig initiator/tilbud.
-      allow update: if signedIn()
-        && request.resource.data.initiatorUid == resource.data.initiatorUid
-        && request.resource.data.offeredKortId == resource.data.offeredKortId
-        && (
-          // (a) B aksepterer pending → accepted (ikke initiativtaker = selv-bytte-sperre).
-          (
-            resource.data.status == 'pending'
-            && resource.data.initiatorUid != request.auth.uid
-            && request.resource.data.responderUid == request.auth.uid
-            && request.resource.data.status == 'accepted'
-          )
-          // (b) Deltaker flipper settled-flagg / fullfører (accepted ↔ completed).
-          || (
-            isParticipant()
-            && resource.data.status in ['accepted', 'completed']
-            && request.resource.data.status in ['accepted', 'completed']
-            && request.resource.data.responderUid == resource.data.responderUid
-          )
-          // (c) Avbryt/utløp av pending (initiativtaker kansellerer; utløp tillates).
-          || (
-            resource.data.status == 'pending'
-            && request.resource.data.status in ['cancelled', 'expired']
-            && (resource.data.initiatorUid == request.auth.uid
-                || request.resource.data.status == 'expired')
-          )
-        );
-
-      allow delete: if false;
-    }
-
     // Resultater — elevsvar på prøver.
-    // Les: prøveeier (lærer) og eleven selv. Klientspørringene matcher dette:
-    // lærer spør på prove_eier == uid, elev på elev_id == uid.
-    // Opprett: åpen — gjester leverer uten innlogging (QR-flyt og offline-kø).
+    // Les: kun prøveeier (lærer) og admin — elever logger aldri inn og har
+    // ingen konto å lese resultater tilbake til.
+    // Opprett: åpen — gjester leverer uten innlogging (kode-flyt og offline-kø).
     match /resultater/{resultatId} {
       allow read: if request.auth != null &&
-                     (resource.data.prove_eier == request.auth.uid ||
-                      resource.data.elev_id == request.auth.uid ||
-                      isAdmin());
+                     (resource.data.prove_eier == request.auth.uid || isAdmin());
       allow create: if true;
       allow update, delete: if request.auth != null &&
                               (resource.data.prove_eier == request.auth.uid || isAdmin());
@@ -181,22 +97,6 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create: if true;
       allow update, delete: if isAdmin();
-    }
-
-    // Orders (Stripe-betalinger)
-    match /orders/{orderId} {
-      allow read: if request.auth != null &&
-                     (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if request.auth != null;
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    // Bruker-progresjon — kortsamling, XP, diamanter, streak per bruker.
-    // Kun eieren kan lese og skrive sitt eget dokument.
-    match /user_progress/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
