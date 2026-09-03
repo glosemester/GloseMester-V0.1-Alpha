@@ -4,7 +4,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, FileText, Layers, User, Target, Flame, type LucideIcon } from 'lucide-react';
+import { BookOpen, FileText, Layers, User, Target, Flame, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { useAuthStore } from '../state/useAuthStore';
 import { hentLaererProver } from '../lib/data/prover';
 import { lesStreak } from '../lib/streak';
@@ -47,6 +47,9 @@ export function Hjem() {
     { Ikon: FileText, tittel: 'Ta en prøve', tekst: 'Skriv inn prøvekoden fra læreren.', rute: ROUTES.QUIZ, farge: 'var(--color-secondary)', tint: 'var(--color-secondary-light)' },
     { Ikon: Layers, tittel: 'Kortsamling', tekst: 'Se kortene du har samlet.', rute: ROUTES.GALLERY, farge: 'var(--color-accent)', tint: 'var(--color-accent-light)' },
     { Ikon: User, tittel: 'Min side', tekst: 'Profil og personvern.', rute: ROUTES.PROFILE, farge: 'var(--color-success)', tint: 'var(--color-success-light)' },
+    ...(bruker?.rolle === 'admin'
+      ? [{ Ikon: ShieldCheck, tittel: 'Adminpanel', tekst: 'Kontoer og trafikk i GloseMester.', rute: ROUTES.ADMIN, farge: 'var(--color-dark-bg)', tint: 'var(--color-border)' }]
+      : []),
   ];
 
   return (

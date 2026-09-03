@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { Gamepad2, Brain, Smartphone, type LucideIcon } from 'lucide-react';
 import { Button } from '../components/Button';
+import { GratisBadge } from '../components/GratisBadge';
 import { startFeideLogin, loggInnMedGoogle } from '../lib/auth';
 import { useAuthStore } from '../state/useAuthStore';
 import { toast } from '../state/useToastStore';
@@ -125,6 +126,7 @@ export function Landing() {
         </div>
         © {new Date().getFullYear()} GloseMester · Oksvold EDB
       </footer>
+      <GratisBadge />
     </div>
   );
 }

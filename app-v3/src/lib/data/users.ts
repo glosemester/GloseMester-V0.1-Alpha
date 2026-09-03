@@ -2,7 +2,7 @@
  * Datalag for `users`-collection. Alle Firestore-kall mot brukere går herfra
  * (ingen komponent snakker direkte med Firestore — jf. DEL-B-REACT-PLAN.md).
  */
-import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs, query, limit } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from '../firebase';
 
@@ -57,39 +57,46 @@ export async function hentBrukerData(uid: string): Promise<BrukerData | null> {
   return snap.exists() ? (snap.data() as BrukerData) : null;
 }
 
+/** Setter en brukers rolle (kun mulig for admin, jf. firestore.rules). */
+export async function settBrukerRolle(uid: string, rolle: Rolle): Promise<void> {
+  await updateDoc(doc(db, 'users', uid), { rolle });
+}
+
 /** Brukersammendrag for adminpanel — ingen data om aktivitet. */
 export interface AdminBrukerRad {
   uid: string;
   navn: string;
   rolle: string;
-  organisasjon: string; // Navn på skole/kommune (fc:org-gruppe)
+  /** 'feide' = logget inn via Feide (har org/klasser); 'annet' = f.eks. Google. */
+  kilde: 'feide' | 'annet';
+  organisasjon: string; // Navn på skole/kommune (fc:org-gruppe) — kun Feide
   antallKlasser: number;
 }
 
 /**
- * Henter alle Feide-brukere for adminpanelet.
- * Returnerer kun uid, navn, rolle og org/skole — ingen aktivitetsdata.
+ * Henter alle brukere for adminpanelet — Feide OG Google/annet.
+ * Returnerer uid, navn, rolle, innloggingskilde og org/skole der det finnes
+ * (kun Feide-brukere har `feide_grupper`) — ingen aktivitetsdata.
  */
-export async function hentAdminBrukere(): Promise<AdminBrukerRad[]> {
+export async function hentAlleBrukere(): Promise<AdminBrukerRad[]> {
   try {
-    const snap = await getDocs(
-      query(collection(db, 'users'), where('kilde', '==', 'feide')),
-    );
-    return snap.docs.map((d) => {
-      const data = d.data() as BrukerData & { feide_grupper?: { id: string; navn: string; type: string }[] };
+    const snap = await getDocs(query(collection(db, 'users'), limit(2000)));
+    return snap.docs.map((d): AdminBrukerRad => {
+      const data = d.data() as BrukerData & { kilde?: string };
       const grupper = data.feide_grupper ?? [];
       const org = grupper.find((g) => g.type === 'fc:org');
       const klasser = grupper.filter((g) => g.type === 'fc:gogroup');
       return {
         uid: d.id,
         navn: data.displayName || 'Ukjent',
-        rolle: data.rolle ?? 'elev',
+        rolle: data.rolle ?? 'laerer',
+        kilde: data.kilde === 'feide' ? 'feide' : 'annet',
         organisasjon: org?.navn ?? '—',
         antallKlasser: klasser.length,
       };
     }).sort((a, b) => a.organisasjon.localeCompare(b.organisasjon) || a.navn.localeCompare(b.navn));
   } catch (e) {
-    console.error('hentAdminBrukere feil:', e);
+    console.error('hentAlleBrukere feil:', e);
     return [];
   }
 }

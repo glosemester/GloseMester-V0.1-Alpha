@@ -22,7 +22,7 @@ import { TeacherCreateTest } from './pages/teacher/TeacherCreateTest';
 import { TeacherTestDetails } from './pages/teacher/TeacherTestDetails';
 import { TEACHER_ROUTE_PATTERNS } from './pages/teacher/teacherPaths';
 import { MinSide } from './pages/MinSide';
-import { Admin } from './pages/Admin';
+import { Admin } from './pages/admin/Admin';
 import { ForLaerere } from './pages/marketing/ForLaerere';
 import { ForSkoler } from './pages/marketing/ForSkoler';
 import { OmOss } from './pages/marketing/OmOss';

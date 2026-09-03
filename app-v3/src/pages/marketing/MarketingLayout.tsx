@@ -4,6 +4,7 @@
  */
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { GratisBadge } from '../../components/GratisBadge';
 import { ROUTES } from '../../routes/paths';
 
 export function MarketingLayout({ tittel, ingress, children }: { tittel: string; ingress?: string; children: ReactNode }) {
@@ -35,6 +36,7 @@ export function MarketingLayout({ tittel, ingress, children }: { tittel: string;
         </div>
         © {new Date().getFullYear()} GloseMester · Oksvold EDB
       </footer>
+      <GratisBadge />
     </div>
   );
 }
