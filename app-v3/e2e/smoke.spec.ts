@@ -10,11 +10,12 @@ import { getTotalKortCount } from '../src/features/kort/kortData';
 // Galleriet viser «N av <totalt> samlet» — antallet følger aktive kortpakker.
 const TOTALT_KORT = getTotalKortCount();
 
-test('landingssiden har elev- og lærer-innlogging', async ({ page }) => {
+test('landingssiden har elev-snarveier og lærer-innlogging (Feide/Google)', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /logg inn med feide/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /øv uten innlogging/i })).toBeVisible();
   await expect(page.getByText('For elever')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Feide' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Google' })).toBeVisible();
 });
 
 test('øvemodus: nivå 1 viser ord og svaralternativer', async ({ page }) => {

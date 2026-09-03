@@ -1,13 +1,15 @@
 /**
- * Landingsside — hero + funksjoner + lærer-innlogging (Feide). Innloggede
- * lærere sendes til /hjem. Elever trenger ingen konto — de øver eller tar en
- * prøve direkte, uten innlogging.
+ * Landingsside — hero + funksjoner + lærer-innlogging (Feide/Google).
+ * Innloggede lærere sendes til /hjem. Elever trenger ingen konto — de øver
+ * eller tar en prøve direkte, uten innlogging.
  */
+import { useState } from 'react';
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { Gamepad2, Brain, Smartphone, type LucideIcon } from 'lucide-react';
 import { Button } from '../components/Button';
-import { startFeideLogin } from '../lib/auth';
+import { startFeideLogin, loggInnMedGoogle } from '../lib/auth';
 import { useAuthStore } from '../state/useAuthStore';
+import { toast } from '../state/useToastStore';
 import { ROUTES } from '../routes/paths';
 
 const FUNKSJONER: { Ikon: LucideIcon; tittel: string; tekst: string }[] = [
@@ -20,10 +22,18 @@ export function Landing() {
   const navigate = useNavigate();
   const firebaseUser = useAuthStore((s) => s.firebaseUser);
   const laster = useAuthStore((s) => s.laster);
+  const [googleLaster, setGoogleLaster] = useState(false);
 
   // Allerede innlogget lærer → rett til hjem.
   if (!laster && firebaseUser) {
     return <Navigate to={ROUTES.HJEM} replace />;
+  }
+
+  async function handleGoogle() {
+    setGoogleLaster(true);
+    const res = await loggInnMedGoogle();
+    if (!res.success) toast.error('Google-innlogging feilet');
+    setGoogleLaster(false);
   }
 
   return (
@@ -62,12 +72,17 @@ export function Landing() {
             </div>
           </div>
 
-          {/* For lærere — kun Feide. */}
+          {/* For lærere — Feide eller Google (for skoler uten Feide ennå). */}
           <div style={gruppe}>
             <span style={gruppeEtikett}>For lærere</span>
-            <Button variant="primary" onClick={startFeideLogin} style={{ width: '100%' }}>
-              Logg inn med Feide
-            </Button>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              <Button variant="primary" onClick={startFeideLogin} style={{ flex: 1 }}>
+                Feide
+              </Button>
+              <Button variant="secondary" onClick={handleGoogle} disabled={googleLaster} style={{ flex: 1 }}>
+                {googleLaster ? 'Logger inn…' : 'Google'}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
